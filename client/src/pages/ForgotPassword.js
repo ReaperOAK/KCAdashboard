@@ -1,26 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
-    // Implement login logic here
-    const response = await fetch('http://your-hostinger-domain/api/login.php', {
+    // Implement password recovery logic here
+    const response = await fetch('http://your-hostinger-domain/api/forgot-password.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email }),
     });
     const data = await response.json();
     if (data.success) {
-      // Save token and navigate to the appropriate dashboard based on role
-      localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+      alert('Password recovery email sent');
+      navigate('/login');
     } else {
       alert(data.message);
     }
@@ -29,8 +27,8 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
-        <form onSubmit={handleLogin}>
+        <h1 className="text-2xl font-bold text-center mb-6">Forgot Password</h1>
+        <form onSubmit={handleForgotPassword}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
               Email
@@ -44,28 +42,12 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
-              type="password"
-              placeholder="Your Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="mb-4 text-right">
-            <a href="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</a>
-          </div>
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              Login
+              Send Recovery Email
             </button>
           </div>
         </form>
@@ -74,4 +56,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

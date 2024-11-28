@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -58,7 +58,7 @@ const Login = () => {
             />
           </div>
           <div className="mb-4 text-right">
-            <a href="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</a>
+            <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</Link>
           </div>
           <div className="flex items-center justify-between">
             <button
@@ -69,6 +69,9 @@ const Login = () => {
             </button>
           </div>
         </form>
+        <div className="mt-4 text-center">
+          <p>Don't have an account? <Link to="/signup" className="text-blue-500 hover:underline">Sign Up</Link></p>
+        </div>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ const SignUp = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     // Implement sign-up logic here
-    const response = await fetch('http://your-hostinger-domain/api/register.php', {
+    const response = await fetch('/php/register.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

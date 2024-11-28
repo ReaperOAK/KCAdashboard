@@ -8,7 +8,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     // Implement password recovery logic here
-    const response = await fetch('http://your-hostinger-domain/api/forgot-password.php', {
+    const response = await fetch('/php/forgot-password.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

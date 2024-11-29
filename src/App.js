@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -31,8 +30,8 @@ const App = () => {
     const token = getCookie('token');
     if (token) {
       try {
-        const decodedToken = jwtDecode(token);
-        setRole(decodedToken.role);
+        const decodedPayload = JSON.parse(atob(token));
+        setRole(decodedPayload.role);
       } catch (error) {
         console.error('Invalid token:', error);
         // Handle invalid token (e.g., clear the cookie or redirect to login)

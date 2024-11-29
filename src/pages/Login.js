@@ -8,7 +8,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('/php/login.php', {
+    const response = await fetch('http://your-hostinger-domain/api/login.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -19,7 +19,8 @@ const Login = () => {
     if (data.success) {
       document.cookie = `token=${data.token}; path=/;`;
       localStorage.setItem('role', data.role);
-      navigate('/');
+      navigate('/'); // Navigate to the home page or dashboard
+      window.location.reload(); // Reload the page to update the sidebar
     } else {
       alert(data.message);
     }

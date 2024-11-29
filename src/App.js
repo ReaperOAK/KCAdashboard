@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Correct the import statement
+import { jwtDecode }  from 'jwt-decode';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -28,12 +28,15 @@ const App = () => {
   const [role, setRole] = useState('');
 
   useEffect(() => {
-    // Fetch the user's role from the authentication token
     const token = getCookie('token');
     if (token) {
-      // Decode the token to get the user's role
-      const decodedToken = jwtDecode(token);
-      setRole(decodedToken.role);
+      try {
+        const decodedToken = jwtDecode(token);
+        setRole(decodedToken.role);
+      } catch (error) {
+        console.error('Invalid token:', error);
+        // Handle invalid token (e.g., clear the cookie or redirect to login)
+      }
     }
   }, []);
 

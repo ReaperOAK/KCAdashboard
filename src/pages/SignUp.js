@@ -8,15 +8,17 @@ const SignUp = () => {
   const [role, setRole] = useState('student');
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
+  const handleRoleChange = (e) => setRole(e.target.value);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Implement sign-up logic here
+    const userData = { name, email, password, role };
     const response = await fetch('/php/register.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, email, password, role }),
+      body: JSON.stringify(userData),
     });
     const data = await response.json();
     if (data.success) {
@@ -30,7 +32,7 @@ const SignUp = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
-        <form onSubmit={handleSignUp}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
               Name
@@ -78,7 +80,7 @@ const SignUp = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="role"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={handleRoleChange}
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>

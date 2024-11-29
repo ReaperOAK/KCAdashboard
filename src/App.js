@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -20,24 +20,26 @@ import BatchManagement from './pages/BatchManagement';
 import AnalyticsReporting from './pages/AnalyticsReporting';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
+import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import { getCookie } from './utils/getCookie';
 
 const App = () => {
   const [role, setRole] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = getCookie('token');
     if (token) {
       try {
-        const decodedPayload = JSON.parse(atob(token));
+        const decodedPayload = JSON.parse(atob(token.split('.')[1])); // Parsing only payload part
         setRole(decodedPayload.role);
       } catch (error) {
         console.error('Invalid token:', error);
-        // Handle invalid token (e.g., clear the cookie or redirect to login)
+        navigate('/login'); // Redirect to login page if token is invalid
       }
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <Router>
@@ -51,6 +53,7 @@ const App = () => {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/contact" element={<ContactUs />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/student-dashboard" element={<ProtectedRoute element={StudentDashboard} allowedRoles={['student']} role={role} />} />
             <Route path="/teacher-dashboard" element={<ProtectedRoute element={TeacherDashboard} allowedRoles={['teacher']} role={role} />} />
             <Route path="/admin-dashboard" element={<ProtectedRoute element={AdminDashboard} allowedRoles={['admin']} role={role} />} />

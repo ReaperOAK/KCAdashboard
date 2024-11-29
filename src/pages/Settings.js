@@ -47,6 +47,7 @@ const Settings = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getCookie('token')}`,
       },
       body: JSON.stringify(personalInfo),
     });
@@ -63,6 +64,7 @@ const Settings = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getCookie('token')}`,
       },
       body: JSON.stringify({ ...notifications, email: personalInfo.email }),
     });
@@ -83,6 +85,7 @@ const Settings = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getCookie('token')}`,
       },
       body: JSON.stringify({ email: personalInfo.email, ...password }),
     });
@@ -182,7 +185,7 @@ const Settings = () => {
             </button>
           </div>
         </section>
-        <section>
+        <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Password Change</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <div className="mb-4">

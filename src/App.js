@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -22,24 +22,12 @@ import Settings from './pages/Settings';
 import Support from './pages/Support';
 import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
-import { getCookie } from './utils/getCookie';
+import useTokenValidation from './utils/useTokenValidation';
 
 const App = () => {
   const [role, setRole] = useState('');
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = getCookie('token');
-    if (token) {
-      try {
-        const decodedPayload = JSON.parse(atob(token.split('.')[1])); // Parsing only payload part
-        setRole(decodedPayload.role);
-      } catch (error) {
-        console.error('Invalid token:', error);
-        navigate('/login'); // Redirect to login page if token is invalid
-      }
-    }
-  }, [navigate]);
+  useTokenValidation(setRole);
 
   return (
     <Router>

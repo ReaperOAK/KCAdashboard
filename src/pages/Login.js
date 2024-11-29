@@ -9,7 +9,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     // Implement login logic here
-    const response = await fetch('/php/login.php', {
+    const response = await fetch('http://your-hostinger-domain/api/login.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -19,8 +19,8 @@ const Login = () => {
     const data = await response.json();
     if (data.success) {
       // Save token and navigate to the appropriate dashboard based on role
-      localStorage.setItem('token', data.token);
-      navigate('/');
+      document.cookie = `token=${data.token}; path=/;`;
+      navigate('/dashboard');
     } else {
       alert(data.message);
     }

@@ -21,13 +21,14 @@ import AnalyticsReporting from './pages/AnalyticsReporting';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 import ProtectedRoute from './components/ProtectedRoute';
+import { getCookie } from './utils/getCookie';
 
 const App = () => {
   const [role, setRole] = useState('');
 
   useEffect(() => {
     // Fetch the user's role from the authentication token or user context
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (token) {
       // Decode the token to get the user's role
       const decodedToken = JSON.parse(atob(token.split('.')[1]));

@@ -20,7 +20,7 @@ const Login = () => {
     if (data.success) {
       // Save token and navigate to the appropriate dashboard based on role
       localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+      navigate('/');
     } else {
       alert(data.message);
     }

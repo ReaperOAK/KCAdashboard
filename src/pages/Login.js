@@ -18,8 +18,9 @@ const Login = () => {
     });
     const data = await response.json();
     if (data.success) {
-      // Save token and navigate to the appropriate dashboard based on role
-      document.cookie = `token=${data.token}; path=/;`;
+      // Save token and role in local storage and navigate to the appropriate dashboard based on role
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
       navigate('/dashboard');
     } else {
       alert(data.message);

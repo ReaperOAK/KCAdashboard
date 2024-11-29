@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getCookie } from '../utils/getCookie';
 
 const Settings = () => {
   const [personalInfo, setPersonalInfo] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    name: '',
+    email: '',
     profilePicture: '',
   });
 
   const [notifications, setNotifications] = useState({
-    missedClass: true,
+    missedClass: false,
     assignmentDue: false,
   });
 
@@ -17,6 +18,14 @@ const Settings = () => {
     newPassword: '',
     confirmPassword: '',
   });
+
+  useEffect(() => {
+    const token = getCookie('token');
+    if (token) {
+      const decodedPayload = JSON.parse(atob(token));
+      setPersonalInfo({ ...personalInfo, email: decodedPayload.email });
+    }
+  }, []);
 
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
@@ -33,19 +42,56 @@ const Settings = () => {
     setPassword({ ...password, [name]: value });
   };
 
-  const handleSavePersonalInfo = () => {
-    // Implement save functionality here
-    alert('Personal information saved');
+  const handleSavePersonalInfo = async () => {
+    const response = await fetch('/php/update-personal-info.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(personalInfo),
+    });
+    const data = await response.json();
+    if (data.success) {
+      alert('Personal information saved');
+    } else {
+      alert(data.message);
+    }
   };
 
-  const handleSaveNotifications = () => {
-    // Implement save functionality here
-    alert('Notification settings saved');
+  const handleSaveNotifications = async () => {
+    const response = await fetch('/php/update-notifications.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...notifications, email: personalInfo.email }),
+    });
+    const data = await response.json();
+    if (data.success) {
+      alert('Notification settings saved');
+    } else {
+      alert(data.message);
+    }
   };
 
-  const handleSavePassword = () => {
-    // Implement save functionality here
-    alert('Password updated');
+  const handleSavePassword = async () => {
+    if (password.newPassword !== password.confirmPassword) {
+      alert('New password and confirm password do not match');
+      return;
+    }
+    const response = await fetch('/php/update-password.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: personalInfo.email, ...password }),
+    });
+    const data = await response.json();
+    if (data.success) {
+      alert('Password updated');
+    } else {
+      alert(data.message);
+    }
   };
 
   return (
@@ -78,6 +124,7 @@ const Settings = () => {
                 name="email"
                 value={personalInfo.email}
                 onChange={handlePersonalInfoChange}
+                readOnly
               />
             </div>
             <div className="mb-4">

@@ -8,7 +8,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://your-hostinger-domain/api/login.php', {
+    const response = await fetch('/php/login.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

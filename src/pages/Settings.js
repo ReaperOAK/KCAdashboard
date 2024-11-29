@@ -23,7 +23,7 @@ const Settings = () => {
     const token = getCookie('token');
     if (token) {
       const decodedPayload = JSON.parse(atob(token));
-      setPersonalInfo({ ...personalInfo, email: decodedPayload.email });
+      setPersonalInfo((prevInfo) => ({ ...prevInfo, email: decodedPayload.email }));
     }
   }, []);
 

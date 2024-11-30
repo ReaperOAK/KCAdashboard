@@ -12,7 +12,7 @@ const StudentDashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('/api/student-dashboard-data.php')
+    fetch('/php/student-dashboard-data.php')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

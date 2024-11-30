@@ -25,7 +25,6 @@ const Login = () => {
 
       const data = await response.json();
       if (data.success) {
-        document.cookie = `token=${data.token}; path=/;`;
         localStorage.setItem('role', data.role);
         navigate('/'); // Navigate to the home page or dashboard
         window.location.reload(); // Reload the page to update the sidebar

@@ -5,7 +5,7 @@ include 'config.php'; // Include your database configuration file
 
 // Function to fetch the next class
 function getNextClass($conn, $studentId) {
-    $query = "SELECT subject, time, link FROM classes WHERE student_id = ?";
+    $query = "SELECT subject, time, link FROM classes WHERE student_id = ? ORDER BY time ASC LIMIT 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $studentId);
     $stmt->execute();

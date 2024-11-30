@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const StudentDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
-    nextClass: {},
+    nextClass: { subject: '', time: '', link: '' },
     attendance: { percentage: 0, calendar: [] },
     notifications: [],
     performance: [],
@@ -50,16 +50,20 @@ const StudentDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Current Class Schedule</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Next Class: {dashboardData.nextClass.subject}</p>
-            <p>Time: {dashboardData.nextClass.time}</p>
+            <p>Next Class: {dashboardData.nextClass.subject || 'N/A'}</p>
+            <p>Time: {dashboardData.nextClass.time || 'N/A'}</p>
             <p>
               Link:{' '}
-              <a
-                href={dashboardData.nextClass.link}
-                className="text-blue-500 hover:underline"
-              >
-                Join via Zoom
-              </a>
+              {dashboardData.nextClass.link ? (
+                <a
+                  href={dashboardData.nextClass.link}
+                  className="text-blue-500 hover:underline"
+                >
+                  Join via Zoom
+                </a>
+              ) : (
+                'N/A'
+              )}
             </p>
           </div>
         </section>

@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getCookie } from '../utils/getCookie'; // Ensure this utility function is available
 
 const TeacherDashboard = () => {
-  const [attendancePending, setAttendancePending] = useState(5);
+  const [dashboardData, setDashboardData] = useState({
+    nextClass: {},
+    attendancePending: 0,
+    batchSchedule: [],
+    notifications: [],
+  });
+
+  useEffect(() => {
+    fetch('/api/teacher-dashboard-data.php', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getCookie('token')}`, // Ensure the token is sent in the header
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => setDashboardData(data))
+      .catch((error) => console.error('Error fetching dashboard data:', error));
+  }, []);
 
   const handleMarkAttendance = () => {
-    // Logic for marking attendance
+    // Simulate attendance marking
     alert('Attendance marked!');
-    setAttendancePending(0); // Assuming all attendance is marked after this action
+    setDashboardData((prevData) => ({
+      ...prevData,
+      attendancePending: 0, // Reset attendance pending count
+    }));
   };
 
   const handleAssignGrades = () => {
-    // Logic for assigning grades
+    // Simulate grade assignment
     alert('Grades assigned!');
   };
 
   const handleUpload = () => {
-    // Logic for uploading materials
+    // Simulate material upload
     alert('Materials uploaded!');
   };
 
@@ -25,9 +47,9 @@ const TeacherDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Attendance Stats</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Upcoming Class: Math 101</p>
-            <p>Time: 10:00 AM - 11:00 AM</p>
-            <p>Pending Attendance: {attendancePending} students</p>
+            <p>Upcoming Class: {dashboardData.nextClass.subject}</p>
+            <p>Time: {dashboardData.nextClass.time}</p>
+            <p>Pending Attendance: {dashboardData.attendancePending} students</p>
             <button
               onClick={handleMarkAttendance}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
@@ -39,20 +61,46 @@ const TeacherDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Batch Schedule</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Batch: Math 101</p>
-            <p>Time: 10:00 AM - 11:00 AM</p>
-            <button
-              onClick={handleMarkAttendance}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Mark Attendance
-            </button>
-            <button
-              onClick={handleAssignGrades}
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4"
-            >
-              Assign Grades
-            </button>
+            {dashboardData.batchSchedule.length > 0 ? (
+              dashboardData.batchSchedule.map((batch, index) => (
+                <div key={index} className="mb-4">
+                  <p>Batch: {batch.name}</p>
+                  <p>Time: {batch.time}</p>
+                  <div className="flex space-x-4 mt-2">
+                    <button
+                      onClick={handleMarkAttendance}
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    >
+                      Mark Attendance
+                    </button>
+                    <button
+                      onClick={handleAssignGrades}
+                      className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    >
+                      Assign Grades
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>No batch schedules available.</p>
+            )}
+          </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.notifications.length > 0 ? (
+              <ul>
+                {dashboardData.notifications.map((note, index) => (
+                  <li key={index} className="mb-2">
+                    {note}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No new notifications.</p>
+            )}
           </div>
         </section>
         <section>
@@ -61,7 +109,7 @@ const TeacherDashboard = () => {
             <p>Upload study materials, assignments, and feedback.</p>
             <button
               onClick={handleUpload}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
             >
               Upload
             </button>

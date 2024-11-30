@@ -1,32 +1,108 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const StudentDashboard = () => {
+  const [dashboardData, setDashboardData] = useState({
+    nextClass: {},
+    attendance: { percentage: 0, calendar: [] },
+    notifications: [],
+    performance: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/student-dashboard-data.php')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setDashboardData(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching dashboard data:', error);
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div className="min-h-screen flex">
       <main className="flex-grow p-8 bg-gray-100">
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Current Class Schedule</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Next Class: Math 101</p>
-            <p>Time: 10:00 AM - 11:00 AM</p>
-            <p>Link: <a href="https://zoom.us" className="text-blue-500 hover:underline">Join via Zoom</a></p>
+            <p>Next Class: {dashboardData.nextClass.subject}</p>
+            <p>Time: {dashboardData.nextClass.time}</p>
+            <p>
+              Link:{' '}
+              <a
+                href={dashboardData.nextClass.link}
+                className="text-blue-500 hover:underline"
+              >
+                Join via Zoom
+              </a>
+            </p>
           </div>
         </section>
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Attendance Summary</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Attendance Percentage: 85%</p>
+            <p>Attendance Percentage: {dashboardData.attendance.percentage}%</p>
             <div className="grid grid-cols-7 gap-2 mt-4">
-              {/* Example of color-coded calendar */}
-              <div className="w-8 h-8 bg-green-500 rounded-full"></div>
-              <div className="w-8 h-8 bg-red-500 rounded-full"></div>
-              <div className="w-8 h-8 bg-green-500 rounded-full"></div>
-              <div className="w-8 h-8 bg-green-500 rounded-full"></div>
-              <div className="w-8 h-8 bg-red-500 rounded-full"></div>
-              <div className="w-8 h-8 bg-green-500 rounded-full"></div>
-              <div className="w-8 h-8 bg-green-500 rounded-full"></div>
-              {/* Add more days as needed */}
+              {dashboardData.attendance.calendar.map((day, index) => (
+                <div
+                  key={index}
+                  className={`w-8 h-8 rounded-full ${
+                    day === 'present' ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                ></div>
+              ))}
             </div>
+          </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.notifications.length > 0 ? (
+              <ul>
+                {dashboardData.notifications.map((note, index) => (
+                  <li key={index} className="mb-2">
+                    {note}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No new notifications.</p>
+            )}
+          </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Performance Overview</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.performance.length > 0 ? (
+              <ul>
+                {dashboardData.performance.map((subject, index) => (
+                  <li key={index} className="mb-2">
+                    {subject.name}: {subject.grade}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No performance data available.</p>
+            )}
           </div>
         </section>
         <section>
@@ -35,17 +111,26 @@ const StudentDashboard = () => {
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-2">Homework</h3>
               <p>Access your homework assignments.</p>
-              <a href="/homework" className="text-blue-500 hover:underline">Go to Homework</a>
+              <a href="/homework" className="text-blue-500 hover:underline">
+                Go to Homework
+              </a>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-2">Study Materials</h3>
               <p>Download notes and study materials.</p>
-              <a href="/study-materials" className="text-blue-500 hover:underline">Go to Study Materials</a>
+              <a
+                href="/study-materials"
+                className="text-blue-500 hover:underline"
+              >
+                Go to Study Materials
+              </a>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-2">Resources</h3>
               <p>Access additional resources and links.</p>
-              <a href="/resources" className="text-blue-500 hover:underline">Go to Resources</a>
+              <a href="/resources" className="text-blue-500 hover:underline">
+                Go to Resources
+              </a>
             </div>
           </div>
         </section>

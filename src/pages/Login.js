@@ -4,25 +4,37 @@ import { useNavigate, Link } from 'react-router-dom';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('/php/login.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      document.cookie = `token=${data.token}; path=/;`;
-      localStorage.setItem('role', data.role);
-      navigate('/'); // Navigate to the home page or dashboard
-      window.location.reload(); // Reload the page to update the sidebar
-    } else {
-      alert(data.message);
+    setError('');
+    try {
+      const response = await fetch('/php/login.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        document.cookie = `token=${data.token}; path=/;`;
+        localStorage.setItem('role', data.role);
+        navigate('/'); // Navigate to the home page or dashboard
+        window.location.reload(); // Reload the page to update the sidebar
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An unexpected error occurred. Please try again later.');
     }
   };
 
@@ -42,6 +54,7 @@ const Login = () => {
               placeholder="Your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
@@ -55,8 +68,10 @@ const Login = () => {
               placeholder="Your Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
+          {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
           <div className="mb-4 text-right">
             <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</Link>
           </div>

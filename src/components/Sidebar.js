@@ -12,7 +12,6 @@ const Sidebar = ({ role }) => {
               <li className="p-4 hover:bg-gray-700"><Link to="/student-dashboard">Student Dashboard</Link></li>
               <li className="p-4 hover:bg-gray-700"><Link to="/student-attendance">Student Attendance</Link></li>
               <li className="p-4 hover:bg-gray-700"><Link to="/resources">Resources</Link></li>
-              <li className="p-4 hover:bg-gray-700"><Link to="/grading-feedback">Grading & Feedback</Link></li>
             </>
           )}
           {role === 'teacher' && (

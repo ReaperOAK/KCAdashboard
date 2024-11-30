@@ -7,24 +7,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = password_hash($data['password'], PASSWORD_BCRYPT);
 
     // Validate the token
-    $query = "SELECT * FROM password_resets WHERE token = '$token' AND expires > " . time();
-    $result = mysqli_query($conn, $query);
-    $resetRequest = mysqli_fetch_assoc($result);
+    $query = "SELECT * FROM password_resets WHERE token = ? AND expires > ?";
+    $stmt = $conn->prepare($query);
+    $currentTime = time();
+    $stmt->bind_param("si", $token, $currentTime);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $resetRequest = $result->fetch_assoc();
 
     if ($resetRequest) {
         // Update the user's password
         $email = $resetRequest['email'];
-        $query = "UPDATE users SET password = '$password' WHERE email = '$email'";
-        mysqli_query($conn, $query);
+        $query = "UPDATE users SET password = ? WHERE email = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ss", $password, $email);
+        if ($stmt->execute()) {
+            // Delete the reset token
+            $query = "DELETE FROM password_resets WHERE token = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("s", $token);
+            $stmt->execute();
 
-        // Delete the reset token
-        $query = "DELETE FROM password_resets WHERE token = '$token'";
-        mysqli_query($conn, $query);
-
-        echo json_encode(['success' => true, 'message' => 'Your password has been reset successfully!']);
+            echo json_encode(['success' => true, 'message' => 'Your password has been reset successfully!']);
+        } else {
+            error_log("Database query failed: " . $stmt->error);
+            echo json_encode(['success' => false, 'message' => 'Error updating password.']);
+        }
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid or expired token.']);
     }
+
+    $stmt->close();
 }
 
 mysqli_close($conn);

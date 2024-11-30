@@ -5,25 +5,46 @@ include 'config.php'; // Include your database configuration file
 
 // Function to fetch the next class
 function getNextClass($conn, $teacherId) {
-    $query = "SELECT subject, time FROM classes WHERE teacher_id = '$teacherId' ORDER BY time ASC LIMIT 1";
-    $result = mysqli_query($conn, $query);
-    return mysqli_fetch_assoc($result);
+    $query = "SELECT subject, time FROM classes WHERE teacher_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $teacherId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (!$result) {
+        error_log("Database query failed: " . $stmt->error);
+        return null;
+    }
+    return $result->fetch_assoc();
 }
 
 // Function to fetch attendance pending count
 function getAttendancePending($conn, $teacherId) {
-    $query = "SELECT COUNT(*) as count FROM attendance WHERE teacher_id = '$teacherId' AND status = 'pending'";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
+    $query = "SELECT COUNT(*) as count FROM attendance WHERE teacher_id = ? AND status = 'pending'";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $teacherId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (!$result) {
+        error_log("Database query failed: " . $stmt->error);
+        return null;
+    }
+    $row = $result->fetch_assoc();
     return $row['count'];
 }
 
 // Function to fetch batch schedule
 function getBatchSchedule($conn, $teacherId) {
-    $query = "SELECT name, time FROM batches WHERE teacher_id = '$teacherId'";
-    $result = mysqli_query($conn, $query);
+    $query = "SELECT name, time FROM batches WHERE teacher_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $teacherId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (!$result) {
+        error_log("Database query failed: " . $stmt->error);
+        return null;
+    }
     $batchSchedule = [];
-    while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = $result->fetch_assoc()) {
         $batchSchedule[] = $row;
     }
     return $batchSchedule;
@@ -31,10 +52,17 @@ function getBatchSchedule($conn, $teacherId) {
 
 // Function to fetch notifications
 function getNotifications($conn, $teacherId) {
-    $query = "SELECT message FROM notifications WHERE teacher_id = '$teacherId' ORDER BY created_at DESC";
-    $result = mysqli_query($conn, $query);
+    $query = "SELECT message FROM notifications WHERE teacher_id = ? ORDER BY created_at DESC";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $teacherId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (!$result) {
+        error_log("Database query failed: " . $stmt->error);
+        return null;
+    }
     $notifications = [];
-    while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = $result->fetch_assoc()) {
         $notifications[] = $row['message'];
     }
     return $notifications;
@@ -52,6 +80,11 @@ $nextClass = getNextClass($conn, $teacherId);
 $attendancePending = getAttendancePending($conn, $teacherId);
 $batchSchedule = getBatchSchedule($conn, $teacherId);
 $notifications = getNotifications($conn, $teacherId);
+
+if ($nextClass === null || $attendancePending === null || $batchSchedule === null || $notifications === null) {
+    echo json_encode(['success' => false, 'message' => 'Error fetching data']);
+    exit;
+}
 
 echo json_encode([
     'nextClass' => $nextClass,

@@ -13,16 +13,19 @@ if (!$data) {
 $email = $data->email;
 $password = $data->password;
 
-$sql = "SELECT * FROM users WHERE email = '$email'";
-$result = mysqli_query($conn, $sql);
+$sql = "SELECT * FROM users WHERE email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if (!$result) {
-    error_log("Database query failed: " . mysqli_error($conn));
+    error_log("Database query failed: " . $conn->error);
     echo json_encode(['success' => false, 'message' => 'Database query failed']);
     exit;
 }
 
-$user = mysqli_fetch_assoc($result);
+$user = $result->fetch_assoc();
 
 if ($user && password_verify($password, $user['password'])) {
     // Store user ID and role in session
@@ -35,5 +38,6 @@ if ($user && password_verify($password, $user['password'])) {
     echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
 }
 
-mysqli_close($conn);
+$stmt->close();
+$conn->close();
 ?>

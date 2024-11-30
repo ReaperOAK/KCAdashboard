@@ -25,12 +25,20 @@ import ProtectedRoute from './components/ProtectedRoute';
 import useTokenValidation from './utils/useTokenValidation';
 
 const App = () => {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+};
+
+const AppContent = () => {
   const [role, setRole] = useState('');
 
   useTokenValidation(setRole);
 
   return (
-    <Router>
+    <>
       <Header />
       <div className="flex">
         <Sidebar role={role} />
@@ -58,7 +66,7 @@ const App = () => {
         </main>
       </div>
       <Footer />
-    </Router>
+    </>
   );
 };
 

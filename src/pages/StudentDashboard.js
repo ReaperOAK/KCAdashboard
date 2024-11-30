@@ -70,9 +70,9 @@ const StudentDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Attendance Summary</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Attendance Percentage: {dashboardData.attendance.percentage}%</p>
+            <p>Attendance Percentage: {dashboardData.attendance?.percentage || 0}%</p>
             <div className="grid grid-cols-7 gap-2 mt-4">
-              {dashboardData.attendance.calendar.map((day, index) => (
+              {dashboardData.attendance?.calendar?.map((day, index) => (
                 <div
                   key={index}
                   className={`w-8 h-8 rounded-full ${
@@ -86,9 +86,9 @@ const StudentDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Notifications</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            {dashboardData.notifications.length > 0 ? (
+            {dashboardData.notifications?.length > 0 ? (
               <ul>
-                {dashboardData.notifications.map((note, index) => (
+                {dashboardData.notifications?.map((note, index) => (
                   <li key={index} className="mb-2">
                     {note}
                   </li>
@@ -102,9 +102,9 @@ const StudentDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Performance Overview</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            {dashboardData.performance.length > 0 ? (
+            {dashboardData.performance?.length > 0 ? (
               <ul>
-                {dashboardData.performance.map((subject, index) => (
+                {dashboardData.performance?.map((subject, index) => (
                   <li key={index} className="mb-2">
                     {subject.name}: {subject.grade}
                   </li>

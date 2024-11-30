@@ -1,8 +1,7 @@
 <?php
 header('Content-Type: application/json');
+session_start();
 include 'config.php'; // Include your database configuration file
-require 'vendor/autoload.php'; // Include the JWT library
-use \Firebase\JWT\JWT;
 
 // Function to fetch the next class
 function getNextClass($conn, $teacherId) {
@@ -41,23 +40,13 @@ function getNotifications($conn, $teacherId) {
     return $notifications;
 }
 
-// Get the token from the cookie
-if (!isset($_COOKIE['token'])) {
-    echo json_encode(['success' => false, 'message' => 'Token not found']);
+// Check if the teacher ID is set in the session
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
-$token = $_COOKIE['token'];
-
-// Decode the token to get the teacher ID
-$secret_key = "your_secret_key"; // Replace with your actual secret key
-try {
-    $decoded = JWT::decode($token, $secret_key, array('HS256'));
-    $teacherId = $decoded->id;
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Invalid token']);
-    exit;
-}
+$teacherId = $_SESSION['user_id'];
 
 $nextClass = getNextClass($conn, $teacherId);
 $attendancePending = getAttendancePending($conn, $teacherId);

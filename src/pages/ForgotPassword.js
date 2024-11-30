@@ -3,22 +3,32 @@ import { useNavigate } from 'react-router-dom';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Send the email to the backend to trigger the password reset
-    const response = await fetch('/php/forgot-password.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert('Password recovery email sent');
-      navigate('/login');
-    } else {
-      alert(data.message);
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/php/forgot-password.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Password recovery email sent');
+        navigate('/login');
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -40,13 +50,15 @@ const ForgotPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
           </div>
           <div className="flex items-center justify-between">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               type="submit"
+              disabled={isSubmitting}
             >
-              Send Reset Link
+              {isSubmitting ? 'Sending...' : 'Send Reset Link'}
             </button>
           </div>
         </form>

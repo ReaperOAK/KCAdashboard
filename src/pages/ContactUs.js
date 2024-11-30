@@ -42,6 +42,7 @@ const ContactUs = () => {
         message: '',
         captcha: ''
       });
+      setIsSubmitting(false);
     } else {
       setIsSubmitting(false);
     }

@@ -9,17 +9,33 @@ const TeacherDashboard = () => {
     notifications: [],
   });
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    fetch('/api/teacher-dashboard-data.php', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getCookie('token')}`, // Ensure the token is sent in the header
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setDashboardData(data))
-      .catch((error) => console.error('Error fetching dashboard data:', error));
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('/api/teacher-dashboard-data.php', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getCookie('token')}`, // Ensure the token is sent in the header
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setDashboardData(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
   const handleMarkAttendance = () => {
@@ -40,6 +56,14 @@ const TeacherDashboard = () => {
     // Simulate material upload
     alert('Materials uploaded!');
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div className="min-h-screen flex">

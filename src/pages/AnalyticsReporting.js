@@ -66,6 +66,13 @@ const AnalyticsReporting = () => {
             </button>
           </div>
         </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Additional Analytics</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <p>Additional analytics and insights will be displayed here.</p>
+            {/* Placeholder for additional analytics content */}
+          </div>
+        </section>
       </main>
     </div>
   );

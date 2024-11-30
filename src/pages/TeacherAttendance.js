@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const TeacherAttendance = () => {
   const students = [
@@ -6,6 +6,32 @@ const TeacherAttendance = () => {
     { id: 2, name: 'Jane Smith' },
     // Add more students as needed
   ];
+
+  const [attendance, setAttendance] = useState(
+    students.reduce((acc, student) => {
+      acc[student.id] = { present: false, absent: false };
+      return acc;
+    }, {})
+  );
+
+  const handleAttendanceChange = (studentId, type) => {
+    setAttendance((prev) => ({
+      ...prev,
+      [studentId]: {
+        present: type === 'present' ? !prev[studentId].present : false,
+        absent: type === 'absent' ? !prev[studentId].absent : false,
+      },
+    }));
+  };
+
+  const handleMarkAllPresent = () => {
+    setAttendance((prev) =>
+      Object.keys(prev).reduce((acc, studentId) => {
+        acc[studentId] = { present: true, absent: false };
+        return acc;
+      }, {})
+    );
+  };
 
   const handleExport = (format) => {
     // Implement export functionality here
@@ -18,7 +44,10 @@ const TeacherAttendance = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Attendance Marking</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-4">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-4"
+              onClick={handleMarkAllPresent}
+            >
               Mark All Present
             </button>
             <table className="min-w-full bg-white">
@@ -30,14 +59,22 @@ const TeacherAttendance = () => {
                 </tr>
               </thead>
               <tbody>
-                {students.map(student => (
+                {students.map((student) => (
                   <tr key={student.id}>
                     <td className="py-2 px-4 border-b">{student.name}</td>
                     <td className="py-2 px-4 border-b text-center">
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        checked={attendance[student.id].present}
+                        onChange={() => handleAttendanceChange(student.id, 'present')}
+                      />
                     </td>
                     <td className="py-2 px-4 border-b text-center">
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        checked={attendance[student.id].absent}
+                        onChange={() => handleAttendanceChange(student.id, 'absent')}
+                      />
                     </td>
                   </tr>
                 ))}

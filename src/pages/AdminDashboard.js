@@ -67,7 +67,7 @@ const AdminDashboard = () => {
             )}
           </div>
         </section>
-        <section>
+        <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">System Configurations</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <p>Manage tickets, FAQ automation, and system configurations.</p>
@@ -76,6 +76,30 @@ const AdminDashboard = () => {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Manage System
+            </button>
+          </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Reports</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <p>Generate and view detailed reports.</p>
+            <button
+              onClick={() => navigate('/reports')}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              View Reports
+            </button>
+          </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <p>Manage system notifications and alerts.</p>
+            <button
+              onClick={() => navigate('/notifications')}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Manage Notifications
             </button>
           </div>
         </section>

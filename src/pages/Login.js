@@ -5,11 +5,14 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
+
     try {
       const response = await fetch('/php/login.php', {
         method: 'POST',
@@ -34,6 +37,8 @@ const Login = () => {
     } catch (error) {
       console.error('Error:', error);
       setError('An unexpected error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -76,10 +81,11 @@ const Login = () => {
           </div>
           <div className="flex items-center justify-between">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               type="submit"
+              disabled={isSubmitting}
             >
-              Login
+              {isSubmitting ? 'Logging in...' : 'Login'}
             </button>
           </div>
         </form>

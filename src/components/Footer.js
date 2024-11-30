@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
 const Footer = () => {
   return (
@@ -9,6 +10,20 @@ const Footer = () => {
           <Link to="/privacy-policy" className="hover:underline mx-2">Privacy Policy</Link>
           <Link to="/terms-of-service" className="hover:underline mx-2">Terms of Service</Link>
           <Link to="/contact" className="hover:underline mx-2">Contact Us</Link>
+        </div>
+        <div className="mb-4">
+          <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="mx-2">
+            <FaFacebook className="w-6 h-6 inline-block" />
+          </a>
+          <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="mx-2">
+            <FaTwitter className="w-6 h-6 inline-block" />
+          </a>
+          <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="mx-2">
+            <FaInstagram className="w-6 h-6 inline-block" />
+          </a>
+          <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="mx-2">
+            <FaLinkedin className="w-6 h-6 inline-block" />
+          </a>
         </div>
         <div className="text-sm">&copy; 2023 EduPlatform. All rights reserved.</div>
       </div>

@@ -3,17 +3,28 @@ include 'config.php';
 
 $data = json_decode(file_get_contents("php://input"));
 
+if (!$data) {
+    error_log("Invalid JSON input");
+    echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    exit;
+}
+
 $email = $data->email;
 $missedClass = $data->missedClass ? 1 : 0;
 $assignmentDue = $data->assignmentDue ? 1 : 0;
 
-$sql = "UPDATE users SET missed_class_notifications = '$missedClass', assignment_due_notifications = '$assignmentDue' WHERE email = '$email'";
+// SQL query to update notification settings using prepared statements
+$sql = "UPDATE users SET missed_class_notifications = ?, assignment_due_notifications = ? WHERE email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("iis", $missedClass, $assignmentDue, $email);
 
-if (mysqli_query($conn, $sql)) {
+if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Notification settings updated successfully']);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Error updating notification settings: ' . mysqli_error($conn)]);
+    error_log("Database query failed: " . $stmt->error);
+    echo json_encode(['success' => false, 'message' => 'Error updating notification settings: ' . $stmt->error]);
 }
 
-mysqli_close($conn);
+$stmt->close();
+$conn->close();
 ?>

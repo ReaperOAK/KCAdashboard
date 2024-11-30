@@ -12,22 +12,23 @@ const StudentDashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('/php/student-dashboard-data.php')
-      .then((response) => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('/php/student-dashboard-data.php');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         setDashboardData(data);
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching dashboard data:', error);
         setError(error);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
   if (loading) {

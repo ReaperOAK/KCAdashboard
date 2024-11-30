@@ -44,6 +44,16 @@ const AdminAttendance = () => {
             </button>
           </div>
         </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Attendance Overview</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <p>View attendance statistics and trends.</p>
+            {/* Placeholder for attendance overview content */}
+            <div className="mt-4">
+              <p>Attendance data will be displayed here.</p>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

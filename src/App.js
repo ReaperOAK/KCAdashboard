@@ -50,18 +50,28 @@ const AppContent = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/student-dashboard" element={<ProtectedRoute element={StudentDashboard} allowedRoles={['student']} role={role} />} />
-            <Route path="/teacher-dashboard" element={<ProtectedRoute element={TeacherDashboard} allowedRoles={['teacher']} role={role} />} />
-            <Route path="/admin-dashboard" element={<ProtectedRoute element={AdminDashboard} allowedRoles={['admin']} role={role} />} />
-            <Route path="/student-attendance" element={<ProtectedRoute element={StudentAttendance} allowedRoles={['student']} role={role} />} />
-            <Route path="/teacher-attendance" element={<ProtectedRoute element={TeacherAttendance} allowedRoles={['teacher']} role={role} />} />
-            <Route path="/admin-attendance" element={<ProtectedRoute element={AdminAttendance} allowedRoles={['admin']} role={role} />} />
-            <Route path="/resources" element={<ProtectedRoute element={Resources} allowedRoles={['student', 'teacher']} role={role} />} />
-            <Route path="/grading-feedback" element={<ProtectedRoute element={GradingFeedback} allowedRoles={['student', 'teacher']} role={role} />} />
-            <Route path="/batch-management" element={<ProtectedRoute element={BatchManagement} allowedRoles={['teacher', 'admin']} role={role} />} />
-            <Route path="/analytics-reporting" element={<ProtectedRoute element={AnalyticsReporting} allowedRoles={['admin']} role={role} />} />
-            <Route path="/settings" element={<ProtectedRoute element={Settings} allowedRoles={['student', 'teacher', 'admin']} role={role} />} />
-            <Route path="/support" element={<ProtectedRoute element={Support} allowedRoles={['student', 'teacher', 'admin']} role={role} />} />
+            <Route element={<ProtectedRoute allowedRoles={['student']} role={role} />}>
+              <Route path="/student-dashboard" element={<StudentDashboard />} />
+              <Route path="/student-attendance" element={<StudentAttendance />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['teacher']} role={role} />}>
+              <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+              <Route path="/teacher-attendance" element={<TeacherAttendance />} />
+              <Route path="/batch-management" element={<BatchManagement />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['admin']} role={role} />}>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin-attendance" element={<AdminAttendance />} />
+              <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['student', 'teacher']} role={role} />}>
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/grading-feedback" element={<GradingFeedback />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} role={role} />}>
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/support" element={<Support />} />
+            </Route>
           </Routes>
         </main>
       </div>

@@ -6,6 +6,10 @@ include 'config.php'; // Include your database configuration file
 function getActiveUsers($conn) {
     $query = "SELECT COUNT(*) as count FROM users WHERE active = 1";
     $result = mysqli_query($conn, $query);
+    if (!$result) {
+        error_log("Database query failed: " . mysqli_error($conn));
+        return null;
+    }
     $row = mysqli_fetch_assoc($result);
     return $row['count'];
 }
@@ -14,6 +18,10 @@ function getActiveUsers($conn) {
 function getAttendanceTrends($conn) {
     $query = "SELECT AVG(attendance_percentage) as average FROM attendance";
     $result = mysqli_query($conn, $query);
+    if (!$result) {
+        error_log("Database query failed: " . mysqli_error($conn));
+        return null;
+    }
     $row = mysqli_fetch_assoc($result);
     return $row['average'] . '% average attendance';
 }
@@ -22,6 +30,10 @@ function getAttendanceTrends($conn) {
 function getSystemIssues($conn) {
     $query = "SELECT issue FROM system_issues ORDER BY created_at DESC";
     $result = mysqli_query($conn, $query);
+    if (!$result) {
+        error_log("Database query failed: " . mysqli_error($conn));
+        return null;
+    }
     $issues = [];
     while ($row = mysqli_fetch_assoc($result)) {
         $issues[] = $row['issue'];
@@ -32,6 +44,11 @@ function getSystemIssues($conn) {
 $activeUsers = getActiveUsers($conn);
 $attendanceTrends = getAttendanceTrends($conn);
 $systemIssues = getSystemIssues($conn);
+
+if ($activeUsers === null || $attendanceTrends === null || $systemIssues === null) {
+    echo json_encode(['success' => false, 'message' => 'Error fetching data']);
+    exit;
+}
 
 echo json_encode([
     'activeUsers' => $activeUsers,

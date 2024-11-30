@@ -9,15 +9,22 @@ const faqs = [
 const Support = () => {
   const [ticket, setTicket] = useState({ subject: '', description: '' });
   const [tickets, setTickets] = useState([]);
+  const [error, setError] = useState('');
 
   const handleTicketChange = (e) => {
     const { name, value } = e.target;
     setTicket({ ...ticket, [name]: value });
   };
 
-  const handleSubmitTicket = () => {
+  const handleSubmitTicket = (e) => {
+    e.preventDefault();
+    if (!ticket.subject || !ticket.description) {
+      setError('All fields are required');
+      return;
+    }
     setTickets([...tickets, { ...ticket, id: tickets.length + 1, status: 'Pending' }]);
     setTicket({ subject: '', description: '' });
+    setError('');
   };
 
   return (
@@ -37,7 +44,7 @@ const Support = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Submit a Support Ticket</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmitTicket(); }}>
+            <form onSubmit={handleSubmitTicket}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="subject">
                   Subject
@@ -64,6 +71,7 @@ const Support = () => {
                   onChange={handleTicketChange}
                 ></textarea>
               </div>
+              {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="submit"

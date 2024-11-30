@@ -11,8 +11,12 @@ const BatchManagement = () => {
   const [newBatch, setNewBatch] = useState({ name: '', schedule: '', teacher: '' });
 
   const handleAddBatch = () => {
-    setBatches([...batches, { ...newBatch, id: batches.length + 1 }]);
-    setNewBatch({ name: '', schedule: '', teacher: '' });
+    if (newBatch.name && newBatch.schedule && newBatch.teacher) {
+      setBatches([...batches, { ...newBatch, id: batches.length + 1 }]);
+      setNewBatch({ name: '', schedule: '', teacher: '' });
+    } else {
+      alert('Please fill in all fields');
+    }
   };
 
   const handleDeleteBatch = (id) => {

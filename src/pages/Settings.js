@@ -22,7 +22,7 @@ const Settings = () => {
   useEffect(() => {
     const token = getCookie('token');
     if (token) {
-      const decodedPayload = JSON.parse(atob(token));
+      const decodedPayload = JSON.parse(atob(token.split('.')[1]));
       setPersonalInfo((prevInfo) => ({ ...prevInfo, email: decodedPayload.email }));
     }
   }, []);
@@ -43,13 +43,19 @@ const Settings = () => {
   };
 
   const handleSavePersonalInfo = async () => {
+    const formData = new FormData();
+    formData.append('name', personalInfo.name);
+    formData.append('email', personalInfo.email);
+    if (personalInfo.profilePicture) {
+      formData.append('profilePicture', personalInfo.profilePicture);
+    }
+
     const response = await fetch('/php/update-personal-info.php', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${getCookie('token')}`,
       },
-      body: JSON.stringify(personalInfo),
+      body: formData,
     });
     const data = await response.json();
     if (data.success) {

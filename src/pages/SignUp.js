@@ -6,25 +6,45 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('student');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleRoleChange = (e) => setRole(e.target.value);
 
+  const validateForm = () => {
+    if (!name || !email || !password) {
+      setError('All fields are required');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
     const userData = { name, email, password, role };
-    const response = await fetch('/php/register.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    });
-    const data = await response.json();
-    if (data.success) {
-      navigate('/login');
-    } else {
-      alert(data.message);
+    try {
+      const response = await fetch('/php/register.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      const data = await response.json();
+      if (data.success) {
+        navigate('/login');
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -44,6 +64,7 @@ const SignUp = () => {
               placeholder="Your Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
@@ -57,6 +78,7 @@ const SignUp = () => {
               placeholder="Your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
@@ -70,6 +92,7 @@ const SignUp = () => {
               placeholder="Your Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
@@ -87,12 +110,14 @@ const SignUp = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
+          {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
           <div className="flex items-center justify-between">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               type="submit"
+              disabled={isSubmitting}
             >
-              Sign Up
+              {isSubmitting ? 'Signing up...' : 'Sign Up'}
             </button>
           </div>
         </form>

@@ -15,11 +15,16 @@ const StudentDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const response = await fetch('/php/student-dashboard-data.php');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+        const text = await response.text();
+        try {
+          const data = JSON.parse(text);
+          if (!response.ok) {
+            throw new Error(data.message || 'Network response was not ok');
+          }
+          setDashboardData(data);
+        } catch (jsonError) {
+          throw new Error('Failed to parse JSON: ' + text);
         }
-        const data = await response.json();
-        setDashboardData(data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);

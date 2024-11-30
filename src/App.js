@@ -58,6 +58,7 @@ const AppContent = () => {
               <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
               <Route path="/teacher-attendance" element={<TeacherAttendance />} />
               <Route path="/batch-management" element={<BatchManagement />} />
+              <Route path="/grading-feedback" element={<GradingFeedback />} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['admin']} role={role} />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -66,7 +67,6 @@ const AppContent = () => {
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['student', 'teacher']} role={role} />}>
               <Route path="/resources" element={<Resources />} />
-              <Route path="/grading-feedback" element={<GradingFeedback />} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} role={role} />}>
               <Route path="/settings" element={<Settings />} />

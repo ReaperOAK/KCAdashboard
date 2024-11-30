@@ -50,11 +50,11 @@ const StudentDashboard = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Current Class Schedule</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Next Class: {dashboardData.nextClass.subject || 'N/A'}</p>
-            <p>Time: {dashboardData.nextClass.time || 'N/A'}</p>
+            <p>Next Class: {dashboardData.nextClass?.subject || 'N/A'}</p>
+            <p>Time: {dashboardData.nextClass?.time || 'N/A'}</p>
             <p>
               Link:{' '}
-              {dashboardData.nextClass.link ? (
+              {dashboardData.nextClass?.link ? (
                 <a
                   href={dashboardData.nextClass.link}
                   className="text-blue-500 hover:underline"

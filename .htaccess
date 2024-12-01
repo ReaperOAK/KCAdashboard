@@ -9,9 +9,18 @@
 </IfModule>
 
 # Ensure that PHP sessions are handled correctly
-php_value session.save_path "/path/to/your/session/directory"
+php_value session.save_path "/opt/alt/php82/var/lib/php/session"
 php_value session.gc_maxlifetime 1440
 php_value session.cookie_lifetime 0
 php_value session.cookie_secure 1
 php_value session.cookie_httponly 1
 php_value session.use_strict_mode 1
+
+# Additional PHP configurations
+php_flag display_errors Off
+php_flag log_errors On
+php_value max_execution_time 360
+php_value memory_limit 2048M
+php_value upload_max_filesize 2048M
+php_value post_max_size 2048M
+php_value date.timezone "UTC"

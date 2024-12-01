@@ -36,8 +36,15 @@ if (!$result) {
 // Fetch the user data
 $user = $result->fetch_assoc();
 
+// Debug: Check if user data is fetched correctly
+if (!$user) {
+    error_log("User not found: " . $email);
+    echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
+    exit;
+}
+
 // Verify the password and set a cookie with user data
-if ($user && password_verify($password, $user['password'])) {
+if (password_verify($password, $user['password'])) {
     // Set session variables
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $user['role'];
@@ -48,6 +55,7 @@ if ($user && password_verify($password, $user['password'])) {
 
     echo json_encode(['success' => true, 'role' => $user['role']]);
 } else {
+    error_log("Password verification failed for user: " . $email);
     echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
 }
 

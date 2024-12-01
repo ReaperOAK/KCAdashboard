@@ -1,11 +1,14 @@
 <?php
-// Check if user_id and role are set in the cookies
-if (isset($_COOKIE['user_id']) && isset($_COOKIE['role'])) {
+// Start the session
+session_start();
+
+// Check if user_id and role are set in the session
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
     // Return success response with user role
-    echo json_encode(['success' => true, 'role' => $_COOKIE['role']]);
+    echo json_encode(['success' => true, 'role' => $_SESSION['role']]);
 } else {
     // Log error and return failure response
-    error_log("Cookie validation failed: Cookie invalid or expired");
-    echo json_encode(['success' => false, 'message' => 'Cookie invalid or expired']);
+    error_log("Session validation failed: Session invalid or expired");
+    echo json_encode(['success' => false, 'message' => 'Session invalid or expired']);
 }
 ?>

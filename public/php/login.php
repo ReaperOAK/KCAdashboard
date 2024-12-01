@@ -2,6 +2,9 @@
 // Include the database configuration file
 include 'config.php';
 
+// Start the session
+session_start();
+
 // Decode the JSON input
 $data = json_decode(file_get_contents("php://input"));
 
@@ -35,6 +38,10 @@ $user = $result->fetch_assoc();
 
 // Verify the password and set a cookie with user data
 if ($user && password_verify($password, $user['password'])) {
+    // Set session variables
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['role'] = $user['role'];
+
     // Set a cookie with user ID and role
     $secure = true; // Transmit only over HTTPS
     $httpOnly = true; // Accessible only via HTTP, not JavaScript

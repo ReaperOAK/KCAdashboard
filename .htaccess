@@ -1,8 +1,17 @@
+# Ensure that .htaccess is enabled and configured correctly
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.php$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.php [L]
 </IfModule>
+
+# Ensure that PHP sessions are handled correctly
+php_value session.save_path "/path/to/your/session/directory"
+php_value session.gc_maxlifetime 1440
+php_value session.cookie_lifetime 0
+php_value session.cookie_secure 1
+php_value session.cookie_httponly 1
+php_value session.use_strict_mode 1

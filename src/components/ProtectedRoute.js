@@ -19,7 +19,7 @@ const ProtectedRoute = ({ allowedRoles, role, isLoading = false }) => {
     return <Outlet />;
   } else {
     // Redirect to an unauthorized page or login if role is not allowed
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/login" replace />;
   }
 };
 

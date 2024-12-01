@@ -36,9 +36,13 @@ $user = $result->fetch_assoc();
 // Verify the password and set a cookie with user data
 if ($user && password_verify($password, $user['password'])) {
     // Set a cookie with user ID and role
-    setcookie('user_id', $user['id'], time() + 86400, '/', '', false, true); // 1 day expiration
-    setcookie('role', $user['role'], time() + 86400, '/', '', false, true); // 1 day expiration
+    $secure = true; // Transmit only over HTTPS
+    $httpOnly = true; // Accessible only via HTTP, not JavaScript
+    $sameSite = 'Strict'; // Prevent CSRF attacks
     
+    setcookie('user_id', $user['id'], time() + 86400, '/', '', $secure, $httpOnly); // Secure & HttpOnly flags
+    setcookie('role', $user['role'], time() + 86400, '/', '', $secure, $httpOnly); // Secure & HttpOnly flags
+
     echo json_encode(['success' => true, 'role' => $user['role']]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid credentials']);

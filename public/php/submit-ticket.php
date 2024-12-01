@@ -2,10 +2,9 @@
 header('Content-Type: application/json');
 include 'config.php'; // Include your database configuration file
 
-session_start();
-$userId = $_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true);
 
+$userId = $_COOKIE['user_id'];
 $subject = $data['subject'];
 $description = $data['description'];
 

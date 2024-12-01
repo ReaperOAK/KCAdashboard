@@ -11,7 +11,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
+    const role = getCookie('role');
     if (role) {
       setIsLoggedIn(true);
     }
@@ -22,7 +22,9 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    // Clear the cookies
+    document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setIsLoggedIn(false);
     navigate('/login');
   };

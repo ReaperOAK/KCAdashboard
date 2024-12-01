@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: application/json');
-session_start();
 include 'config.php'; // Include your database configuration file
 
 // Function to fetch the next class
@@ -68,13 +67,7 @@ function getNotifications($conn, $teacherId) {
     return $notifications;
 }
 
-// Check if the teacher ID is set in the session
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
-
-$teacherId = $_SESSION['user_id'];
+$teacherId = $_COOKIE['user_id'];
 
 $nextClass = getNextClass($conn, $teacherId);
 $attendancePending = getAttendancePending($conn, $teacherId);

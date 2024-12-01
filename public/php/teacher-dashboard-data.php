@@ -5,7 +5,7 @@ include 'config.php'; // Include your database configuration file
 
 // Function to fetch the next class
 function getNextClass($conn, $teacherId) {
-    $query = "SELECT subject, time FROM classes WHERE teacher_id = ?";
+    $query = "SELECT subject, time FROM classes WHERE teacher_id = ? ORDER BY time ASC LIMIT 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $teacherId);
     $stmt->execute();
@@ -52,7 +52,7 @@ function getBatchSchedule($conn, $teacherId) {
 
 // Function to fetch notifications
 function getNotifications($conn, $teacherId) {
-    $query = "SELECT message FROM notifications WHERE teacher_id = ? ORDER BY created_at DESC";
+    $query = "SELECT message FROM notifications WHERE user_id = ? AND role = 'teacher' ORDER BY created_at DESC";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $teacherId);
     $stmt->execute();

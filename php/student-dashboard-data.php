@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 session_start();
 include 'config.php'; // Include your database configuration file
 
-// Function to fetch the next class
+// Function to fetch the next class for a student
 function getNextClass($conn, $studentId) {
     $query = "SELECT subject, time, link FROM classes WHERE student_id = ? ORDER BY time ASC LIMIT 1";
     $stmt = $conn->prepare($query);
@@ -17,7 +17,7 @@ function getNextClass($conn, $studentId) {
     return $result->fetch_assoc();
 }
 
-// Function to fetch attendance data
+// Function to fetch attendance data for a student
 function getAttendance($conn, $studentId) {
     $query = "SELECT status FROM attendance WHERE student_id = ?";
     $stmt = $conn->prepare($query);
@@ -43,7 +43,7 @@ function getAttendance($conn, $studentId) {
     return ['percentage' => $percentage, 'calendar' => $calendar];
 }
 
-// Function to fetch notifications
+// Function to fetch notifications for a student
 function getNotifications($conn, $studentId) {
     $query = "SELECT message FROM notifications WHERE student_id = ? ORDER BY created_at DESC";
     $stmt = $conn->prepare($query);
@@ -61,7 +61,7 @@ function getNotifications($conn, $studentId) {
     return $notifications;
 }
 
-// Function to fetch performance data
+// Function to fetch performance data for a student
 function getPerformance($conn, $studentId) {
     $query = "SELECT subject, grade FROM performance WHERE student_id = ?";
     $stmt = $conn->prepare($query);
@@ -87,16 +87,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 
 $studentId = $_SESSION['user_id'];
 
+// Fetch data for the student dashboard
 $nextClass = getNextClass($conn, $studentId);
 $attendance = getAttendance($conn, $studentId);
 $notifications = getNotifications($conn, $studentId);
 $performance = getPerformance($conn, $studentId);
 
+// Check if any data fetching failed
 if ($nextClass === null || $attendance === null || $notifications === null || $performance === null) {
     echo json_encode(['success' => false, 'message' => 'Error fetching data']);
     exit;
 }
 
+// Return the fetched data as JSON
 echo json_encode([
     'nextClass' => $nextClass,
     'attendance' => $attendance,

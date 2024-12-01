@@ -41,15 +41,18 @@ function getSystemIssues($conn) {
     return $issues;
 }
 
+// Fetch data for the admin dashboard
 $activeUsers = getActiveUsers($conn);
 $attendanceTrends = getAttendanceTrends($conn);
 $systemIssues = getSystemIssues($conn);
 
+// Check if any data fetching failed
 if ($activeUsers === null || $attendanceTrends === null || $systemIssues === null) {
     echo json_encode(['success' => false, 'message' => 'Error fetching data']);
     exit;
 }
 
+// Return the fetched data as JSON
 echo json_encode([
     'activeUsers' => $activeUsers,
     'attendanceTrends' => $attendanceTrends,

@@ -86,6 +86,7 @@ if ($nextClass === null || $attendancePending === null || $batchSchedule === nul
     exit;
 }
 
+// Return the fetched data as JSON
 echo json_encode([
     'nextClass' => $nextClass,
     'attendancePending' => $attendancePending,

@@ -35,7 +35,7 @@ const App = () => {
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
-      <AppContent />
+      {/* <AppContent /> */}
     </Router>
   );
 };
@@ -88,4 +88,4 @@ const App = () => {
 //   );
 // };
 
-// export default App;
+export default App;

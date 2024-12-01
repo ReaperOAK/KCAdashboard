@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import { getCookie } from '../utils/getCookie'; // Import the getCookie function
 
 /**
  * Header component that displays the navigation bar and handles user login state.

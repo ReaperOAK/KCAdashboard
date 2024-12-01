@@ -5,17 +5,22 @@
  * @returns {string|null} - The value of the cookie if found, otherwise null.
  */
 export const getCookie = (name) => {
-  // Construct the cookie string with a leading semicolon and space
-  const value = `; ${document.cookie}`;
-  
-  // Split the cookie string to find the target cookie
-  const parts = value.split(`; ${name}=`);
-  
-  // If the target cookie is found, decode and return its value
-  if (parts.length === 2) {
-    return decodeURIComponent(parts.pop().split(';').shift());
+  // Validate that the cookie name is a string
+  if (typeof name !== 'string') {
+    console.error('Cookie name must be a string');
+    return null;
   }
-  
+
+  // Trim and normalize the cookie name
+  const trimmedName = name.trim();
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${trimmedName}=`);
+
+  // Return the decoded cookie value if found
+  if (parts.length === 2) {
+    return decodeURIComponent(parts.pop().split(';').shift().trim());
+  }
+
   // Return null if the cookie is not found
   return null;
 };

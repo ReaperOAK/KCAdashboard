@@ -8,30 +8,35 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  // Validate email format
+  const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
+    if (!isValidEmail(email)) {
+      setError('Invalid email format');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch('/php/login.php', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
       if (data.success) {
-        localStorage.setItem('role', data.role);
-        navigate('/'); // Navigate to the home page or dashboard
-        window.location.reload(); // Reload the page to update the sidebar
+        sessionStorage.setItem('role', data.role); // Use sessionStorage
+        navigate('/');
+        window.location.reload();
       } else {
         setError(data.message);
       }
@@ -61,6 +66,9 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {!isValidEmail(email) && email && (
+              <p className="text-red-500 text-xs italic">Invalid email format</p>
+            )}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
@@ -76,7 +84,7 @@ const Login = () => {
               required
             />
           </div>
-          {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+          {error && <p className="text-red-500 text-xs italic mb-4" aria-live="assertive">{error}</p>}
           <div className="mb-4 text-right">
             <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</Link>
           </div>

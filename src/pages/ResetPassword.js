@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ResetPassword = () => {
+  // State variables to manage form inputs and submission status
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -9,11 +10,13 @@ const ResetPassword = () => {
   const token = new URLSearchParams(window.location.search).get('token');
   const navigate = useNavigate();
 
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
+    // Check if passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setIsSubmitting(false);
@@ -21,6 +24,7 @@ const ResetPassword = () => {
     }
 
     try {
+      // Send password reset request to the server
       const response = await fetch('/php/reset-password.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

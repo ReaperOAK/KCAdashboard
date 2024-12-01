@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * AdminDashboard component displays various admin functionalities and data.
+ */
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     activeUsers: 0,
@@ -19,13 +22,17 @@ const AdminDashboard = () => {
       .catch((error) => console.error('Error fetching admin dashboard data:', error));
   }, []);
 
+  /**
+   * Navigates to User Management page.
+   */
   const handleManageUsers = () => {
-    // Navigate to User Management page
     navigate('/manage-users');
   };
 
+  /**
+   * Navigates to System Management page.
+   */
   const handleManageSystem = () => {
-    // Navigate to System Management page
     navigate('/manage-system');
   };
 

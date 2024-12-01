@@ -1,6 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * Custom hook to validate the user's session token.
+ *
+ * @param {function} setRole - Function to set the user's role.
+ */
 const useTokenValidation = (setRole) => {
   const navigate = useNavigate();
 

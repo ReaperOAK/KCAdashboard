@@ -1,6 +1,9 @@
 import React from 'react';
 import { FaChalkboardTeacher, FaClipboardList, FaGraduationCap, FaBook } from 'react-icons/fa';
 
+/**
+ * Features component that displays the main features of the platform.
+ */
 const Features = () => {
   return (
     <section className="py-16 bg-gray-100 text-center">

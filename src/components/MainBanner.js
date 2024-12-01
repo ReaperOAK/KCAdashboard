@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+/**
+ * MainBanner component that displays a welcome message and a call-to-action button.
+ */
 const MainBanner = () => {
   return (
     <section className="bg-blue-500 text-white text-center py-20" style={{ backgroundImage: 'url(/path/to/your/background-image.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>

@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+/**
+ * ContactUs component renders a contact form and handles form submission.
+ */
 const ContactUs = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -11,10 +14,18 @@ const ContactUs = () => {
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * Handles input change and updates form data.
+   * @param {Object} e - Event object
+   */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  /**
+   * Validates form data and returns errors if any.
+   * @returns {Object} errors - Validation errors
+   */
   const validate = () => {
     let errors = {};
     if (!formData.name) errors.name = 'Name is required';
@@ -25,6 +36,10 @@ const ContactUs = () => {
     return errors;
   };
 
+  /**
+   * Handles form submission.
+   * @param {Object} e - Event object
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -42,10 +57,8 @@ const ContactUs = () => {
         message: '',
         captcha: ''
       });
-      setIsSubmitting(false);
-    } else {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (

@@ -15,7 +15,7 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/teacher-dashboard-data.php', {
+        const response = await fetch('/php/teacher-dashboard-data.php', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

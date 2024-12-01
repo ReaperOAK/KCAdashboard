@@ -1,20 +1,43 @@
-import React, { useState } from 'react';
-
-const resources = [
-  { id: 1, category: 'Math', title: 'Algebra Notes', type: 'PDF', link: '#', description: 'Detailed notes on Algebra concepts' },
-  { id: 2, category: 'Science', title: 'Physics Lecture', type: 'Video', link: '#', description: 'Video lecture on Physics' },
-  { id: 3, category: 'History', title: 'World War II', type: 'PowerPoint', link: '#', description: 'PowerPoint presentation on World War II history' },
-  // Add more resources as needed
-];
+import React, { useState, useEffect } from 'react';
 
 const Resources = () => {
+  const [resources, setResources] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const response = await fetch('/api/resources');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setResources(data);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, []);
 
   const filteredResources = resources.filter(resource =>
     resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     resource.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     resource.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const faqs = [
   { question: 'How do I reset my password?', answer: 'You can reset your password by clicking on the "Forgot Password" link on the login page.' },
@@ -10,22 +10,67 @@ const Support = () => {
   const [ticket, setTicket] = useState({ subject: '', description: '' });
   const [tickets, setTickets] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const response = await fetch('/php/get-tickets.php');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setTickets(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTickets();
+  }, []);
 
   const handleTicketChange = (e) => {
     const { name, value } = e.target;
     setTicket({ ...ticket, [name]: value });
   };
 
-  const handleSubmitTicket = (e) => {
+  const handleSubmitTicket = async (e) => {
     e.preventDefault();
     if (!ticket.subject || !ticket.description) {
       setError('All fields are required');
       return;
     }
-    setTickets([...tickets, { ...ticket, id: tickets.length + 1, status: 'Pending' }]);
-    setTicket({ subject: '', description: '' });
-    setError('');
+
+    try {
+      const response = await fetch('/php/submit-ticket.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ticket),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTickets([...tickets, { ...ticket, id: data.id, status: 'Pending' }]);
+        setTicket({ subject: '', description: '' });
+        setError('');
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      setError('An error occurred while submitting the ticket.');
+    }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

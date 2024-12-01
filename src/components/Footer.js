@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
+/**
+ * Footer component that displays links to privacy policy, terms of service, and social media.
+ */
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-6">

@@ -56,7 +56,7 @@ const StudentDashboard = () => {
               Link:{' '}
               {dashboardData.nextClass?.link ? (
                 <a
-                  href={dashboardData.nextClass?.link}
+                  href={dashboardData.nextClass.link}
                   className="text-blue-500 hover:underline"
                 >
                   Join via Zoom
@@ -104,7 +104,7 @@ const StudentDashboard = () => {
           <div className="bg-white p-4 rounded-lg shadow-md">
             {dashboardData.performance?.length > 0 ? (
               <ul>
-                {dashboardData.performance?.map((subject, index) => (
+                {dashboardData.performance.map((subject, index) => (
                   <li key={index} className="mb-2">
                     {subject.name}: {subject.grade}
                   </li>

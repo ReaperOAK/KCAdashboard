@@ -50,35 +50,45 @@ const Settings = () => {
       formData.append('profilePicture', personalInfo.profilePicture);
     }
 
-    const response = await fetch('/php/update-personal-info.php', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getCookie('token')}`,
-      },
-      body: formData,
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert('Personal information saved');
-    } else {
-      alert(data.message);
+    try {
+      const response = await fetch('/php/update-personal-info.php', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getCookie('token')}`,
+        },
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Personal information saved');
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error saving personal information:', error);
+      alert('An error occurred while saving personal information.');
     }
   };
 
   const handleSaveNotifications = async () => {
-    const response = await fetch('/php/update-notifications.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getCookie('token')}`,
-      },
-      body: JSON.stringify({ ...notifications, email: personalInfo.email }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert('Notification settings saved');
-    } else {
-      alert(data.message);
+    try {
+      const response = await fetch('/php/update-notifications.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getCookie('token')}`,
+        },
+        body: JSON.stringify({ ...notifications, email: personalInfo.email }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Notification settings saved');
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+      alert('An error occurred while saving notification settings.');
     }
   };
 
@@ -87,19 +97,24 @@ const Settings = () => {
       alert('New password and confirm password do not match');
       return;
     }
-    const response = await fetch('/php/update-password.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getCookie('token')}`,
-      },
-      body: JSON.stringify({ email: personalInfo.email, ...password }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert('Password updated');
-    } else {
-      alert(data.message);
+    try {
+      const response = await fetch('/php/update-password.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getCookie('token')}`,
+        },
+        body: JSON.stringify({ email: personalInfo.email, ...password }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Password updated');
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error updating password:', error);
+      alert('An error occurred while updating the password.');
     }
   };
 

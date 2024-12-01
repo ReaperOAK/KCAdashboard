@@ -28,7 +28,14 @@ const gradesData = {
   ],
 };
 
+/**
+ * AnalyticsReporting component displays analytics data and provides export options.
+ */
 const AnalyticsReporting = () => {
+  /**
+   * Handles export functionality.
+   * @param {string} format - Export format (PDF or Excel)
+   */
   const handleExport = (format) => {
     // Implement export functionality here
     alert(`Exporting data to ${format}`);

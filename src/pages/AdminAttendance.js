@@ -1,6 +1,13 @@
 import React from 'react';
 
+/**
+ * AdminAttendance component handles attendance policies and reporting.
+ */
 const AdminAttendance = () => {
+  /**
+   * Handles export functionality.
+   * @param {string} format - Export format (PDF or Excel)
+   */
   const handleExport = (format) => {
     // Implement export functionality here
     alert(`Exporting attendance data to ${format}`);

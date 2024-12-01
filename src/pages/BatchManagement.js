@@ -6,10 +6,16 @@ const initialBatches = [
   // Add more batches as needed
 ];
 
+/**
+ * BatchManagement component handles the display and management of batches.
+ */
 const BatchManagement = () => {
   const [batches, setBatches] = useState(initialBatches);
   const [newBatch, setNewBatch] = useState({ name: '', schedule: '', teacher: '' });
 
+  /**
+   * Adds a new batch to the list.
+   */
   const handleAddBatch = () => {
     if (newBatch.name && newBatch.schedule && newBatch.teacher) {
       setBatches([...batches, { ...newBatch, id: batches.length + 1 }]);
@@ -19,6 +25,10 @@ const BatchManagement = () => {
     }
   };
 
+  /**
+   * Deletes a batch from the list.
+   * @param {number} id - Batch ID
+   */
   const handleDeleteBatch = (id) => {
     setBatches(batches.filter(batch => batch.id !== id));
   };

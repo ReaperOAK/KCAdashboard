@@ -1,18 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const TeacherAttendance = () => {
-  const students = [
-    { id: 1, name: 'John Doe' },
-    { id: 2, name: 'Jane Smith' },
-    // Add more students as needed
-  ];
+  const [students, setStudents] = useState([]);
+  const [attendance, setAttendance] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [attendance, setAttendance] = useState(
-    students.reduce((acc, student) => {
-      acc[student.id] = { present: false, absent: false };
-      return acc;
-    }, {})
-  );
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch('/php/get-students.php');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setStudents(data);
+        const initialAttendance = data.reduce((acc, student) => {
+          acc[student.id] = { present: false, absent: false };
+          return acc;
+        }, {});
+        setAttendance(initialAttendance);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
 
   const handleAttendanceChange = (studentId, type) => {
     setAttendance((prev) => ({
@@ -37,6 +53,14 @@ const TeacherAttendance = () => {
     // Implement export functionality here
     alert(`Exporting attendance data to ${format}`);
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -65,14 +89,14 @@ const TeacherAttendance = () => {
                     <td className="py-2 px-4 border-b text-center">
                       <input
                         type="checkbox"
-                        checked={attendance[student.id].present}
+                        checked={attendance[student.id]?.present || false}
                         onChange={() => handleAttendanceChange(student.id, 'present')}
                       />
                     </td>
                     <td className="py-2 px-4 border-b text-center">
                       <input
                         type="checkbox"
-                        checked={attendance[student.id].absent}
+                        checked={attendance[student.id]?.absent || false}
                         onChange={() => handleAttendanceChange(student.id, 'absent')}
                       />
                     </td>

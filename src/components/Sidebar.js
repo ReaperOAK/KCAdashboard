@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+/**
+ * Sidebar component that renders navigation links based on user role.
+ * @param {Object} props - Component props.
+ * @param {string} props.role - The role of the user (student, teacher, admin).
+ */
 const Sidebar = ({ role }) => {
   return (
     <aside className="w-64 bg-gray-800 text-white flex flex-col">

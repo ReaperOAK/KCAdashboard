@@ -1,3 +1,9 @@
+/**
+ * Retrieves the value of a specified cookie by name.
+ *
+ * @param {string} name - The name of the cookie to retrieve.
+ * @returns {string|null} - The value of the cookie if found, otherwise null.
+ */
 export const getCookie = (name) => {
   // Construct the cookie string with a leading semicolon and space
   const value = `; ${document.cookie}`;

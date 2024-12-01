@@ -7,6 +7,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);

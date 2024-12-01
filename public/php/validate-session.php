@@ -1,4 +1,7 @@
 <?php
+// Set the session save path
+ini_set('session.save_path', '/opt/alt/php82/var/lib/php/session');
+
 // Start the session
 session_start();
 

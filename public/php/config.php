@@ -18,4 +18,7 @@ if (!$conn->set_charset("utf8mb4")) {
     error_log("Error loading character set utf8mb4: " . $conn->error);
     die("Error loading character set utf8mb4: " . $conn->error);
 }
+
+// Set the session save path
+ini_set('session.save_path', '/opt/alt/php82/var/lib/php/session');
 ?>

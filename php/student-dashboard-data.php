@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: application/json');
-session_start();
 include 'config.php'; // Include your database configuration file
 
 // Function to fetch the next class for a student
@@ -79,13 +78,7 @@ function getPerformance($conn, $studentId) {
     return $performance;
 }
 
-// Check if the student ID is set in the session
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
-
-$studentId = $_SESSION['user_id'];
+$studentId = $_COOKIE['user_id'];
 
 // Fetch data for the student dashboard
 $nextClass = getNextClass($conn, $studentId);

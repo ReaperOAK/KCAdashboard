@@ -2,8 +2,7 @@
 header('Content-Type: application/json');
 include 'config.php'; // Include your database configuration file
 
-session_start();
-$userId = $_SESSION['user_id'];
+$userId = $_COOKIE['user_id'];
 
 $query = "SELECT id, subject, description, status FROM support_tickets WHERE user_id = ?";
 $stmt = $conn->prepare($query);

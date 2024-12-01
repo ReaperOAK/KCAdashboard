@@ -1,7 +1,4 @@
 <?php
-// Start the session
-session_start();
-
 // Include the database configuration file
 include 'config.php';
 
@@ -36,12 +33,11 @@ if (!$result) {
 // Fetch the user data
 $user = $result->fetch_assoc();
 
-// Verify the password and store user data in the session
+// Verify the password and set a cookie with user data
 if ($user && password_verify($password, $user['password'])) {
-    // Store user ID and role in session
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['role'] = $user['role'];
-    $_SESSION['email'] = $user['email'];
+    // Set a cookie with user ID and role
+    setcookie('user_id', $user['id'], time() + 86400, '/', '', false, true); // 1 day expiration
+    setcookie('role', $user['role'], time() + 86400, '/', '', false, true); // 1 day expiration
     
     echo json_encode(['success' => true, 'role' => $user['role']]);
 } else {

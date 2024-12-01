@@ -45,7 +45,7 @@ function getAttendance($conn, $studentId) {
 
 // Function to fetch notifications for a student
 function getNotifications($conn, $studentId) {
-    $query = "SELECT message FROM notifications WHERE student_id = ? ORDER BY created_at DESC";
+    $query = "SELECT message FROM notifications WHERE user_id = ? AND role = 'student' ORDER BY created_at DESC";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $studentId);
     $stmt->execute();

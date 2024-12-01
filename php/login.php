@@ -43,12 +43,8 @@ if ($user && password_verify($password, $user['password'])) {
     $_SESSION['role'] = $user['role'];
 
     // Set a cookie with user ID and role
-    $secure = true; // Transmit only over HTTPS
-    $httpOnly = true; // Accessible only via HTTP, not JavaScript
-    $sameSite = 'Strict'; // Prevent CSRF attacks
-    
-    setcookie('user_id', $user['id'], time() + 86400, '/', '', $secure, $httpOnly); // Secure & HttpOnly flags
-    setcookie('role', $user['role'], time() + 86400, '/', '', $secure, $httpOnly); // Secure & HttpOnly flags
+    setcookie('user_id', $user['id'], time() + 86400, '/', '', false, true); // 1 day expiration
+    setcookie('role', $user['role'], time() + 86400, '/', '', false, true); // 1 day expiration
 
     echo json_encode(['success' => true, 'role' => $user['role']]);
 } else {

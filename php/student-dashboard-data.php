@@ -6,6 +6,10 @@ include 'config.php'; // Include your database configuration file
 function getNextClass($conn, $studentId) {
     $query = "SELECT subject, time, link FROM classes WHERE student_id = ? ORDER BY time ASC LIMIT 1";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $studentId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -20,6 +24,10 @@ function getNextClass($conn, $studentId) {
 function getAttendance($conn, $studentId) {
     $query = "SELECT status FROM attendance WHERE student_id = ?";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $studentId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -46,6 +54,10 @@ function getAttendance($conn, $studentId) {
 function getNotifications($conn, $studentId) {
     $query = "SELECT message FROM notifications WHERE user_id = ? AND role = 'student' ORDER BY created_at DESC";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $studentId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -64,6 +76,10 @@ function getNotifications($conn, $studentId) {
 function getPerformance($conn, $studentId) {
     $query = "SELECT subject, grade FROM performance WHERE student_id = ?";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $studentId);
     $stmt->execute();
     $result = $stmt->get_result();

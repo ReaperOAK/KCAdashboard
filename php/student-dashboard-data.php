@@ -4,7 +4,7 @@ include 'config.php'; // Include your database configuration file
 
 // Function to fetch the next class for a student
 function getNextClass($conn, $studentId) {
-    $query = "SELECT subject, time, link FROM classes WHERE student_id = ? ORDER BY time ASC LIMIT 1";
+    $query = "SELECT subject, time, link FROM classes WHERE id = (SELECT class_id FROM attendance WHERE student_id = ? ORDER BY time ASC LIMIT 1)";
     $stmt = $conn->prepare($query);
     if (!$stmt) {
         error_log("Prepare failed: " . $conn->error);

@@ -16,6 +16,9 @@ const StudentAttendance = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to fetch attendance data');
+        }
         setEvents(data.events);
         setAttendancePercentage(data.percentage);
       } catch (error) {

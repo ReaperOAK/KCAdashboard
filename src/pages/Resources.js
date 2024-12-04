@@ -9,12 +9,15 @@ const Resources = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const response = await fetch('/api/resources');
+        const response = await fetch('/php/get-resources.php');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setResources(data);
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to fetch resources');
+        }
+        setResources(data.resources);
       } catch (error) {
         setError(error);
       } finally {

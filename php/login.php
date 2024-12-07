@@ -50,8 +50,9 @@ if (password_verify($password, $user['password'])) {
     $_SESSION['role'] = $user['role'];
 
     // Set a cookie with user ID and role
-    setcookie('user_id', $user['id'], time() + 86400, '/', '', false, true); // 1 day expiration
-    setcookie('role', $user['role'], time() + 86400, '/', '', false, true); // 1 day expiration
+    $domain = 'dashboard.kolkatachessacademy.in'; // Set your subdomain or main domain here
+    setcookie('user_id', $user['id'], time() + 86400, '/', $domain, false, true); // 1 day expiration
+    setcookie('role', $user['role'], time() + 86400, '/', $domain, false, true); // 1 day expiration
 
     echo json_encode(['success' => true, 'role' => $user['role']]);
 } else {

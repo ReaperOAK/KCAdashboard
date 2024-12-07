@@ -41,7 +41,10 @@ const Header = () => {
         {isLoggedIn ? (
           <button onClick={handleLogout} className="hover:underline">Logout</button>
         ) : (
-          <Link to="/login" className="hover:underline">Login/Sign-Up</Link>
+          <>
+            <Link to="/login" className="hover:underline">Login</Link>
+            <Link to="/signup" className="hover:underline">Sign-Up</Link>
+          </>
         )}
       </nav>
       <button className="md:hidden text-white focus:outline-none" onClick={toggleMenu}>
@@ -54,7 +57,10 @@ const Header = () => {
           {isLoggedIn ? (
             <button onClick={() => { handleLogout(); toggleMenu(); }} className="p-4 hover:underline">Logout</button>
           ) : (
-            <Link to="/login" className="p-4 hover:underline" onClick={toggleMenu}>Login/Sign-Up</Link>
+            <>
+              <Link to="/login" className="p-4 hover:underline" onClick={toggleMenu}>Login</Link>
+              <Link to="/signup" className="p-4 hover:underline" onClick={toggleMenu}>Sign-Up</Link>
+            </>
           )}
         </nav>
       )}

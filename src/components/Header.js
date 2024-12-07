@@ -13,8 +13,11 @@ const Header = () => {
 
   useEffect(() => {
     const role = getCookie('role');
+    console.log('Role cookie:', role); // Debug log
     if (role) {
       setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
   }, []);
 

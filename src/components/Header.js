@@ -13,9 +13,7 @@ const Header = () => {
 
   useEffect(() => {
     const role = getCookie('role');
-    console.log('Role cookie:', role); // Debug log
     const userId = getCookie('user_id');
-    console.log('User ID cookie:', userId); // Debug log
     if (role) {
       setIsLoggedIn(true);
     } else {

@@ -16,17 +16,37 @@ $user_id = $_SESSION['user_id'];
 // Fetch personal information
 $sql = "SELECT name, email, profile_picture FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    error_log("Prepare failed: " . $conn->error);
+    echo json_encode(['success' => false, 'message' => 'Database query failed']);
+    exit;
+}
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+if (!$result) {
+    error_log("Database query failed: " . $stmt->error);
+    echo json_encode(['success' => false, 'message' => 'Database query failed']);
+    exit;
+}
 $personalInfo = $result->fetch_assoc();
 
 // Fetch notification settings
 $sql = "SELECT missed_class, assignment_due FROM notifications WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    error_log("Prepare failed: " . $conn->error);
+    echo json_encode(['success' => false, 'message' => 'Database query failed']);
+    exit;
+}
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+if (!$result) {
+    error_log("Database query failed: " . $stmt->error);
+    echo json_encode(['success' => false, 'message' => 'Database query failed']);
+    exit;
+}
 $notifications = $result->fetch_assoc();
 
 // Return the data as JSON

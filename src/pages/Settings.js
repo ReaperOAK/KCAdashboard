@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { getCookie } from '../utils/getCookie';
 
 const Settings = () => {
   const [personalInfo, setPersonalInfo] = useState({
@@ -20,11 +19,24 @@ const Settings = () => {
   });
 
   useEffect(() => {
-    const token = getCookie('token');
-    if (token) {
-      const decodedPayload = JSON.parse(atob(token.split('.')[1]));
-      setPersonalInfo((prevInfo) => ({ ...prevInfo, email: decodedPayload.email }));
-    }
+    const fetchPersonalInfo = async () => {
+      try {
+        const response = await fetch('/php/get-personal-info.php', {
+          method: 'GET',
+          credentials: 'include', // Ensure credentials are included
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setPersonalInfo(data.personalInfo);
+        setNotifications(data.notifications);
+      } catch (error) {
+        console.error('Error fetching personal information:', error);
+      }
+    };
+
+    fetchPersonalInfo();
   }, []);
 
   const handlePersonalInfoChange = (e) => {
@@ -53,9 +65,7 @@ const Settings = () => {
     try {
       const response = await fetch('/php/update-personal-info.php', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getCookie('token')}`,
-        },
+        credentials: 'include', // Ensure credentials are included
         body: formData,
       });
       const data = await response.json();
@@ -76,9 +86,9 @@ const Settings = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getCookie('token')}`,
         },
-        body: JSON.stringify({ ...notifications, email: personalInfo.email }),
+        credentials: 'include', // Ensure credentials are included
+        body: JSON.stringify(notifications),
       });
       const data = await response.json();
       if (data.success) {
@@ -102,9 +112,9 @@ const Settings = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getCookie('token')}`,
         },
-        body: JSON.stringify({ email: personalInfo.email, ...password }),
+        credentials: 'include', // Ensure credentials are included
+        body: JSON.stringify(password),
       });
       const data = await response.json();
       if (data.success) {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { getCookie } from '../utils/getCookie'; // Ensure this utility function is available
 
 const TeacherDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -17,10 +16,7 @@ const TeacherDashboard = () => {
       try {
         const response = await fetch('/php/teacher-dashboard-data.php', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getCookie('token')}`, // Ensure the token is sent in the header
-          },
+          credentials: 'include', // Ensure credentials are included
         });
         if (!response.ok) {
           throw new Error('Network response was not ok');

@@ -6,6 +6,10 @@ include 'config.php'; // Include your database configuration file
 function getNextClass($conn, $teacherId) {
     $query = "SELECT subject, time FROM classes WHERE teacher_id = ? ORDER BY time ASC LIMIT 1";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $teacherId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -18,8 +22,12 @@ function getNextClass($conn, $teacherId) {
 
 // Function to fetch attendance pending count
 function getAttendancePending($conn, $teacherId) {
-    $query = "SELECT COUNT(*) as count FROM attendance WHERE teacher_id = ? AND status = 'pending'";
+    $query = "SELECT COUNT(*) as count FROM attendance WHERE class_id IN (SELECT id FROM classes WHERE teacher_id = ?) AND status = 'pending'";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $teacherId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -33,8 +41,12 @@ function getAttendancePending($conn, $teacherId) {
 
 // Function to fetch batch schedule
 function getBatchSchedule($conn, $teacherId) {
-    $query = "SELECT name, time FROM batches WHERE teacher_id = ?";
+    $query = "SELECT name, schedule FROM batches WHERE teacher = (SELECT name FROM users WHERE id = ?)";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $teacherId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -53,6 +65,10 @@ function getBatchSchedule($conn, $teacherId) {
 function getNotifications($conn, $teacherId) {
     $query = "SELECT message FROM notifications WHERE user_id = ? AND role = 'teacher' ORDER BY created_at DESC";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param("i", $teacherId);
     $stmt->execute();
     $result = $stmt->get_result();

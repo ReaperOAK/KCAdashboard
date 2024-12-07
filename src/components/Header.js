@@ -1,36 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
-import { getCookie } from '../utils/getCookie'; // Import the getCookie function
+import useTokenValidation from '../utils/useTokenValidation'; // Import the useTokenValidation hook
 
 /**
  * Header component that displays the navigation bar and handles user login state.
  */
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const role = getCookie('role');
-    if (role) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, []);
+  const loading = useTokenValidation(setRole);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
   const handleLogout = () => {
-    // Clear the cookies
-    document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    setIsLoggedIn(false);
-    navigate('/login');
+    // Clear the session on the server
+    fetch('/php/logout.php', {
+      method: 'POST',
+      credentials: 'include',
+    }).then(() => {
+      setRole(null);
+      navigate('/login');
+    });
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <header className="bg-blue-600 text-white p-4 flex justify-between items-center">
@@ -40,7 +39,7 @@ const Header = () => {
       <nav className="hidden md:flex space-x-4">
         <Link to="/" className="hover:underline">Home</Link>
         <Link to="/contact" className="hover:underline">Contact Us</Link>
-        {isLoggedIn ? (
+        {role ? (
           <button onClick={handleLogout} className="hover:underline">Logout</button>
         ) : (
           <>
@@ -56,7 +55,7 @@ const Header = () => {
         <nav className="absolute top-16 left-0 w-full bg-blue-600 text-white flex flex-col items-center md:hidden">
           <Link to="/" className="p-4 hover:underline" onClick={toggleMenu}>Home</Link>
           <Link to="/contact" className="p-4 hover:underline" onClick={toggleMenu}>Contact Us</Link>
-          {isLoggedIn ? (
+          {role ? (
             <button onClick={() => { handleLogout(); toggleMenu(); }} className="p-4 hover:underline">Logout</button>
           ) : (
             <>

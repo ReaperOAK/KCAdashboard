@@ -1,0 +1,111 @@
+Database Structure
+==================
+
+Tables in `u703958259_dashboard`:
+---------------------------------
+1. assignments
+2. attendance
+3. batches
+4. classes
+5. grades
+6. notifications
+7. password_resets
+8. performance
+9. resources
+10. support_tickets
+11. system_issues
+12. users
+13. attendance_policies
+
+Table Descriptions:
+-------------------
+
+1. assignments
+    - id: int(11), NO, PRI, auto_increment
+    - title: varchar(255), NO
+    - status: enum('Pending','Graded'), NO
+
+2. attendance
+    - id: int(11), NO, PRI, auto_increment
+    - class_id: int(11), NO, MUL
+    - student_id: int(11), NO, MUL
+    - status: enum('present','absent','pending'), NO
+    - date: date, NO
+    - attendance_percentage: float, YES
+
+3. batches
+    - id: int(11), NO, PRI, auto_increment
+    - name: varchar(255), NO
+    - schedule: text, NO
+    - teacher: varchar(255), NO
+
+4. classes
+    - id: int(11), NO, PRI, auto_increment
+    - teacher_id: int(11), NO, MUL
+    - subject: varchar(255), NO
+    - time: datetime, NO
+    - link: varchar(255), YES
+    - batch_id: int(11), YES, MUL
+
+5. grades
+    - id: int(11), NO, PRI, auto_increment
+    - assignment_id: int(11), NO, MUL
+    - student_id: int(11), NO, MUL
+    - grade: varchar(2), NO
+    - comment: text, YES
+
+6. notifications
+    - id: int(11), NO, PRI, auto_increment
+    - user_id: int(11), NO, MUL
+    - role: enum('student','teacher','admin'), NO
+    - message: text, NO
+    - created_at: timestamp, YES, current_timestamp()
+
+7. password_resets
+    - id: int(11), NO, PRI, auto_increment
+    - email: varchar(255), NO
+    - token: varchar(255), NO
+    - expires: int(11), NO
+    - created_at: timestamp, YES, current_timestamp()
+
+8. performance
+    - id: int(11), NO, PRI, auto_increment
+    - student_id: int(11), NO, MUL
+    - subject: varchar(255), NO
+    - grade: varchar(2), NO
+
+9. resources
+    - id: int(11), NO, PRI, auto_increment
+    - category: varchar(255), NO
+    - title: varchar(255), NO
+    - type: varchar(50), NO
+    - link: varchar(255), NO
+    - description: text, NO
+
+10. support_tickets
+     - id: int(11), NO, PRI, auto_increment
+     - user_id: int(11), NO, MUL
+     - subject: varchar(255), NO
+     - description: text, NO
+     - status: enum('Pending','Resolved'), YES, Pending
+     - created_at: timestamp, YES, current_timestamp()
+
+11. system_issues
+     - id: int(11), NO, PRI, auto_increment
+     - issue: text, NO
+     - created_at: timestamp, YES, current_timestamp()
+
+12. users
+     - id: int(11), NO, PRI, auto_increment
+     - name: varchar(255), NO
+     - email: varchar(255), NO, UNI
+     - password: varchar(255), NO
+     - role: enum('student','teacher','admin'), NO
+     - profile_picture: varchar(255), YES
+     - missed_class_notifications: tinyint(1), YES, 0
+     - assignment_due_notifications: tinyint(1), YES, 0
+     - active: tinyint(1), YES, 1
+13. attendance_policies
+     - id: int(11), NO, PRI, auto_increment
+     - threshold: int(11), NO
+     - reminder: int(11), NO

@@ -8,7 +8,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAeZAqhDh6IY9ABEsCHr-8KlicCnnvRp1w",
-  authDomain: "kolkatachessacademy-303cc.firebaseapp.com",
+  authDomain: "kolkatachessacademy.in",
   projectId: "kolkatachessacademy-303cc",
   storageBucket: "kolkatachessacademy-303cc.firebasestorage.app",
   messagingSenderId: "592470233142",

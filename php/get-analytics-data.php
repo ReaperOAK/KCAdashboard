@@ -19,7 +19,10 @@ function getAttendanceTrends($conn) {
 
 // Function to fetch grades data
 function getGradesData($conn) {
-    $query = "SELECT subject, AVG(grade) as average FROM grades GROUP BY subject";
+    $query = "SELECT a.title as subject, AVG(g.grade) as average 
+              FROM grades g 
+              JOIN assignments a ON g.assignment_id = a.id 
+              GROUP BY a.title";
     $result = mysqli_query($conn, $query);
     if (!$result) {
         error_log("Database query failed: " . mysqli_error($conn));

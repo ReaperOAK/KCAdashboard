@@ -152,7 +152,7 @@ const AdminDashboard = () => {
                 onChange={(e) => handleUserSelect(e.target.value)}
               >
                 <option value="">Select User</option>
-                {dashboardData.userRoles.map((user) => (
+                {dashboardData.userRoles && dashboardData.userRoles.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.name} ({user.role})
                   </option>

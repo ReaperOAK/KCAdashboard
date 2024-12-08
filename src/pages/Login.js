@@ -12,6 +12,7 @@ const Login = () => {
   // Validate email format
   const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  
   // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();

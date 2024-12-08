@@ -34,7 +34,7 @@ const Sidebar = ({ role }) => {
               <li className="p-4 hover:bg-gray-700"><Link to="/admin-attendance">Admin Attendance</Link></li>
               <li className="p-4 hover:bg-gray-700"><Link to="/batch-management">Batch Management</Link></li>
               <li className="p-4 hover:bg-gray-700"><Link to="/analytics-reporting">Analytics & Reporting</Link></li>
-              <li className="p-4 hover:bg-gray-700"><Link to="/user-management">User Management</Link></li>
+              <li className="p-4 hover:bg-gray-700"><Link to="/manage-users">User Management</Link></li>
               <li className="p-4 hover:bg-gray-700"><Link to="/support">Support</Link></li>
             </>
           )}

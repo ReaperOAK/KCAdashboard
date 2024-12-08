@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { signInWithGoogle } from '../utils/firebase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -100,6 +101,15 @@ const Login = () => {
         </form>
         <div className="mt-4 text-center">
           <p>Don't have an account? <Link to="/signup" className="text-blue-500 hover:underline">Sign Up</Link></p>
+        </div>
+        <div className="mt-4 text-center">
+          <p>Or login with:</p>
+          <button
+            onClick={signInWithGoogle}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Google
+          </button>
         </div>
       </div>
     </div>

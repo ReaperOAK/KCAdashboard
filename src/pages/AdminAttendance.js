@@ -26,7 +26,7 @@ const AdminAttendance = () => {
         const reportsData = await reportsResponse.json();
         const overviewData = await overviewResponse.json();
 
-        setPolicies(policiesData);
+        setPolicies(policiesData || { threshold: 75, reminder: 3 });
         setAttendanceReports(reportsData);
         setAttendanceOverview(overviewData);
       } catch (error) {

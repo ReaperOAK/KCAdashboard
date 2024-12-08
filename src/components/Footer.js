@@ -28,7 +28,7 @@ const Footer = () => {
             <FaLinkedin className="w-6 h-6 inline-block" />
           </a>
         </div>
-        <div className="text-sm">&copy; 2023 EduPlatform. All rights reserved.</div>
+        <div className="text-sm">&copy; 2023 Chess Codextform. All rights reserved.</div>
       </div>
     </footer>
   );

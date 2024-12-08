@@ -34,7 +34,7 @@ const Header = () => {
   return (
     <header className="bg-blue-600 text-white p-4 flex justify-between items-center">
       <div className="text-2xl font-bold">
-        <Link to="/">EduPlatform</Link>
+        <Link to="/">Chess Codextform</Link>
       </div>
       <nav className="hidden md:flex space-x-4">
         <Link to="/" className="hover:underline">Home</Link>

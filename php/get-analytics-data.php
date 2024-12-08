@@ -4,7 +4,7 @@ include 'config.php'; // Include your database configuration file
 
 // Function to fetch attendance trends
 function getAttendanceTrends($conn) {
-    $query = "SELECT month, AVG(attendance_percentage) as average FROM attendance GROUP BY month";
+    $query = "SELECT DATE_FORMAT(date, '%Y-%m') as month, AVG(attendance_percentage) as average FROM attendance GROUP BY month";
     $result = mysqli_query($conn, $query);
     if (!$result) {
         error_log("Database query failed: " . mysqli_error($conn));

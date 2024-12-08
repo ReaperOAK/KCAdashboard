@@ -184,7 +184,7 @@ const AdminDashboard = () => {
               <ul>
                 {dashboardData.systemIssues.map((issue, index) => (
                   <li key={index} className="mb-2">
-                    {issue}
+                    {issue.issue}
                     <button
                       onClick={() => handleResolveIssue(issue.id)}
                       className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline ml-4"

@@ -1,25 +1,61 @@
-import React, { useState } from 'react';
-
-const initialBatches = [
-  { id: 1, name: 'Math 101', schedule: 'Mon, Wed, Fri - 10:00 AM to 11:00 AM', teacher: 'Mr. John Doe' },
-  { id: 2, name: 'Science 101', schedule: 'Tue, Thu - 1:00 PM to 2:30 PM', teacher: 'Ms. Jane Smith' },
-  // Add more batches as needed
-];
+import React, { useState, useEffect } from 'react';
 
 /**
  * BatchManagement component handles the display and management of batches.
  */
 const BatchManagement = () => {
-  const [batches, setBatches] = useState(initialBatches);
+  const [batches, setBatches] = useState([]);
   const [newBatch, setNewBatch] = useState({ name: '', schedule: '', teacher: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch the list of batches from the server
+    const fetchBatches = async () => {
+      try {
+        const response = await fetch('/php/get-batches.php');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setBatches(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBatches();
+  }, []);
 
   /**
    * Adds a new batch to the list.
    */
-  const handleAddBatch = () => {
+  const handleAddBatch = async () => {
     if (newBatch.name && newBatch.schedule && newBatch.teacher) {
-      setBatches([...batches, { ...newBatch, id: batches.length + 1 }]);
-      setNewBatch({ name: '', schedule: '', teacher: '' });
+      try {
+        const response = await fetch('/php/add-batch.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBatch),
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setBatches([...batches, { ...newBatch, id: data.id }]);
+          setNewBatch({ name: '', schedule: '', teacher: '' });
+        } else {
+          alert('Error adding batch: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error adding batch:', error);
+        alert('An error occurred while adding the batch.');
+      }
     } else {
       alert('Please fill in all fields');
     }
@@ -29,9 +65,37 @@ const BatchManagement = () => {
    * Deletes a batch from the list.
    * @param {number} id - Batch ID
    */
-  const handleDeleteBatch = (id) => {
-    setBatches(batches.filter(batch => batch.id !== id));
+  const handleDeleteBatch = async (id) => {
+    try {
+      const response = await fetch('/php/delete-batch.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setBatches(batches.filter(batch => batch.id !== id));
+      } else {
+        alert('Error deleting batch: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting batch:', error);
+      alert('An error occurred while deleting the batch.');
+    }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

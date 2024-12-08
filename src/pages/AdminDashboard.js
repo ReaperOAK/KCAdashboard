@@ -11,30 +11,119 @@ const AdminDashboard = () => {
     userRoles: [],
     systemIssues: [],
   });
+  const [newRole, setNewRole] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch admin dashboard data
-    fetch('/php/admin-dashboard-data.php')
-      .then((response) => response.json())
-      .then((data) => setDashboardData(data))
-      .catch((error) => console.error('Error fetching admin dashboard data:', error));
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('/php/admin-dashboard-data.php');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setDashboardData(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
-  /**
-   * Navigates to User Management page.
-   */
   const handleManageUsers = () => {
     navigate('/manage-users');
   };
 
-  /**
-   * Navigates to System Management page.
-   */
   const handleManageSystem = () => {
     navigate('/manage-system');
   };
+
+  const handleRoleChange = (e) => {
+    setNewRole(e.target.value);
+  };
+
+  const handleUserSelect = (userId) => {
+    setSelectedUser(userId);
+  };
+
+  const handleUpdateRole = async () => {
+    if (!selectedUser || !newRole) {
+      alert('Please select a user and a role.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/php/update-user-role.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: selectedUser, role: newRole }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        alert('User role updated successfully');
+        setDashboardData((prevData) => ({
+          ...prevData,
+          userRoles: prevData.userRoles.map((user) =>
+            user.id === selectedUser ? { ...user, role: newRole } : user
+          ),
+        }));
+      } else {
+        alert('Error updating user role: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('An error occurred while updating user role.');
+    }
+  };
+
+  const handleResolveIssue = async (issueId) => {
+    try {
+      const response = await fetch('/php/resolve-system-issue.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issueId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        alert('System issue resolved successfully');
+        setDashboardData((prevData) => ({
+          ...prevData,
+          systemIssues: prevData.systemIssues.filter((issue) => issue.id !== issueId),
+        }));
+      } else {
+        alert('Error resolving system issue: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error resolving system issue:', error);
+      alert('An error occurred while resolving system issue.');
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -56,6 +145,36 @@ const AdminDashboard = () => {
             >
               Manage Users
             </button>
+            <div className="mt-4">
+              <h3 className="text-xl font-bold mb-2">Update User Role</h3>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
+                onChange={(e) => handleUserSelect(e.target.value)}
+              >
+                <option value="">Select User</option>
+                {dashboardData.userRoles.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name} ({user.role})
+                  </option>
+                ))}
+              </select>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
+                value={newRole}
+                onChange={handleRoleChange}
+              >
+                <option value="">Select Role</option>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+              </select>
+              <button
+                onClick={handleUpdateRole}
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Update Role
+              </button>
+            </div>
           </div>
         </section>
         <section className="mb-8">
@@ -66,6 +185,12 @@ const AdminDashboard = () => {
                 {dashboardData.systemIssues.map((issue, index) => (
                   <li key={index} className="mb-2">
                     {issue}
+                    <button
+                      onClick={() => handleResolveIssue(issue.id)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline ml-4"
+                    >
+                      Resolve
+                    </button>
                   </li>
                 ))}
               </ul>

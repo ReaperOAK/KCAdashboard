@@ -21,6 +21,10 @@ import AnalyticsReporting from './pages/AnalyticsReporting';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 import ResetPassword from './pages/ResetPassword';
+import ManageUsers from './pages/ManageUsers';
+import ManageSystem from './pages/ManageSystem';
+import Reports from './pages/Reports';
+import Notifications from './pages/Notifications';
 import ProtectedRoute from './components/ProtectedRoute';
 import useTokenValidation from './utils/useTokenValidation';
 
@@ -63,12 +67,15 @@ const AppContent = () => {
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/admin-attendance" element={<AdminAttendance />} />
               <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
+              <Route path="/manage-users" element={<ManageUsers />} />
+              <Route path="/manage-system" element={<ManageSystem />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/notifications" element={<Notifications />} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['student', 'teacher']} role={role} />}>
               <Route path="/resources" element={<Resources />} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['admin', 'teacher']} role={role} />}>
-              <Route path="/resources" element={<Resources />} />
               <Route path="/batch-management" element={<BatchManagement />} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['student', 'teacher', 'admin']} role={role} />}>

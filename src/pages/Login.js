@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
@@ -7,6 +7,42 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      callback: handleGoogleResponse,
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('googleSignInButton'),
+      { theme: 'outline', size: 'large' }
+    );
+  }, []);
+
+  const handleGoogleResponse = async (response) => {
+    try {
+      const res = await fetch('/php/google-login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: response.credential }),
+      });
+
+      if (!res.ok) throw new Error('Network response was not ok');
+
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('role', data.role); // Use sessionStorage
+        navigate('/');
+        window.location.reload();
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An unexpected error occurred. Please try again later.');
+    }
+  };
 
   // Validate email format
   const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -103,9 +139,7 @@ const Login = () => {
         </div>
         <div className="mt-4 text-center">
           <p>Or login with:</p>
-          <a href="/php/google-login.php" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-            Google
-          </a>
+          <div id="googleSignInButton"></div>
         </div>
       </div>
     </div>

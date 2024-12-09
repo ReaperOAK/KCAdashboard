@@ -14,6 +14,7 @@
 /build
 
 # misc
+config.env.php
 .env
 .DS_Store
 .env.local

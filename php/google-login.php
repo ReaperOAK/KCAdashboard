@@ -1,19 +1,15 @@
 <?php
 require 'vendor/autoload.php';
 include 'config.php';
+include 'config.env.php'; // Include the environment variables
 
 use League\OAuth2\Client\Provider\Google;
-use Dotenv\Dotenv;
 
 session_start();
 
-// Load environment variables
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
 $provider = new Google([
-    'clientId'     => $_ENV['GOOGLE_CLIENT_ID'],
-    'clientSecret' => $_ENV['GOOGLE_CLIENT_SECRET'],
+    'clientId'     => getenv('GOOGLE_CLIENT_ID'),
+    'clientSecret' => getenv('GOOGLE_CLIENT_SECRET'),
     'redirectUri'  => 'https://dashboard.kolkatachessacademy.in/php/google-login.php',
 ]);
 

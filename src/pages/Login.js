@@ -101,6 +101,15 @@ const Login = () => {
         <div className="mt-4 text-center">
           <p>Don't have an account? <Link to="/signup" className="text-blue-500 hover:underline">Sign Up</Link></p>
         </div>
+        <div className="mt-4 text-center">
+          <p>Or login with:</p>
+          <a href="/php/google-login.php" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Google
+          </a>
+          <a href="/php/facebook-login.php" className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4">
+            Facebook
+          </a>
+        </div>
       </div>
     </div>
   );

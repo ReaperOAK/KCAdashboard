@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
@@ -6,21 +6,10 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    /* global google */
-    google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID',
-      callback: handleGoogleResponse,
-    });
-    google.accounts.id.renderButton(
-      document.getElementById('googleSignInButton'),
-      { theme: 'outline', size: 'large' }
-    );
-  }, []);
-
-  const handleGoogleResponse = async (response) => {
+  const handleGoogleResponse = useCallback(async (response) => {
     try {
       const res = await fetch('/php/google-login.php', {
         method: 'POST',
@@ -42,7 +31,36 @@ const Login = () => {
       console.error('Error:', error);
       setError('An unexpected error occurred. Please try again later.');
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    // Fetch the Google Client ID from the server
+    const fetchGoogleClientId = async () => {
+      try {
+        const response = await fetch('/php/get-env.php');
+        const data = await response.json();
+        setGoogleClientId(data.GOOGLE_CLIENT_ID);
+      } catch (error) {
+        console.error('Error fetching Google Client ID:', error);
+      }
+    };
+
+    fetchGoogleClientId();
+  }, []);
+
+  useEffect(() => {
+    if (googleClientId) {
+      /* global google */
+      google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleResponse,
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('googleSignInButton'),
+        { theme: 'outline', size: 'large' }
+      );
+    }
+  }, [googleClientId, handleGoogleResponse]);
 
   // Validate email format
   const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -145,6 +163,5 @@ const Login = () => {
     </div>
   );
 };
-
 
 export default Login;

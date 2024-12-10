@@ -10,20 +10,24 @@ session_start();
 $provider = new Google([
     'clientId'     => getenv('GOOGLE_CLIENT_ID'),
     'clientSecret' => getenv('GOOGLE_CLIENT_SECRET'),
-    'redirectUri'  => 'https://dashboard.kolkatachessacademy.in/php/google-login.php', // Ensure this matches the URI in Google Cloud Console
+    'redirectUri'  => 'https://dashboard.kolkatachessacademy.in/google-callback', // Ensure this matches the URI in Google Cloud Console
 ]);
 
-if (!isset($_GET['code'])) {
+$data = json_decode(file_get_contents('php://input'), true);
+$code = $data['code'];
+$state = $data['state'];
+
+if (!isset($code)) {
     $authUrl = $provider->getAuthorizationUrl();
     $_SESSION['oauth2state'] = $provider->getState();
     header('Location: ' . $authUrl);
     exit;
-} elseif (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2state'])) {
+} elseif (empty($state) || ($state !== $_SESSION['oauth2state'])) {
     unset($_SESSION['oauth2state']);
     exit('Invalid state');
 } else {
     $token = $provider->getAccessToken('authorization_code', [
-        'code' => $_GET['code']
+        'code' => $code
     ]);
 
     try {
@@ -62,11 +66,9 @@ if (!isset($_GET['code'])) {
             $_SESSION['role'] = $role;
         }
 
-        // Redirect to the home page
-        header('Location: /');
-        exit;
+        echo json_encode(['success' => true, 'role' => $_SESSION['role']]);
     } catch (Exception $e) {
-        exit('Failed to get user details');
+        echo json_encode(['success' => false, 'message' => 'Failed to get user details']);
     }
 }
 ?>

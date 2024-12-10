@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php'; // Ensure this path is correct
 include 'config.php';
 include 'config.env.php'; // Include the environment variables
 

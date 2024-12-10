@@ -25,6 +25,7 @@ import ManageUsers from './pages/ManageUsers';
 import ManageSystem from './pages/ManageSystem';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
+import GoogleCallback from './pages/GoogleCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 import useTokenValidation from './utils/useTokenValidation';
 
@@ -54,6 +55,7 @@ const AppContent = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/google-callback" element={<GoogleCallback />} />
             <Route element={<ProtectedRoute allowedRoles={['student']} role={role} />}>
               <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/student-attendance" element={<StudentAttendance />} />

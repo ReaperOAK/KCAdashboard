@@ -50,15 +50,28 @@ const Login = () => {
 
   useEffect(() => {
     if (googleClientId) {
-      /* global google */
-      google.accounts.id.initialize({
-        client_id: googleClientId,
-        callback: handleGoogleResponse,
-      });
-      google.accounts.id.renderButton(
-        document.getElementById('googleSignInButton'),
-        { theme: 'outline', size: 'large' }
-      );
+      const initializeGoogleSignIn = () => {
+        /* global google */
+        google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleResponse,
+        });
+        google.accounts.id.renderButton(
+          document.getElementById('googleSignInButton'),
+          { theme: 'outline', size: 'large' }
+        );
+      };
+
+      if (window.google) {
+        initializeGoogleSignIn();
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = initializeGoogleSignIn;
+        document.body.appendChild(script);
+      }
     }
   }, [googleClientId, handleGoogleResponse]);
 

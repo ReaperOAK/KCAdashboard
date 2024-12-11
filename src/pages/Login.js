@@ -1,20 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { auth, googleProvider } from '../utils/firebase';
+import { signInWithPopup } from 'firebase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [googleClientId, setGoogleClientId] = useState('');
   const navigate = useNavigate();
 
-  const handleGoogleResponse = useCallback(async (response) => {
+  const handleGoogleLogin = async () => {
     try {
-      const res = await fetch('/php/google-login.php', {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+
+      const res = await fetch('/php/firebase-login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: response.credential }),
+        body: JSON.stringify({ idToken }),
       });
 
       if (!res.ok) throw new Error('Network response was not ok');
@@ -31,49 +36,7 @@ const Login = () => {
       console.error('Error:', error);
       setError('An unexpected error occurred. Please try again later.');
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    // Fetch the Google Client ID from the server
-    const fetchGoogleClientId = async () => {
-      try {
-        const response = await fetch('/php/get-env.php');
-        const data = await response.json();
-        setGoogleClientId(data.GOOGLE_CLIENT_ID);
-      } catch (error) {
-        console.error('Error fetching Google Client ID:', error);
-      }
-    };
-
-    fetchGoogleClientId();
-  }, []);
-
-  useEffect(() => {
-    if (googleClientId) {
-      const initializeGoogleSignIn = () => {
-        /* global google */
-        google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleResponse,
-        });
-        google.accounts.id.renderButton(
-          document.getElementById('googleSignInButton'),
-          { theme: 'outline', size: 'large' }
-        );
-      };
-
-      if (window.google) {
-        initializeGoogleSignIn();
-      } else {
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = initializeGoogleSignIn;
-        document.body.appendChild(script);
-      }
-    }
-  }, [googleClientId, handleGoogleResponse]);
+  };
 
   // Validate email format
   const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -170,7 +133,12 @@ const Login = () => {
         </div>
         <div className="mt-4 text-center">
           <p>Or login with:</p>
-          <div id="googleSignInButton"></div>
+          <button
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            onClick={handleGoogleLogin}
+          >
+            Google
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth, googleProvider } from '../firebase';
+import { auth, googleProvider } from '../utils/firebase';
 import { signInWithPopup } from 'firebase/auth';
 
 const Login = () => {

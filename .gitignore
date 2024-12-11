@@ -15,6 +15,7 @@
 
 # misc
 config.env.php
+firebase-service-accounts.json
 .env
 .DS_Store
 .env.local

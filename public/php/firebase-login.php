@@ -6,7 +6,7 @@ include 'config.env.php'; // Include the environment variables
 use Firebase\Auth\Token\Exception\InvalidToken;
 use Kreait\Firebase\Factory;
 
-$factory = (new Factory)->withServiceAccount(__DIR__ . '/../path/to/your/firebase-service-account.json');
+$factory = (new Factory)->withServiceAccount(__DIR__ . '/firebase-service-account.json');
 $auth = $factory->createAuth();
 
 $data = json_decode(file_get_contents('php://input'), true);

@@ -5,7 +5,7 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBC32CVCYnOmpxq-SMpLrTHEDxn6lzTiNk",
-  authDomain: "kolkatachessacademy.in",
+  authDomain: "kolkatachessacademy-a6578.firebaseapp.com",
   projectId: "kolkatachessacademy-a6578",
   storageBucket: "kolkatachessacademy-a6578.appspot.com",
   messagingSenderId: "1007867533415",

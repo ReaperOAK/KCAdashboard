@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
  * Custom hook to validate the user's session token.
@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 const useTokenValidation = (setRole, redirectPath = '/login') => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const validateSession = async () => {
@@ -21,7 +22,9 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
         });
 
         if (response.status === 401 || !response.ok) {
-          navigate(redirectPath);
+          if (!['/', '/signup', '/login'].includes(location.pathname)) {
+            navigate(redirectPath);
+          }
           return;
         }
 
@@ -29,18 +32,22 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
         if (data.success) {
           setRole(data.role);
         } else {
-          navigate(redirectPath);
+          if (!['/', '/signup', '/login'].includes(location.pathname)) {
+            navigate(redirectPath);
+          }
         }
       } catch (error) {
         console.error('Error validating session:', error);
-        navigate(redirectPath);
+        if (!['/', '/signup', '/login'].includes(location.pathname)) {
+          navigate(redirectPath);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     validateSession();
-  }, [navigate, redirectPath, setRole]);
+  }, [navigate, redirectPath, setRole, location.pathname]);
 
   return loading;
 };

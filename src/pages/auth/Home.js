@@ -1,6 +1,6 @@
 import React from 'react';
-import MainBanner from '../components/MainBanner';
-import Features from '../components/Features';
+import MainBanner from '../../components/MainBanner';
+import Features from '../../components/Features';
 import { Link } from 'react-router-dom';
 
 const Home = () => {

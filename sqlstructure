@@ -16,6 +16,8 @@ Tables in `u703958259_dashboard`:
 11. system_issues
 12. users
 13. attendance_policies
+14. newsletters
+15. contact_submissions
 
 Table Descriptions:
 -------------------
@@ -105,7 +107,20 @@ Table Descriptions:
      - missed_class_notifications: tinyint(1), YES, 0
      - assignment_due_notifications: tinyint(1), YES, 0
      - active: tinyint(1), YES, 1
+
 13. attendance_policies
      - id: int(11), NO, PRI, auto_increment
      - threshold: int(11), NO
      - reminder: int(11), NO
+
+14. newsletters
+     - id: int(11), NO, PRI, auto_increment
+     - email: varchar(255), NO
+     - created_at: timestamp, YES, current_timestamp()
+
+15. contact_submissions
+     - id: int(11), NO, PRI, auto_increment
+     - name: varchar(255), NO
+     - email: varchar(255), NO
+     - message: text, NO
+     - created_at: timestamp, YES, current_timestamp()

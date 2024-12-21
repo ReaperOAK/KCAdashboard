@@ -1,4 +1,4 @@
-Updated Detailed Report for Website Design and Development
+Detailed Report for Website Design and Development
 This report outlines the comprehensive plan for designing and developing the educational website, now incorporating the attendance system.
 
 1. Feature Suggestions
@@ -116,7 +116,7 @@ Libraries:
 FullCalendar.js for attendance calendar.
 Chart.js for performance graphs.
 Backend
-Framework: Node.js with Express.js.
+Framework: PHP
 Database: Hostinger's SQL.
 Integrations:
 Zoom/Google Meet API for virtual attendance.
@@ -130,10 +130,5 @@ Dark Mode:
 Optional toggle for user comfort.
 Export Features:
 Generate reports for attendance, grades, and analytics.
-8. Development Timeline
-Week 1–2: Design and prototyping (UI/UX for all pages).
-Week 3–4: Core features (authentication, dashboards, attendance).
-Week 5: Integration (Zoom API, analytics).
-Week 6: Testing and feedback.
-Week 7: Final deployment.
+
 This detailed report combines core functionality with modern design principles to ensure the platform is both user-friendly and efficient. Let me know if you’d like any further refinements.

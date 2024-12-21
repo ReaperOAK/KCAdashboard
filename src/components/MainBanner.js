@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 const MainBanner = () => {
   return (
     <section
-      className="relative bg-cover bg-center text-white py-24"
+      className="relative bg-cover bg-center text-white py-24 z-10"
       style={{
         backgroundImage: 'url(/path/to/your/background-image.jpg)',
       }}
@@ -15,7 +15,7 @@ const MainBanner = () => {
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 opacity-75"></div>
 
-      <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
+      <div className="relative z-20 max-w-4xl mx-auto text-center px-6">
         {/* Heading */}
         <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
           Elevate Your Learning with Chess Codex

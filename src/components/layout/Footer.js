@@ -68,7 +68,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
           <p className="mb-4 md:mb-0">&copy; 2023 Chess Codex. All rights reserved.</p>
           <p>
-            Designed by <a href="/" className="hover:underline">Owais Khan</a>
+            Designed with <span className="text-[#af0505]">♥</span> by <a href="/" className="hover:underline">Owais Khan</a>
           </p>
         </div>
       </div>

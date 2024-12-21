@@ -31,22 +31,28 @@ import Notifications from './pages/admin/Notifications';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 
-const App = () => (
-  <Router>
-    <AppContent />
-  </Router>
-);
+const App = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-const AppContent = () => {
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+  return (
+    <Router>
+      <AppContent isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+    </Router>
+  );
+};
+
+const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
   const [role, setRole] = useState('');
   useTokenValidation(setRole);
 
   return (
-    <>
+    <div className="flex h-screen overflow-hidden">
       <Header />
-      <div className="flex">
-        <Sidebar role={role} />
-        <main className="flex-grow p-8 bg-gray-100">
+      <Sidebar role={role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <div className="flex flex-col flex-grow overflow-y-auto">
+        <main className="flex-grow bg-gray-100 ">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -107,9 +113,9 @@ const AppContent = () => {
             </Route>
           </Routes>
         </main>
+        <Footer />
       </div>
-      <Footer />
-    </>
+    </div>
   );
 };
 

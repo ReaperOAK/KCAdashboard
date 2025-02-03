@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Line, Bar, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto';
 
 const PlatformAnalytics = () => {
   const [analytics, setAnalytics] = useState({

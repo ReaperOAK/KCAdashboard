@@ -52,37 +52,42 @@
     └── 📁src
         └── 📁components
             └── Features.js
-            └── Footer.js
-            └── Header.js
+            └── 📁layout
+                └── Footer.js
+                └── Header.js
+                └── Sidebar.js
             └── MainBanner.js
-            └── ProtectedRoute.js
-            └── Sidebar.js
         └── 📁pages
-            └── AdminAttendance.js
-            └── AdminDashboard.js
-            └── AnalyticsReporting.js
-            └── BatchManagement.js
-            └── ContactUs.js
-            └── ForgotPassword.js
-            └── GoogleCallback.js
-            └── GradingFeedback.js
-            └── Home.js
-            └── Login.js
-            └── ManageSystem.js
-            └── ManageUsers.js
-            └── Notifications.js
-            └── Reports.js
-            └── ResetPassword.js
-            └── Resources.js
+            └── 📁admin
+                └── AdminAttendance.js
+                └── AdminDashboard.js
+                └── AnalyticsReporting.js
+                └── ManageSystem.js
+                └── ManageUsers.js
+                └── Notifications.js
+                └── Reports.js
+            └── 📁auth
+                └── ContactUs.js
+                └── ForgotPassword.js
+                └── GoogleCallback.js
+                └── Home.js
+                └── Login.js
+                └── ResetPassword.js
+                └── SignUp.js
             └── Settings.js
-            └── SignUp.js
-            └── StudentAttendance.js
-            └── StudentDashboard.js
+            └── 📁student
+                └── Resources.js
+                └── StudentAttendance.js
+                └── StudentDashboard.js
             └── Support.js
-            └── TeacherAttendance.js
-            └── TeacherDashboard.js
+            └── 📁teacher
+                └── BatchManagement.js
+                └── GradingFeedback.js
+                └── TeacherAttendance.js
+                └── TeacherDashboard.js
         └── 📁utils
-            └── Firebase.js
+            └── firebase.js
+            └── ProtectedRoute.js
             └── useTokenValidation.js
         └── App.css
         └── App.js

@@ -1,134 +1,92 @@
-Detailed Report for Website Design and Development
-This report outlines the comprehensive plan for designing and developing the educational website, now incorporating the attendance system.
+### Comprehensive Plan for Chess Academy Dashboard Website
 
-1. Feature Suggestions
-General Features
-Authentication System:
-Role-based login/sign-up for students, teachers, and admins.
-Password recovery and account management options.
-Dashboard Overview:
-Centralized dashboard for personalized information and quick access to key sections.
-Notifications:
-Alerts for upcoming classes, assignments, announcements, and attendance.
-Student Features
-Classroom Integration:
-Join live classes with integrated Zoom/Google Meet links.
-Access recorded lectures and supplementary materials.
-Interactive Boards:
-Collaborative whiteboard for real-time interaction.
-Progress Tracker:
-Visual graphs showing performance in assignments and attendance.
-Resource Center:
-Downloadable notes, videos, and multimedia materials.
-Teacher Features
-Batch Management:
-Add, edit, and delete batches with a customizable schedule.
-Announcements for specific batches.
-Grading and Feedback:
-Submit grades and feedback for student assignments.
-Student Analytics:
-View individual and batch-level performance reports.
-Content Management:
-Upload and schedule study material and assignments.
-Admin Features
-User Management:
-Role assignments and permissions.
-Platform Analytics:
-Insights into user activity, class participation, and feedback.
-Support:
-Manage tickets and automate FAQs.
-2. Attendance System
-Student Attendance Features
-Attendance Summary:
-Calendar view for attendance with marked dates.
-Attendance percentage and progress bar.
-Notifications:
-Alerts for missed classes or low attendance.
-Teacher Attendance Features
-Mark Attendance:
-Manual or bulk marking for classes.
-Auto-sync with virtual platforms (Zoom/Google Meet).
-Analytics:
-Attendance trends and summaries.
-Reports:
-Export attendance in PDF/Excel formats.
-Admin Attendance Features
-Attendance Policies:
-Configure thresholds and reminders.
-Batch-Wide Reports:
-View and export attendance for classes, students, or teachers.
-Design and Technical Implementation
-Frontend:
-Teacher Interface:
-Table view with toggles for marking attendance.
-Batch selector and "Mark All Present" options.
-Student Interface:
-Calendar view with color-coded attendance.
-Percentage summary and alerts.
-Backend:
-Database: Attendance table with fields for class_id, student_id, date, and status.
-API Endpoints:
-POST /mark-attendance
-GET /attendance-summary
-GET /export-attendance
-3. Suggested Design Layout
-Header
-Persistent across pages.
-Navigation links: Home, Contact Us, Login/Sign-Up.
-Mobile view: Collapsible hamburger menu.
-Dashboard Layout
-Student Dashboard
-Left Sidebar: Quick links to settings, attendance, messages, and resources.
-Main Panel:
-Top Section: Class schedule and notifications.
-Middle Section: Attendance summary and progress tracker.
-Bottom Section: Quick links to homework and resources.
-Teacher Dashboard
-Left Sidebar: Quick access to batch management, attendance, and resources.
-Main Panel:
-Top Section: Attendance stats and reminders.
-Middle Section: Batch schedule and attendance marking.
-Bottom Section: File uploads and student reports.
-Admin Dashboard
-Left Sidebar: Links to user management, reports, attendance, and settings.
-Main Panel:
-Top Section: Display of platform analytics (e.g., number of active users, attendance trends).
-Middle Section: Links to manage user roles, permissions, and batch assignments.
-Bottom Section: Manage tickets, FAQ automation, and system configurations.
-4. Color Scheme
-Primary Colors:
-Blue (#1E90FF): Trust and professionalism.
-White (#FFFFFF): Clean and minimal backgrounds.
-Secondary Colors:
-Green (#32CD32): Positive actions.
-Orange (#FFA500): Alerts and notifications.
-Neutral Colors:
-Dark Gray (#2C2C2C): Sidebar and footer.
-Light Gray (#F5F5F5): Cards and dividers.
-5. Typography
-Heading Font: Poppins or Roboto Bold.
-Body Font: Open Sans or Lato.
-6. Technologies
-Frontend
-Framework: React.js.
-CSS Framework: TailwindCSS.
-Libraries:
-FullCalendar.js for attendance calendar.
-Chart.js for performance graphs.
-Backend
-Framework: PHP
-Database: Hostinger's SQL.
-Integrations:
-Zoom/Google Meet API for virtual attendance.
-Redis for caching frequent queries.
-7. Additional Features
-Real-Time Notifications:
-WebSocket integration for live updates.
-Mobile Optimization:
-Responsive design for all devices.
-Dark Mode:
-Optional toggle for user comfort.
-Export Features:
-Generate reports for attendance, grades, and analytics.
+This report outlines the design and development plan for the Chess Academy's dashboard website, incorporating key features like simul games, classroom management, chess studies, analytics, and an attendance system.
 
-This detailed report combines core functionality with modern design principles to ensure the platform is both user-friendly and efficient. Let me know if you’d like any further refinements.
+---
+
+## **1. Feature Overview**
+
+### **General Features**
+- **Authentication System:** Role-based login/signup for students, teachers, and admins.
+- **Dashboard Overview:** Personalized dashboard for quick access.
+- **Notifications:** Alerts for upcoming classes, tournaments, assignments, and attendance.
+
+---
+
+### **Student Features**
+1. **Simul Games:** Integration with [Lichess.org](https://lichess.org) for simultaneous exhibition matches.
+2. **Classroom:** View and manage enrolled batches, teachers, and materials.
+3. **Studies:** Access chess studies integrated with [Lichess.org](https://lichess.org).
+4. **Interactive Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
+5. **Game Area:** Dedicated space for chess games and practice.
+6. **Resource Center:** Downloadable PGN files, notes, and videos.
+7. **Quiz Page:** Chess-related quizzes for practice.
+8. **Tournaments Page:** View and register for upcoming chess tournaments.
+9. **Chat Page:** Communicate with peers, teachers, and admins.
+
+---
+
+### **Teacher Features**
+1. **Batch Management:** Create, edit, and manage student batches.
+2. **Reports & Analytics:** View student performance, quiz scores, and attendance stats.
+3. **Grading and Feedback:** Provide performance feedback and assignments.
+4. **PGN Database:** Upload, manage, and share chess PGNs.
+5. **Classroom Management:** Organize study material and schedule online/offline classes.
+
+---
+
+### **Admin Features**
+1. **User Management:** Assign roles and permissions.
+2. **Attendance System:**
+   - **Students:** Calendar-based attendance tracking with reminders.
+   - **Teachers:** Bulk/manual marking of attendance, Zoom/Google Meet sync.
+   - **Admins:** Export attendance reports and set policies.
+3. **Platform Analytics:** Insights into user activity, game participation, and learning progress.
+4. **Support System:** Manage tickets, FAQs, and system-wide configurations.
+
+---
+
+## **2. Design & Technical Implementation**
+
+### **Frontend**
+- **Framework:** React.js
+- **CSS:** TailwindCSS
+- **Libraries:**
+  - FullCalendar.js for attendance.
+  - Chart.js for performance analytics.
+
+### **Backend**
+- **Framework:** PHP
+- **Database:** Hostinger SQL
+- **Integrations:**
+  - Lichess.org API for games.
+  - Zoom/Google Meet API for live classes.
+  - Redis for caching frequent queries.
+
+---
+
+## **3. Suggested Design Layout**
+### **Dashboard**
+- **Student Dashboard:** Class schedule, attendance tracker, game analytics.
+- **Teacher Dashboard:** Batch management, attendance marking, student reports.
+- **Admin Dashboard:** User analytics, permission control, system-wide reports.
+
+### **Color Scheme**
+- **Primary Colors:** Blue (#1E90FF) and White (#FFFFFF).
+- **Secondary Colors:** Green (#32CD32) for positive actions, Orange (#FFA500) for alerts.
+- **Neutral Colors:** Dark Gray (#2C2C2C) for sidebars, Light Gray (#F5F5F5) for cards.
+
+### **Typography**
+- **Headings:** Poppins or Roboto Bold.
+- **Body Text:** Open Sans or Lato.
+
+---
+
+## **4. Additional Features**
+- **Real-Time Notifications:** WebSocket integration.
+- **Dark Mode:** Optional UI theme toggle.
+- **Export Features:** Generate reports for attendance, quizzes, and tournaments.
+
+---
+
+This plan ensures a user-friendly, feature-rich, and scalable Chess Academy Dashboard. Let me know if you’d like further refinements! 🚀

@@ -1,126 +1,360 @@
 Database Structure
-==================
+tables:
+    - name: assignments
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: title
+                type: varchar(255)
+                nullable: NO
+            - name: status
+                type: enum('Pending','Graded')
+                nullable: NO
 
-Tables in `u703958259_dashboard`:
----------------------------------
-1. assignments
-2. attendance
-3. batches
-4. classes
-5. grades
-6. notifications
-7. password_resets
-8. performance
-9. resources
-10. support_tickets
-11. system_issues
-12. users
-13. attendance_policies
-14. newsletters
-15. contact_submissions
+    - name: attendance
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: class_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: student_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: status
+                type: enum('present','absent','pending')
+                nullable: NO
+            - name: date
+                type: date
+                nullable: NO
+            - name: attendance_percentage
+                type: float
+                nullable: YES
 
-Table Descriptions:
--------------------
+    - name: batches
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: name
+                type: varchar(255)
+                nullable: NO
+            - name: schedule
+                type: text
+                nullable: NO
+            - name: teacher
+                type: varchar(255)
+                nullable: NO
 
-1. assignments
-    - id: int(11), NO, PRI, auto_increment
-    - title: varchar(255), NO
-    - status: enum('Pending','Graded'), NO
+    - name: classes
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: teacher_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: subject
+                type: varchar(255)
+                nullable: NO
+            - name: time
+                type: datetime
+                nullable: NO
+            - name: link
+                type: varchar(255)
+                nullable: YES
+            - name: batch_id
+                type: int(11)
+                nullable: YES
+                key: MUL
 
-2. attendance
-    - id: int(11), NO, PRI, auto_increment
-    - class_id: int(11), NO, MUL
-    - student_id: int(11), NO, MUL
-    - status: enum('present','absent','pending'), NO
-    - date: date, NO
-    - attendance_percentage: float, YES
+    - name: grades
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: assignment_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: student_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: grade
+                type: varchar(2)
+                nullable: NO
+            - name: comment
+                type: text
+                nullable: YES
 
-3. batches
-    - id: int(11), NO, PRI, auto_increment
-    - name: varchar(255), NO
-    - schedule: text, NO
-    - teacher: varchar(255), NO
+    - name: notifications
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: user_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: role
+                type: enum('student','teacher','admin')
+                nullable: NO
+            - name: message
+                type: text
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
 
-4. classes
-    - id: int(11), NO, PRI, auto_increment
-    - teacher_id: int(11), NO, MUL
-    - subject: varchar(255), NO
-    - time: datetime, NO
-    - link: varchar(255), YES
-    - batch_id: int(11), YES, MUL
+    - name: password_resets
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: email
+                type: varchar(255)
+                nullable: NO
+            - name: token
+                type: varchar(255)
+                nullable: NO
+            - name: expires
+                type: int(11)
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
 
-5. grades
-    - id: int(11), NO, PRI, auto_increment
-    - assignment_id: int(11), NO, MUL
-    - student_id: int(11), NO, MUL
-    - grade: varchar(2), NO
-    - comment: text, YES
+    - name: performance
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: student_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: subject
+                type: varchar(255)
+                nullable: NO
+            - name: grade
+                type: varchar(2)
+                nullable: NO
 
-6. notifications
-    - id: int(11), NO, PRI, auto_increment
-    - user_id: int(11), NO, MUL
-    - role: enum('student','teacher','admin'), NO
-    - message: text, NO
-    - created_at: timestamp, YES, current_timestamp()
+    - name: resources
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: category
+                type: varchar(255)
+                nullable: NO
+            - name: title
+                type: varchar(255)
+                nullable: NO
+            - name: type
+                type: varchar(50)
+                nullable: NO
+            - name: link
+                type: varchar(255)
+                nullable: NO
+            - name: description
+                type: text
+                nullable: NO
 
-7. password_resets
-    - id: int(11), NO, PRI, auto_increment
-    - email: varchar(255), NO
-    - token: varchar(255), NO
-    - expires: int(11), NO
-    - created_at: timestamp, YES, current_timestamp()
+    - name: support_tickets
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: user_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: subject
+                type: varchar(255)
+                nullable: NO
+            - name: description
+                type: text
+                nullable: NO
+            - name: status
+                type: enum('Pending','Resolved')
+                nullable: YES
+                default: Pending
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
 
-8. performance
-    - id: int(11), NO, PRI, auto_increment
-    - student_id: int(11), NO, MUL
-    - subject: varchar(255), NO
-    - grade: varchar(2), NO
+    - name: system_issues
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: issue
+                type: text
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
 
-9. resources
-    - id: int(11), NO, PRI, auto_increment
-    - category: varchar(255), NO
-    - title: varchar(255), NO
-    - type: varchar(50), NO
-    - link: varchar(255), NO
-    - description: text, NO
+    - name: users
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: name
+                type: varchar(255)
+                nullable: NO
+            - name: email
+                type: varchar(255)
+                nullable: NO
+                key: UNI
+            - name: password
+                type: varchar(255)
+                nullable: NO
+            - name: role
+                type: enum('student','teacher','admin')
+                nullable: NO
+            - name: profile_picture
+                type: varchar(255)
+                nullable: YES
+            - name: missed_class_notifications
+                type: tinyint(1)
+                nullable: YES
+                default: 0
+            - name: assignment_due_notifications
+                type: tinyint(1)
+                nullable: YES
+                default: 0
+            - name: active
+                type: tinyint(1)
+                nullable: YES
+                default: 1
 
-10. support_tickets
-     - id: int(11), NO, PRI, auto_increment
-     - user_id: int(11), NO, MUL
-     - subject: varchar(255), NO
-     - description: text, NO
-     - status: enum('Pending','Resolved'), YES, Pending
-     - created_at: timestamp, YES, current_timestamp()
+    - name: attendance_policies
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: threshold
+                type: int(11)
+                nullable: NO
+            - name: reminder
+                type: int(11)
+                nullable: NO
 
-11. system_issues
-     - id: int(11), NO, PRI, auto_increment
-     - issue: text, NO
-     - created_at: timestamp, YES, current_timestamp()
+    - name: newsletters
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: email
+                type: varchar(255)
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+   
+    - name: contact_submissions
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: role
+                type: enum('student','teacher','parent','interested','other')
+                nullable: NO
+            - name: name
+                type: varchar(255)
+                nullable: NO
+            - name: age
+                type: int(3)
+                nullable: NO
+            - name: email
+                type: varchar(255)
+                nullable: NO
+            - name: country_code
+                type: varchar(10)
+                nullable: NO
+            - name: phone_number
+                type: varchar(20)
+                nullable: NO
+            - name: message
+                type: text
+                nullable: NO
+            - name: subscribe_newsletter
+                type: tinyint(1)
+                nullable: YES
+                default: 0
+            - name: agree_privacy_policy
+                type: tinyint(1)
+                nullable: YES
+                default: 0
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
 
-12. users
-     - id: int(11), NO, PRI, auto_increment
-     - name: varchar(255), NO
-     - email: varchar(255), NO, UNI
-     - password: varchar(255), NO
-     - role: enum('student','teacher','admin'), NO
-     - profile_picture: varchar(255), YES
-     - missed_class_notifications: tinyint(1), YES, 0
-     - assignment_due_notifications: tinyint(1), YES, 0
-     - active: tinyint(1), YES, 1
 
-13. attendance_policies
-     - id: int(11), NO, PRI, auto_increment
-     - threshold: int(11), NO
-     - reminder: int(11), NO
-
-14. newsletters
-     - id: int(11), NO, PRI, auto_increment
-     - email: varchar(255), NO
-     - created_at: timestamp, YES, current_timestamp()
-
-15. contact_submissions
-     - id: int(11), NO, PRI, auto_increment
-     - name: varchar(255), NO
-     - email: varchar(255), NO
-     - message: text, NO
-     - created_at: timestamp, YES, current_timestamp()
+    - name: applications
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: full_name
+                type: varchar(255)
+                nullable: NO
+            - name: email
+                type: varchar(255)
+                nullable: NO
+            - name: phone_number
+                type: varchar(20)
+                nullable: NO
+            - name: course
+                type: varchar(50)
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()

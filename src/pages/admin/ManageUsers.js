@@ -10,6 +10,18 @@ const ManageUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const roles = {
+    student: {
+      permissions: ['view_classes', 'join_tournaments', 'access_studies']
+    },
+    teacher: {
+      permissions: ['create_classes', 'grade_students', 'manage_pgn']
+    },
+    admin: {
+      permissions: ['manage_users', 'system_config', 'view_analytics']
+    }
+  };
+
   useEffect(() => {
     // Fetch the list of users from the server
     const fetchUsers = async () => {
@@ -96,6 +108,19 @@ const ManageUsers = () => {
     }
   };
 
+  // const handleAddUser = async (userData) => {
+  //   try {
+  //     const response = await fetch('/api/admin/users', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(userData)
+  //     });
+  //     // ...handle response
+  //   } catch (error) {
+  //     console.error('Error adding user:', error);
+  //   }
+  // };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -105,11 +130,13 @@ const ManageUsers = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow p-8 bg-gray-100">
-        <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <table className="min-w-full bg-white">
+    <div className="min-h-screen bg-[#f3f1f9]">
+      <main className="p-8">
+        <h1 className="text-3xl font-bold mb-8 text-[#200e4a]">Manage Users</h1>
+        
+        {/* Updated User Table */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <table className="min-w-full">
             <thead>
               <tr>
                 <th className="py-2 px-4 border-b">Name</th>
@@ -137,8 +164,10 @@ const ManageUsers = () => {
             </tbody>
           </table>
         </div>
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Update User Role</h2>
+
+        {/* Role Management Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Role Management</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <select
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
@@ -169,6 +198,30 @@ const ManageUsers = () => {
             </button>
           </div>
         </div>
+
+        {/* New Batch Assignment Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Batch Assignments</h2>
+          {/* Add batch assignment functionality */}
+        </div>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Role Permissions</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {Object.entries(roles).map(([role, { permissions }]) => (
+              <div key={role} className="mb-4">
+                <h3 className="text-xl font-semibold capitalize">{role}</h3>
+                <ul className="list-disc ml-6">
+                  {permissions.map((permission, index) => (
+                    <li key={index} className="text-gray-700">
+                      {permission.replace('_', ' ')}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );

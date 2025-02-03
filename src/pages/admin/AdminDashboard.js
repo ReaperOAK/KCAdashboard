@@ -1,238 +1,133 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-/**
- * AdminDashboard component displays various admin functionalities and data.
- */
 const AdminDashboard = () => {
-  const [dashboardData, setDashboardData] = useState({
-    activeUsers: 0,
-    attendanceTrends: '',
-    userRoles: [],
-    systemIssues: [],
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalTeachers: 0,
+    activeClasses: 0,
+    ongoingTournaments: 0,
   });
-  const [newRole, setNewRole] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch admin dashboard data
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch('/php/admin-dashboard-data.php');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setDashboardData(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
+    // Fetch dashboard statistics
+    fetchDashboardStats();
   }, []);
 
-  const handleManageUsers = () => {
-    navigate('/manage-users');
-  };
-
-  const handleManageSystem = () => {
-    navigate('/manage-system');
-  };
-
-  const handleRoleChange = (e) => {
-    setNewRole(e.target.value);
-  };
-
-  const handleUserSelect = (userId) => {
-    setSelectedUser(userId);
-  };
-
-  const handleUpdateRole = async () => {
-    if (!selectedUser || !newRole) {
-      alert('Please select a user and a role.');
-      return;
-    }
-
+  const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('/php/update-user-role.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: selectedUser, role: newRole }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
+      const response = await fetch('/api/admin/dashboard-stats');
       const data = await response.json();
-      if (data.success) {
-        alert('User role updated successfully');
-        setDashboardData((prevData) => ({
-          ...prevData,
-          userRoles: prevData.userRoles.map((user) =>
-            user.id === selectedUser ? { ...user, role: newRole } : user
-          ),
-        }));
-      } else {
-        alert('Error updating user role: ' + data.message);
-      }
+      setStats(data);
     } catch (error) {
-      console.error('Error updating user role:', error);
-      alert('An error occurred while updating user role.');
+      console.error('Error fetching dashboard stats:', error);
     }
   };
 
-  const handleResolveIssue = async (issueId) => {
-    try {
-      const response = await fetch('/php/resolve-system-issue.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ issueId }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        alert('System issue resolved successfully');
-        setDashboardData((prevData) => ({
-          ...prevData,
-          systemIssues: prevData.systemIssues.filter((issue) => issue.id !== issueId),
-        }));
-      } else {
-        alert('Error resolving system issue: ' + data.message);
-      }
-    } catch (error) {
-      console.error('Error resolving system issue:', error);
-      alert('An error occurred while resolving system issue.');
+  const dashboardCards = [
+    {
+      title: 'User Management',
+      description: 'Manage students, teachers, and admin accounts',
+      link: '/admin/users',
+      icon: '👥',
+      color: '#461fa3'
+    },
+    {
+      title: 'Attendance System',
+      description: 'Track attendance and manage policies',
+      link: '/admin/attendance',
+      icon: '📊',
+      color: '#7646eb'
+    },
+    {
+      title: 'Analytics & Reports',
+      description: 'View insights and generate reports',
+      link: '/admin/analytics',
+      icon: '📈',
+      color: '#200e4a'
+    },
+    {
+      title: 'Support System',
+      description: 'Manage tickets and FAQs',
+      link: '/admin/support',
+      icon: '🎫',
+      color: '#461fa3'
     }
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  ];
 
   return (
-    <div className="min-h-screen flex">
-      <main className="flex-grow p-8 bg-gray-100">
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Platform Analytics</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Active Users: {dashboardData.activeUsers}</p>
-            <p>Attendance Trends: {dashboardData.attendanceTrends}</p>
+    <div className="min-h-screen bg-[#f3f1f9]">
+      <main className="p-8">
+        <h1 className="text-3xl font-bold mb-8 text-[#200e4a]">Admin Dashboard</h1>
+        
+        {/* Updated Statistics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold">Total Students</h3>
+            <p className="text-3xl font-bold text-blue-600">{stats.totalStudents}</p>
           </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">User Management</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Manage user roles, permissions, and batch assignments.</p>
-            <button
-              onClick={handleManageUsers}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold">Total Teachers</h3>
+            <p className="text-3xl font-bold text-green-600">{stats.totalTeachers}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold">Active Classes</h3>
+            <p className="text-3xl font-bold text-purple-600">{stats.activeClasses}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold">Ongoing Tournaments</h3>
+            <p className="text-3xl font-bold text-orange-600">{stats.ongoingTournaments}</p>
+          </div>
+        </div>
+
+        {/* Feature Cards with New Design */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dashboardCards.map((card, index) => (
+            <div 
+              key={index}
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => navigate(card.link)}
+              style={{ borderLeft: `4px solid ${card.color}` }}
             >
-              Manage Users
-            </button>
-            <div className="mt-4">
-              <h3 className="text-xl font-bold mb-2">Update User Role</h3>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
-                onChange={(e) => handleUserSelect(e.target.value)}
-              >
-                <option value="">Select User</option>
-                {dashboardData.userRoles && dashboardData.userRoles.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name} ({user.role})
-                  </option>
-                ))}
-              </select>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
-                value={newRole}
-                onChange={handleRoleChange}
-              >
-                <option value="">Select Role</option>
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-                <option value="admin">Admin</option>
-              </select>
-              <button
-                onClick={handleUpdateRole}
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                Update Role
-              </button>
+              <div className="text-4xl mb-4">{card.icon}</div>
+              <h3 className="text-xl font-semibold mb-2 text-[#200e4a]">{card.title}</h3>
+              <p className="text-[#3b3a52]">{card.description}</p>
             </div>
-          </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">System Issues</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            {dashboardData.systemIssues.length > 0 ? (
-              <ul>
-                {dashboardData.systemIssues.map((issue, index) => (
-                  <li key={index} className="mb-2">
-                    {issue.issue}
-                    <button
-                      onClick={() => handleResolveIssue(issue.id)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline ml-4"
-                    >
-                      Resolve
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No current system issues.</p>
-            )}
-          </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">System Configurations</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Manage tickets, FAQ automation, and system configurations.</p>
-            <button
-              onClick={handleManageSystem}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          ))}
+        </div>
+
+        {/* Quick Actions Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Quick Actions</h2>
+          <div className="flex flex-wrap gap-4">
+            <button 
+              onClick={() => navigate('/admin/new-tournament')}
+              className="bg-[#461fa3] hover:bg-[#7646eb] text-white px-4 py-2 rounded transition-colors"
             >
-              Manage System
+              Create Tournament
+            </button>
+            <button 
+              onClick={() => navigate('/admin/broadcast')}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Send Broadcast
+            </button>
+            <button 
+              onClick={() => navigate('/admin/reports')}
+              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Generate Reports
             </button>
           </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Reports</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Generate and view detailed reports.</p>
-            <button
-              onClick={() => navigate('/reports')}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              View Reports
-            </button>
-          </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Notifications</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <p>Manage system notifications and alerts.</p>
-            <button
-              onClick={() => navigate('/notifications')}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Manage Notifications
-            </button>
+        </div>
+
+        {/* System Health Section */}
+        <section className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">System Health</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Add system health indicators */}
           </div>
         </section>
       </main>

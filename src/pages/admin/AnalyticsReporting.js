@@ -92,31 +92,31 @@ const AnalyticsReporting = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow p-8 bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#f3f1f9] p-8">
+      <main className="flex-grow">
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Attendance Trends</h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Attendance Trends</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <Line data={attendanceData} />
           </div>
         </section>
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Student Grades</h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Student Grades</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <Line data={gradesData} />
           </div>
         </section>
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Export Options</h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Export Options</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
+              className="bg-[#200e4a] hover:bg-[#461fa3] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
               onClick={() => handleExport('PDF')}
             >
               Export to PDF
             </button>
             <button
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-[#32CD32] hover:bg-[#228B22] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               onClick={() => handleExport('Excel')}
             >
               Export to Excel
@@ -124,7 +124,7 @@ const AnalyticsReporting = () => {
           </div>
         </section>
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Additional Analytics</h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Additional Analytics</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <p>Additional analytics and insights will be displayed here.</p>
             {/* Placeholder for additional analytics content */}

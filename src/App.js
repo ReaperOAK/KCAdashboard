@@ -30,6 +30,16 @@ import Reports from './pages/admin/Reports';
 import Notifications from './pages/admin/Notifications';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
+import SimulGames from './pages/student/SimulGames';
+import Studies from './pages/student/Studies';
+import InteractiveBoard from './pages/student/InteractiveBoard';
+import GameArea from './pages/student/GameArea';
+import QuizPage from './pages/student/QuizPage';
+import Tournaments from './pages/student/Tournaments';
+import ChatPage from './pages/ChatPage';
+import PGNDatabase from './pages/teacher/PGNDatabase';
+import ClassroomManagement from './pages/teacher/ClassroomManagement';
+import PlatformAnalytics from './pages/admin/PlatformAnalytics';
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,6 +79,12 @@ const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
             >
               <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/student-attendance" element={<StudentAttendance />} />
+              <Route path="/simul-games" element={<SimulGames />} />
+              <Route path="/chess-studies" element={<Studies />} />
+              <Route path="/interactive-board" element={<InteractiveBoard />} />
+              <Route path="/game-area" element={<GameArea />} />
+              <Route path="/quiz" element={<QuizPage />} />
+              <Route path="/tournaments" element={<Tournaments />} />
             </Route>
 
             {/* Teacher Routes */}
@@ -79,6 +95,8 @@ const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
               <Route path="/teacher-attendance" element={<TeacherAttendance />} />
               <Route path="/grading-feedback" element={<GradingFeedback />} />
               <Route path="/batch-management" element={<BatchManagement />} />
+              <Route path="/pgn-database" element={<PGNDatabase />} />
+              <Route path="/classroom-management" element={<ClassroomManagement />} />
             </Route>
 
             {/* Admin Routes */}
@@ -92,6 +110,7 @@ const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
               <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/platform-analytics" element={<PlatformAnalytics />} />
             </Route>
 
             {/* Shared Routes */}
@@ -110,6 +129,7 @@ const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
             >
               <Route path="/settings" element={<Settings />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/chat" element={<ChatPage />} />
             </Route>
           </Routes>
         </main>

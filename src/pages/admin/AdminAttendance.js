@@ -9,6 +9,12 @@ const AdminAttendance = () => {
   const [attendanceOverview, setAttendanceOverview] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [zoomConfig, setZoomConfig] = useState({
+    enabled: false,
+    autoSync: false,
+    apiKey: '',
+    apiSecret: ''
+  });
 
   useEffect(() => {
     // Fetch attendance policies and reports on component mount
@@ -66,6 +72,19 @@ const AdminAttendance = () => {
   const handleExport = (format) => {
     // Implement export functionality here
     alert(`Exporting attendance data to ${format}`);
+  };
+
+  const handleZoomIntegration = async () => {
+    try {
+      await fetch('/api/admin/zoom-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(zoomConfig)
+      });
+      // Handle response
+    } catch (error) {
+      console.error('Error configuring Zoom:', error);
+    }
   };
 
   if (loading) {
@@ -181,6 +200,41 @@ const AdminAttendance = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-[#461fa3]">Zoom Integration</h2>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <input
+                  type="checkbox"
+                  checked={zoomConfig.enabled}
+                  onChange={(e) => setZoomConfig(prev => ({
+                    ...prev,
+                    enabled: e.target.checked
+                  }))}
+                  className="form-checkbox text-[#7646eb]"
+                />
+                <span>Enable Zoom Integration</span>
+              </div>
+              <input
+                type="text"
+                placeholder="Zoom API Key"
+                value={zoomConfig.apiKey}
+                onChange={(e) => setZoomConfig(prev => ({
+                  ...prev,
+                  apiKey: e.target.value
+                }))}
+                className="w-full p-2 border rounded"
+              />
+              <button
+                onClick={handleZoomIntegration}
+                className="bg-[#461fa3] text-white px-4 py-2 rounded hover:bg-[#7646eb]"
+              >
+                Save Zoom Configuration
+              </button>
             </div>
           </div>
         </section>

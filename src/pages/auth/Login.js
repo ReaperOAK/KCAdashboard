@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider } from '../../utils/firebase';
 import { signInWithPopup } from 'firebase/auth';
+import { FaGoogle, FaSpinner } from 'react-icons/fa';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
+      const idToken = await result.user.getIdToken();
 
       const res = await fetch('/php/firebase-login.php', {
         method: 'POST',
@@ -22,124 +25,140 @@ const Login = () => {
         body: JSON.stringify({ idToken }),
       });
 
-      if (!res.ok) throw new Error('Network response was not ok');
-
       const data = await res.json();
       if (data.success) {
-        sessionStorage.setItem('role', data.role); // Use sessionStorage
-        navigate('/');
-        window.location.reload();
+        sessionStorage.setItem('role', data.role);
+        handleRoleBasedRedirect(data.role);
       } else {
-        setError(data.message);
+        setError(data.message || 'Authentication failed');
       }
     } catch (error) {
-      console.error('Error:', error);
-      setError('An unexpected error occurred. Please try again later.');
+      setError('Authentication failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Validate email format
-  const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const handleRoleBasedRedirect = (role) => {
+    switch (role) {
+      case 'student': navigate('/student-dashboard'); break;
+      case 'teacher': navigate('/teacher-dashboard'); break;
+      case 'admin': navigate('/admin-dashboard'); break;
+      default: navigate('/');
+    }
+  };
 
-  // Handle login form submission
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
-
-    if (!isValidEmail(email)) {
-      setError('Invalid email format');
-      setIsSubmitting(false);
-      return;
-    }
 
     try {
       const response = await fetch('/php/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(formData),
       });
-
-      if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
       if (data.success) {
-        sessionStorage.setItem('role', data.role); // Use sessionStorage
-        navigate('/');
-        window.location.reload();
+        sessionStorage.setItem('role', data.role);
+        handleRoleBasedRedirect(data.role);
       } else {
-        setError(data.message);
+        setError(data.message || 'Invalid credentials');
       }
     } catch (error) {
-      console.error('Error:', error);
-      setError('An unexpected error occurred. Please try again later.');
+      setError('Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#f3f1f9]">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
-        <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#200e4a]">Welcome Back</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">
               Email
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
               type="email"
-              placeholder="Your Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
               required
             />
-            {!isValidEmail(email) && email && (
-              <p className="text-red-500 text-xs italic">Invalid email format</p>
-            )}
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">
               Password
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
               type="password"
-              placeholder="Your Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
               required
             />
           </div>
-          {error && <p className="text-red-500 text-xs italic mb-4" aria-live="assertive">{error}</p>}
-          <div className="mb-4 text-right">
-            <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</Link>
+
+          {error && (
+            <div className="text-[#af0505] text-sm">{error}</div>
+          )}
+
+          <div className="flex justify-end">
+            <Link to="/forgot-password" className="text-[#461fa3] hover:text-[#7646eb] text-sm">
+              Forgot password?
+            </Link>
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Logging in...' : 'Login'}
-            </button>
-          </div>
-        </form>
-        <div className="mt-4 text-center">
-          <p>Don't have an account? <Link to="/signup" className="text-blue-500 hover:underline">Sign Up</Link></p>
-        </div>
-        <div className="mt-4 text-center">
-          <p>Or login with:</p>
+
           <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            onClick={handleGoogleLogin}
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full bg-[#200e4a] hover:bg-[#461fa3] text-white py-3 rounded-lg transition-colors ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Google
+            {isSubmitting ? (
+              <span className="flex items-center justify-center">
+                <FaSpinner className="animate-spin mr-2" /> Logging in...
+              </span>
+            ) : (
+              'Login'
+            )}
+          </button>
+        </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#c2c1d3]"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-[#3b3a52]">Or continue with</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleGoogleLogin}
+            disabled={isSubmitting}
+            className="mt-4 w-full flex items-center justify-center gap-2 bg-white border border-[#c2c1d3] p-3 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <FaGoogle className="text-[#461fa3]" />
+            <span className="text-[#3b3a52]">Google</span>
           </button>
         </div>
+
+        <p className="mt-6 text-center text-[#3b3a52]">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-[#461fa3] hover:text-[#7646eb]">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

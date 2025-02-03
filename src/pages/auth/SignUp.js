@@ -1,20 +1,33 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaSpinner, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const SignUp = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'student',
+    profile_picture: null,
+    missed_class_notifications: true,
+    assignment_due_notifications: true
+  });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleRoleChange = (e) => setRole(e.target.value);
-
   const validateForm = () => {
-    if (!name || !email || !password) {
+    if (!formData.name || !formData.email || !formData.password) {
       setError('All fields are required');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Invalid email format');
+      return false;
+    }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
       return false;
     }
     return true;
@@ -22,18 +35,18 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    const userData = { name, email, password, role };
+    const formDataToSend = new FormData();
+    Object.keys(formData).forEach(key => {
+      formDataToSend.append(key, formData[key]);
+    });
+
     try {
       const response = await fetch('/php/register.php', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
+        body: formDataToSend,
       });
       const data = await response.json();
       if (data.success) {
@@ -49,77 +62,119 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#f3f1f9]">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-              Name
-            </label>
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#200e4a]">Create Account</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">Name</label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="name"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
               type="text"
-              placeholder="Your Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
-            </label>
+
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">Email</label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
               type="email"
-              placeholder="Your Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
-            </label>
+
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">Password</label>
+            <div className="relative">
+              <input
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">Profile Picture</label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
-              type="password"
-              placeholder="Your Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFormData({...formData, profile_picture: e.target.files[0]})}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
-              Role
-            </label>
+
+          <div>
+            <label className="block text-[#3b3a52] text-sm font-bold mb-2">Role</label>
             <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="role"
-              value={role}
-              onChange={handleRoleChange}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb]"
+              value={formData.role}
+              onChange={(e) => setFormData({...formData, role: e.target.value})}
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
-              <option value="admin">Admin</option>
             </select>
           </div>
-          {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-          <div className="flex items-center justify-between">
-            <button
-              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Signing up...' : 'Sign Up'}
-            </button>
+
+          <div className="space-y-2">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.missed_class_notifications}
+                onChange={(e) => setFormData({...formData, missed_class_notifications: e.target.checked})}
+                className="mr-2"
+              />
+              <span className="text-[#3b3a52] text-sm">Receive missed class notifications</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.assignment_due_notifications}
+                onChange={(e) => setFormData({...formData, assignment_due_notifications: e.target.checked})}
+                className="mr-2"
+              />
+              <span className="text-[#3b3a52] text-sm">Receive assignment due notifications</span>
+            </label>
           </div>
+
+          {error && <p className="text-[#af0505] text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full bg-[#200e4a] hover:bg-[#461fa3] text-white py-3 rounded-lg transition-colors ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center justify-center">
+                <FaSpinner className="animate-spin mr-2" /> Creating Account...
+              </span>
+            ) : (
+              'Sign Up'
+            )}
+          </button>
+
+          <p className="text-center text-[#3b3a52] text-sm">
+            Already have an account?{' '}
+            <Link to="/login" className="text-[#461fa3] hover:text-[#7646eb]">
+              Login
+            </Link>
+          </p>
         </form>
       </div>
     </div>

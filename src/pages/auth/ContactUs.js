@@ -1,154 +1,138 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
-const ContactUs = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    captcha: ''
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+/**
+ * AnalyticsReporting component displays analytics data and provides export options.
+ */
+const AnalyticsReporting = () => {
+  const [attendanceData, setAttendanceData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Attendance Percentage',
+        data: [],
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      },
+    ],
   });
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [gradesData, setGradesData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Average Grades',
+        data: [],
+        borderColor: 'rgba(153, 102, 255, 1)',
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+      },
+    ],
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const validate = () => {
-    const errors = {};
-    if (!formData.name) errors.name = 'Name is required';
-    if (!formData.email) errors.email = 'Email is required';
-    if (!formData.subject) errors.subject = 'Subject is required';
-    if (!formData.message) errors.message = 'Message is required';
-    if (!formData.captcha) errors.captcha = 'Captcha is required';
-    return errors;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validate();
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const response = await fetch('/php/contact-us.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      if (data.success) {
-        alert('Message sent successfully');
-        setFormData({ name: '', email: '', subject: '', message: '', captcha: '' });
-        setFormErrors({});
-      } else {
-        setFormErrors({ form: data.message });
+  useEffect(() => {
+    // Fetch analytics data from the server
+    const fetchAnalyticsData = async () => {
+      try {
+        const response = await fetch('/php/get-analytics-data.php');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setAttendanceData({
+          labels: data.attendanceTrends.map(item => item.month),
+          datasets: [
+            {
+              label: 'Attendance Percentage',
+              data: data.attendanceTrends.map(item => item.average),
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            },
+          ],
+        });
+        setGradesData({
+          labels: data.gradesData.map(item => item.subject),
+          datasets: [
+            {
+              label: 'Average Grades',
+              data: data.gradesData.map(item => item.average),
+              borderColor: 'rgba(153, 102, 255, 1)',
+              backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            },
+          ],
+        });
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setFormErrors({ form: 'An error occurred. Please try again later.' });
-    } finally {
-      setIsSubmitting(false);
-    }
+    };
+
+    fetchAnalyticsData();
+  }, []);
+
+  /**
+   * Handles export functionality.
+   * @param {string} format - Export format (PDF or Excel)
+   */
+  const handleExport = (format) => {
+    // Implement export functionality here
+    alert(`Exporting data to ${format}`);
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Contact Us</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-              Name
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-            {formErrors.name && <p className="text-red-500 text-xs mt-2">{formErrors.name}</p>}
+    <div className="min-h-screen flex flex-col bg-[#f3f1f9] p-8">
+      <main className="flex-grow">
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Attendance Trends</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <Line data={attendanceData} />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-            {formErrors.email && <p className="text-red-500 text-xs mt-2">{formErrors.email}</p>}
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Student Grades</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <Line data={gradesData} />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="subject">
-              Subject
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="subject"
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              required
-            />
-            {formErrors.subject && <p className="text-red-500 text-xs mt-2">{formErrors.subject}</p>}
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="message">
-              Message
-            </label>
-            <textarea
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="message"
-              name="message"
-              rows="5"
-              value={formData.message}
-              onChange={handleChange}
-              required
-            ></textarea>
-            {formErrors.message && <p className="text-red-500 text-xs mt-2">{formErrors.message}</p>}
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="captcha">
-              Captcha
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="captcha"
-              type="text"
-              name="captcha"
-              value={formData.captcha}
-              onChange={handleChange}
-              required
-            />
-            {formErrors.captcha && <p className="text-red-500 text-xs mt-2">{formErrors.captcha}</p>}
-          </div>
-          {formErrors.form && <p className="text-red-500 text-xs mt-2">{formErrors.form}</p>}
-          <div className="flex items-center justify-between">
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Export Options</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
             <button
-              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-              type="submit"
-              disabled={isSubmitting}
+              className="bg-[#200e4a] hover:bg-[#461fa3] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
+              onClick={() => handleExport('PDF')}
             >
-              {isSubmitting ? 'Sending...' : 'Send Message'}
+              Export to PDF
+            </button>
+            <button
+              className="bg-[#32CD32] hover:bg-[#228B22] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              onClick={() => handleExport('Excel')}
+            >
+              Export to Excel
             </button>
           </div>
-        </form>
-      </div>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Additional Analytics</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <p>Additional analytics and insights will be displayed here.</p>
+            {/* Placeholder for additional analytics content */}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
 
-export default ContactUs;
+export default AnalyticsReporting;

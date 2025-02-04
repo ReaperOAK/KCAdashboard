@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
  */
 const useTokenValidation = (setRole, redirectPath = '/login') => {
   const [loading, setLoading] = useState(true);
+  const [permissions, setPermissions] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,6 +20,10 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
         const response = await fetch('/php/validate-session.php', {
           method: 'GET',
           credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
         });
 
         if (response.status === 401 || !response.ok) {
@@ -31,6 +36,21 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
         const data = await response.json();
         if (data.success) {
           setRole(data.role);
+          setPermissions({
+            canAccessSimul: data.role === 'student' || data.role === 'teacher',
+            canManageBatches: data.role === 'teacher' || data.role === 'admin',
+            canViewAnalytics: data.role === 'teacher' || data.role === 'admin',
+            canMarkAttendance: data.role === 'teacher' || data.role === 'admin',
+            notificationPreferences: {
+              missedClass: data.missed_class_notifications,
+              assignmentDue: data.assignment_due_notifications
+            }
+          });
+
+          // Redirect based on role if on generic pages
+          if (location.pathname === '/dashboard') {
+            navigate(`/${data.role}-dashboard`);
+          }
         } else {
           if (!['/', '/signup', '/login'].includes(location.pathname)) {
             navigate(redirectPath);
@@ -49,7 +69,7 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
     validateSession();
   }, [navigate, redirectPath, setRole, location.pathname]);
 
-  return loading;
+  return { loading, permissions };
 };
 
 export default useTokenValidation;

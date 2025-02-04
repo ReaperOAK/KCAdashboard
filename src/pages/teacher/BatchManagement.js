@@ -5,9 +5,20 @@ import React, { useState, useEffect } from 'react';
  */
 const BatchManagement = () => {
   const [batches, setBatches] = useState([]);
-  const [newBatch, setNewBatch] = useState({ name: '', schedule: '', teacher: '' });
+  const [newBatch, setNewBatch] = useState({
+    name: '',
+    schedule: '',
+    teacher: '',
+    meetingLink: '',
+    studyMaterials: [],
+    students: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Add new state for managing students
+  const [availableStudents, setAvailableStudents] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
 
   useEffect(() => {
     // Fetch the list of batches from the server
@@ -27,6 +38,20 @@ const BatchManagement = () => {
     };
 
     fetchBatches();
+
+    // Add fetch for available students
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch('/php/get-available-students.php');
+        if (!response.ok) throw new Error('Failed to fetch students');
+        const data = await response.json();
+        setAvailableStudents(data);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchStudents();
   }, []);
 
   /**
@@ -48,7 +73,7 @@ const BatchManagement = () => {
         const data = await response.json();
         if (data.success) {
           setBatches([...batches, { ...newBatch, id: data.id }]);
-          setNewBatch({ name: '', schedule: '', teacher: '' });
+          setNewBatch({ name: '', schedule: '', teacher: '', meetingLink: '', studyMaterials: [], students: [] });
         } else {
           alert('Error adding batch: ' + data.message);
         }
@@ -89,6 +114,15 @@ const BatchManagement = () => {
     }
   };
 
+  // Add method to handle file uploads
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    setNewBatch(prev => ({
+      ...prev,
+      studyMaterials: [...prev.studyMaterials, ...files]
+    }));
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -98,8 +132,8 @@ const BatchManagement = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow p-8 bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#f3f1f9]">
+      <main className="flex-grow p-8">
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Batch List</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
@@ -133,7 +167,7 @@ const BatchManagement = () => {
           </div>
         </section>
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Add New Batch</h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Add New Batch</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <form onSubmit={(e) => { e.preventDefault(); handleAddBatch(); }}>
               <div className="mb-4">
@@ -175,8 +209,51 @@ const BatchManagement = () => {
                   onChange={(e) => setNewBatch({ ...newBatch, teacher: e.target.value })}
                 />
               </div>
+              <div className="mb-4">
+                <label className="block text-[#270185] text-sm font-bold mb-2">
+                  Meeting Link
+                </label>
+                <input
+                  className="shadow border rounded w-full py-2 px-3 text-[#270185]"
+                  type="url"
+                  placeholder="Zoom/Google Meet Link"
+                  value={newBatch.meetingLink}
+                  onChange={(e) => setNewBatch({ ...newBatch, meetingLink: e.target.value })}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-[#270185] text-sm font-bold mb-2">
+                  Study Materials
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="block w-full text-sm text-[#270185]"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-[#270185] text-sm font-bold mb-2">
+                  Assign Students
+                </label>
+                <select
+                  multiple
+                  className="shadow border rounded w-full py-2 px-3 text-[#270185]"
+                  onChange={(e) => setSelectedStudents(
+                    Array.from(e.target.selectedOptions, option => option.value)
+                  )}
+                >
+                  {availableStudents.map(student => (
+                    <option key={student.id} value={student.id}>
+                      {student.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="bg-[#461fa3] hover:bg-[#7646eb] text-white font-bold py-2 px-4 rounded"
                 type="submit"
               >
                 Add Batch

@@ -73,29 +73,30 @@ const Support = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow p-8 bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#f3f1f9]">
+      <main className="flex-grow p-8">
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Frequently Asked Questions</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-[#c2c1d3]">
             {faqs.map((faq, index) => (
-              <div key={index} className="mb-4">
-                <h3 className="text-xl font-semibold mb-2">{faq.question}</h3>
-                <p>{faq.answer}</p>
+              <div key={index} className="mb-6 last:mb-0">
+                <h3 className="text-xl font-semibold mb-2 text-[#461fa3]">{faq.question}</h3>
+                <p className="text-[#3b3a52]">{faq.answer}</p>
               </div>
             ))}
           </div>
         </section>
+
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Submit a Support Ticket</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Submit a Support Ticket</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-[#c2c1d3]">
             <form onSubmit={handleSubmitTicket}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="subject">
+                <label className="block text-[#200e4a] text-sm font-bold mb-2" htmlFor="subject">
                   Subject
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border border-[#c2c1d3] rounded w-full py-2 px-3 text-[#3b3a52] leading-tight focus:outline-none focus:border-[#7646eb] focus:ring-1 focus:ring-[#7646eb]"
                   id="subject"
                   type="text"
                   name="subject"
@@ -104,11 +105,11 @@ const Support = () => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+                <label className="block text-[#200e4a] text-sm font-bold mb-2" htmlFor="description">
                   Description
                 </label>
                 <textarea
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border border-[#c2c1d3] rounded w-full py-2 px-3 text-[#3b3a52] leading-tight focus:outline-none focus:border-[#7646eb] focus:ring-1 focus:ring-[#7646eb]"
                   id="description"
                   name="description"
                   rows="5"
@@ -116,9 +117,9 @@ const Support = () => {
                   onChange={handleTicketChange}
                 ></textarea>
               </div>
-              {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+              {error && <p className="text-[#af0505] text-xs italic mb-4">{error}</p>}
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="bg-[#461fa3] hover:bg-[#7646eb] text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7646eb] focus:ring-opacity-50 transition duration-300"
                 type="submit"
               >
                 Submit Ticket
@@ -126,30 +127,41 @@ const Support = () => {
             </form>
           </div>
         </section>
+
         <section>
-          <h2 className="text-2xl font-bold mb-4">Your Tickets</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Your Tickets</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-[#c2c1d3]">
             {tickets.length === 0 ? (
-              <p>No tickets submitted yet.</p>
+              <p className="text-[#3b3a52]">No tickets submitted yet.</p>
             ) : (
-              <table className="min-w-full bg-white">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 border-b">Subject</th>
-                    <th className="py-2 px-4 border-b">Description</th>
-                    <th className="py-2 px-4 border-b">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tickets.map(ticket => (
-                    <tr key={ticket.id}>
-                      <td className="py-2 px-4 border-b">{ticket.subject}</td>
-                      <td className="py-2 px-4 border-b">{ticket.description}</td>
-                      <td className="py-2 px-4 border-b">{ticket.status}</td>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white">
+                  <thead>
+                    <tr className="bg-[#f3f1f9]">
+                      <th className="py-3 px-4 border-b border-[#c2c1d3] text-left text-[#200e4a] font-semibold">Subject</th>
+                      <th className="py-3 px-4 border-b border-[#c2c1d3] text-left text-[#200e4a] font-semibold">Description</th>
+                      <th className="py-3 px-4 border-b border-[#c2c1d3] text-left text-[#200e4a] font-semibold">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {tickets.map(ticket => (
+                      <tr key={ticket.id} className="hover:bg-[#f3f1f9] transition-colors">
+                        <td className="py-3 px-4 border-b border-[#c2c1d3] text-[#3b3a52]">{ticket.subject}</td>
+                        <td className="py-3 px-4 border-b border-[#c2c1d3] text-[#3b3a52]">{ticket.description}</td>
+                        <td className="py-3 px-4 border-b border-[#c2c1d3]">
+                          <span className={`px-3 py-1 rounded-full text-sm ${
+                            ticket.status === 'Pending' 
+                              ? 'bg-[#461fa3] text-white' 
+                              : 'bg-green-500 text-white'
+                          }`}>
+                            {ticket.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </section>

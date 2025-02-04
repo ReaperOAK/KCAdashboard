@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext'; // Assuming you have this
 
 const Settings = () => {
+  const { user } = useAuth();
   const [personalInfo, setPersonalInfo] = useState({
     name: '',
     email: '',
@@ -18,26 +20,48 @@ const Settings = () => {
     confirmPassword: '',
   });
 
+  const [chessSettings, setChessSettings] = useState({
+    lichessUsername: '',
+    preferredTimeControl: '10+0',
+    boardTheme: 'classic',
+    pieceSet: 'classic',
+  });
+
+  const [teacherSettings, setTeacherSettings] = useState({
+    defaultClassDuration: 60,
+    autoRecordClass: true,
+    maximumStudentsPerBatch: 10,
+  });
+
+  const [adminSettings, setAdminSettings] = useState({
+    allowNewRegistrations: true,
+    attendanceThreshold: 75,
+    autoSendReminders: true,
+  });
+
   useEffect(() => {
-    const fetchPersonalInfo = async () => {
+    const fetchSettings = async () => {
       try {
-        const response = await fetch('/php/get-personal-info.php', {
+        const response = await fetch('/php/get-settings.php', {
           method: 'GET',
-          credentials: 'include', // Ensure credentials are included
+          credentials: 'include',
         });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
+        
         setPersonalInfo(data.personalInfo);
         setNotifications(data.notifications);
+        
+        setChessSettings(data.chessSettings);
+        if (user.role === 'teacher') setTeacherSettings(data.teacherSettings);
+        if (user.role === 'admin') setAdminSettings(data.adminSettings);
       } catch (error) {
-        console.error('Error fetching personal information:', error);
+        console.error('Error fetching settings:', error);
       }
     };
 
-    fetchPersonalInfo();
-  }, []);
+    fetchSettings();
+  }, [user.role]);
 
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +76,11 @@ const Settings = () => {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPassword({ ...password, [name]: value });
+  };
+
+  const handleChessSettingsChange = (e) => {
+    const { name, value } = e.target;
+    setChessSettings({ ...chessSettings, [name]: value });
   };
 
   const handleSavePersonalInfo = async () => {
@@ -128,9 +157,25 @@ const Settings = () => {
     }
   };
 
+  const handleSaveChessSettings = async () => {
+    try {
+      const response = await fetch('/php/update-chess-settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(chessSettings),
+      });
+      const data = await response.json();
+      if (data.success) alert('Chess settings saved');
+      else alert(data.message);
+    } catch (error) {
+      console.error('Error saving chess settings:', error);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow p-8 bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#f3f1f9]">
+      <main className="flex-grow p-8">
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Personal Information</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
@@ -181,6 +226,60 @@ const Settings = () => {
             </button>
           </div>
         </section>
+        
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Chess Settings</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="mb-4">
+              <label className="block text-[#270185] text-sm font-bold mb-2">
+                Lichess.org Username
+              </label>
+              <input
+                className="shadow border rounded w-full py-2 px-3"
+                name="lichessUsername"
+                value={chessSettings.lichessUsername}
+                onChange={handleChessSettingsChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-[#270185] text-sm font-bold mb-2">
+                Preferred Time Control
+              </label>
+              <select
+                className="shadow border rounded w-full py-2 px-3"
+                name="preferredTimeControl"
+                value={chessSettings.preferredTimeControl}
+                onChange={handleChessSettingsChange}
+              >
+                <option value="3+0">3 min</option>
+                <option value="5+0">5 min</option>
+                <option value="10+0">10 min</option>
+                <option value="15+10">15|10</option>
+              </select>
+            </div>
+            <button
+              className="bg-[#461fa3] hover:bg-[#7646eb] text-white font-bold py-2 px-4 rounded"
+              onClick={handleSaveChessSettings}
+            >
+              Save Chess Settings
+            </button>
+          </div>
+        </section>
+
+        {user.role === 'teacher' && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Teacher Settings</h2>
+            {/* Add teacher-specific settings UI */}
+          </section>
+        )}
+
+        {user.role === 'admin' && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Admin Settings</h2>
+            {/* Add admin-specific settings UI */}
+          </section>
+        )}
+
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Notification Settings</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">

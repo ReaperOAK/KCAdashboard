@@ -55,14 +55,15 @@ const App = () => {
 
 const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
   const [role, setRole] = useState('');
+  const [lichessAuth, setLichessAuth] = useState(null);
   useTokenValidation(setRole);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#f3f1f9]">
       <Header />
       <Sidebar role={role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className="flex flex-col flex-grow overflow-y-auto">
-        <main className="flex-grow bg-gray-100 ">
+        <main className="flex-grow">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -79,10 +80,30 @@ const AppContent = ({ isSidebarOpen, toggleSidebar }) => {
             >
               <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/student-attendance" element={<StudentAttendance />} />
-              <Route path="/simul-games" element={<SimulGames />} />
-              <Route path="/chess-studies" element={<Studies />} />
-              <Route path="/interactive-board" element={<InteractiveBoard />} />
-              <Route path="/game-area" element={<GameArea />} />
+              <Route path="/simul-games" element={
+                <SimulGames 
+                  lichessAuth={lichessAuth}
+                  setLichessAuth={setLichessAuth}
+                />
+              } />
+              <Route path="/chess-studies" element={
+                <Studies 
+                  lichessAuth={lichessAuth}
+                  setLichessAuth={setLichessAuth}
+                />
+              } />
+              <Route path="/interactive-board" element={
+                <InteractiveBoard 
+                  lichessAuth={lichessAuth}
+                  setLichessAuth={setLichessAuth}
+                />
+              } />
+              <Route path="/game-area" element={
+                <GameArea 
+                  lichessAuth={lichessAuth}
+                  setLichessAuth={setLichessAuth}
+                />
+              } />
               <Route path="/quiz" element={<QuizPage />} />
               <Route path="/tournaments" element={<Tournaments />} />
             </Route>

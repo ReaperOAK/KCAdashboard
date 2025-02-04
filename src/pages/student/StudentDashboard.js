@@ -6,6 +6,11 @@ const StudentDashboard = () => {
     attendance: { percentage: 0, calendar: [] },
     notifications: [],
     performance: [],
+    chessStudies: [],
+    upcomingSimuls: [],
+    tournaments: [],
+    quizzes: [],
+    recentGames: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -142,6 +147,98 @@ const StudentDashboard = () => {
                 Go to Resources
               </a>
             </div>
+          </div>
+        </section>
+
+        {/* Chess Game Area */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Chess Game Area</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-2">Quick Play</h3>
+              <div className="space-y-2">
+                <a href="https://lichess.org/embed" className="block text-blue-500 hover:underline">Play with AI</a>
+                <a href="https://lichess.org/training" className="block text-blue-500 hover:underline">Puzzles</a>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-2">Recent Games</h3>
+              <ul>
+                {dashboardData.recentGames.map((game, index) => (
+                  <li key={index} className="mb-2">
+                    <a href={game.link} className="text-blue-500 hover:underline">
+                      {game.opponent} - {game.result}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Chess Studies */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Chess Studies</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.chessStudies.map((study, index) => (
+              <div key={index} className="mb-4 p-2 border-b">
+                <h3 className="font-semibold">{study.title}</h3>
+                <p className="text-sm text-gray-600">{study.description}</p>
+                <a href={study.lichessLink} className="text-blue-500 hover:underline">
+                  Open in Lichess
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Simul Games */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Simultaneous Exhibitions</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.upcomingSimuls.map((simul, index) => (
+              <div key={index} className="mb-4 p-2 border-b">
+                <h3 className="font-semibold">{simul.title}</h3>
+                <p>Host: {simul.host}</p>
+                <p>Date: {simul.date}</p>
+                <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+                  Join Simul
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Tournaments */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Tournaments</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.tournaments.map((tournament, index) => (
+              <div key={index} className="mb-4 p-2 border-b">
+                <h3 className="font-semibold">{tournament.name}</h3>
+                <p>Format: {tournament.format}</p>
+                <p>Date: {tournament.date}</p>
+                <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+                  Register
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Quiz Section */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Chess Quizzes</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            {dashboardData.quizzes.map((quiz, index) => (
+              <div key={index} className="mb-4 p-2 border-b">
+                <h3 className="font-semibold">{quiz.title}</h3>
+                <p className="text-sm text-gray-600">Difficulty: {quiz.difficulty}</p>
+                <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+                  Start Quiz
+                </button>
+              </div>
+            ))}
           </div>
         </section>
       </main>

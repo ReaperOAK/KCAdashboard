@@ -83,6 +83,22 @@ const Settings = () => {
     setChessSettings({ ...chessSettings, [name]: value });
   };
 
+  const handleTeacherSettingsChange = (e) => {
+    const { name, value } = e.target;
+    setTeacherSettings(prev => ({
+      ...prev,
+      [name]: name === 'autoRecordClass' ? e.target.checked : Number(value)
+    }));
+  };
+
+  const handleAdminSettingsChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setAdminSettings(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : Number(value)
+    }));
+  };
+
   const handleSavePersonalInfo = async () => {
     const formData = new FormData();
     formData.append('name', personalInfo.name);
@@ -170,6 +186,38 @@ const Settings = () => {
       else alert(data.message);
     } catch (error) {
       console.error('Error saving chess settings:', error);
+    }
+  };
+
+  const handleSaveTeacherSettings = async () => {
+    try {
+      const response = await fetch('/php/update-teacher-settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(teacherSettings),
+      });
+      const data = await response.json();
+      if (data.success) alert('Teacher settings saved');
+      else alert(data.message);
+    } catch (error) {
+      console.error('Error saving teacher settings:', error);
+    }
+  };
+
+  const handleSaveAdminSettings = async () => {
+    try {
+      const response = await fetch('/php/update-admin-settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(adminSettings),
+      });
+      const data = await response.json();
+      if (data.success) alert('Admin settings saved');
+      else alert(data.message);
+    } catch (error) {
+      console.error('Error saving admin settings:', error);
     }
   };
 
@@ -269,14 +317,100 @@ const Settings = () => {
         {user.role === 'teacher' && (
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Teacher Settings</h2>
-            {/* Add teacher-specific settings UI */}
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <div className="mb-4">
+                <label className="block text-[#270185] text-sm font-bold mb-2">
+                  Default Class Duration (minutes)
+                </label>
+                <input
+                  type="number"
+                  name="defaultClassDuration"
+                  value={teacherSettings.defaultClassDuration}
+                  onChange={handleTeacherSettingsChange}
+                  className="shadow border rounded w-full py-2 px-3"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="autoRecordClass"
+                    checked={teacherSettings.autoRecordClass}
+                    onChange={handleTeacherSettingsChange}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Auto Record Classes</span>
+                </label>
+              </div>
+              <div className="mb-4">
+                <label className="block text-[#270185] text-sm font-bold mb-2">
+                  Maximum Students Per Batch
+                </label>
+                <input
+                  type="number"
+                  name="maximumStudentsPerBatch"
+                  value={teacherSettings.maximumStudentsPerBatch}
+                  onChange={handleTeacherSettingsChange}
+                  className="shadow border rounded w-full py-2 px-3"
+                />
+              </div>
+              <button
+                className="bg-[#461fa3] hover:bg-[#7646eb] text-white font-bold py-2 px-4 rounded"
+                onClick={handleSaveTeacherSettings}
+              >
+                Save Teacher Settings
+              </button>
+            </div>
           </section>
         )}
 
         {user.role === 'admin' && (
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-[#200e4a]">Admin Settings</h2>
-            {/* Add admin-specific settings UI */}
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <div className="mb-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="allowNewRegistrations"
+                    checked={adminSettings.allowNewRegistrations}
+                    onChange={handleAdminSettingsChange}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Allow New Registrations</span>
+                </label>
+              </div>
+              <div className="mb-4">
+                <label className="block text-[#270185] text-sm font-bold mb-2">
+                  Attendance Threshold (%)
+                </label>
+                <input
+                  type="number"
+                  name="attendanceThreshold"
+                  value={adminSettings.attendanceThreshold}
+                  onChange={handleAdminSettingsChange}
+                  className="shadow border rounded w-full py-2 px-3"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="autoSendReminders"
+                    checked={adminSettings.autoSendReminders}
+                    onChange={handleAdminSettingsChange}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Auto Send Reminders</span>
+                </label>
+              </div>
+              <button
+                className="bg-[#461fa3] hover:bg-[#7646eb] text-white font-bold py-2 px-4 rounded"
+                onClick={handleSaveAdminSettings}
+              >
+                Save Admin Settings
+              </button>
+            </div>
           </section>
         )}
 

@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Table, Upload, message } from 'antd';
 import { UploadOutlined, ShareAltOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const PGNDatabase = () => {
   const [pgns, setPgns] = useState([]);
+
+  const fetchPGNs = async () => {
+    try {
+      const response = await fetch('/api/pgns');
+      const data = await response.json();
+      setPgns(data);
+    } catch (error) {
+      message.error('Failed to load PGN files');
+    }
+  };
 
   const columns = [
     {
@@ -45,8 +55,19 @@ const PGNDatabase = () => {
   ];
 
   const handleUpload = async (file) => {
-    // Implementation for PGN file upload
-    message.success(`${file.name} uploaded successfully`);
+    try {
+      const formData = new FormData();
+      formData.append('pgn', file);
+      await fetch('/api/pgns/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      message.success(`${file.name} uploaded successfully`);
+      fetchPGNs(); // Refresh the PGN list
+    } catch (error) {
+      message.error(`Upload failed: ${error.message}`);
+    }
+    return false; // Prevent default upload behavior
   };
 
   const handleShare = (id) => {

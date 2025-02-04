@@ -60,10 +60,15 @@ const BatchManagement = () => {
   const handleAddBatch = async () => {
     if (newBatch.name && newBatch.schedule && newBatch.teacher) {
       try {
+        const batchData = {
+          ...newBatch,
+          students: selectedStudents // Include selected students in the batch data
+        };
+        
         const response = await fetch('/php/add-batch.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newBatch),
+          body: JSON.stringify(batchData),
         });
 
         if (!response.ok) {
@@ -72,8 +77,9 @@ const BatchManagement = () => {
 
         const data = await response.json();
         if (data.success) {
-          setBatches([...batches, { ...newBatch, id: data.id }]);
+          setBatches([...batches, { ...batchData, id: data.id }]);
           setNewBatch({ name: '', schedule: '', teacher: '', meetingLink: '', studyMaterials: [], students: [] });
+          setSelectedStudents([]); // Reset selected students after successful addition
         } else {
           alert('Error adding batch: ' + data.message);
         }

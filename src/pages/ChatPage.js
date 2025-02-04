@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserChats, sendMessage } from '../services/chatService';
 
@@ -9,28 +9,46 @@ const ChatPage = () => {
   const [users, setUsers] = useState([]);
   const { user } = useAuth();
 
-  const fetchChats = async () => {
+  const fetchChats = useCallback(async () => {
     const chats = await getUserChats(user.id);
     setUsers(chats);
+  }, [user.id]);
+
+  const fetchMessages = async (chatId) => {
+    try {
+      const response = await fetch(`/api/messages/${chatId}`);
+      const data = await response.json();
+      setMessages(data);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
   };
+
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
+
+  useEffect(() => {
+    if (selectedChat) {
+      fetchMessages(selectedChat.id);
+    }
+  }, [selectedChat]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    await sendMessage({
+    const message = {
       senderId: user.id,
       receiverId: selectedChat.id,
       content: newMessage,
       timestamp: new Date()
-    });
+    };
 
+    await sendMessage(message);
+    setMessages(prev => [...prev, message]); // Update messages locally
     setNewMessage('');
   };
-
-  useEffect(() => {
-    fetchChats();
-  }, [user.id]);
 
   return (
     <div className="flex h-screen bg-light-background">

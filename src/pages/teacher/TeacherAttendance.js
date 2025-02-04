@@ -9,7 +9,7 @@ const TeacherAttendance = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [zoomMeetings, setZoomMeetings] = useState([]);
+  // const [zoomMeetings, setZoomMeetings] = useState([]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -34,6 +34,10 @@ const TeacherAttendance = () => {
 
     fetchStudents();
   }, []);
+
+  useEffect(() => {
+    renderAnalytics();
+  }, [attendance]); // Re-render chart when attendance changes
 
   const syncWithZoom = async () => {
     try {
@@ -95,7 +99,10 @@ const TeacherAttendance = () => {
       <main className="flex-grow p-8">
         <section className="mb-8">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Attendance Marking</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Attendance Marking</h2>
+              <p className="text-gray-600">Selected Date: {selectedDate.toLocaleDateString()}</p>
+            </div>
             <button
               onClick={syncWithZoom}
               className="bg-[#461fa3] hover:bg-[#7646eb] text-white px-4 py-2 rounded"

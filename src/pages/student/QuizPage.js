@@ -45,11 +45,34 @@ const QuizPage = () => {
     setIsSubmitting(false);
   };
 
+  const renderResults = () => {
+    if (!results) return null;
+
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-[#461fa3] mb-4">Quiz Results</h2>
+        <div className="mb-4">
+          <p className="text-xl text-[#200e4a]">Score: {results.score}%</p>
+          <p className="text-[#3b3a52]">Correct Answers: {results.correctAnswers}/{results.totalQuestions}</p>
+        </div>
+        <button
+          onClick={() => {
+            setCurrentQuiz(null);
+            setResults(null);
+          }}
+          className="bg-[#461fa3] text-white py-2 px-4 rounded hover:bg-[#7646eb]"
+        >
+          Back to Quizzes
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#f3f1f9] p-8">
       <h1 className="text-3xl font-bold mb-8 text-[#200e4a]">Chess Quizzes</h1>
 
-      {!currentQuiz ? (
+      {results ? renderResults() : !currentQuiz ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes.map(quiz => (
             <div key={quiz.id} className="bg-white rounded-lg shadow-md p-6">

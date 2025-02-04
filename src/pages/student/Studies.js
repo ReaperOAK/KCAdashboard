@@ -11,6 +11,20 @@ const Studies = () => {
     { id: 2, title: 'Advanced Endgames', author: 'Coach Johnson', rating: 2000 },
   ];
 
+  const handleMove = (source, target) => {
+    // Update position based on the move
+    setPosition(prevPosition => {
+      // Here you would normally update the position based on chess rules
+      // This is a simplified example
+      return target; // Update with actual chess position
+    });
+    return true;
+  };
+
+  const resetPosition = () => {
+    setPosition('start');
+  };
+
   return (
     <div className="p-6 bg-[#f3f1f9]">
       <h1 className="text-3xl font-bold text-[#200e4a] mb-6">Chess Studies</h1>
@@ -45,15 +59,18 @@ const Studies = () => {
             <Chessboard 
               position={position}
               boardWidth={600}
-              onPieceDrop={(source, target) => {
-                // Handle moves here
-                return true;
-              }}
+              onPieceDrop={handleMove}
             />
           </div>
           
           {/* Study Controls */}
           <div className="mt-4 flex justify-center gap-4">
+            <button 
+              className="px-4 py-2 bg-[#200e4a] text-white rounded"
+              onClick={() => resetPosition()}
+            >
+              Reset Board
+            </button>
             <button className="px-4 py-2 bg-[#200e4a] text-white rounded">Previous Move</button>
             <button className="px-4 py-2 bg-[#200e4a] text-white rounded">Next Move</button>
             <button className="px-4 py-2 bg-[#461fa3] text-white rounded">Download PGN</button>

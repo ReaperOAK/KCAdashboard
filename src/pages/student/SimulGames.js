@@ -37,6 +37,22 @@ const SimulGames = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f3f1f9] p-8 flex items-center justify-center">
+        <div className="text-xl text-[#461fa3]">Loading simul games...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#f3f1f9] p-8 flex items-center justify-center">
+        <div className="text-xl text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f3f1f9] p-8">
       <h1 className="text-3xl font-bold mb-8 text-[#200e4a]">Simultaneous Exhibition Games</h1>

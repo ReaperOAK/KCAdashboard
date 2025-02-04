@@ -10,7 +10,7 @@ const Header = ({ toggleSidebar }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [role, setRole] = useState(null);
   const navigate = useNavigate();
-  const loading = useTokenValidation(setRole);
+  useTokenValidation(setRole); // Just use the hook without loading state
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
@@ -23,93 +23,123 @@ const Header = ({ toggleSidebar }) => {
     navigate('/login');
   };
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-16 bg-primary text-white">Loading...</div>;
-  }
-
   return (
-    <header className="bg-[#200e4a] text-[#e3e1f7] fixed top-0 left-0 w-full z-50">
-      <div className="container mx-auto p-4 flex justify-between items-center">
-        {/* Logo */}
-        <div className="text-2xl font-bold">
-          <Link to="/" className="text-[#e3e1f7]">Chess Codex</Link>
-        </div>
+    <header className="bg-[#200e4a] shadow-lg fixed top-0 left-0 right-0 w-full z-50">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="relative flex justify-between items-center h-16">
+          {/* Logo - adjusted spacing */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-bold text-[#e3e1f7] hover:text-[#7646eb] transition-colors duration-200">
+                Chess Codex
+              </span>
+            </Link>
+          </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-6">
-          <Link to="/" className="hover:text-[#7646eb] text-[#e3e1f7]">Home</Link>
-          <Link to="/about" className="hover:text-[#7646eb] text-[#e3e1f7]">About Us</Link>
-          <Link to="/contact" className="hover:text-[#7646eb] text-[#e3e1f7]">Contact Us</Link>
-          {role ? (
-            <button
-              onClick={handleLogout}
-              className="hover:underline focus:outline-none text-[#e3e1f7]"
-            >
-              Logout
-            </button>
-          ) : (
-            <>
-              <Link to="/login" className="hover:underline text-[#e3e1f7]">Login</Link>
-              <Link to="/signup" className="hover:underline text-[#e3e1f7]">Sign-Up</Link>
-            </>
-          )}
-        </nav>
-
-        {/* Mobile Menu Toggle */}
-        <div className="md:hidden flex items-center">
-          <button
-            className="focus:outline-none mr-4"
-            onClick={toggleSidebar}
-          >
-            <FaBars className="w-6 h-6" />
-          </button>
-          <button
-            className="focus:outline-none"
-            onClick={toggleMenu}
-          >
-            {isMenuOpen ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <nav className="bg-primary md:hidden">
-          <ul className="flex flex-col items-center">
-            <li className="p-4 w-full text-center hover:bg-gray-700">
-              <Link to="/" onClick={toggleMenu} className="text-white">Home</Link>
-            </li>
-            <li className="p-4 w-full text-center hover:bg-gray-700">
-              <Link to="/about" onClick={toggleMenu} className="text-white">About Us</Link>
-            </li>
-            <li className="p-4 w-full text-center hover:bg-gray-700">
-              <Link to="/contact" onClick={toggleMenu} className="text-white">Contact Us</Link>
-            </li>
+          {/* Desktop Navigation - adjusted spacing and alignment */}
+          <nav className="hidden md:flex md:items-center md:space-x-6">
+            <Link to="/" className="text-[#e3e1f7] hover:text-[#7646eb] transition-colors duration-200 px-3 py-2">
+              Home
+            </Link>
+            <Link to="/about" className="text-[#e3e1f7] hover:text-[#7646eb] transition-colors duration-200 px-3 py-2">
+              About Us
+            </Link>
+            <Link to="/contact" className="text-[#e3e1f7] hover:text-[#7646eb] transition-colors duration-200 px-3 py-2">
+              Contact Us
+            </Link>
             {role ? (
-              <li className="p-4 w-full text-center hover:bg-gray-700">
+              <button
+                onClick={handleLogout}
+                className="ml-4 px-4 py-2 rounded-md bg-[#7646eb] text-white hover:bg-[#461fa3] transition-colors duration-200"
+              >
+                Logout
+              </button>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/login" className="text-[#e3e1f7] hover:text-[#7646eb] transition-colors duration-200">
+                  Login
+                </Link>
+                <Link to="/signup" className="px-4 py-2 rounded-md bg-[#7646eb] text-white hover:bg-[#461fa3] transition-colors duration-200">
+                  Sign Up
+                </Link>
+              </div>
+            )}
+          </nav>
+
+          {/* Mobile Menu Button - adjusted positioning */}
+          <div className="flex md:hidden items-center space-x-2">
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-md text-[#e3e1f7] hover:bg-[#461fa3] transition-colors duration-200"
+            >
+              <FaBars className="w-6 h-6" />
+            </button>
+            <button
+              onClick={toggleMenu}
+              className="p-2 rounded-md text-[#e3e1f7] hover:bg-[#461fa3] transition-colors duration-200"
+            >
+              {isMenuOpen ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Menu - simplified */}
+        {isMenuOpen && (
+          <nav className="md:hidden py-2 border-t border-[#461fa3]">
+            <div className="flex flex-col space-y-1">
+              <Link 
+                to="/" 
+                onClick={toggleMenu}
+                className="px-4 py-2 text-[#e3e1f7] hover:bg-[#461fa3] rounded-md transition-colors duration-200"
+              >
+                Home
+              </Link>
+              <Link 
+                to="/about" 
+                onClick={toggleMenu}
+                className="px-4 py-2 text-[#e3e1f7] hover:bg-[#461fa3] rounded-md transition-colors duration-200"
+              >
+                About Us
+              </Link>
+              <Link 
+                to="/contact" 
+                onClick={toggleMenu}
+                className="px-4 py-2 text-[#e3e1f7] hover:bg-[#461fa3] rounded-md transition-colors duration-200"
+              >
+                Contact Us
+              </Link>
+              {role ? (
                 <button
                   onClick={() => {
                     handleLogout();
                     toggleMenu();
                   }}
-                  className="focus:outline-none text-white"
+                  className="px-4 py-2 text-left text-[#e3e1f7] hover:bg-[#461fa3] rounded-md transition-colors duration-200"
                 >
                   Logout
                 </button>
-              </li>
-            ) : (
-              <>
-                <li className="p-4 w-full text-center hover:bg-gray-700">
-                  <Link to="/login" onClick={toggleMenu} className="text-white">Login</Link>
-                </li>
-                <li className="p-4 w-full text-center hover:bg-gray-700">
-                  <Link to="/signup" onClick={toggleMenu} className="text-white">Sign-Up</Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </nav>
-      )}
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    onClick={toggleMenu}
+                    className="px-4 py-2 text-[#e3e1f7] hover:bg-[#461fa3] rounded-md transition-colors duration-200"
+                  >
+                    Login
+                  </Link>
+                  <Link 
+                    to="/signup" 
+                    onClick={toggleMenu}
+                    className="px-4 py-2 text-[#e3e1f7] hover:bg-[#461fa3] rounded-md transition-colors duration-200"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          </nav>
+        )}
+      </div>
     </header>
   );
 };

@@ -1,74 +1,113 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php'; // Ensure this path is correct
-include 'config.php';
-include 'config.env.php'; // Include the environment variables
-
-use League\OAuth2\Client\Provider\Google;
-
 session_start();
+require_once 'config.php';
 
-$provider = new Google([
-    'clientId'     => getenv('GOOGLE_CLIENT_ID'),
-    'clientSecret' => getenv('GOOGLE_CLIENT_SECRET'),
-    'redirectUri'  => 'https://dashboard.kolkatachessacademy.in/google-callback', // Ensure this matches the URI in Google Cloud Console
-]);
+header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents('php://input'), true);
-$code = $data['code'];
-$state = $data['state'];
+// Google OAuth Configuration
+$client_id = 'YOUR_GOOGLE_CLIENT_ID';
+$client_secret = 'YOUR_GOOGLE_CLIENT_SECRET';
+$redirect_uri = 'https://yourdomain.com/google-callback';
 
-if (!isset($code)) {
-    $authUrl = $provider->getAuthorizationUrl();
-    $_SESSION['oauth2state'] = $provider->getState();
-    header('Location: ' . $authUrl);
+// Get POST data
+$postData = json_decode(file_get_contents('php://input'), true);
+$code = $postData['code'] ?? null;
+$state = $postData['state'] ?? null;
+
+if (!$code || !$state) {
+    echo json_encode(['success' => false, 'message' => 'Invalid request parameters']);
     exit;
-} elseif (empty($state) || ($state !== $_SESSION['oauth2state'])) {
-    unset($_SESSION['oauth2state']);
-    exit('Invalid state');
-} else {
-    $token = $provider->getAccessToken('authorization_code', [
-        'code' => $code
-    ]);
-
-    try {
-        $user = $provider->getResourceOwner($token);
-        $googleUserInfo = $user->toArray();
-
-        // Extract user information
-        $googleId = $googleUserInfo['id'];
-        $name = $googleUserInfo['name'];
-        $email = $googleUserInfo['email'];
-        $profilePicture = $googleUserInfo['picture'];
-
-        // Check if the user already exists in the database
-        $sql = "SELECT * FROM users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-
-        if ($user) {
-            // User exists, log them in
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
-        } else {
-            // User does not exist, create a new user
-            $role = 'student'; // Default role, you can change this as needed
-            $sql = "INSERT INTO users (name, email, profile_picture, role) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssss", $name, $email, $profilePicture, $role);
-            $stmt->execute();
-            $userId = $stmt->insert_id;
-
-            // Log the user in
-            $_SESSION['user_id'] = $userId;
-            $_SESSION['role'] = $role;
-        }
-
-        echo json_encode(['success' => true, 'role' => $_SESSION['role']]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Failed to get user details']);
-    }
 }
+
+// Verify state to prevent CSRF
+if ($state !== $_SESSION['oauth_state']) {
+    echo json_encode(['success' => false, 'message' => 'Invalid state parameter']);
+    exit;
+}
+
+try {
+    // Exchange code for access token
+    $token_url = 'https://oauth2.googleapis.com/token';
+    $token_data = [
+        'code' => $code,
+        'client_id' => $client_id,
+        'client_secret' => $client_secret,
+        'redirect_uri' => $redirect_uri,
+        'grant_type' => 'authorization_code'
+    ];
+
+    $ch = curl_init($token_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($token_data));
+    curl_setopt($ch, CURLOPT_POST, true);
+    
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        throw new Exception('Failed to get access token');
+    }
+
+    $token_response = json_decode($response, true);
+    if (!isset($token_response['access_token'])) {
+        throw new Exception('Invalid token response');
+    }
+
+    // Get user info
+    $user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo';
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $user_info_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $token_response['access_token']
+    ]);
+    
+    $user_info = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        throw new Exception('Failed to get user info');
+    }
+
+    $google_user = json_decode($user_info, true);
+    
+    // Check if user exists in database
+    $stmt = $conn->prepare("SELECT id, role, name, email FROM users WHERE email = ?");
+    $stmt->bind_param("s", $google_user['email']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        // User exists - login
+        $user = $result->fetch_assoc();
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['role'] = $user['role'];
+        $_SESSION['name'] = $user['name'];
+        $_SESSION['email'] = $user['email'];
+        
+        echo json_encode([
+            'success' => true,
+            'role' => $user['role'],
+            'name' => $user['name']
+        ]);
+    } else {
+        // New user - registration needed
+        echo json_encode([
+            'success' => false,
+            'message' => 'User not registered. Please sign up first.',
+            'email' => $google_user['email']
+        ]);
+    }
+
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    echo json_encode([
+        'success' => false,
+        'message' => 'Authentication failed. Please try again.'
+    ]);
+}
+
+$conn->close();
 ?>

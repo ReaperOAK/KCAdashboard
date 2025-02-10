@@ -1,31 +1,25 @@
 <?php
+require_once 'config.php';
+
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-// Start the session
-session_start();
+try {
+    $sql = "SELECT * FROM attendance_policies LIMIT 1";
+    $result = $conn->query($sql);
 
-// Check if the user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
+    if ($result->num_rows > 0) {
+        $policies = $result->fetch_assoc();
+        echo json_encode([
+            'threshold' => (int)$policies['threshold'],
+            'reminder' => (int)$policies['reminder']
+        ]);
+    } else {
+        echo json_encode(['threshold' => 75, 'reminder' => 3]);
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
 }
 
-// Fetch attendance policies
-$sql = "SELECT threshold, reminder FROM attendance_policies LIMIT 1";
-$result = $conn->query($sql);
-
-if (!$result) {
-    error_log("Database query failed: " . $conn->error);
-    echo json_encode(['success' => false, 'message' => 'Error fetching attendance policies']);
-    exit;
-}
-
-$policies = $result->fetch_assoc();
-
-// Return the policies as JSON
-echo json_encode($policies);
-
-// Close the connection
 $conn->close();
 ?>

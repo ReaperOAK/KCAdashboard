@@ -1,31 +1,71 @@
 <?php
+require_once 'config.php';
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-// Start the session
-session_start();
+// Get POST data
+$data = json_decode(file_get_contents('php://input'), true);
 
-// Check if the user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+if (!isset($data['userId'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'User ID is required']);
     exit;
 }
 
-// Get the user ID from the request body
-$data = json_decode(file_get_contents('php://input'), true);
-$userId = $data['userId'];
+$userId = $conn->real_escape_string($data['userId']);
 
-// Delete the user
-$query = "DELETE FROM users WHERE id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
+try {
+    // Start transaction
+    $conn->begin_transaction();
 
-if ($stmt->affected_rows > 0) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Error deleting user']);
+    // First, check if user is an admin
+    $checkAdmin = "SELECT role FROM users WHERE id = ?";
+    $stmt = $conn->prepare($checkAdmin);
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if ($user['role'] === 'admin') {
+        // Check if this is the last admin
+        $adminCount = $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'admin'")->fetch_assoc()['count'];
+        if ($adminCount <= 1) {
+            throw new Exception('Cannot delete the last admin user');
+        }
+    }
+
+    // Delete related records first
+    $tables = ['attendance', 'grades', 'notifications', 'support_tickets'];
+    foreach ($tables as $table) {
+        $query = "DELETE FROM $table WHERE user_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+    }
+
+    // Finally, delete the user
+    $query = "DELETE FROM users WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $userId);
+    
+    if ($stmt->execute()) {
+        // Log the deletion
+        $logQuery = "INSERT INTO system_issues (issue) VALUES (?)";
+        $logStmt = $conn->prepare($logQuery);
+        $logMessage = "User ID: $userId has been deleted from the system";
+        $logStmt->bind_param('s', $logMessage);
+        $logStmt->execute();
+
+        $conn->commit();
+        echo json_encode(['success' => true]);
+    } else {
+        throw new Exception($stmt->error);
+    }
+} catch (Exception $e) {
+    $conn->rollback();
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
-mysqli_close($conn);
+$stmt->close();
+$conn->close();
 ?>

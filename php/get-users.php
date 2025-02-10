@@ -1,22 +1,25 @@
 <?php
+require_once 'config.php';
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-$query = "SELECT id, name, email, role FROM users";
-$result = mysqli_query($conn, $query);
-
-if (!$result) {
-    error_log("Database query failed: " . mysqli_error($conn));
-    echo json_encode(['success' => false, 'message' => 'Error fetching users']);
-    exit;
+try {
+    $query = "SELECT id, name, email, role, active FROM users ORDER BY name";
+    $result = $conn->query($query);
+    
+    if (!$result) {
+        throw new Exception($conn->error);
+    }
+    
+    $users = array();
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
+    
+    echo json_encode($users);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
 }
 
-$users = [];
-while ($row = mysqli_fetch_assoc($result)) {
-    $users[] = $row;
-}
-
-echo json_encode($users);
-
-mysqli_close($conn);
+$conn->close();
 ?>

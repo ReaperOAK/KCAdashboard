@@ -1,27 +1,51 @@
 <?php
+require_once 'config.php';
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-// Prepare the SQL query to fetch resources
-$query = "SELECT id, category, title, type, link, description FROM resources";
-$result = mysqli_query($conn, $query);
+try {
+    // Prepare the SQL query
+    $sql = "SELECT id, category, title, type, link, description FROM resources WHERE 1";
+    $stmt = $conn->prepare($sql);
+    
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    
+    // Execute the query
+    if (!$stmt->execute()) {
+        throw new Exception("Execute failed: " . $stmt->error);
+    }
+    
+    // Get the result
+    $result = $stmt->get_result();
+    $resources = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        // Sanitize the data before sending
+        $resource = [
+            'id' => (int)$row['id'],
+            'category' => htmlspecialchars($row['category']),
+            'title' => htmlspecialchars($row['title']),
+            'type' => htmlspecialchars($row['type']),
+            'link' => htmlspecialchars($row['link']),
+            'description' => htmlspecialchars($row['description'])
+        ];
+        $resources[] = $resource;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'resources' => $resources
+    ]);
 
-// Check if the query was successful
-if (!$result) {
-    error_log("Database query failed: " . mysqli_error($conn));
-    echo json_encode(['success' => false, 'message' => 'Error fetching resources']);
-    exit;
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to fetch resources: ' . $e->getMessage()
+    ]);
 }
 
-// Fetch the resources and store them in an array
-$resources = [];
-while ($row = mysqli_fetch_assoc($result)) {
-    $resources[] = $row;
-}
-
-// Return the resources as JSON
-echo json_encode(['success' => true, 'resources' => $resources]);
-
-// Close the database connection
-mysqli_close($conn);
+$stmt->close();
+$conn->close();
 ?>

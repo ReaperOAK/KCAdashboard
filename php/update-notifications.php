@@ -1,34 +1,32 @@
 <?php
-include 'config.php';
+session_start();
+require_once 'config.php';
 
-// Decode JSON input
-$data = json_decode(file_get_contents("php://input"));
-
-if (!$data) {
-    // Log error and return failure response for invalid input
-    error_log("Invalid JSON input");
-    echo json_encode(['success' => false, 'message' => 'Invalid input']);
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
-$email = $data->email;
-$missedClass = $data->missedClass ? 1 : 0;
-$assignmentDue = $data->assignmentDue ? 1 : 0;
+$user_id = $_SESSION['user_id'];
+$data = json_decode(file_get_contents('php://input'), true);
 
-// SQL query to update notification settings using prepared statements
-$sql = "UPDATE users SET missed_class_notifications = ?, assignment_due_notifications = ? WHERE email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("iis", $missedClass, $assignmentDue, $email);
+$missedClass = $data['missedClass'] ? 1 : 0;
+$assignmentDue = $data['assignmentDue'] ? 1 : 0;
 
-if ($stmt->execute()) {
-    // Return success response
-    echo json_encode(['success' => true, 'message' => 'Notification settings updated successfully']);
-} else {
-    // Log error and return failure response for database query failure
-    error_log("Database query failed: " . $stmt->error);
-    echo json_encode(['success' => false, 'message' => 'Error updating notification settings: ' . $stmt->error]);
+try {
+    $stmt = $conn->prepare("UPDATE users SET missed_class_notifications = ?, assignment_due_notifications = ? WHERE id = ?");
+    $stmt->bind_param("iii", $missedClass, $assignmentDue, $user_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Notification settings updated successfully']);
+    } else {
+        throw new Exception('Failed to update notification settings');
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
-$stmt->close();
 $conn->close();
 ?>

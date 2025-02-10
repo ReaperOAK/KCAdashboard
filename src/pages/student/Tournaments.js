@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Table, Tag, notification } from 'antd';
 import { CalendarOutlined, TrophyOutlined } from '@ant-design/icons';
-import axios from 'axios';
 
 const Tournaments = () => {
   const [tournaments, setTournaments] = useState([]);

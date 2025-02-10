@@ -1,7 +1,3 @@
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
 export const getUserChats = async (userId) => {
   try {
     const response = await fetch(`/php/chat/get_chats.php?userId=${userId}`);

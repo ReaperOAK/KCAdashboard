@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { FaChess, FaRobot, FaUser } from 'react-icons/fa';
-import Chessboard from 'react-chessboard'; // You'll need to install this package
 
 const GameArea = () => {
   const [gameMode, setGameMode] = useState('ai');

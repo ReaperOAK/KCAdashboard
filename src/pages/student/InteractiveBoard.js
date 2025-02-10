@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FaCog, FaHistory, FaComments, FaDownload } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { FaCog, FaHistory, FaDownload } from 'react-icons/fa';
 
 const InteractiveBoard = () => {
   const [settings, setSettings] = useState({
@@ -45,15 +44,13 @@ const InteractiveBoard = () => {
             <div className="flex justify-between items-center mt-4">
               <button 
                 onClick={() => window.open('https://lichess.org/analysis', '_blank')}
-                className="bg-[#461fa3] text-white px-4 py-2 rounded hover:bg-[#7646eb]"
-              >
+                className="bg-[#461fa3] text-white px-4 py-2 rounded hover:bg-[#7646eb]">
                 <FaHistory className="inline mr-2" />
                 Analysis
               </button>
               <button
                 onClick={handleExportPGN}
-                className="bg-[#461fa3] text-white px-4 py-2 rounded hover:bg-[#7646eb]"
-              >
+                className="bg-[#461fa3] text-white px-4 py-2 rounded hover:bg-[#7646eb]">
                 <FaDownload className="inline mr-2" />
                 Export PGN
               </button>
@@ -76,8 +73,7 @@ const InteractiveBoard = () => {
                 <select
                   value={settings.boardTheme}
                   onChange={(e) => handleSettingsChange({...settings, boardTheme: e.target.value})}
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-[#7646eb]"
-                >
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-[#7646eb]">
                   <option value="blue">Blue</option>
                   <option value="brown">Brown</option>
                   <option value="green">Green</option>
@@ -89,8 +85,7 @@ const InteractiveBoard = () => {
                     type="checkbox"
                     checked={settings.showCoordinates}
                     onChange={(e) => handleSettingsChange({...settings, showCoordinates: e.target.checked})}
-                    className="form-checkbox text-[#461fa3]"
-                  />
+                    className="form-checkbox text-[#461fa3]" />
                   <span className="text-[#3b3a52]">Show Coordinates</span>
                 </label>
               </div>

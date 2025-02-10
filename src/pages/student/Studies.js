@@ -65,7 +65,9 @@ const Studies = () => {
     setPosition(prevPosition => {
       // Here you would normally update the position based on chess rules
       // This is a simplified example
-      return target; // Update with actual chess position
+      const newPosition = target; // Update with actual chess position
+      saveProgress(); // Call saveProgress when a move is made
+      return newPosition;
     });
     return true;
   };

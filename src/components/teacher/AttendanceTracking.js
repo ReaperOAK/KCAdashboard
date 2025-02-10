@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -19,13 +19,7 @@ const AttendanceTracking = () => {
   const [selectedBatch, setSelectedBatch] = useState('');
   const [students, setStudents] = useState([]);
 
-  useEffect(() => {
-    if (selectedBatch && selectedDate) {
-      fetchAttendance();
-    }
-  }, [selectedBatch, selectedDate]);
-
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     try {
       const response = await fetch(`/php/attendance/get_attendance.php?batch_id=${selectedBatch}&date=${selectedDate}`);
       const data = await response.json();
@@ -35,7 +29,13 @@ const AttendanceTracking = () => {
     } catch (error) {
       console.error('Error fetching attendance:', error);
     }
-  };
+  }, [selectedBatch, selectedDate]);
+
+  useEffect(() => {
+    if (selectedBatch && selectedDate) {
+      fetchAttendance();
+    }
+  }, [selectedBatch, selectedDate, fetchAttendance]);
 
   const markAttendance = async (studentId, status) => {
     try {

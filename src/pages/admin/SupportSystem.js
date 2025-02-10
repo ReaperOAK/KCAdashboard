@@ -29,9 +29,11 @@ const SupportSystem = () => {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('/api/admin/support-tickets');
-      const data = await response.json();
-      setTickets(data);
+      const response = await fetch('/php/support/get_tickets.php');
+      const result = await response.json();
+      if (result.success) {
+        setTickets(result.data);
+      }
     } catch (error) {
       console.error('Error fetching tickets:', error);
     }
@@ -39,9 +41,11 @@ const SupportSystem = () => {
 
   const fetchFaqs = async () => {
     try {
-      const response = await fetch('/api/admin/faqs');
-      const data = await response.json();
-      setFaqs(data);
+      const response = await fetch('/php/support/get_faqs.php');
+      const result = await response.json();
+      if (result.success) {
+        setFaqs(result.data);
+      }
     } catch (error) {
       console.error('Error fetching FAQs:', error);
     }
@@ -49,9 +53,11 @@ const SupportSystem = () => {
 
   const fetchTicketStats = async () => {
     try {
-      const response = await fetch('/api/admin/ticket-stats');
-      const data = await response.json();
-      setTicketStats(data);
+      const response = await fetch('/php/support/get_ticket_stats.php');
+      const result = await response.json();
+      if (result.success) {
+        setTicketStats(result.data);
+      }
     } catch (error) {
       console.error('Error fetching ticket stats:', error);
     }
@@ -59,12 +65,15 @@ const SupportSystem = () => {
 
   const handleTicketAutomation = async (settings) => {
     try {
-      const response = await fetch('/api/admin/support/automation', {
+      const response = await fetch('/php/support/update_automation.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
-      // Handle response
+      const result = await response.json();
+      if (result.success) {
+        // Show success message or update UI
+      }
     } catch (error) {
       console.error('Error updating automation:', error);
     }

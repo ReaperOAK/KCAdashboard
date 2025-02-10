@@ -10,15 +10,21 @@ const Reports = () => {
 
   const generateCustomReport = async () => {
     try {
-      const response = await fetch('/api/admin/custom-report', {
+      const response = await fetch('/php/admin/generate_report.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: reportType, dateRange })
       });
       const data = await response.json();
-      setReportData(data);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      setReportData(data.data);
     } catch (error) {
       console.error('Error generating report:', error);
+      // Add error handling UI here
     }
   };
 

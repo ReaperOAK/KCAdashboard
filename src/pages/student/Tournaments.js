@@ -14,12 +14,17 @@ const Tournaments = () => {
   const fetchTournaments = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/tournaments');
-      setTournaments(response.data);
+      const response = await fetch('/php/tournaments/get_tournaments.php');
+      const data = await response.json();
+      if (data.success) {
+        setTournaments(data.data);
+      } else {
+        throw new Error(data.error);
+      }
     } catch (error) {
       notification.error({
         message: 'Error',
-        description: 'Failed to fetch tournaments',
+        description: 'Failed to fetch tournaments'
       });
     }
     setLoading(false);
@@ -27,16 +32,28 @@ const Tournaments = () => {
 
   const handleRegister = async (tournamentId) => {
     try {
-      await axios.post(`/api/tournaments/${tournamentId}/register`);
-      notification.success({
-        message: 'Success',
-        description: 'Successfully registered for tournament',
+      const formData = new FormData();
+      formData.append('tournament_id', tournamentId);
+
+      const response = await fetch('/php/tournaments/register_tournament.php', {
+        method: 'POST',
+        body: formData
       });
-      fetchTournaments(); // Refresh list
+      const data = await response.json();
+      
+      if (data.success) {
+        notification.success({
+          message: 'Success',
+          description: data.message
+        });
+        fetchTournaments();
+      } else {
+        throw new Error(data.error);
+      }
     } catch (error) {
       notification.error({
         message: 'Error',
-        description: 'Failed to register for tournament',
+        description: error.message || 'Failed to register for tournament'
       });
     }
   };

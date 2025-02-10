@@ -15,26 +15,16 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
   const location = useLocation();
 
   useEffect(() => {
-    const validateSession = async () => {
+    const validateToken = async () => {
       try {
-        const response = await fetch('/php/validate-session.php', {
+        const response = await fetch('/php/validate-token.php', {
           method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+          credentials: 'include'
         });
-
-        if (response.status === 401 || !response.ok) {
-          if (!['/', '/signup', '/login'].includes(location.pathname)) {
-            navigate(redirectPath);
-          }
-          return;
-        }
-
+        
         const data = await response.json();
-        if (data.success) {
+        
+        if (data.status === 'success') {
           setRole(data.role);
           setPermissions({
             canAccessSimul: data.role === 'student' || data.role === 'teacher',
@@ -52,12 +42,14 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
             navigate(`/${data.role}-dashboard`);
           }
         } else {
+          setRole(null);
           if (!['/', '/signup', '/login'].includes(location.pathname)) {
             navigate(redirectPath);
           }
         }
       } catch (error) {
-        console.error('Error validating session:', error);
+        console.error('Token validation error:', error);
+        setRole(null);
         if (!['/', '/signup', '/login'].includes(location.pathname)) {
           navigate(redirectPath);
         }
@@ -66,7 +58,7 @@ const useTokenValidation = (setRole, redirectPath = '/login') => {
       }
     };
 
-    validateSession();
+    validateToken();
   }, [navigate, redirectPath, setRole, location.pathname]);
 
   return { loading, permissions };

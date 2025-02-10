@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
-import {  FaCog, FaHistory, FaComments, FaDownload } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaCog, FaHistory, FaComments, FaDownload } from 'react-icons/fa';
+import axios from 'axios';
 
 const InteractiveBoard = () => {
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  // const [showChat, setShowChat] = useState(false);
   const [settings, setSettings] = useState({
     showCoordinates: true,
     pieceStyle: 'standard',
     boardTheme: 'blue'
   });
 
+  const handleSettingsChange = (newSettings) => {
+    setSettings(newSettings);
+    // Reload iframe with new settings
+    const iframe = document.getElementById('lichess-board');
+    const url = `https://lichess.org/embed/frame?theme=${newSettings.boardTheme}&pieceSet=${newSettings.pieceStyle}&coordinates=${newSettings.showCoordinates}`;
+    iframe.src = url;
+  };
+
   const handleExportPGN = () => {
-    // Implementation for PGN export
+    // Lichess automatically handles PGN export
+    window.open('https://lichess.org/analysis', '_blank');
   };
 
   return (
@@ -25,7 +33,8 @@ const InteractiveBoard = () => {
             {/* Chess Board */}
             <div className="aspect-w-1 aspect-h-1 mb-6">
               <iframe
-                src="https://lichess.org/embed/frame?theme=blue&pieceSet=standard"
+                id="lichess-board"
+                src={`https://lichess.org/embed/frame?theme=${settings.boardTheme}&pieceSet=${settings.pieceStyle}&coordinates=${settings.showCoordinates}`}
                 className="w-full h-full border-0 rounded-lg"
                 allowFullScreen
                 title="Chess Board"
@@ -35,7 +44,7 @@ const InteractiveBoard = () => {
             {/* Board Controls */}
             <div className="flex justify-between items-center mt-4">
               <button 
-                onClick={() => setShowAnalysis(!showAnalysis)}
+                onClick={() => window.open('https://lichess.org/analysis', '_blank')}
                 className="bg-[#461fa3] text-white px-4 py-2 rounded hover:bg-[#7646eb]"
               >
                 <FaHistory className="inline mr-2" />
@@ -52,9 +61,8 @@ const InteractiveBoard = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* Settings Panel */}
         <div className="w-full lg:w-80">
-          {/* Settings Panel */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4 text-[#461fa3]">
               <FaCog className="inline mr-2" />
@@ -67,7 +75,7 @@ const InteractiveBoard = () => {
                 </label>
                 <select
                   value={settings.boardTheme}
-                  onChange={(e) => setSettings({...settings, boardTheme: e.target.value})}
+                  onChange={(e) => handleSettingsChange({...settings, boardTheme: e.target.value})}
                   className="w-full p-2 border rounded focus:ring-2 focus:ring-[#7646eb]"
                 >
                   <option value="blue">Blue</option>
@@ -80,22 +88,13 @@ const InteractiveBoard = () => {
                   <input
                     type="checkbox"
                     checked={settings.showCoordinates}
-                    onChange={(e) => setSettings({...settings, showCoordinates: e.target.checked})}
+                    onChange={(e) => handleSettingsChange({...settings, showCoordinates: e.target.checked})}
                     className="form-checkbox text-[#461fa3]"
                   />
                   <span className="text-[#3b3a52]">Show Coordinates</span>
                 </label>
               </div>
             </div>
-          </div>
-
-          {/* Chat Panel */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-[#461fa3]">
-              <FaComments className="inline mr-2" />
-              Chat
-            </h2>
-            {/* Chat implementation */}
           </div>
         </div>
       </div>

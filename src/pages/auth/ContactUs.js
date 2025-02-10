@@ -34,7 +34,6 @@ const AnalyticsReporting = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch analytics data from the server
     const fetchAnalyticsData = async () => {
       try {
         const response = await fetch('/php/get-analytics-data.php');
@@ -42,27 +41,28 @@ const AnalyticsReporting = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
+        if (data.status === 'error') {
+          throw new Error(data.message);
+        }
+        
         setAttendanceData({
           labels: data.attendanceTrends.map(item => item.month),
-          datasets: [
-            {
-              label: 'Attendance Percentage',
-              data: data.attendanceTrends.map(item => item.average),
-              borderColor: 'rgba(75, 192, 192, 1)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            },
-          ],
+          datasets: [{
+            label: 'Attendance Percentage',
+            data: data.attendanceTrends.map(item => item.average),
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          }],
         });
+
         setGradesData({
           labels: data.gradesData.map(item => item.subject),
-          datasets: [
-            {
-              label: 'Average Grades',
-              data: data.gradesData.map(item => item.average),
-              borderColor: 'rgba(153, 102, 255, 1)',
-              backgroundColor: 'rgba(153, 102, 255, 0.2)',
-            },
-          ],
+          datasets: [{
+            label: 'Average Grades',
+            data: data.gradesData.map(item => item.average),
+            borderColor: 'rgba(153, 102, 255, 1)',
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+          }],
         });
       } catch (error) {
         setError(error.message);

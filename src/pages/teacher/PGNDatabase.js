@@ -7,7 +7,7 @@ const PGNDatabase = () => {
 
   const fetchPGNs = async () => {
     try {
-      const response = await fetch('/api/pgns');
+      const response = await fetch('/php/getPGNs.php');
       const data = await response.json();
       setPgns(data);
     } catch (error) {
@@ -58,24 +58,63 @@ const PGNDatabase = () => {
     try {
       const formData = new FormData();
       formData.append('pgn', file);
-      await fetch('/api/pgns/upload', {
+      const response = await fetch('/php/uploadPGN.php', {
         method: 'POST',
         body: formData,
       });
-      message.success(`${file.name} uploaded successfully`);
-      fetchPGNs(); // Refresh the PGN list
+      const result = await response.json();
+      if (result.success) {
+        message.success(`${file.name} uploaded successfully`);
+        fetchPGNs();
+      } else {
+        throw new Error(result.message);
+      }
     } catch (error) {
       message.error(`Upload failed: ${error.message}`);
     }
     return false; // Prevent default upload behavior
   };
 
-  const handleShare = (id) => {
-    // Implementation for sharing PGN files
+  const handleShare = async (id) => {
+    try {
+      const response = await fetch('/php/sharePGN.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        message.success('PGN shared successfully');
+        fetchPGNs();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      message.error(`Share failed: ${error.message}`);
+    }
   };
 
-  const handleDelete = (id) => {
-    // Implementation for deleting PGN files
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch('/php/deletePGN.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        message.success('PGN deleted successfully');
+        fetchPGNs();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      message.error(`Delete failed: ${error.message}`);
+    }
   };
 
   return (

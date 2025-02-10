@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Button, 
@@ -23,10 +23,64 @@ const BatchManagement = () => {
     teacher: ''
   });
 
-  const handleCreateBatch = () => {
-    setBatches([...batches, { ...newBatch, id: Date.now() }]);
-    setOpenDialog(false);
-    setNewBatch({ name: '', schedule: '', teacher: '' });
+  const fetchBatches = async () => {
+    try {
+      const response = await fetch('/php/batches/manage_batches.php');
+      const data = await response.json();
+      if (response.ok) {
+        setBatches(data);
+      } else {
+        console.error('Failed to fetch batches:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching batches:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBatches();
+  }, []);
+
+  const handleCreateBatch = async () => {
+    try {
+      const response = await fetch('/php/batches/manage_batches.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newBatch)
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        fetchBatches();
+        setOpenDialog(false);
+        setNewBatch({ name: '', schedule: '', teacher: '' });
+      } else {
+        console.error('Failed to create batch:', data.error);
+      }
+    } catch (error) {
+      console.error('Error creating batch:', error);
+    }
+  };
+
+  const handleDeleteBatch = async (id) => {
+    if (window.confirm('Are you sure you want to delete this batch?')) {
+      try {
+        const response = await fetch(`/php/batches/manage_batches.php?id=${id}`, {
+          method: 'DELETE'
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+          fetchBatches();
+        } else {
+          console.error('Failed to delete batch:', data.error);
+        }
+      } catch (error) {
+        console.error('Error deleting batch:', error);
+      }
+    }
   };
 
   return (
@@ -59,7 +113,13 @@ const BatchManagement = () => {
                 <TableCell>{batch.teacher}</TableCell>
                 <TableCell>
                   <Button size="small" color="primary">Edit</Button>
-                  <Button size="small" color="error">Delete</Button>
+                  <Button 
+                    size="small" 
+                    color="error" 
+                    onClick={() => handleDeleteBatch(batch.id)}
+                  >
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

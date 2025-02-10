@@ -15,19 +15,34 @@ const AttendanceSystem = () => {
   }, [selectedBatch]);
 
   const fetchAttendanceData = async () => {
-    // Implementation for fetching attendance data
+    try {
+      const url = `/php/attendance.php${selectedBatch ? `?batchId=${selectedBatch}` : ''}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      setAttendanceData(data);
+    } catch (error) {
+      console.error('Error fetching attendance data:', error);
+    }
   };
 
   const handleZoomSync = async () => {
     try {
-      const response = await fetch('/api/admin/sync-zoom-attendance', {
+      const response = await fetch('/php/attendance.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ batchId: selectedBatch })
+        body: JSON.stringify({ 
+          action: 'syncZoom',
+          batchId: selectedBatch 
+        })
       });
-      // Handle response
+      const result = await response.json();
+      if (result.success) {
+        alert('Attendance synced successfully');
+        fetchAttendanceData();
+      }
     } catch (error) {
-      console.error('Error syncing Zoom attendance:', error);
+      console.error('Error syncing attendance:', error);
+      alert('Failed to sync attendance');
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -26,10 +26,41 @@ const StudyMaterials = () => {
     description: ''
   });
 
-  const handleCreateMaterial = () => {
-    setMaterials([...materials, { ...newMaterial, id: Date.now() }]);
-    setOpenDialog(false);
-    setNewMaterial({ title: '', type: '', link: '', description: '' });
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
+
+  const fetchMaterials = async () => {
+    try {
+      const response = await fetch('/php/get_study_materials.php');
+      const data = await response.json();
+      if (data.success) {
+        setMaterials(data.materials);
+      }
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+    }
+  };
+
+  const handleCreateMaterial = async () => {
+    try {
+      const response = await fetch('/php/add_study_material.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newMaterial)
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setMaterials([data.material, ...materials]);
+        setOpenDialog(false);
+        setNewMaterial({ title: '', type: '', link: '', description: '' });
+      }
+    } catch (error) {
+      console.error('Error adding material:', error);
+    }
   };
 
   return (

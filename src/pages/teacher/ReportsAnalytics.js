@@ -12,6 +12,37 @@ const ReportsAnalytics = () => {
     quizzes: 'Quiz Scores'
   };
 
+  const fetchBatches = async () => {
+    try {
+      const response = await fetch('/php/reports/get_batches.php');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching batches:', error);
+      return [];
+    }
+  };
+
+  const fetchData = async (type, batchId) => {
+    try {
+      const response = await fetch(`/php/reports/get_${type}_stats.php?batch_id=${batchId}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Error fetching ${type} data:`, error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    if (selectedBatch) {
+      fetchData(activeTab, selectedBatch).then(data => {
+        // Update your state with the fetched data
+        // and use it to update your charts
+      });
+    }
+  }, [selectedBatch, activeTab]);
+
   return (
     <div className="p-6 bg-light-background">
       <div className="mb-6">

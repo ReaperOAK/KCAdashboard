@@ -334,7 +334,6 @@ tables:
                 nullable: YES
                 default: current_timestamp()
 
-
     - name: applications
         columns:
             - name: id
@@ -358,3 +357,229 @@ tables:
                 type: timestamp
                 nullable: YES
                 default: current_timestamp()
+
+    - name: faqs
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: question
+                type: text
+                nullable: NO
+            - name: answer
+                type: text
+                nullable: NO
+            - name: category
+                type: varchar(50)
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+
+    - name: support_settings
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: auto_reply
+                type: tinyint(1)
+                nullable: YES
+                default: 0
+            - name: smart_routing
+                type: tinyint(1)
+                nullable: YES
+                default: 0
+            - name: response_delay
+                type: int
+                nullable: YES
+                default: 30
+            - name: updated_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+                on update: current_timestamp()
+
+    - name: chess_games
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: player1_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: player2_id
+                type: int(11)
+                nullable: YES
+                key: MUL
+            - name: game_mode
+                type: enum('ai','player','practice')
+                nullable: NO
+            - name: time_control
+                type: varchar(10)
+                nullable: NO
+            - name: player1_color
+                type: enum('white','black')
+                nullable: NO
+            - name: ai_level
+                type: int(2)
+                nullable: YES
+            - name: current_position
+                type: varchar(100)
+                nullable: NO
+            - name: last_move
+                type: varchar(10)
+                nullable: YES
+            - name: status
+                type: enum('active','completed','abandoned')
+                nullable: NO
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+            - name: updated_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+                on update: current_timestamp()
+
+    - name: quizzes
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: title
+                type: varchar(255)
+                nullable: NO
+            - name: description
+                type: text
+                nullable: YES
+            - name: time_limit
+                type: int
+                nullable: NO
+            - name: active
+                type: tinyint(1)
+                nullable: YES
+                default: 1
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+
+    - name: quiz_questions
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: quiz_id
+                type: int(11)
+                nullable: YES
+                key: MUL
+            - name: question_text
+                type: text
+                nullable: NO
+            - name: options
+                type: json
+                nullable: NO
+            - name: correct_answer
+                type: varchar(255)
+                nullable: NO
+
+    - name: quiz_results
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: user_id
+                type: int(11)
+                nullable: YES
+                key: MUL
+            - name: quiz_id
+                type: int(11)
+                nullable: YES
+                key: MUL
+            - name: score
+                type: float
+                nullable: NO
+            - name: correct_answers
+                type: int
+                nullable: NO
+            - name: total_questions
+                type: int
+                nullable: NO
+            - name: completed_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+
+    - name: simul_games
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: title
+                type: varchar(255)
+                nullable: NO
+            - name: host_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: start_time
+                type: datetime
+                nullable: NO
+            - name: max_participants
+                type: int(11)
+                nullable: YES
+                default: 20
+            - name: status
+                type: enum('pending', 'in_progress', 'completed')
+                nullable: YES
+                default: 'pending'
+            - name: results_link
+                type: varchar(255)
+                nullable: YES
+            - name: created_at
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+
+    - name: simul_participants
+        columns:
+            - name: id
+                type: int(11)
+                nullable: NO
+                key: PRI
+                extra: auto_increment
+            - name: simul_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: user_id
+                type: int(11)
+                nullable: NO
+                key: MUL
+            - name: registration_time
+                type: timestamp
+                nullable: YES
+                default: current_timestamp()
+            - name: result
+                type: enum('win', 'loss', 'draw')
+                nullable: YES
+            - name: unique_participant
+                type: unique
+                key: unique_participant (simul_id, user_id)

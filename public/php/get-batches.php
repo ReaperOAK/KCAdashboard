@@ -1,22 +1,23 @@
 <?php
+require_once 'config.php';
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-$query = "SELECT id, name, schedule, teacher FROM batches";
-$result = mysqli_query($conn, $query);
-
-if (!$result) {
-    error_log("Database query failed: " . mysqli_error($conn));
-    echo json_encode(['success' => false, 'message' => 'Error fetching batches']);
-    exit;
+try {
+    $stmt = $conn->prepare("SELECT id, name, schedule, teacher FROM batches");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $batches = array();
+    
+    while($row = $result->fetch_assoc()) {
+        $batches[] = $row;
+    }
+    
+    echo json_encode($batches);
+} catch(Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
 }
 
-$batches = [];
-while ($row = mysqli_fetch_assoc($result)) {
-    $batches[] = $row;
-}
-
-echo json_encode($batches);
-
-mysqli_close($conn);
+$stmt->close();
+$conn->close();
 ?>

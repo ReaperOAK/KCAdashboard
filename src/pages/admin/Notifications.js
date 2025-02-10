@@ -15,28 +15,28 @@ const Notifications = () => {
 
   const fetchTemplates = async () => {
     try {
-      const response = await fetch('/api/admin/templates');
-      const data = await response.json();
-      setTemplates(data);
+        const response = await fetch('/php/admin/get_templates.php');
+        const data = await response.json();
+        setTemplates(data);
     } catch (error) {
-      console.error('Error fetching templates:', error);
+        console.error('Error fetching templates:', error);
     }
   };
 
   const handleBroadcast = async () => {
     try {
-      const response = await fetch('/api/admin/send-broadcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(broadcastMessage)
-      });
-      const data = await response.json();
-      if (data.success) {
-        alert('Broadcast sent successfully');
-        setBroadcastMessage({ title: '', message: '', recipients: [], urgency: 'normal' });
-      }
+        const response = await fetch('/php/admin/send_broadcast.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(broadcastMessage)
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Broadcast sent successfully');
+            setBroadcastMessage({ title: '', message: '', recipients: [], urgency: 'normal' });
+        }
     } catch (error) {
-      console.error('Error sending broadcast:', error);
+        console.error('Error sending broadcast:', error);
     }
   };
 

@@ -1,107 +1,109 @@
 <?php
-header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
+require_once 'config.php';
+session_start();
 
-// Function to fetch the next class
-function getNextClass($conn, $teacherId) {
-    $query = "SELECT subject, time FROM classes WHERE teacher_id = ? ORDER BY time ASC LIMIT 1";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $teacherId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    return $result->fetch_assoc();
-}
-
-// Function to fetch attendance pending count
-function getAttendancePending($conn, $teacherId) {
-    $query = "SELECT COUNT(*) as count FROM attendance WHERE class_id IN (SELECT id FROM classes WHERE teacher_id = ?) AND status = 'pending'";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $teacherId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    $row = $result->fetch_assoc();
-    return $row['count'];
-}
-
-// Function to fetch batch schedule
-function getBatchSchedule($conn, $teacherId) {
-    $query = "SELECT name, schedule FROM batches WHERE teacher = (SELECT name FROM users WHERE id = ?)";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $teacherId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    $batchSchedule = [];
-    while ($row = $result->fetch_assoc()) {
-        $batchSchedule[] = $row;
-    }
-    return $batchSchedule;
-}
-
-// Function to fetch notifications
-function getNotifications($conn, $teacherId) {
-    $query = "SELECT message FROM notifications WHERE user_id = ? AND role = 'teacher' ORDER BY created_at DESC";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $teacherId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    $notifications = [];
-    while ($row = $result->fetch_assoc()) {
-        $notifications[] = $row['message'];
-    }
-    return $notifications;
-}
-
-$teacherId = $_COOKIE['user_id'];
-
-$nextClass = getNextClass($conn, $teacherId);
-$attendancePending = getAttendancePending($conn, $teacherId);
-$batchSchedule = getBatchSchedule($conn, $teacherId);
-$notifications = getNotifications($conn, $teacherId);
-
-if ($nextClass === null || $attendancePending === null || $batchSchedule === null || $notifications === null) {
-    echo json_encode(['success' => false, 'message' => 'Error fetching data']);
+// Check if user is logged in and is a teacher
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
-// Return the fetched data as JSON
-echo json_encode([
-    'nextClass' => $nextClass,
-    'attendancePending' => $attendancePending,
-    'batchSchedule' => $batchSchedule,
-    'notifications' => $notifications,
-]);
+$teacher_id = $_SESSION['user_id'];
+$response = [];
 
-mysqli_close($conn);
+try {
+    // Get next class
+    $nextClassQuery = "SELECT c.*, b.name as batch_name 
+                      FROM classes c 
+                      JOIN batches b ON c.batch_id = b.id 
+                      WHERE c.teacher_id = ? 
+                      AND c.time > NOW() 
+                      ORDER BY c.time ASC 
+                      LIMIT 1";
+    $stmt = $conn->prepare($nextClassQuery);
+    $stmt->bind_param("i", $teacher_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['nextClass'] = $result->fetch_assoc();
+
+    // Get attendance pending count
+    $pendingQuery = "SELECT COUNT(*) as pending 
+                    FROM attendance 
+                    WHERE class_id IN (
+                        SELECT id FROM classes 
+                        WHERE teacher_id = ?
+                    ) 
+                    AND status = 'pending'";
+    $stmt = $conn->prepare($pendingQuery);
+    $stmt->bind_param("i", $teacher_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $pendingData = $result->fetch_assoc();
+    $response['attendancePending'] = $pendingData['pending'];
+
+    // Get batch schedule
+    $scheduleQuery = "SELECT b.*, c.time 
+                     FROM batches b 
+                     JOIN classes c ON b.id = c.batch_id 
+                     WHERE c.teacher_id = ? 
+                     AND c.time >= CURDATE() 
+                     ORDER BY c.time ASC 
+                     LIMIT 5";
+    $stmt = $conn->prepare($scheduleQuery);
+    $stmt->bind_param("i", $teacher_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['batchSchedule'] = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Get notifications
+    $notifQuery = "SELECT message 
+                  FROM notifications 
+                  WHERE user_id = ? 
+                  ORDER BY created_at DESC 
+                  LIMIT 5";
+    $stmt = $conn->prepare($notifQuery);
+    $stmt->bind_param("i", $teacher_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['notifications'] = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Get PGN database entries
+    $pgnQuery = "SELECT * FROM resources 
+                WHERE category = 'pgn' 
+                AND teacher_id = ? 
+                ORDER BY id DESC";
+    $stmt = $conn->prepare($pgnQuery);
+    $stmt->bind_param("i", $teacher_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['pgnDatabase'] = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Get student analytics
+    $analyticsQuery = "SELECT p.*, u.name 
+                      FROM performance p 
+                      JOIN users u ON p.student_id = u.id 
+                      WHERE u.id IN (
+                          SELECT student_id 
+                          FROM attendance 
+                          WHERE class_id IN (
+                              SELECT id 
+                              FROM classes 
+                              WHERE teacher_id = ?
+                          )
+                      )";
+    $stmt = $conn->prepare($analyticsQuery);
+    $stmt->bind_param("i", $teacher_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['studentAnalytics'] = $result->fetch_all(MYSQLI_ASSOC);
+
+    echo json_encode($response);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+}
+
+$conn->close();
 ?>

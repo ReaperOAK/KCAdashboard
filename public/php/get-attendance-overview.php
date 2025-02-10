@@ -1,37 +1,35 @@
 <?php
+require_once 'config.php';
+
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-// Start the session
-session_start();
+try {
+    $sql = "SELECT 
+                DATE_FORMAT(a.date, '%Y-%m') as month,
+                AVG(CASE 
+                    WHEN a.status = 'present' THEN 100 
+                    WHEN a.status = 'absent' THEN 0 
+                END) as average
+            FROM attendance a
+            WHERE a.date >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+            GROUP BY DATE_FORMAT(a.date, '%Y-%m')
+            ORDER BY month DESC";
 
-// Check if the user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
+    $result = $conn->query($sql);
+    $overview = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $overview[] = [
+            'month' => date('F Y', strtotime($row['month'] . '-01')),
+            'average' => round($row['average'] ?? 0, 2)
+        ];
+    }
+
+    echo json_encode($overview);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
 }
 
-// Fetch attendance overview data
-$sql = "SELECT DATE_FORMAT(date, '%Y-%m') AS month, AVG(attendance_percentage) AS average
-        FROM attendance
-        GROUP BY month
-        ORDER BY month DESC";
-$result = $conn->query($sql);
-
-if (!$result) {
-    error_log("Database query failed: " . $conn->error);
-    echo json_encode(['success' => false, 'message' => 'Error fetching attendance overview']);
-    exit;
-}
-
-$overview = [];
-while ($row = $result->fetch_assoc()) {
-    $overview[] = $row;
-}
-
-// Return the overview as JSON
-echo json_encode($overview);
-
-// Close the connection
 $conn->close();
 ?>

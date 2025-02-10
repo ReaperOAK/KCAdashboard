@@ -1,120 +1,192 @@
 <?php
-header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
+require_once 'config.php';
+session_start();
 
-// Function to fetch the next class for a student
-function getNextClass($conn, $studentId) {
-    $query = "SELECT subject, time, link FROM classes WHERE id = (SELECT class_id FROM attendance WHERE student_id = ? ORDER BY time ASC LIMIT 1)";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $studentId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    return $result->fetch_assoc();
-}
-
-// Function to fetch attendance data for a student
-function getAttendance($conn, $studentId) {
-    $query = "SELECT status FROM attendance WHERE student_id = ?";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $studentId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    $attendance = ['present' => 0, 'absent' => 0];
-    $calendar = [];
-    while ($row = $result->fetch_assoc()) {
-        $calendar[] = $row['status'];
-        if ($row['status'] === 'present') {
-            $attendance['present']++;
-        } else {
-            $attendance['absent']++;
-        }
-    }
-    $totalClasses = $attendance['present'] + $attendance['absent'];
-    $percentage = $totalClasses > 0 ? ($attendance['present'] / $totalClasses) * 100 : 0;
-    return ['percentage' => $percentage, 'calendar' => $calendar];
-}
-
-// Function to fetch notifications for a student
-function getNotifications($conn, $studentId) {
-    $query = "SELECT message FROM notifications WHERE user_id = ? AND role = 'student' ORDER BY created_at DESC";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $studentId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    $notifications = [];
-    while ($row = $result->fetch_assoc()) {
-        $notifications[] = $row['message'];
-    }
-    return $notifications;
-}
-
-// Function to fetch performance data for a student
-function getPerformance($conn, $studentId) {
-    $query = "SELECT subject, grade FROM performance WHERE student_id = ?";
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        return null;
-    }
-    $stmt->bind_param("i", $studentId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (!$result) {
-        error_log("Database query failed: " . $stmt->error);
-        return null;
-    }
-    $performance = [];
-    while ($row = $result->fetch_assoc()) {
-        $performance[] = ['name' => $row['subject'], 'grade' => $row['grade']];
-    }
-    return $performance;
-}
-
-$studentId = $_COOKIE['user_id'];
-
-// Fetch data for the student dashboard
-$nextClass = getNextClass($conn, $studentId);
-$attendance = getAttendance($conn, $studentId);
-$notifications = getNotifications($conn, $studentId);
-$performance = getPerformance($conn, $studentId);
-
-// Check if any data fetching failed
-if ($nextClass === null || $attendance === null || $notifications === null || $performance === null) {
-    echo json_encode(['success' => false, 'message' => 'Error fetching data']);
+// Check if user is logged in and is a student
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized access']);
     exit;
 }
 
-// Return the fetched data as JSON
-echo json_encode([
-    'nextClass' => $nextClass,
-    'attendance' => $attendance,
-    'notifications' => $notifications,
-    'performance' => $performance,
-]);
+$student_id = $_SESSION['user_id'];
+$response = [];
 
-mysqli_close($conn);
+try {
+    // Fetch next class
+    $nextClassQuery = "
+        SELECT c.subject, c.time, c.link 
+        FROM classes c 
+        INNER JOIN batches b ON c.batch_id = b.id 
+        WHERE c.time > NOW() 
+        ORDER BY c.time ASC 
+        LIMIT 1
+    ";
+    $result = $conn->query($nextClassQuery);
+    $response['nextClass'] = $result->fetch_assoc() ?: null;
+
+    // Fetch attendance data
+    $attendanceQuery = "
+        SELECT 
+            ROUND(
+                (COUNT(CASE WHEN status = 'present' THEN 1 END) * 100.0) / 
+                COUNT(*), 2
+            ) as percentage,
+            GROUP_CONCAT(status ORDER BY date DESC LIMIT 7) as recent_attendance
+        FROM attendance 
+        WHERE student_id = ?
+    ";
+    $stmt = $conn->prepare($attendanceQuery);
+    $stmt->bind_param("i", $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $attendanceData = $result->fetch_assoc();
+    
+    $response['attendance'] = [
+        'percentage' => $attendanceData['percentage'] ?? 0,
+        'calendar' => $attendanceData['recent_attendance'] ? 
+            explode(',', $attendanceData['recent_attendance']) : []
+    ];
+
+    // Fetch notifications
+    $notificationsQuery = "
+        SELECT message 
+        FROM notifications 
+        WHERE user_id = ? 
+        ORDER BY created_at DESC 
+        LIMIT 5
+    ";
+    $stmt = $conn->prepare($notificationsQuery);
+    $stmt->bind_param("i", $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['notifications'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $response['notifications'][] = $row['message'];
+    }
+
+    // Fetch performance data
+    $performanceQuery = "
+        SELECT subject, grade 
+        FROM performance 
+        WHERE student_id = ? 
+        ORDER BY id DESC
+    ";
+    $stmt = $conn->prepare($performanceQuery);
+    $stmt->bind_param("i", $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['performance'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $response['performance'][] = $row;
+    }
+
+    // Fetch chess studies
+    $studiesQuery = "
+        SELECT title, description, link as lichessLink 
+        FROM resources 
+        WHERE category = 'chess_studies' 
+        ORDER BY id DESC 
+        LIMIT 5
+    ";
+    $result = $conn->query($studiesQuery);
+    $response['chessStudies'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $response['chessStudies'][] = $row;
+    }
+
+    // Fetch upcoming simuls
+    $simulsQuery = "
+        SELECT 
+            sg.title,
+            u.name as host,
+            sg.start_time as date
+        FROM simul_games sg
+        INNER JOIN users u ON sg.host_id = u.id
+        WHERE sg.status = 'pending' 
+        AND sg.start_time > NOW()
+        ORDER BY sg.start_time ASC 
+        LIMIT 3
+    ";
+    $result = $conn->query($simulsQuery);
+    $response['upcomingSimuls'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $response['upcomingSimuls'][] = $row;
+    }
+
+    // Fetch recent games
+    $recentGamesQuery = "
+        SELECT 
+            cg.id,
+            CONCAT(
+                (SELECT name FROM users WHERE id = 
+                    CASE 
+                        WHEN cg.player1_id = ? THEN cg.player2_id 
+                        ELSE cg.player1_id 
+                    END
+                )
+            ) as opponent,
+            status as result
+        FROM chess_games cg
+        WHERE (player1_id = ? OR player2_id = ?)
+        AND status = 'completed'
+        ORDER BY updated_at DESC
+        LIMIT 5
+    ";
+    $stmt = $conn->prepare($recentGamesQuery);
+    $stmt->bind_param("iii", $student_id, $student_id, $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['recentGames'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $row['link'] = "game.php?id=" . $row['id'];
+        unset($row['id']);
+        $response['recentGames'][] = $row;
+    }
+
+    // Fetch tournaments
+    $tournamentsQuery = "
+        SELECT name, format, DATE_FORMAT(start_time, '%Y-%m-%d') as date 
+        FROM tournaments 
+        WHERE start_time > NOW() 
+        ORDER BY start_time ASC 
+        LIMIT 3
+    ";
+    $result = $conn->query($tournamentsQuery);
+    $response['tournaments'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $response['tournaments'][] = $row;
+    }
+
+    // Fetch quizzes
+    $quizzesQuery = "
+        SELECT title, difficulty 
+        FROM quizzes 
+        WHERE active = 1 
+        AND id NOT IN (
+            SELECT quiz_id 
+            FROM quiz_results 
+            WHERE user_id = ?
+        )
+        LIMIT 3
+    ";
+    $stmt = $conn->prepare($quizzesQuery);
+    $stmt->bind_param("i", $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $response['quizzes'] = [];
+    while ($row = $result->fetch_assoc()) {
+        $response['quizzes'][] = $row;
+    }
+
+    // Send the response
+    header('Content-Type: application/json');
+    echo json_encode($response);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Internal server error: ' . $e->getMessage()]);
+}
+
+$conn->close();
 ?>

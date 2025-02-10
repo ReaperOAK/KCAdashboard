@@ -1,15 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Chessboard } from 'react-chessboard';
 
 const Studies = () => {
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [position, setPosition] = useState('start');
+  const [studyList, setStudyList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data - replace with actual API calls
-  const studyList = [
-    { id: 1, title: 'Basic Openings', author: 'Coach Smith', rating: 1500 },
-    { id: 2, title: 'Advanced Endgames', author: 'Coach Johnson', rating: 2000 },
-  ];
+  useEffect(() => {
+    fetchStudies();
+  }, []);
+
+  const fetchStudies = async () => {
+    try {
+      const response = await fetch('/php/studies/get_studies.php');
+      const data = await response.json();
+      
+      if (data.success) {
+        setStudyList(data.studies);
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Failed to load studies');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStudySelect = async (study) => {
+    setSelectedStudy(study);
+    try {
+      const response = await fetch(`/php/studies/get_study_positions.php?study_id=${study.id}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setPosition(data.positions[0].position_fen);
+      }
+    } catch (err) {
+      setError('Failed to load study positions');
+    }
+  };
+
+  const saveProgress = async () => {
+    try {
+      await fetch('/php/studies/save_progress.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          study_id: selectedStudy.id,
+          current_position: position
+        })
+      });
+    } catch (err) {
+      console.error('Failed to save progress');
+    }
+  };
 
   const handleMove = (source, target) => {
     // Update position based on the move
@@ -34,17 +83,23 @@ const Studies = () => {
         <div className="col-span-1 bg-white rounded-lg shadow p-4">
           <h2 className="text-xl font-semibold text-[#461fa3] mb-4">Available Studies</h2>
           <div className="space-y-3">
-            {studyList.map(study => (
-              <div 
-                key={study.id}
-                onClick={() => setSelectedStudy(study)}
-                className="p-3 border rounded cursor-pointer hover:bg-[#7646eb] hover:text-white"
-              >
-                <h3 className="font-medium">{study.title}</h3>
-                <p className="text-sm">by {study.author}</p>
-                <span className="text-xs">Rating: {study.rating}</span>
-              </div>
-            ))}
+            {loading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p>{error}</p>
+            ) : (
+              studyList.map(study => (
+                <div 
+                  key={study.id}
+                  onClick={() => handleStudySelect(study)}
+                  className="p-3 border rounded cursor-pointer hover:bg-[#7646eb] hover:text-white"
+                >
+                  <h3 className="font-medium">{study.title}</h3>
+                  <p className="text-sm">by {study.author}</p>
+                  <span className="text-xs">Rating: {study.rating}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

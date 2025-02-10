@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ManageSystem = () => {
   const [systemConfig, setSystemConfig] = useState({
@@ -7,16 +7,40 @@ const ManageSystem = () => {
     maintainanceMode: false
   });
 
+  // Fetch current configuration on component mount
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch('/php/admin/system_config.php');
+      const data = await response.json();
+      if (!data.error) {
+        setSystemConfig(data);
+      }
+    } catch (error) {
+      console.error('Error fetching system config:', error);
+    }
+  };
+
   const handleConfigSave = async () => {
     try {
-      await fetch('/api/admin/system-config', {
+      const response = await fetch('/php/admin/system_config.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(systemConfig)
       });
-      // Handle response
+      
+      const data = await response.json();
+      if (data.success) {
+        alert('Configuration saved successfully!');
+      } else {
+        alert('Failed to save configuration');
+      }
     } catch (error) {
       console.error('Error saving system config:', error);
+      alert('Error saving configuration');
     }
   };
 

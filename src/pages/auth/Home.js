@@ -1,10 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MainBanner from '../../components/MainBanner';
 import Features from '../../components/Features';
 import { Link } from 'react-router-dom';
 import { FaChess, FaChalkboardTeacher, FaChartLine, FaUserGraduate } from 'react-icons/fa';
 
 const Home = () => {
+  const [dashboardAccess, setDashboardAccess] = useState({
+    student: false,
+    teacher: false,
+    admin: false
+  });
+
+  useEffect(() => {
+    // Check dashboard access for each type
+    const checkAccess = async (type) => {
+      try {
+        const response = await fetch(`/php/api/auth/check_access.php?type=${type}`);
+        const data = await response.json();
+        return data.success;
+      } catch (error) {
+        console.error(`Error checking ${type} access:`, error);
+        return false;
+      }
+    };
+
+    const loadAccess = async () => {
+      const student = await checkAccess('student');
+      const teacher = await checkAccess('teacher');
+      const admin = await checkAccess('admin');
+      setDashboardAccess({ student, teacher, admin });
+    };
+
+    loadAccess();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f3f1f9]">
       <main className="flex-grow">
@@ -19,27 +48,33 @@ const Home = () => {
               Personalized learning experience tailored to your role
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <DashboardLink
-                to="/student-dashboard"
-                title="Student Dashboard"
-                description="Access interactive lessons, simul games, and track your progress"
-                icon={<FaUserGraduate className="w-8 h-8 mb-4" />}
-                color="bg-[#7646eb]"
-              />
-              <DashboardLink
-                to="/teacher-dashboard"
-                title="Teacher Dashboard"
-                description="Manage classes, monitor student progress, and create content"
-                icon={<FaChalkboardTeacher className="w-8 h-8 mb-4" />}
-                color="bg-[#461fa3]"
-              />
-              <DashboardLink
-                to="/admin-dashboard"
-                title="Admin Dashboard"
-                description="Platform management and analytics"
-                icon={<FaChartLine className="w-8 h-8 mb-4" />}
-                color="bg-[#200e4a]"
-              />
+              {dashboardAccess.student && (
+                <DashboardLink
+                  to="/student-dashboard"
+                  title="Student Dashboard"
+                  description="Access interactive lessons, simul games, and track your progress"
+                  icon={<FaUserGraduate className="w-8 h-8 mb-4" />}
+                  color="bg-[#7646eb]"
+                />
+              )}
+              {dashboardAccess.teacher && (
+                <DashboardLink
+                  to="/teacher-dashboard"
+                  title="Teacher Dashboard"
+                  description="Manage classes, monitor student progress, and create content"
+                  icon={<FaChalkboardTeacher className="w-8 h-8 mb-4" />}
+                  color="bg-[#461fa3]"
+                />
+              )}
+              {dashboardAccess.admin && (
+                <DashboardLink
+                  to="/admin-dashboard"
+                  title="Admin Dashboard"
+                  description="Platform management and analytics"
+                  icon={<FaChartLine className="w-8 h-8 mb-4" />}
+                  color="bg-[#200e4a]"
+                />
+              )}
             </div>
           </div>
         </section>

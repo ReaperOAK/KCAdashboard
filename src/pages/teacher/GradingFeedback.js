@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const initialAssignments = [
   { id: 1, title: 'Opening Analysis: Sicilian Defense', type: 'pgn', status: 'Pending' },
@@ -12,11 +12,42 @@ const initialStudents = [
 ];
 
 const GradingFeedback = () => {
-  const [assignments] = useState(initialAssignments);
-  const [students] = useState(initialStudents);
+  const [assignments, setAssignments] = useState(initialAssignments);
+  const [students, setStudents] = useState(initialStudents);
   const [grades, setGrades] = useState({});
   const [comments, setComments] = useState({});
   const [feedback, setFeedback] = useState('');
+  const teacherId = 1; // Replace with actual teacher ID
+  const selectedStudent = 1; // Replace with actual selected student ID
+
+  useEffect(() => {
+    fetchAssignments();
+    fetchStudents();
+  }, []);
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(`/php/grading/get_assignments.php?teacher_id=${teacherId}`);
+      const data = await response.json();
+      if (data.success) {
+        setAssignments(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+    }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch(`/php/grading/get_students.php?teacher_id=${teacherId}`);
+      const data = await response.json();
+      if (data.success) {
+        setStudents(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
 
   const handleGradeChange = (studentId, value) => {
     // Validate chess rating changes (0-3000 range)
@@ -29,19 +60,63 @@ const GradingFeedback = () => {
     setComments({ ...comments, [studentId]: value });
   };
 
-  const handleSubmitGrades = () => {
-    // Implement grade submission functionality here
-    console.log('Grades submitted:', grades);
-    console.log('Comments submitted:', comments);
-    alert('Grades and comments submitted successfully');
+  const handleSubmitGrades = async () => {
+    try {
+      const updates = Object.keys(grades).map(studentId => ({
+        student_id: parseInt(studentId),
+        rating: grades[studentId],
+        comments: comments[studentId] || ''
+      }));
+
+      const response = await fetch('/php/grading/update_ratings.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teacher_id: teacherId,
+          updates: updates
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Grades and comments submitted successfully');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error('Error submitting grades:', error);
+      alert('Failed to submit grades');
+    }
   };
 
-  const handleSubmitFeedback = (e) => {
+  const handleSubmitFeedback = async (e) => {
     e.preventDefault();
-    // Implement feedback submission functionality here
-    console.log('Feedback submitted:', feedback);
-    alert('Feedback submitted successfully');
-    setFeedback('');
+    try {
+      const response = await fetch('/php/grading/submit_analysis.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teacher_id: teacherId,
+          student_id: selectedStudent,
+          analysis: feedback
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Analysis submitted successfully');
+        setFeedback('');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error('Error submitting analysis:', error);
+      alert('Failed to submit analysis');
+    }
   };
 
   return (

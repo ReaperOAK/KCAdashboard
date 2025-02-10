@@ -1,52 +1,77 @@
 <?php
+require_once 'config.php';
 header('Content-Type: application/json');
-include 'config.php'; // Include your database configuration file
 
-// Function to fetch attendance trends
-function getAttendanceTrends($conn) {
-    $query = "SELECT DATE_FORMAT(date, '%Y-%m') as month, AVG(attendance_percentage) as average FROM attendance GROUP BY month";
-    $result = mysqli_query($conn, $query);
-    if (!$result) {
-        error_log("Database query failed: " . mysqli_error($conn));
-        return null;
+try {
+    // Get attendance trends for the last 6 months
+    $attendanceQuery = "
+        SELECT 
+            DATE_FORMAT(date, '%Y-%m') as month,
+            ROUND(AVG(CASE WHEN status = 'present' THEN 100 ELSE 0 END), 2) as average
+        FROM attendance
+        WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+        GROUP BY DATE_FORMAT(date, '%Y-%m')
+        ORDER BY month ASC
+    ";
+    
+    $attendanceResult = $conn->query($attendanceQuery);
+    $attendanceTrends = [];
+    
+    while ($row = $attendanceResult->fetch_assoc()) {
+        $attendanceTrends[] = [
+            'month' => date('M Y', strtotime($row['month'] . '-01')),
+            'average' => floatval($row['average'])
+        ];
     }
-    $trends = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $trends[] = $row;
+
+    // Get average grades by subject
+    $gradesQuery = "
+        SELECT 
+            subject,
+            ROUND(AVG(CASE 
+                WHEN grade = 'A+' THEN 100
+                WHEN grade = 'A' THEN 95
+                WHEN grade = 'A-' THEN 90
+                WHEN grade = 'B+' THEN 85
+                WHEN grade = 'B' THEN 80
+                WHEN grade = 'B-' THEN 75
+                WHEN grade = 'C+' THEN 70
+                WHEN grade = 'C' THEN 65
+                WHEN grade = 'C-' THEN 60
+                WHEN grade = 'D' THEN 55
+                WHEN grade = 'F' THEN 50
+            END), 2) as average
+        FROM performance
+        GROUP BY subject
+        ORDER BY average DESC
+    ";
+    
+    $gradesResult = $conn->query($gradesQuery);
+    $gradesData = [];
+    
+    while ($row = $gradesResult->fetch_assoc()) {
+        $gradesData[] = [
+            'subject' => $row['subject'],
+            'average' => floatval($row['average'])
+        ];
     }
-    return $trends;
+
+    // Prepare response
+    $response = [
+        'status' => 'success',
+        'attendanceTrends' => $attendanceTrends,
+        'gradesData' => $gradesData
+    ];
+
+    echo json_encode($response);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'An error occurred while fetching analytics data',
+        'debug' => $e->getMessage() // Remove this in production
+    ]);
 }
 
-// Function to fetch grades data
-function getGradesData($conn) {
-    $query = "SELECT a.title as subject, AVG(g.grade) as average 
-              FROM grades g 
-              JOIN assignments a ON g.assignment_id = a.id 
-              GROUP BY a.title";
-    $result = mysqli_query($conn, $query);
-    if (!$result) {
-        error_log("Database query failed: " . mysqli_error($conn));
-        return null;
-    }
-    $grades = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $grades[] = $row;
-    }
-    return $grades;
-}
-
-$attendanceTrends = getAttendanceTrends($conn);
-$gradesData = getGradesData($conn);
-
-if ($attendanceTrends === null || $gradesData === null) {
-    echo json_encode(['success' => false, 'message' => 'Error fetching data']);
-    exit;
-}
-
-echo json_encode([
-    'attendanceTrends' => $attendanceTrends,
-    'gradesData' => $gradesData,
-]);
-
-mysqli_close($conn);
-?>
+$conn->close();

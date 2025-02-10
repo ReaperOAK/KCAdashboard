@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaChess, FaRobot, FaUser } from 'react-icons/fa';
+import Chessboard from 'react-chessboard'; // You'll need to install this package
 
 const GameArea = () => {
   const [gameMode, setGameMode] = useState('ai');
@@ -8,10 +9,53 @@ const GameArea = () => {
     color: 'random',
     level: 5
   });
+  const [lichessAuth, setLichessAuth] = useState(null);
 
-  // const handleStartGame = () => {
-  //   // Implement game start logic
-  // };
+  useEffect(() => {
+    // Check if user has authorized Lichess
+    checkLichessAuth();
+  }, []);
+
+  const checkLichessAuth = async () => {
+    try {
+      const response = await fetch('/php/game/check_lichess_auth.php');
+      const data = await response.json();
+      if (data.success) {
+        setLichessAuth(data.token);
+      }
+    } catch (error) {
+      console.error('Failed to check Lichess auth:', error);
+    }
+  };
+
+  const handleStartGame = async () => {
+    if (!lichessAuth) {
+      // Redirect to Lichess OAuth
+      window.location.href = '/php/game/lichess_auth.php';
+      return;
+    }
+
+    try {
+      const response = await fetch('/php/game/create_lichess_game.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gameMode,
+          ...gameSettings
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        // Redirect to Lichess game
+        window.location.href = `https://lichess.org/${data.gameId}`;
+      }
+    } catch (error) {
+      console.error('Failed to create game:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f3f1f9] p-8">
@@ -93,12 +137,12 @@ const GameArea = () => {
       {/* Chessboard Area */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="aspect-w-1 aspect-h-1">
-          <iframe
-            src="https://lichess.org/embed/frame"
-            className="w-full h-full"
-            allow="fullscreen"
-            title="Chess Game"
-          ></iframe>
+          <button
+            onClick={handleStartGame}
+            className="w-full h-full flex items-center justify-center bg-[#461fa3] text-white rounded-lg"
+          >
+            {lichessAuth ? 'Start Game on Lichess' : 'Connect with Lichess'}
+          </button>
         </div>
       </div>
     </div>

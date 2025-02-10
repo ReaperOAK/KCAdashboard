@@ -15,8 +15,11 @@ const QuizPage = () => {
 
   const fetchQuizzes = async () => {
     try {
-      const response = await fetch('/api/student/quizzes');
+      const response = await fetch('/php/student/get_quizzes.php');
       const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setQuizzes(data);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
@@ -32,12 +35,15 @@ const QuizPage = () => {
   const submitQuiz = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/student/submit-quiz', {
+      const response = await fetch('/php/student/submit_quiz.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quizId: currentQuiz.id, answers })
       });
       const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setResults(data);
     } catch (error) {
       console.error('Error submitting quiz:', error);

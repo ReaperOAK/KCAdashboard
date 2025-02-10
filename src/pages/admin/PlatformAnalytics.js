@@ -5,9 +5,9 @@ const PlatformAnalytics = () => {
     userActivity: [],
     performanceMetrics: [],
     systemHealth: {
-      uptime: 99.9,
-      responseTime: 250,
-      errorRate: 0.1
+      uptime: 0,
+      responseTime: 0,
+      errorRate: 0
     }
   });
 
@@ -17,7 +17,7 @@ const PlatformAnalytics = () => {
 
   const fetchAnalyticsData = async () => {
     try {
-      const response = await fetch('/api/admin/platform-analytics');
+      const response = await fetch('/php/admin/get_platform_analytics.php');
       const data = await response.json();
       setAnalytics(data);
     } catch (error) {

@@ -8,21 +8,37 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check for existing session
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    fetch('/php/auth/check_session.php')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setUser(data.user);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const login = async (credentials) => {
+    const response = await fetch('/php/auth/login.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials)
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      setUser(data.user);
+      return true;
+    }
+    throw new Error(data.error || 'Login failed');
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await fetch('/php/auth/logout.php');
     setUser(null);
-    localStorage.removeItem('user');
   };
 
   return (

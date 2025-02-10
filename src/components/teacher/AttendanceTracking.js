@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -19,10 +19,45 @@ const AttendanceTracking = () => {
   const [selectedBatch, setSelectedBatch] = useState('');
   const [students, setStudents] = useState([]);
 
-  const markAttendance = (studentId, status) => {
-    setStudents(students.map(student => 
-      student.id === studentId ? { ...student, attendance: status } : student
-    ));
+  useEffect(() => {
+    if (selectedBatch && selectedDate) {
+      fetchAttendance();
+    }
+  }, [selectedBatch, selectedDate]);
+
+  const fetchAttendance = async () => {
+    try {
+      const response = await fetch(`/php/attendance/get_attendance.php?batch_id=${selectedBatch}&date=${selectedDate}`);
+      const data = await response.json();
+      if (data.attendance) {
+        setStudents(data.attendance);
+      }
+    } catch (error) {
+      console.error('Error fetching attendance:', error);
+    }
+  };
+
+  const markAttendance = async (studentId, status) => {
+    try {
+      const response = await fetch('/php/attendance/mark_attendance.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          student_id: studentId,
+          status: status,
+          date: selectedDate,
+          batch_id: selectedBatch
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchAttendance(); // Refresh the attendance data
+      }
+    } catch (error) {
+      console.error('Error marking attendance:', error);
+    }
   };
 
   return (

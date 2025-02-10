@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth, googleProvider } from '../../utils/firebase';
-import { signInWithPopup } from 'firebase/auth';
-import { FaGoogle, FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaGoogle } from 'react-icons/fa';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -12,32 +10,6 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-
-  const handleGoogleLogin = async () => {
-    setIsSubmitting(true);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-
-      const res = await fetch('/php/firebase-login.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        sessionStorage.setItem('role', data.role);
-        handleRoleBasedRedirect(data.role);
-      } else {
-        setError(data.message || 'Authentication failed');
-      }
-    } catch (error) {
-      setError('Authentication failed. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleRoleBasedRedirect = (role) => {
     switch (role) {
@@ -57,18 +29,39 @@ const Login = () => {
       const response = await fetch('/php/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Important for sessions
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
       if (data.success) {
-        sessionStorage.setItem('role', data.role);
         handleRoleBasedRedirect(data.role);
       } else {
         setError(data.message || 'Invalid credentials');
       }
     } catch (error) {
       setError('Login failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/php/google-login.php', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success) {
+        handleRoleBasedRedirect(data.role);
+      } else {
+        setError(data.message || 'Google login failed');
+      }
+    } catch (error) {
+      setError('Google login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

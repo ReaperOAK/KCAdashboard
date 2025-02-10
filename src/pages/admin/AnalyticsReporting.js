@@ -79,8 +79,19 @@ const AnalyticsReporting = () => {
    * @param {string} format - Export format (PDF or Excel)
    */
   const handleExport = (format) => {
-    // Implement export functionality here
-    alert(`Exporting data to ${format}`);
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/php/export-analytics.php';
+
+    const formatInput = document.createElement('input');
+    formatInput.type = 'hidden';
+    formatInput.name = 'format';
+    formatInput.value = format;
+
+    form.appendChild(formatInput);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
   };
 
   if (loading) {

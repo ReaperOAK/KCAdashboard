@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await ApiService.post('/auth/register', userData);
+      const response = await ApiService.post('/auth/register.php', userData);
       return response;
     } catch (error) {
       console.error('Registration error:', error);

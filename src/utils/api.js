@@ -6,6 +6,7 @@ class ApiService {
     const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
     
     console.log('Making API request to:', url); // Debug log
+    console.log('Request data:', data); // Additional debug log
     
     const headers = {
       'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import NotificationBell from './NotificationBell';
 
 const Navigation = () => {
   const { user, logout } = useAuth();
@@ -50,6 +51,7 @@ const Navigation = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <NotificationBell />
             <span>{user?.full_name}</span>
             <button
               onClick={handleLogout}

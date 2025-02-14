@@ -1,8 +1,9 @@
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || 'https://dashboard.kolkatachessacademy.in/api';
 
 class ApiService {
   static async request(endpoint, method = 'GET', data = null) {
     const token = localStorage.getItem('token');
+    const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
     
     const headers = {
       'Content-Type': 'application/json',
@@ -20,7 +21,7 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, config);
+      const response = await fetch(url, config);
       const contentType = response.headers.get('content-type');
       
       if (!contentType || !contentType.includes('application/json')) {
@@ -36,6 +37,7 @@ class ApiService {
       return result;
     } catch (error) {
       console.error('API Error:', error);
+      console.error('Request URL:', url); // Add this for debugging
       throw error;
     }
   }

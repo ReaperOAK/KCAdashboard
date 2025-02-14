@@ -25,7 +25,8 @@ export const AuthProvider = ({ children }) => {
       const response = await ApiService.post('/auth/register', userData);
       return response;
     } catch (error) {
-      throw new Error(error.message);
+      console.error('Registration error:', error);
+      throw new Error(error.message || 'Registration failed');
     }
   };
 

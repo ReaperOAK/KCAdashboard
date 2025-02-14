@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await ApiService.post('/auth/login', { email, password });
+      const response = await ApiService.post('/auth/login.php', { email, password });
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       setToken(response.token);

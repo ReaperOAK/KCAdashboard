@@ -23,13 +23,23 @@ Implement the attendance system? -->
 <!-- The mark-read endpoint?
 Admin interface for sending notifications?
 Real-time notifications using WebSocket?
-Additional notification types and templates? -->
+Additional notification types and templates?
+Add the admin interface for sending notifications to users?
+Implement notification categories (e.g., class updates, announcements, reminders)?
+Add notification preferences for users?
+Set up WebSocket for real-time notifications instead of polling?
+Create email notifications in addition to in-app notifications? -->
 
 ---
 
 ### **Student Features**
 1. **Simul Games:** Integration with [Lichess.org](https://lichess.org) for simultaneous exhibition matches.
 2. **Classroom:** View and manage enrolled batches, teachers, and materials.
+<!-- Class detail view?
+Enrollment functionality?
+Class materials section?
+Assignment submission system?
+Class discussion feature? -->
 3. **Studies:** Access chess studies integrated with [Lichess.org](https://lichess.org).
 4. **Interactive Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
 5. **Game Area:** Dedicated space for chess games and practice.

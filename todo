@@ -8,8 +8,22 @@ This report outlines the design and development plan for the Chess Academy's das
 
 ### **General Features**
 - **Authentication System:** Role-based login/signup for students, teachers, and admins.
+<!-- Adding a navigation menu
+Implementing logout functionality
+Creating a user profile page
+Adding form validation
+Implementing password reset functionality -->
 - **Dashboard Overview:** Personalized dashboard for quick access.
+<!-- Add more features to the admin dashboard?
+Set up user management for the admin?
+Create the batch management system?
+Set up the student/teacher listing pages?
+Implement the attendance system? -->
 - **Notifications:** Alerts for upcoming classes, tournaments, assignments, and attendance.
+<!-- The mark-read endpoint?
+Admin interface for sending notifications?
+Real-time notifications using WebSocket?
+Additional notification types and templates? -->
 
 ---
 

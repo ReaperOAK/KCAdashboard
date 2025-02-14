@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 import Navigation from '../../components/Navigation';
 import ApiService from '../../utils/api';
+import { Link } from 'react-router-dom';
 
 const ClassroomPage = () => {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { user } = useAuth();
 
     useEffect(() => {
         fetchClasses();
@@ -66,9 +65,12 @@ const ClassroomPage = () => {
                                 </div>
                             </div>
                             <div className="px-6 py-4 bg-gray-50 border-t">
-                                <button className="w-full text-center text-[#461fa3] hover:text-[#7646eb]">
+                                <Link 
+                                    to={`/student/classes/${classroom.id}`}
+                                    className="block w-full text-center text-[#461fa3] hover:text-[#7646eb]"
+                                >
                                     View Details →
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     ))}

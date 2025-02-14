@@ -8,6 +8,7 @@ import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ClassroomPage from './pages/student/ClassroomPage';
 import ClassroomDetails from './pages/student/ClassroomDetails';
+import ResourceCenter from './pages/student/ResourceCenter';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -70,6 +71,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <ClassroomDetails />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/resources" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <ResourceCenter />
                 </ProtectedRoute>
               } 
             />

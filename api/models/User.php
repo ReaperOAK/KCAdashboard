@@ -53,11 +53,26 @@ class User {
     }
 
     public function findByEmail($email) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+            
+            error_log("Searching for user with email: " . $email);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                error_log("User found: " . print_r($result, true));
+            } else {
+                error_log("No user found with email: " . $email);
+            }
+            
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Database error in findByEmail: " . $e->getMessage());
+            throw new Exception("Database error finding user");
+        }
     }
 
     public function generateAuthToken() {

@@ -26,7 +26,8 @@ const Navigation = () => {
     student: [
       { label: 'Dashboard', path: '/student-dashboard' },
       { label: 'My Classes', path: '/student/classes' },
-      { label: 'Games', path: '/student/games' }
+      { label: 'Games', path: '/student/games' },
+      { label: 'Classroom', path: '/student/classroom' }
     ]
   };
 

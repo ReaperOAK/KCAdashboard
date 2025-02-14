@@ -6,6 +6,8 @@ import Register from './pages/auth/Register';
 import StudentDashboard from './pages/student/StudentDashboard';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ClassroomPage from './pages/student/ClassroomPage';
+import ClassroomDetails from './pages/student/ClassroomDetails';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -46,7 +48,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<DashboardRedirect />} />
 
-            {/* Protected Routes */}
+            {/* Student Routes */}
             <Route 
               path="/student-dashboard" 
               element={
@@ -56,6 +58,24 @@ const App = () => {
               } 
             />
             <Route 
+              path="/student/classes" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <ClassroomPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/classes/:id" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <ClassroomDetails />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Teacher Routes */}
+            <Route 
               path="/teacher-dashboard" 
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
@@ -63,6 +83,8 @@ const App = () => {
                 </ProtectedRoute>
               } 
             />
+
+            {/* Admin Routes */}
             <Route 
               path="/admin-dashboard" 
               element={

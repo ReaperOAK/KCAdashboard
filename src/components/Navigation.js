@@ -20,6 +20,7 @@ const Navigation = () => {
     ],
     teacher: [
       { label: 'Dashboard', path: '/teacher-dashboard' },
+      { label: 'Batches', path: '/teacher/batches' },
       { label: 'My Classes', path: '/teacher/classes' },
       { label: 'Students', path: '/teacher/students' }
     ],

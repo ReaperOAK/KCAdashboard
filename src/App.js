@@ -11,6 +11,7 @@ import ClassroomDetails from './pages/student/ClassroomDetails';
 import ResourceCenter from './pages/student/ResourceCenter';
 import QuizPage from './pages/student/QuizPage';
 import TournamentsPage from './pages/student/TournamentsPage';
+import BatchManagement from './pages/teacher/BatchManagement';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -107,6 +108,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <TeacherDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/teacher/batches" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <BatchManagement />
                 </ProtectedRoute>
               } 
             />

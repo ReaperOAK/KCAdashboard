@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navigation from '../../components/Navigation';
 import ApiService from '../../utils/api';
-import { Chess } from 'chess.js';
 
 const PGNDatabase = () => {
     const [pgns, setPgns] = useState([]);
@@ -17,6 +16,7 @@ const PGNDatabase = () => {
         pgn_content: '',
         is_public: false
     });
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const fetchPGNs = useCallback(async () => {
         try {
@@ -33,16 +33,38 @@ const PGNDatabase = () => {
         fetchPGNs();
     }, [fetchPGNs]);
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            // Read file content
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setUploadForm(prev => ({
+                    ...prev,
+                    pgn_content: e.target.result
+                }));
+            };
+            reader.readAsText(file);
+        }
+    };
+
     const handleUploadSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Validate PGN
-            const chess = new Chess();
-            if (!chess.load_pgn(uploadForm.pgn_content)) {
-                throw new Error('Invalid PGN format');
+            const formData = new FormData();
+            formData.append('data', JSON.stringify(uploadForm));
+            
+            if (selectedFile) {
+                formData.append('pgn_file', selectedFile);
             }
 
-            await ApiService.post('/pgn/upload.php', uploadForm);
+            await ApiService.post('/pgn/upload.php', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
             setShowUploadModal(false);
             fetchPGNs();
             setUploadForm({
@@ -52,6 +74,7 @@ const PGNDatabase = () => {
                 pgn_content: '',
                 is_public: false
             });
+            setSelectedFile(null);
         } catch (error) {
             setError(error.message || 'Failed to upload PGN');
         }
@@ -160,6 +183,20 @@ const PGNDatabase = () => {
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3] font-mono"
                                         rows={6}
                                         required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Upload PGN File</label>
+                                    <input
+                                        type="file"
+                                        accept=".pgn"
+                                        onChange={handleFileChange}
+                                        className="mt-1 block w-full text-sm text-gray-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-md file:border-0
+                                            file:text-sm file:font-medium
+                                            file:bg-[#461fa3] file:text-white
+                                            hover:file:bg-[#7646eb]"
                                     />
                                 </div>
                                 <div className="flex items-center">

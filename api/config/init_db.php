@@ -84,4 +84,42 @@ foreach ($sampleQuizzes as $quizData) {
     $stmt = $db->prepare($query);
     $stmt->execute($quizData);
 }
+
+// Add sample tournaments
+$sampleTournaments = [
+    [
+        'title' => 'Weekend Blitz Tournament',
+        'description' => 'Fast-paced 3+2 blitz games',
+        'date_time' => date('Y-m-d H:i:s', strtotime('+2 days')),
+        'location' => 'Online',
+        'type' => 'online',
+        'entry_fee' => 100,
+        'prize_pool' => 1000,
+        'max_participants' => 32,
+        'status' => 'upcoming',
+        'created_by' => 1
+    ],
+    [
+        'title' => 'KCA Monthly Championship',
+        'description' => 'Classical tournament with FIDE rating consideration',
+        'date_time' => date('Y-m-d H:i:s', strtotime('+10 days')),
+        'location' => 'KCA Main Center',
+        'type' => 'offline',
+        'entry_fee' => 500,
+        'prize_pool' => 5000,
+        'max_participants' => 64,
+        'status' => 'upcoming',
+        'created_by' => 1
+    ]
+];
+
+foreach ($sampleTournaments as $tournamentData) {
+    $query = "INSERT INTO tournaments (title, description, date_time, location, type, entry_fee, 
+              prize_pool, max_participants, status, created_by) 
+              VALUES (:title, :description, :date_time, :location, :type, :entry_fee, 
+              :prize_pool, :max_participants, :status, :created_by)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute($tournamentData);
+}
 ?>

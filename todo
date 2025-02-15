@@ -50,6 +50,11 @@ Video embedding for chess tutorials?
 Resource search and filtering?
 Resource bookmarking system? -->
 7. **Quiz Page:** Chess-related quizzes for practice.
+<!-- The Quiz detail/taking page?
+The PHP endpoints for quizzes?
+The scoring system?
+Quiz results and history?
+Quiz leaderboard? -->
 8. **Tournaments Page:** View and register for upcoming chess tournaments.
 9. **Chat Page:** Communicate with peers, teachers, and admins.
 

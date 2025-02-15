@@ -9,6 +9,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ClassroomPage from './pages/student/ClassroomPage';
 import ClassroomDetails from './pages/student/ClassroomDetails';
 import ResourceCenter from './pages/student/ResourceCenter';
+import QuizPage from './pages/student/QuizPage';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -79,6 +80,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <ResourceCenter />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/quiz" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <QuizPage />
                 </ProtectedRoute>
               } 
             />

@@ -23,6 +23,7 @@ const Navigation = () => {
       { label: 'Batches', path: '/teacher/batches' },
       { label: 'Analytics', path: '/teacher/analytics' },
       { label: 'Grading', path: '/teacher/grading' },
+      { label: 'PGN Database', path: '/teacher/pgn' },
       { label: 'Students', path: '/teacher/students' }
     ],
     student: [

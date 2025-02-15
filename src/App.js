@@ -14,6 +14,7 @@ import TournamentsPage from './pages/student/TournamentsPage';
 import BatchManagement from './pages/teacher/BatchManagement';
 import ReportsAnalytics from './pages/teacher/ReportsAnalytics';
 import GradingFeedback from './pages/teacher/GradingFeedback';
+import PGNDatabase from './pages/teacher/PGNDatabase';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -134,6 +135,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <GradingFeedback />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/teacher/pgn" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <PGNDatabase />
                 </ProtectedRoute>
               } 
             />

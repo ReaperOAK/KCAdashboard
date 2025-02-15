@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navigation from '../../components/Navigation';
 import ApiService from '../../utils/api';
 
 const QuizPage = () => {
+    const navigate = useNavigate();
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,23 +18,23 @@ const QuizPage = () => {
     ];
 
     useEffect(() => {
+        const fetchQuizzes = async () => {
+            try {
+                const endpoint = activeFilter === 'all' 
+                    ? '/quiz/get-all.php'
+                    : `/quiz/get-by-difficulty.php?difficulty=${activeFilter}`;
+                
+                const response = await ApiService.get(endpoint);
+                setQuizzes(response.quizzes);
+                setLoading(false);
+            } catch (error) {
+                setError('Failed to fetch quizzes');
+                setLoading(false);
+            }
+        };
+
         fetchQuizzes();
     }, [activeFilter]);
-
-    const fetchQuizzes = async () => {
-        try {
-            const endpoint = activeFilter === 'all' 
-                ? '/quiz/get-all.php'
-                : `/quiz/get-by-difficulty.php?difficulty=${activeFilter}`;
-            
-            const response = await ApiService.get(endpoint);
-            setQuizzes(response.quizzes);
-            setLoading(false);
-        } catch (error) {
-            setError('Failed to fetch quizzes');
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">

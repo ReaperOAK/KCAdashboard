@@ -68,6 +68,10 @@ Tournament payment system -->
 
 ### **Teacher Features**
 1. **Batch Management:** Create, edit, and manage student batches.
+<!-- The PHP endpoints for batch management?
+The batch detail view component?
+The student management modal?
+The create batch form component? -->
 2. **Reports & Analytics:** View student performance, quiz scores, and attendance stats.
 3. **Grading and Feedback:** Provide performance feedback and assignments.
 4. **PGN Database:** Upload, manage, and share chess PGNs.

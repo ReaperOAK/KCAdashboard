@@ -49,5 +49,22 @@ class Classroom {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getTeacherClasses($teacher_id) {
+        try {
+            $query = "SELECT c.*, 
+                     (SELECT COUNT(*) FROM classroom_students WHERE classroom_id = c.id) as student_count
+                     FROM " . $this->table_name . " c
+                     WHERE c.teacher_id = :teacher_id
+                     ORDER BY c.created_at DESC";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":teacher_id", $teacher_id);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching teacher's classes: " . $e->getMessage());
+        }
+    }
 }
 ?>

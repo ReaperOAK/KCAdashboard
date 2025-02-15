@@ -28,6 +28,7 @@ const Navigation = () => {
       { label: 'My Classes', path: '/student/classes' },
       { label: 'Resources', path: '/student/resources' },
       { label: 'Quiz', path: '/student/quiz' },
+      { label: 'Tournaments', path: '/student/tournaments' },
       { label: 'Games', path: '/student/games' },
       { label: 'Classroom', path: '/student/classroom' }
     ]

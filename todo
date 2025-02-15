@@ -54,8 +54,14 @@ Resource bookmarking system? -->
 The PHP endpoints for quizzes?
 The scoring system?
 Quiz results and history?
+Quiz attempt tracking?
 Quiz leaderboard? -->
 8. **Tournaments Page:** View and register for upcoming chess tournaments.
+<!-- The PHP endpoints for tournaments?
+Tournament registration system?
+Tournament results tracking?
+Integration with Lichess.org tournaments?
+Tournament payment system -->
 9. **Chat Page:** Communicate with peers, teachers, and admins.
 
 ---

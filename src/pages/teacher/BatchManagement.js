@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from '../../components/Navigation';
 import ApiService from '../../utils/api';
-import { useAuth } from '../../hooks/useAuth';
 
 const BatchManagement = () => {
-    const { user } = useAuth();
     const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

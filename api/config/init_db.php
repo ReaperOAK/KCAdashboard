@@ -32,6 +32,22 @@ $sql = "CREATE TABLE IF NOT EXISTS classroom_students (
 
 $db->exec($sql);
 
+// Create student feedback table
+$sql = "CREATE TABLE IF NOT EXISTS student_feedback (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    teacher_id INT NOT NULL,
+    rating INT NOT NULL,
+    comment TEXT,
+    areas_of_improvement TEXT,
+    strengths TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (teacher_id) REFERENCES users(id)
+)";
+
+$db->exec($sql);
+
 // Admin credentials
 $adminData = [
     'email' => 'admin@kca.com',

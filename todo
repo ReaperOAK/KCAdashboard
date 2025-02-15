@@ -83,7 +83,10 @@ Comparative batch analytics? -->
 Student feedback history view?
 Progress tracking over time?
 Performance analytics integration?
-Email notifications for new feedback? -->
+Email notifications for new feedback?
+The get-batch-students endpoint?
+The submit-feedback endpoint?
+Feedback history functionality? -->
 4. **PGN Database:** Upload, manage, and share chess PGNs.
 5. **Classroom Management:** Organize study material and schedule online/offline classes.
 

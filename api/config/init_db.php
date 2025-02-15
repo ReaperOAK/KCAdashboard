@@ -51,4 +51,37 @@ if (!$user->emailExists($adminData['email'])) {
         echo "Admin account created successfully\n";
     }
 }
+
+// Add sample quizzes
+$sampleQuizzes = [
+    [
+        'title' => 'Chess Openings Basics',
+        'description' => 'Test your knowledge of basic chess openings',
+        'difficulty' => 'beginner',
+        'time_limit' => 15,
+        'created_by' => 1 // assuming admin id is 1
+    ],
+    [
+        'title' => 'Tactical Patterns',
+        'description' => 'Intermediate level tactical puzzles',
+        'difficulty' => 'intermediate',
+        'time_limit' => 20,
+        'created_by' => 1
+    ],
+    [
+        'title' => 'Advanced Endgames',
+        'description' => 'Complex endgame positions',
+        'difficulty' => 'advanced',
+        'time_limit' => 30,
+        'created_by' => 1
+    ]
+];
+
+foreach ($sampleQuizzes as $quizData) {
+    $query = "INSERT INTO quizzes (title, description, difficulty, time_limit, created_by) 
+              VALUES (:title, :description, :difficulty, :time_limit, :created_by)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute($quizData);
+}
 ?>

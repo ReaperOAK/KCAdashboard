@@ -53,29 +53,45 @@ const PGNDatabase = () => {
         e.preventDefault();
         try {
             const formData = new FormData();
-            formData.append('data', JSON.stringify(uploadForm));
+            const jsonData = {
+                title: uploadForm.title,
+                description: uploadForm.description,
+                category: uploadForm.category,
+                pgn_content: uploadForm.pgn_content,
+                is_public: uploadForm.is_public
+            };
+            
+            formData.append('data', JSON.stringify(jsonData));
             
             if (selectedFile) {
                 formData.append('pgn_file', selectedFile);
             }
 
-            await ApiService.post('/pgn/upload.php', formData, {
+            // Log the form data for debugging
+            console.log('Form data:', Object.fromEntries(formData));
+
+            const response = await ApiService.post('/pgn/upload.php', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    // Don't set Content-Type here, browser will set it with boundary
                 }
             });
 
-            setShowUploadModal(false);
-            fetchPGNs();
-            setUploadForm({
-                title: '',
-                description: '',
-                category: 'opening',
-                pgn_content: '',
-                is_public: false
-            });
-            setSelectedFile(null);
+            if (response.message === "PGN uploaded successfully") {
+                setShowUploadModal(false);
+                fetchPGNs();
+                setUploadForm({
+                    title: '',
+                    description: '',
+                    category: 'opening',
+                    pgn_content: '',
+                    is_public: false
+                });
+                setSelectedFile(null);
+            } else {
+                throw new Error('Upload failed');
+            }
         } catch (error) {
+            console.error('Upload error:', error);
             setError(error.message || 'Failed to upload PGN');
         }
     };

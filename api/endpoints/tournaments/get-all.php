@@ -8,8 +8,7 @@ try {
     $db = $database->getConnection();
     $tournament = new Tournament($db);
 
-    $status = isset($_GET['status']) ? $_GET['status'] : die();
-    $tournaments = $tournament->getByStatus($status);
+    $tournaments = $tournament->getAll();
 
     http_response_code(200);
     header('Content-Type: application/json');
@@ -21,7 +20,7 @@ try {
     http_response_code(500);
     header('Content-Type: application/json');
     echo json_encode([
-        "message" => "Error fetching tournaments by status",
+        "message" => "Error fetching tournaments",
         "error" => $e->getMessage()
     ]);
 }

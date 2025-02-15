@@ -13,6 +13,7 @@ import QuizPage from './pages/student/QuizPage';
 import TournamentsPage from './pages/student/TournamentsPage';
 import BatchManagement from './pages/teacher/BatchManagement';
 import ReportsAnalytics from './pages/teacher/ReportsAnalytics';
+import GradingFeedback from './pages/teacher/GradingFeedback';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -125,6 +126,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <ReportsAnalytics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/teacher/grading" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <GradingFeedback />
                 </ProtectedRoute>
               } 
             />

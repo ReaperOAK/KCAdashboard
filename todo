@@ -79,6 +79,11 @@ Export functionality for reports?
 Individual student progress tracking?
 Comparative batch analytics? -->
 3. **Grading and Feedback:** Provide performance feedback and assignments.
+<!-- The PHP endpoints for grading and feedback?
+Student feedback history view?
+Progress tracking over time?
+Performance analytics integration?
+Email notifications for new feedback? -->
 4. **PGN Database:** Upload, manage, and share chess PGNs.
 5. **Classroom Management:** Organize study material and schedule online/offline classes.
 

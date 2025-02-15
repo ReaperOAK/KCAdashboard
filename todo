@@ -73,6 +73,11 @@ The batch detail view component?
 The student management modal?
 The create batch form component? -->
 2. **Reports & Analytics:** View student performance, quiz scores, and attendance stats.
+<!-- The PHP endpoints for fetching analytics data?
+Detailed student performance views?
+Export functionality for reports?
+Individual student progress tracking?
+Comparative batch analytics? -->
 3. **Grading and Feedback:** Provide performance feedback and assignments.
 4. **PGN Database:** Upload, manage, and share chess PGNs.
 5. **Classroom Management:** Organize study material and schedule online/offline classes.

@@ -24,6 +24,7 @@ const Navigation = () => {
       { label: 'Analytics', path: '/teacher/analytics' },
       { label: 'Grading', path: '/teacher/grading' },
       { label: 'PGN Database', path: '/teacher/pgn' },
+      { label: 'Classroom', path: '/teacher/classroom' },
       { label: 'Students', path: '/teacher/students' }
     ],
     student: [

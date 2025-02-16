@@ -15,6 +15,7 @@ import BatchManagement from './pages/teacher/BatchManagement';
 import ReportsAnalytics from './pages/teacher/ReportsAnalytics';
 import GradingFeedback from './pages/teacher/GradingFeedback';
 import PGNDatabase from './pages/teacher/PGNDatabase';
+import ClassroomManagement from './pages/teacher/ClassroomManagement';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -143,6 +144,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <PGNDatabase />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/teacher/classroom" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <ClassroomManagement />
                 </ProtectedRoute>
               } 
             />

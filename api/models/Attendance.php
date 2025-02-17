@@ -11,23 +11,23 @@ class Attendance {
         try {
             $query = "SELECT 
                         b.name as batch_name,
-                        bs.date_time as session_date,
-                        COUNT(DISTINCT bs.student_id) as total_students,
+                        bss.date_time as session_date,
+                        COUNT(DISTINCT bst.student_id) as total_students,
                         COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_count,
-                        (COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 100.0 / COUNT(DISTINCT bs.student_id)) as attendance_percentage
-                     FROM batch_sessions bs
-                     JOIN batches b ON bs.batch_id = b.id
-                     JOIN batch_students bs ON b.id = bs.batch_id
-                     LEFT JOIN attendance a ON bs.id = a.session_id 
-                        AND bs.student_id = a.student_id
-                     WHERE bs.date_time >= CURDATE() - INTERVAL 30 DAY";
+                        (COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 100.0 / COUNT(DISTINCT bst.student_id)) as attendance_percentage
+                     FROM batch_sessions bss
+                     JOIN batches b ON bss.batch_id = b.id
+                     JOIN batch_students bst ON b.id = bst.batch_id
+                     LEFT JOIN attendance a ON bss.id = a.session_id 
+                        AND bst.student_id = a.student_id
+                     WHERE bss.date_time >= CURDATE() - INTERVAL 30 DAY";
 
             if ($batch_id) {
                 $query .= " AND b.id = :batch_id";
             }
 
-            $query .= " GROUP BY bs.id, b.name, bs.date_time
-                       ORDER BY bs.date_time DESC";
+            $query .= " GROUP BY bss.id, b.name, bss.date_time
+                       ORDER BY bss.date_time DESC";
 
             $stmt = $this->conn->prepare($query);
             

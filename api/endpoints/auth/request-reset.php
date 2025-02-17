@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../models/User.php';
+require_once '../../vendor/autoload.php';
 require_once '../../helpers/Mailer.php';
 
 try {

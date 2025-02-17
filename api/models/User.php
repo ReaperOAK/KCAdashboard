@@ -193,5 +193,49 @@ class User {
             throw new Exception("Error updating user: " . $e->getMessage());
         }
     }
+
+    public function getAllUsers($filter = 'all', $search = '') {
+        try {
+            $query = "SELECT id, email, full_name, role, is_active as status, created_at 
+                     FROM " . $this->table_name . " 
+                     WHERE 1=1";
+
+            $params = array();
+
+            if ($filter !== 'all') {
+                $query .= " AND role = :role";
+                $params[':role'] = $filter;
+            }
+
+            if (!empty($search)) {
+                $query .= " AND (full_name LIKE :search OR email LIKE :search)";
+                $params[':search'] = "%$search%";
+            }
+
+            $query .= " ORDER BY created_at DESC";
+
+            $stmt = $this->conn->prepare($query);
+            
+            // Bind parameters
+            foreach ($params as $key => &$val) {
+                $stmt->bindParam($key, $val);
+            }
+
+            $stmt->execute();
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Clean sensitive data
+            foreach ($users as &$user) {
+                unset($user['password']);
+                $user['status'] = $user['status'] ? 'active' : 'inactive';
+            }
+
+            return $users;
+
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            throw new Exception("Error fetching users: " . $e->getMessage());
+        }
+    }
 }
 ?>

@@ -107,5 +107,91 @@ class User {
             throw new Exception("Database error checking email");
         }
     }
+
+    public function getAll($filter = 'all', $search = '') {
+        try {
+            $query = "SELECT id, full_name, email, role, status, created_at 
+                     FROM " . $this->table_name . " 
+                     WHERE 1=1";
+
+            // Add role filter
+            if ($filter !== 'all') {
+                $query .= " AND role = :role";
+            }
+
+            // Add search filter
+            if (!empty($search)) {
+                $query .= " AND (full_name LIKE :search OR email LIKE :search)";
+            }
+
+            $query .= " ORDER BY created_at DESC";
+
+            $stmt = $this->conn->prepare($query);
+
+            // Bind parameters
+            if ($filter !== 'all') {
+                $stmt->bindParam(":role", $filter);
+            }
+            if (!empty($search)) {
+                $searchTerm = "%{$search}%";
+                $stmt->bindParam(":search", $searchTerm);
+            }
+
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching users: " . $e->getMessage());
+        }
+    }
+
+    public function updateStatus($userId, $status) {
+        try {
+            $query = "UPDATE " . $this->table_name . "
+                     SET status = :status
+                     WHERE id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":status", $status);
+            $stmt->bindParam(":id", $userId);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            throw new Exception("Error updating user status: " . $e->getMessage());
+        }
+    }
+
+    public function updateRole($userId, $role) {
+        try {
+            $query = "UPDATE " . $this->table_name . "
+                     SET role = :role
+                     WHERE id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":role", $role);
+            $stmt->bindParam(":id", $userId);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            throw new Exception("Error updating user role: " . $e->getMessage());
+        }
+    }
+
+    public function updateUser($userData) {
+        try {
+            $query = "UPDATE " . $this->table_name . "
+                     SET full_name = :full_name,
+                         email = :email,
+                         role = :role,
+                         status = :status
+                     WHERE id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($userData);
+
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Error updating user: " . $e->getMessage());
+        }
+    }
 }
 ?>

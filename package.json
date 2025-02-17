@@ -20,6 +20,7 @@
     "chess.js": "^1.0.0",
     "date-fns": "^4.1.0",
     "firebase": "^11.0.2",
+    "fullcalendar": "^6.1.15",
     "install": "^0.13.0",
     "jwt-decode": "^4.0.0",
     "mui": "^0.0.1",

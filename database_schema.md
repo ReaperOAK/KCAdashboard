@@ -199,3 +199,28 @@
 | type       | varchar(50) | NO   |     | NULL    |                |
 | is_read    | tinyint(1)  | YES  |     | NULL    |                |
 | created_at | timestamp   | YES  |     | NULL    |                |
+
+## Attendance System
+### attendance
+| Column     | Type                                        | Null | Key | Default | Extra           |
+|------------|---------------------------------------------|------|-----|---------|-----------------|
+| id         | int(11)                                     | NO   | PRI | NULL    | auto_increment |
+| student_id | int(11)                                     | NO   | MUL | NULL    |                |
+| batch_id   | int(11)                                     | NO   | MUL | NULL    |                |
+| session_id | int(11)                                     | NO   | MUL | NULL    |                |
+| status     | enum('present','absent','excused','late')   | NO   |     | NULL    |                |
+| marked_by  | int(11)                                     | NO   | MUL | NULL    |                |
+| notes      | text                                        | YES  |     | NULL    |                |
+| created_at | timestamp                                   | YES  |     | CURRENT_TIMESTAMP |      |
+| updated_at | timestamp                                   | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
+### attendance_settings
+| Column                      | Type      | Null | Key | Default | Extra           |
+|----------------------------|-----------|------|-----|---------|-----------------|
+| id                         | int(11)   | NO   | PRI | NULL    | auto_increment |
+| min_attendance_percent     | int(11)   | YES  |     | 75      |                |
+| late_threshold_minutes     | int(11)   | YES  |     | 15      |                |
+| auto_mark_absent_after_minutes | int(11) | YES |     | 30      |                |
+| reminder_before_minutes    | int(11)   | YES  |     | 60      |                |
+| created_at                 | timestamp | YES  |     | CURRENT_TIMESTAMP |      |
+| updated_at                 | timestamp | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |

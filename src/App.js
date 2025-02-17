@@ -17,6 +17,7 @@ import GradingFeedback from './pages/teacher/GradingFeedback';
 import PGNDatabase from './pages/teacher/PGNDatabase';
 import ClassroomManagement from './pages/teacher/ClassroomManagement';
 import UserManagement from './pages/admin/UserManagement';
+import AttendanceSystem from './pages/admin/AttendanceSystem';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -171,6 +172,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/attendance" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AttendanceSystem />
                 </ProtectedRoute>
               } 
             />

@@ -12,7 +12,11 @@ try {
     $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
     $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-    $users = $user->getAll($filter, $search);
+    // Get user_id from token (implement proper token validation)
+    $headers = getallheaders();
+    $token = str_replace('Bearer ', '', $headers['Authorization'] ?? '');
+    
+    $users = $user->getAllUsers($filter, $search);
 
     http_response_code(200);
     header('Content-Type: application/json');
@@ -21,6 +25,7 @@ try {
     ]);
 
 } catch (Exception $e) {
+    error_log("Error in get-all.php: " . $e->getMessage());
     http_response_code(500);
     header('Content-Type: application/json');
     echo json_encode([

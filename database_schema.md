@@ -14,6 +14,7 @@
 | is_active      | tinyint(1)    | YES  |     | NULL    |                     |
 | google_id      | varchar(255)  | YES  | UNI | NULL    |                     |
 | profile_picture| varchar(255)  | YES  |     | NULL    |                     |
+| status         | enum('active','inactive','suspended') | YES | | 'active' |  |
 
 ### auth_tokens
 | Column     | Type         | Null | Key | Default | Extra           |

@@ -17,7 +17,7 @@ const Navigation = () => {
       { label: 'Dashboard', path: '/admin-dashboard' },
       { label: 'Users', path: '/admin/users' },
       { label: 'Attendance', path: '/admin/attendance' },
-      { label: 'Reports', path: '/admin/reports' },
+      { label: 'Analytics', path: '/admin/analytics' },
       { label: 'Settings', path: '/admin/settings' }
     ],
     teacher: [

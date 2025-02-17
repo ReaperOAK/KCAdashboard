@@ -113,7 +113,17 @@ User permissions system? -->
    - **Students:** Calendar-based attendance tracking with reminders.
    - **Teachers:** Bulk/manual marking of attendance, Zoom/Google Meet sync.
    - **Admins:** Export attendance reports and set policies.
+<!-- The PHP endpoints for attendance management?
+Automated attendance reminders?
+Attendance reports and exports?
+Student attendance history view?
+Integration with online class platforms? -->
 3. **Platform Analytics:** Insights into user activity, game participation, and learning progress.
+<!-- More detailed analytics for specific features?
+Export functionality for reports?
+Real-time analytics using WebSocket?
+Custom date range selection?
+PDF report generation? -->
 4. **Support System:** Manage tickets, FAQs, and system-wide configurations.
 
 ---

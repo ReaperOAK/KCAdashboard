@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import TopNavbar from '../../components/TopNavbar';
-import Sidebar from '../../components/Sidebar';
+
 import ApiService from '../../utils/api';
 
 const GradingFeedback = () => {
@@ -62,8 +61,7 @@ const GradingFeedback = () => {
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <TopNavbar />
-      <Sidebar />
+            
             <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-[#200e4a]">Student Grading & Feedback</h1>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import TopNavbar from '../../components/TopNavbar';
-import Sidebar from '../../components/Sidebar';
+
 import ApiService from '../../utils/api';
 
 const ClassroomDetails = () => {
@@ -28,24 +27,21 @@ const ClassroomDetails = () => {
 
     if (loading) return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <TopNavbar />
-      <Sidebar />
+            
             <div className="p-8">Loading...</div>
         </div>
     );
 
     if (error) return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <TopNavbar />
-      <Sidebar />
+            
             <div className="p-8 text-red-500">{error}</div>
         </div>
     );
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <TopNavbar />
-      <Sidebar />
+            
             <div className="p-8">
                 {classroom && (
                     <>

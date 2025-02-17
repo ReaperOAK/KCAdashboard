@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import TopNavbar from '../../components/TopNavbar';
-import Sidebar from '../../components/Sidebar';
+
 import ApiService from '../../utils/api';
 import Calendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -60,8 +59,7 @@ const AttendanceSystem = () => {
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <TopNavbar />
-      <Sidebar />
+            
             <div className="p-8">
                 {loading ? (
                     <div className="flex items-center justify-center h-64">

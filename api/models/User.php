@@ -183,17 +183,23 @@ class User {
         try {
             $query = "UPDATE " . $this->table_name . "
                      SET full_name = :full_name,
-                         email = :email,
-                         role = :role,
-                         status = :status
+                         email = :email
                      WHERE id = :id";
 
             $stmt = $this->conn->prepare($query);
-            $stmt->execute($userData);
+            
+            // Bind parameters
+            $stmt->bindParam(':full_name', $userData['full_name']);
+            $stmt->bindParam(':email', $userData['email']);
+            $stmt->bindParam(':id', $userData['id']);
 
-            return true;
+            if ($stmt->execute()) {
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
-            throw new Exception("Error updating user: " . $e->getMessage());
+            error_log("Database error in updateUser: " . $e->getMessage());
+            throw new Exception("Error updating user profile");
         }
     }
 

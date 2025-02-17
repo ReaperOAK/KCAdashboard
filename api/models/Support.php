@@ -72,5 +72,15 @@ class Support {
             throw new Exception("Error creating FAQ: " . $e->getMessage());
         }
     }
+
+    public function deleteFaq($id) {
+        try {
+            $query = "DELETE FROM faqs WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([':id' => $id]);
+        } catch (PDOException $e) {
+            throw new Exception("Error deleting FAQ: " . $e->getMessage());
+        }
+    }
 }
 ?>

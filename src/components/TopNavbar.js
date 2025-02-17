@@ -14,8 +14,9 @@ const TopNavbar = ({ toggleSidebar }) => {
 
   const commonLinks = [
     { label: 'Dashboard', path: `/${user?.role}-dashboard` },
-    { label: 'Profile', path: '/profile' },
-    { label: 'Messages', path: '/messages' }
+    { label: 'Profile', path: '/profile', icon: '👤' },
+    { label: 'Settings', path: '/settings', icon: '⚙️' },
+    { label: 'Messages', path: '/messages', icon: '✉️' }
   ];
 
   return (

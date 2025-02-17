@@ -37,8 +37,50 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const requestPasswordReset = async (email) => {
+    try {
+      const response = await ApiService.post('/auth/request-reset.php', { email });
+      return response;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const resetPassword = async (token, newPassword) => {
+    try {
+      const response = await ApiService.post('/auth/reset-password.php', {
+        token,
+        password: newPassword
+      });
+      return response;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const updateProfile = async (userData) => {
+    try {
+      const response = await ApiService.put('/auth/update-profile.php', userData);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        token, 
+        login, 
+        register, 
+        logout,
+        requestPasswordReset,
+        resetPassword,
+        updateProfile 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

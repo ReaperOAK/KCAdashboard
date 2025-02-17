@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ResetPassword from './pages/auth/ResetPassword';
 import StudentDashboard from './pages/student/StudentDashboard';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -60,7 +61,7 @@ const AppContent = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const publicRoutes = ['/login', '/register'];
+  const publicRoutes = ['/login', '/register', '/reset-password'];
 
   return (
     <div className="min-h-screen bg-[#f3f1f9]">
@@ -228,6 +229,7 @@ const AppContent = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/" element={<DashboardRedirect />} />
         </Routes>
       )}

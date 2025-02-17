@@ -224,3 +224,39 @@
 | reminder_before_minutes    | int(11)   | YES  |     | 60      |                |
 | created_at                 | timestamp | YES  |     | CURRENT_TIMESTAMP |      |
 | updated_at                 | timestamp | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
+## Support System
+### support_tickets
+| Column     | Type                                        | Null | Key | Default | Extra           |
+|------------|---------------------------------------------|------|-----|---------|-----------------|
+| id         | int(11)                                     | NO   | PRI | NULL    | auto_increment |
+| user_id    | int(11)                                     | NO   | MUL | NULL    |                |
+| title      | varchar(255)                                | NO   |     | NULL    |                |
+| description| text                                        | NO   |     | NULL    |                |
+| status     | enum('open','in_progress','resolved','closed')| NO |     | 'open'  |                |
+| priority   | enum('low','medium','high','urgent')        | NO   |     | 'medium'|                |
+| category   | varchar(100)                                | NO   |     | NULL    |                |
+| assigned_to| int(11)                                     | YES  | MUL | NULL    |                |
+| created_at | timestamp                                   | YES  |     | CURRENT_TIMESTAMP |      |
+| updated_at | timestamp                                   | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
+### ticket_responses
+| Column     | Type         | Null | Key | Default | Extra           |
+|------------|-------------|------|-----|---------|-----------------|
+| id         | int(11)     | NO   | PRI | NULL    | auto_increment |
+| ticket_id  | int(11)     | NO   | MUL | NULL    |                |
+| user_id    | int(11)     | NO   | MUL | NULL    |                |
+| message    | text        | NO   |     | NULL    |                |
+| created_at | timestamp   | YES  |     | CURRENT_TIMESTAMP |      |
+
+### faqs
+| Column       | Type         | Null | Key | Default | Extra           |
+|-------------|-------------|------|-----|---------|-----------------|
+| id          | int(11)     | NO   | PRI | NULL    | auto_increment |
+| question    | text        | NO   |     | NULL    |                |
+| answer      | text        | NO   |     | NULL    |                |
+| category    | varchar(100)| NO   |     | NULL    |                |
+| is_published| tinyint(1)  | YES  |     | TRUE    |                |
+| created_by  | int(11)     | NO   | MUL | NULL    |                |
+| created_at  | timestamp   | YES  |     | CURRENT_TIMESTAMP |      |
+| updated_at  | timestamp   | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |

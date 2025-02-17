@@ -52,20 +52,28 @@ class Analytics {
     }
 
     private function getActivityStats($interval) {
-        // Example query - modify based on your activity tracking
         $query = "SELECT 
-                    DATE(created_at) as date,
+                    activity_date as date,
                     COUNT(DISTINCT user_id) as active_users
                  FROM (
-                    SELECT user_id, created_at FROM quiz_attempts
+                    SELECT user_id, completed_at as activity_date 
+                    FROM quiz_attempts
+                    WHERE completed_at >= DATE_SUB(CURRENT_DATE, {$interval})
+                    
                     UNION ALL
-                    SELECT user_id, created_at FROM tournament_registrations
+                    
+                    SELECT user_id, registration_date as activity_date 
+                    FROM tournament_registrations
+                    WHERE registration_date >= DATE_SUB(CURRENT_DATE, {$interval})
+                    
                     UNION ALL
-                    SELECT student_id as user_id, created_at FROM attendance
+                    
+                    SELECT student_id as user_id, updated_at as activity_date 
+                    FROM attendance
+                    WHERE updated_at >= DATE_SUB(CURRENT_DATE, {$interval})
                  ) as activities
-                 WHERE created_at >= DATE_SUB(CURRENT_DATE, {$interval})
-                 GROUP BY DATE(created_at)
-                 ORDER BY date";
+                 GROUP BY activity_date
+                 ORDER BY activity_date";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -79,22 +87,52 @@ class Analytics {
 
     private function getPerformanceStats($interval) {
         return [
-            'quizzes' => $this->getCount('quiz_attempts', $interval),
+            'quizzes' => $this->getQuizCount($interval),
             'games' => 0, // Implement when game tracking is added
-            'tournaments' => $this->getCount('tournament_registrations', $interval),
-            'classes' => $this->getCount('attendance', $interval)
+            'tournaments' => $this->getTournamentCount($interval),
+            'classes' => $this->getAttendanceCount($interval)
         ];
+    }
+
+    private function getQuizCount($interval) {
+        $query = "SELECT COUNT(*) as count 
+                 FROM quiz_attempts 
+                 WHERE completed_at >= DATE_SUB(CURRENT_DATE, {$interval})";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
+
+    private function getTournamentCount($interval) {
+        $query = "SELECT COUNT(*) as count 
+                 FROM tournament_registrations 
+                 WHERE registration_date >= DATE_SUB(CURRENT_DATE, {$interval})";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
+
+    private function getAttendanceCount($interval) {
+        $query = "SELECT COUNT(*) as count 
+                 FROM attendance 
+                 WHERE updated_at >= DATE_SUB(CURRENT_DATE, {$interval})";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
 
     private function getRevenueStats($interval) {
         $query = "SELECT 
-                    DATE(registration_date) as date,
+                    DATE(tr.registration_date) as date,
                     SUM(t.entry_fee) as revenue
                  FROM tournament_registrations tr
                  JOIN tournaments t ON tr.tournament_id = t.id
                  WHERE tr.payment_status = 'completed'
                  AND tr.registration_date >= DATE_SUB(CURRENT_DATE, {$interval})
-                 GROUP BY DATE(registration_date)
+                 GROUP BY DATE(tr.registration_date)
                  ORDER BY date";
 
         $stmt = $this->conn->prepare($query);
@@ -105,16 +143,6 @@ class Analytics {
             'labels' => array_column($results, 'date'),
             'data' => array_column($results, 'revenue')
         ];
-    }
-
-    private function getCount($table, $interval) {
-        $query = "SELECT COUNT(*) as count 
-                 FROM {$table} 
-                 WHERE created_at >= DATE_SUB(CURRENT_DATE, {$interval})";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
 }
 ?>

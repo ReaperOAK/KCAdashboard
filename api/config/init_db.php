@@ -6,7 +6,37 @@ $database = new Database();
 $db = $database->getConnection();
 $user = new User($db);
 
-// Create classrooms table
+// Authentication & Users Tables
+$sql = "CREATE TABLE IF NOT EXISTS users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('student', 'teacher', 'admin') NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    google_id VARCHAR(255) UNIQUE,
+    profile_picture VARCHAR(255)
+)";
+$db->exec($sql);
+
+// Add status column to users table if it doesn't exist
+$sql = "ALTER TABLE users ADD COLUMN IF NOT EXISTS 
+        status ENUM('active', 'inactive', 'suspended') DEFAULT 'active'";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS auth_tokens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+// Educational Content Tables
 $sql = "CREATE TABLE IF NOT EXISTS classrooms (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -17,10 +47,8 @@ $sql = "CREATE TABLE IF NOT EXISTS classrooms (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (teacher_id) REFERENCES users(id)
 )";
-
 $db->exec($sql);
 
-// Create classroom_students table
 $sql = "CREATE TABLE IF NOT EXISTS classroom_students (
     classroom_id INT,
     student_id INT,
@@ -29,10 +57,91 @@ $sql = "CREATE TABLE IF NOT EXISTS classroom_students (
     FOREIGN KEY (classroom_id) REFERENCES classrooms(id),
     FOREIGN KEY (student_id) REFERENCES users(id)
 )";
-
 $db->exec($sql);
 
-// Create student feedback table
+$sql = "CREATE TABLE IF NOT EXISTS batches (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    level ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
+    schedule TEXT NOT NULL,
+    max_students INT NOT NULL DEFAULT 10,
+    teacher_id INT NOT NULL,
+    status ENUM('active', 'inactive', 'completed') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_id) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS batch_students (
+    batch_id INT,
+    student_id INT,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('active', 'inactive', 'completed') DEFAULT 'active',
+    PRIMARY KEY (batch_id, student_id),
+    FOREIGN KEY (batch_id) REFERENCES batches(id),
+    FOREIGN KEY (student_id) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS batch_sessions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    batch_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    date_time DATETIME NOT NULL,
+    duration INT NOT NULL,
+    type ENUM('online', 'offline') DEFAULT 'offline',
+    meeting_link VARCHAR(512),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (batch_id) REFERENCES batches(id)
+)";
+$db->exec($sql);
+
+// Assessment & Feedback Tables
+$sql = "CREATE TABLE IF NOT EXISTS quizzes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    difficulty ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
+    time_limit INT,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS quiz_questions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    quiz_id INT NOT NULL,
+    question TEXT NOT NULL,
+    image_url VARCHAR(512),
+    type ENUM('multiple_choice', 'puzzle') NOT NULL,
+    points INT DEFAULT 1,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS quiz_answers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    question_id INT NOT NULL,
+    answer_text TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+    FOREIGN KEY (question_id) REFERENCES quiz_questions(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS quiz_attempts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    quiz_id INT NOT NULL,
+    score INT NOT NULL,
+    time_taken INT,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id)
+)";
+$db->exec($sql);
+
 $sql = "CREATE TABLE IF NOT EXISTS student_feedback (
     id INT PRIMARY KEY AUTO_INCREMENT,
     student_id INT NOT NULL,
@@ -45,97 +154,97 @@ $sql = "CREATE TABLE IF NOT EXISTS student_feedback (
     FOREIGN KEY (student_id) REFERENCES users(id),
     FOREIGN KEY (teacher_id) REFERENCES users(id)
 )";
-
 $db->exec($sql);
 
-// Admin credentials
-$adminData = [
-    'email' => 'admin@kca.com',
-    'password' => password_hash('admin123', PASSWORD_DEFAULT),
-    'role' => 'admin',
-    'full_name' => 'Admin'
-];
+// Chess Content Tables
+$sql = "CREATE TABLE IF NOT EXISTS pgn_files (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    category ENUM('opening', 'middlegame', 'endgame', 'tactics', 'strategy') NOT NULL,
+    pgn_content TEXT NOT NULL,
+    file_path VARCHAR(512),
+    is_public BOOLEAN DEFAULT FALSE,
+    teacher_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_id) REFERENCES users(id)
+)";
+$db->exec($sql);
 
-// Check if admin exists
-if (!$user->emailExists($adminData['email'])) {
-    $user->email = $adminData['email'];
-    $user->password = $adminData['password'];
-    $user->role = $adminData['role'];
-    $user->full_name = $adminData['full_name'];
-    
-    if ($user->create()) {
-        echo "Admin account created successfully\n";
-    }
+$sql = "CREATE TABLE IF NOT EXISTS tournaments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    date_time DATETIME NOT NULL,
+    location VARCHAR(255),
+    type ENUM('online', 'offline') NOT NULL,
+    entry_fee DECIMAL(10,2),
+    prize_pool DECIMAL(10,2),
+    max_participants INT,
+    status ENUM('upcoming', 'ongoing', 'completed', 'cancelled') DEFAULT 'upcoming',
+    lichess_id VARCHAR(255),
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS tournament_registrations (
+    tournament_id INT,
+    user_id INT,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_status ENUM('pending', 'completed', 'refunded') DEFAULT 'pending',
+    PRIMARY KEY (tournament_id, user_id),
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+// Resources & Materials Tables
+$sql = "CREATE TABLE IF NOT EXISTS resources (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    type ENUM('pgn', 'pdf', 'video', 'link') NOT NULL,
+    url VARCHAR(512) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS resource_access (
+    resource_id INT,
+    user_id INT,
+    last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (resource_id, user_id),
+    FOREIGN KEY (resource_id) REFERENCES resources(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+// Notifications Table
+$sql = "CREATE TABLE IF NOT EXISTS notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+$db->exec($sql);
+
+// Create default admin account if it doesn't exist
+if (!$user->emailExists('admin@kca.com')) {
+    $user->email = 'admin@kca.com';
+    $user->password = password_hash('admin123', PASSWORD_DEFAULT);
+    $user->role = 'admin';
+    $user->full_name = 'Admin';
+    $user->create();
 }
 
-// Add sample quizzes
-$sampleQuizzes = [
-    [
-        'title' => 'Chess Openings Basics',
-        'description' => 'Test your knowledge of basic chess openings',
-        'difficulty' => 'beginner',
-        'time_limit' => 15,
-        'created_by' => 1 // assuming admin id is 1
-    ],
-    [
-        'title' => 'Tactical Patterns',
-        'description' => 'Intermediate level tactical puzzles',
-        'difficulty' => 'intermediate',
-        'time_limit' => 20,
-        'created_by' => 1
-    ],
-    [
-        'title' => 'Advanced Endgames',
-        'description' => 'Complex endgame positions',
-        'difficulty' => 'advanced',
-        'time_limit' => 30,
-        'created_by' => 1
-    ]
-];
-
-foreach ($sampleQuizzes as $quizData) {
-    $query = "INSERT INTO quizzes (title, description, difficulty, time_limit, created_by) 
-              VALUES (:title, :description, :difficulty, :time_limit, :created_by)";
-    
-    $stmt = $db->prepare($query);
-    $stmt->execute($quizData);
-}
-
-// Add sample tournaments
-$sampleTournaments = [
-    [
-        'title' => 'Weekend Blitz Tournament',
-        'description' => 'Fast-paced 3+2 blitz games',
-        'date_time' => date('Y-m-d H:i:s', strtotime('+2 days')),
-        'location' => 'Online',
-        'type' => 'online',
-        'entry_fee' => 100,
-        'prize_pool' => 1000,
-        'max_participants' => 32,
-        'status' => 'upcoming',
-        'created_by' => 1
-    ],
-    [
-        'title' => 'KCA Monthly Championship',
-        'description' => 'Classical tournament with FIDE rating consideration',
-        'date_time' => date('Y-m-d H:i:s', strtotime('+10 days')),
-        'location' => 'KCA Main Center',
-        'type' => 'offline',
-        'entry_fee' => 500,
-        'prize_pool' => 5000,
-        'max_participants' => 64,
-        'status' => 'upcoming',
-        'created_by' => 1
-    ]
-];
-
-foreach ($sampleTournaments as $tournamentData) {
-    $query = "INSERT INTO tournaments (title, description, date_time, location, type, entry_fee, 
-              prize_pool, max_participants, status, created_by) 
-              VALUES (:title, :description, :date_time, :location, :type, :entry_fee, 
-              :prize_pool, :max_participants, :status, :created_by)";
-    
-    $stmt = $db->prepare($query);
-    $stmt->execute($tournamentData);
-}
+echo "Database initialization completed successfully!\n";
 ?>

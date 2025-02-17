@@ -154,7 +154,10 @@ class User {
             $stmt->bindParam(":status", $status);
             $stmt->bindParam(":id", $userId);
 
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
             throw new Exception("Error updating user status: " . $e->getMessage());
         }

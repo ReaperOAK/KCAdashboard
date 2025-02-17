@@ -237,6 +237,35 @@ $sql = "CREATE TABLE IF NOT EXISTS notifications (
 )";
 $db->exec($sql);
 
+// Attendance Tables
+$sql = "CREATE TABLE IF NOT EXISTS attendance (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    batch_id INT NOT NULL,
+    session_id INT NOT NULL,
+    status ENUM('present', 'absent', 'excused', 'late') NOT NULL,
+    marked_by INT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (batch_id) REFERENCES batches(id),
+    FOREIGN KEY (session_id) REFERENCES batch_sessions(id),
+    FOREIGN KEY (marked_by) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS attendance_settings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    min_attendance_percent INT DEFAULT 75,
+    late_threshold_minutes INT DEFAULT 15,
+    auto_mark_absent_after_minutes INT DEFAULT 30,
+    reminder_before_minutes INT DEFAULT 60,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)";
+$db->exec($sql);
+
 // Create default admin account if it doesn't exist
 if (!$user->emailExists('admin@kca.com')) {
     $user->email = 'admin@kca.com';

@@ -24,6 +24,7 @@ import SupportSystem from './pages/admin/SupportSystem';
 import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -77,6 +78,16 @@ const AppContent = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<DashboardRedirect />} />
+
+                {/* Common Protected Routes */}
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
 
                 {/* Protected Routes */}
                 {/* Student Routes */}

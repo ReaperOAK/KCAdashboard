@@ -1,7 +1,5 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import TopNavbar from '../../components/TopNavbar';
-import Sidebar from '../../components/Sidebar';
 
 const StudentDashboard = () => {
   const { user } = useAuth();

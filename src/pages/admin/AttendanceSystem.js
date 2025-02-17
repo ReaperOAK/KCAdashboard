@@ -108,89 +108,106 @@ const AttendanceSystem = () => {
                             />
                         </div>
 
-                        {/* Settings Modal */}
+                        {/* Settings Modal with updated styles */}
                         {showSettingsModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                                <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-                                    <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Attendance Settings</h2>
-                                    <form onSubmit={handleSettingsUpdate} className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">
-                                                Minimum Attendance Percentage
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={settings.minAttendancePercent}
-                                                onChange={(e) => setSettings({
-                                                    ...settings,
-                                                    minAttendancePercent: parseInt(e.target.value)
-                                                })}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                                min="0"
-                                                max="100"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">
-                                                Late Threshold (minutes)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={settings.lateThreshold}
-                                                onChange={(e) => setSettings({
-                                                    ...settings,
-                                                    lateThreshold: parseInt(e.target.value)
-                                                })}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                                min="0"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">
-                                                Auto-mark Absent After (minutes)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={settings.autoMarkAbsent}
-                                                onChange={(e) => setSettings({
-                                                    ...settings,
-                                                    autoMarkAbsent: parseInt(e.target.value)
-                                                })}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                                min="0"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">
-                                                Reminder Before Class (minutes)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={settings.reminderBefore}
-                                                onChange={(e) => setSettings({
-                                                    ...settings,
-                                                    reminderBefore: parseInt(e.target.value)
-                                                })}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                                min="0"
-                                            />
-                                        </div>
-                                        <div className="flex justify-end space-x-3">
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowSettingsModal(false)}
-                                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
-                                            >
-                                                Save Settings
-                                            </button>
-                                        </div>
-                                    </form>
+                            <div className="fixed inset-0 z-50 overflow-y-auto">
+                                <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                                    <div className="fixed inset-0 transition-opacity">
+                                        <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                                    </div>
+                                    <div 
+                                        className="relative inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl"
+                                        style={{ zIndex: 51 }}
+                                    >
+                                        <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Attendance Settings</h2>
+                                        <form onSubmit={handleSettingsUpdate} className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Minimum Attendance Percentage
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={settings.minAttendancePercent}
+                                                    onChange={(e) => setSettings({
+                                                        ...settings,
+                                                        minAttendancePercent: parseInt(e.target.value)
+                                                    })}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                                    min="0"
+                                                    max="100"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Late Threshold (minutes)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={settings.lateThreshold}
+                                                    onChange={(e) => setSettings({
+                                                        ...settings,
+                                                        lateThreshold: parseInt(e.target.value)
+                                                    })}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                                    min="0"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Auto-mark Absent After (minutes)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={settings.autoMarkAbsent}
+                                                    onChange={(e) => setSettings({
+                                                        ...settings,
+                                                        autoMarkAbsent: parseInt(e.target.value)
+                                                    })}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                                    min="0"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Reminder Before Class (minutes)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={settings.reminderBefore}
+                                                    onChange={(e) => setSettings({
+                                                        ...settings,
+                                                        reminderBefore: parseInt(e.target.value)
+                                                    })}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                                    min="0"
+                                                />
+                                            </div>
+                                            <div className="flex justify-end space-x-3 mt-6">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowSettingsModal(false)}
+                                                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb] focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
+                                                >
+                                                    Save Settings
+                                                </button>
+                                            </div>
+                                        </form>
+                                        <button
+                                            onClick={() => setShowSettingsModal(false)}
+                                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-500"
+                                        >
+                                            <span className="sr-only">Close</span>
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}

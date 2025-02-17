@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Navigation from '../../components/Navigation';
+import TopNavbar from '../../components/TopNavbar';
+import Sidebar from '../../components/Sidebar';
 import ApiService from '../../utils/api';
 
 const ResourceCenter = () => {
@@ -57,7 +58,8 @@ const ResourceCenter = () => {
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <Navigation />
+            <TopNavbar />
+      <Sidebar />
             <div className="p-8">
                 <h1 className="text-3xl font-bold text-[#200e4a] mb-6">Resource Center</h1>
                 

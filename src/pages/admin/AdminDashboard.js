@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import Navigation from '../../components/Navigation';
+import TopNavbar from '../../components/TopNavbar';
+import Sidebar from '../../components/Sidebar';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -14,8 +15,9 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#f3f1f9]">
-      <Navigation />
-      <div className="p-8">
+      <TopNavbar />
+      <Sidebar />
+      <div className="ml-64 pt-16 p-8"> {/* Adjust margin and padding to accommodate sidebar and navbar */}
         <h1 className="text-3xl font-bold text-[#200e4a] mb-6">
           Welcome, {user.full_name}!
         </h1>

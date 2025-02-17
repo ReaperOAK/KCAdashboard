@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '../../components/Navigation';
+import TopNavbar from '../../components/TopNavbar';
+import Sidebar from '../../components/Sidebar';
 import ApiService from '../../utils/api';
 
 const QuizPage = () => {
@@ -38,7 +39,8 @@ const QuizPage = () => {
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            <Navigation />
+            <TopNavbar />
+      <Sidebar />
             <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-[#200e4a]">Chess Quizzes</h1>

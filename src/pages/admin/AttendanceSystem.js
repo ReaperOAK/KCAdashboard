@@ -21,8 +21,12 @@ const AttendanceSystem = () => {
     const fetchAttendanceData = useCallback(async () => {
         try {
             const response = await ApiService.get(`/attendance/get-all.php?batch=${selectedBatch}`);
-            setAttendanceData(response.attendance_data);
-            setSettings(response.settings);
+            if (response.attendance_data) {
+                setAttendanceData(response.attendance_data);
+            }
+            if (response.settings) {
+                setSettings(response.settings);
+            }
         } catch (error) {
             console.error('Failed to fetch attendance data:', error);
         }
@@ -90,7 +94,7 @@ const AttendanceSystem = () => {
                             <Calendar
                                 plugins={[dayGridPlugin, timeGridPlugin]}
                                 initialView="timeGridWeek"
-                                events={attendanceData.map(item => ({
+                                events={(attendanceData || []).map(item => ({
                                     title: `${item.batch_name} - ${item.present_count}/${item.total_students}`,
                                     start: item.session_date,
                                     backgroundColor: item.attendance_percentage >= settings.minAttendancePercent 

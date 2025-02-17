@@ -21,7 +21,8 @@ const AttendanceSystem = () => {
     const fetchAttendanceData = useCallback(async () => {
         try {
             const response = await ApiService.get(`/attendance/get-all.php?batch=${selectedBatch}`);
-            setAttendanceData(response.attendance);
+            setAttendanceData(response.attendance_data);
+            setSettings(response.settings);
         } catch (error) {
             console.error('Failed to fetch attendance data:', error);
         }

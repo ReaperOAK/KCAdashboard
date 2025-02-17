@@ -59,6 +59,17 @@ const SupportSystem = () => {
         }
     };
 
+    const handleFaqDelete = async (faqId) => {
+        if (window.confirm('Are you sure you want to delete this FAQ?')) {
+            try {
+                await ApiService.delete(`/support/faqs/delete.php?id=${faqId}`);
+                fetchFaqs(); // Refresh FAQs list after deletion
+            } catch (error) {
+                console.error('Failed to delete FAQ:', error);
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
             <Navigation />
@@ -171,6 +182,90 @@ const SupportSystem = () => {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Ticket Detail Modal */}
+                {selectedTicket && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-xl p-6 max-w-2xl w-full">
+                            <div className="flex justify-between items-start mb-4">
+                                <h2 className="text-2xl font-bold text-[#200e4a]">Ticket Details</h2>
+                                <button
+                                    onClick={() => setSelectedTicket(null)}
+                                    className="text-gray-400 hover:text-gray-500"
+                                >
+                                    <span className="sr-only">Close</span>
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <span className="text-sm font-medium text-gray-500">Ticket ID</span>
+                                    <p>#{selectedTicket.id}</p>
+                                </div>
+                                
+                                <div>
+                                    <span className="text-sm font-medium text-gray-500">Title</span>
+                                    <p className="font-medium text-[#200e4a]">{selectedTicket.title}</p>
+                                </div>
+
+                                <div>
+                                    <span className="text-sm font-medium text-gray-500">Description</span>
+                                    <p className="whitespace-pre-wrap">{selectedTicket.description}</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-500">Status</span>
+                                        <select
+                                            value={selectedTicket.status}
+                                            onChange={(e) => handleStatusChange(selectedTicket.id, e.target.value)}
+                                            className="mt-1 block w-full rounded-md border-gray-300 focus:ring-[#461fa3]"
+                                        >
+                                            <option value="open">Open</option>
+                                            <option value="in_progress">In Progress</option>
+                                            <option value="resolved">Resolved</option>
+                                            <option value="closed">Closed</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-500">Priority</span>
+                                        <p className={`mt-1 px-2 py-1 rounded-full text-xs inline-block ${
+                                            selectedTicket.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                                            selectedTicket.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                                            selectedTicket.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-green-100 text-green-800'
+                                        }`}>
+                                            {selectedTicket.priority}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-500">Created By</span>
+                                        <p>{selectedTicket.user_name}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-500">Created At</span>
+                                        <p>{new Date(selectedTicket.created_at).toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-gray-200">
+                                    <button
+                                        onClick={() => setSelectedTicket(null)}
+                                        className="w-full px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb]"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

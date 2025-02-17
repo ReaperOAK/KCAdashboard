@@ -19,6 +19,7 @@ import ClassroomManagement from './pages/teacher/ClassroomManagement';
 import UserManagement from './pages/admin/UserManagement';
 import AttendanceSystem from './pages/admin/AttendanceSystem';
 import PlatformAnalytics from './pages/admin/PlatformAnalytics';
+import SupportSystem from './pages/admin/SupportSystem';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -189,6 +190,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <PlatformAnalytics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/support" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <SupportSystem />
                 </ProtectedRoute>
               } 
             />

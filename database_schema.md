@@ -25,6 +25,16 @@
 | expires_at | timestamp   | NO   |     | NULL    |                |
 | created_at | timestamp   | YES  |     | NULL    |                |
 
+### password_resets
+| Column     | Type         | Null | Key | Default | Extra           |
+|------------|-------------|------|-----|---------|-----------------|
+| id         | int(11)     | NO   | PRI | NULL    | auto_increment |
+| user_id    | int(11)     | NO   | MUL | NULL    |                |
+| token      | varchar(255)| NO   | IDX | NULL    |                |
+| expires_at | timestamp   | NO   | IDX | NULL    |                |
+| created_at | timestamp   | YES  |     | CURRENT_TIMESTAMP |      |
+| used_at    | timestamp   | YES  |     | NULL    |                |
+
 ## Educational Content
 ### classrooms
 | Column      | Type                            | Null | Key | Default | Extra           |

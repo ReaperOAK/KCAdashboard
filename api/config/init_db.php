@@ -36,6 +36,20 @@ $sql = "CREATE TABLE IF NOT EXISTS auth_tokens (
 )";
 $db->exec($sql);
 
+// Add password resets table
+$sql = "CREATE TABLE IF NOT EXISTS password_resets (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    used_at TIMESTAMP NULL DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX (token),
+    INDEX (expires_at)
+)";
+$db->exec($sql);
+
 // Educational Content Tables
 $sql = "CREATE TABLE IF NOT EXISTS classrooms (
     id INT PRIMARY KEY AUTO_INCREMENT,

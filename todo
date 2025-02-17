@@ -104,6 +104,11 @@ Video conferencing integration? -->
 
 ### **Admin Features**
 1. **User Management:** Assign roles and permissions.
+<!-- The PHP endpoints for user management?
+User detail editing modal?
+Bulk user actions?
+User activity logs?
+User permissions system? -->
 2. **Attendance System:**
    - **Students:** Calendar-based attendance tracking with reminders.
    - **Teachers:** Bulk/manual marking of attendance, Zoom/Google Meet sync.

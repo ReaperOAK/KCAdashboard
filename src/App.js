@@ -16,6 +16,7 @@ import ReportsAnalytics from './pages/teacher/ReportsAnalytics';
 import GradingFeedback from './pages/teacher/GradingFeedback';
 import PGNDatabase from './pages/teacher/PGNDatabase';
 import ClassroomManagement from './pages/teacher/ClassroomManagement';
+import UserManagement from './pages/admin/UserManagement';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -162,6 +163,14 @@ const App = () => {
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/users" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UserManagement />
                 </ProtectedRoute>
               } 
             />

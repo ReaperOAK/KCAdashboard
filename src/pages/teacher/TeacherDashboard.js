@@ -15,8 +15,6 @@ const TeacherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#f3f1f9]">
-      <TopNavbar />
-      <Sidebar />
       <div className="p-8">
         <h1 className="text-3xl font-bold text-[#200e4a] mb-6">
           Welcome, {user.full_name}!

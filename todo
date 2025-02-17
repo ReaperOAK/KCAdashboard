@@ -14,53 +14,53 @@ Creating a user profile page
 Adding form validation
 Implementing password reset functionality -->
 - **Dashboard Overview:** Personalized dashboard for quick access.
-<!-- Add more features to the admin dashboard?
-Set up user management for the admin?
-Create the batch management system?
-Set up the student/teacher listing pages?
-Implement the attendance system? -->
+<!-- Add more features to the admin dashboard
+Set up user management for the admin
+Create the batch management system
+Set up the student/teacher listing pages
+Implement the attendance system -->
 - **Notifications:** Alerts for upcoming classes, tournaments, assignments, and attendance.
-<!-- The mark-read endpoint?
-Admin interface for sending notifications?
-Real-time notifications using WebSocket?
-Additional notification types and templates?
-Add the admin interface for sending notifications to users?
-Implement notification categories (e.g., class updates, announcements, reminders)?
-Add notification preferences for users?
-Set up WebSocket for real-time notifications instead of polling?
-Create email notifications in addition to in-app notifications? -->
+<!-- The mark-read endpoint
+Admin interface for sending notifications
+Real-time notifications using WebSocket
+Additional notification types and templates
+Add the admin interface for sending notifications to users
+Implement notification categories (e.g., class updates, announcements, reminders)
+Add notification preferences for users
+Set up WebSocket for real-time notifications instead of polling
+Create email notifications in addition to in-app notifications -->
 
 ---
 
 ### **Student Features**
 1. **Simul Games:** Integration with [Lichess.org](https://lichess.org) for simultaneous exhibition matches.
 2. **Classroom:** View and manage enrolled batches, teachers, and materials.
-<!-- Class detail view?
-Enrollment functionality?
-Class materials section?
-Assignment submission system?
-Class discussion feature? -->
+<!-- Class detail view
+Enrollment functionality
+Class materials section
+Assignment submission system
+Class discussion feature -->
 3. **Studies:** Access chess studies integrated with [Lichess.org](https://lichess.org).
 4. **Interactive Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
 5. **Game Area:** Dedicated space for chess games and practice.
 6. **Resource Center:** Downloadable PGN files, notes, and videos.
-<!-- The PHP endpoints for fetching resources?
-File upload functionality for PGN and PDF files?
-Video embedding for chess tutorials?
-Resource search and filtering?
-Resource bookmarking system? -->
+<!-- The PHP endpoints for fetching resources
+File upload functionality for PGN and PDF files
+Video embedding for chess tutorials
+Resource search and filtering
+Resource bookmarking system -->
 7. **Quiz Page:** Chess-related quizzes for practice.
-<!-- The Quiz detail/taking page?
-The PHP endpoints for quizzes?
-The scoring system?
-Quiz results and history?
-Quiz attempt tracking?
-Quiz leaderboard? -->
+<!-- The Quiz detail/taking page
+The PHP endpoints for quizzes
+The scoring system
+Quiz results and history
+Quiz attempt tracking
+Quiz leaderboard -->
 8. **Tournaments Page:** View and register for upcoming chess tournaments.
-<!-- The PHP endpoints for tournaments?
-Tournament registration system?
-Tournament results tracking?
-Integration with Lichess.org tournaments?
+<!-- The PHP endpoints for tournaments
+Tournament registration system
+Tournament results tracking
+Integration with Lichess.org tournaments
 Tournament payment system -->
 9. **Chat Page:** Communicate with peers, teachers, and admins.
 
@@ -68,68 +68,68 @@ Tournament payment system -->
 
 ### **Teacher Features**
 1. **Batch Management:** Create, edit, and manage student batches.
-<!-- The PHP endpoints for batch management?
-The batch detail view component?
-The student management modal?
-The create batch form component? -->
+<!-- The PHP endpoints for batch management
+The batch detail view component
+The student management modal
+The create batch form component -->
 2. **Reports & Analytics:** View student performance, quiz scores, and attendance stats.
-<!-- The PHP endpoints for fetching analytics data?
-Detailed student performance views?
-Export functionality for reports?
-Individual student progress tracking?
-Comparative batch analytics? -->
+<!-- The PHP endpoints for fetching analytics data
+Detailed student performance views
+Export functionality for reports
+Individual student progress tracking
+Comparative batch analytics -->
 3. **Grading and Feedback:** Provide performance feedback and assignments.
-<!-- The PHP endpoints for grading and feedback?
-Student feedback history view?
-Progress tracking over time?
-Performance analytics integration?
-Email notifications for new feedback?
-The get-batch-students endpoint?
-The submit-feedback endpoint?
-Feedback history functionality? -->
+<!-- The PHP endpoints for grading and feedback
+Student feedback history view
+Progress tracking over time
+Performance analytics integration
+Email notifications for new feedback
+The get-batch-students endpoint
+The submit-feedback endpoint
+Feedback history functionality -->
 4. **PGN Database:** Upload, manage, and share chess PGNs.
-<!-- The PHP endpoints for PGN management?
-PGN validation and sanitization?
-Integration with chess.js for move validation?
-PGN sharing functionality between teachers?
-Student access controls for public PGNs? -->
+<!-- The PHP endpoints for PGN management
+PGN validation and sanitization
+Integration with chess.js for move validation
+PGN sharing functionality between teachers
+Student access controls for public PGNs -->
 5. **Classroom Management:** Organize study material and schedule online/offline classes.
-<!-- The PHP endpoints for class scheduling?
-The materials upload functionality?
-Student attendance tracking?
-Calendar view for scheduled classes?
-Video conferencing integration? -->
+<!-- The PHP endpoints for class scheduling
+The materials upload functionality
+Student attendance tracking
+Calendar view for scheduled classes
+Video conferencing integration -->
 
 ---
 
 ### **Admin Features**
 1. **User Management:** Assign roles and permissions.
-<!-- The PHP endpoints for user management?
-User detail editing modal?
-Bulk user actions?
-User activity logs?
-User permissions system? -->
+<!-- The PHP endpoints for user management
+User detail editing modal
+Bulk user actions
+User activity logs
+User permissions system -->
 2. **Attendance System:**
    - **Students:** Calendar-based attendance tracking with reminders.
    - **Teachers:** Bulk/manual marking of attendance, Zoom/Google Meet sync.
    - **Admins:** Export attendance reports and set policies.
-<!-- The PHP endpoints for attendance management?
-Automated attendance reminders?
-Attendance reports and exports?
-Student attendance history view?
-Integration with online class platforms? -->
+<!-- The PHP endpoints for attendance management
+Automated attendance reminders
+Attendance reports and exports
+Student attendance history view
+Integration with online class platforms -->
 3. **Platform Analytics:** Insights into user activity, game participation, and learning progress.
-<!-- More detailed analytics for specific features?
-Export functionality for reports?
-Real-time analytics using WebSocket?
-Custom date range selection?
-PDF report generation? -->
+<!-- More detailed analytics for specific features
+Export functionality for reports
+Real-time analytics using WebSocket
+Custom date range selection
+PDF report generation -->
 4. **Support System:** Manage tickets, FAQs, and system-wide configurations.
-<!-- Ticket detail view with responses?
-FAQ delete functionality?
-Ticket assignment system?
-Email notifications for ticket updates?
-Statistics dashboard for support metrics? -->
+<!-- Ticket detail view with responses
+FAQ delete functionality
+Ticket assignment system
+Email notifications for ticket updates
+Statistics dashboard for support metrics -->
 
 ---
 

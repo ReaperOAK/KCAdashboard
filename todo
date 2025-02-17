@@ -8,7 +8,7 @@ This report outlines the design and development plan for the Chess Academy's das
 
 ### **General Features**
 - **Authentication System:** Role-based login/signup for students, teachers, and admins.
-<!-- Adding a navigation menu
+<!-- DONE!!!!!!!!  Adding a navigation menu
 Implementing logout functionality
 Creating a user profile page
 Adding form validation

@@ -1,5 +1,6 @@
 <?php
-require 'vendor/autoload.php';
+// Update the require path to be absolute
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

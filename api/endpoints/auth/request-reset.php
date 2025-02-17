@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../models/User.php';
+require_once '../../helpers/Mailer.php';
 
 try {
     // Get request data
@@ -42,13 +43,13 @@ try {
     $stmt->bindParam(':expires_at', $expires);
 
     if ($stmt->execute()) {
-        // TODO: Send email with reset link
-        // For now, just return the token in the response
-        // In production, send this via email instead
+        // Send email with reset link
+        $mailer = new Mailer();
+        $mailer->sendPasswordReset($data->email, $reset_token);
+
         http_response_code(200);
         echo json_encode([
-            "message" => "Reset instructions sent successfully",
-            "debug_token" => $reset_token // Remove this in production
+            "message" => "Reset instructions sent successfully"
         ]);
     } else {
         throw new Exception('Failed to generate reset token');

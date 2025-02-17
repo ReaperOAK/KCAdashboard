@@ -11,6 +11,7 @@ class ApiService {
     // Default headers
     const headers = {
       'Authorization': token ? `Bearer ${token}` : '',
+      'Accept': 'application/json'
     };
 
     // Only set Content-Type if not FormData

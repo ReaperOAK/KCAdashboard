@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       });
       return response;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(error.message || 'Failed to reset password');
     }
   };
 

@@ -6,7 +6,11 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/Database.php';
 require_once __DIR__ . '/../../models/User.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
+
+// Direct includes instead of using autoloader
+require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
+require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
 require_once __DIR__ . '/../../helpers/Mailer.php';
 
 try {
@@ -44,14 +48,23 @@ try {
     $stmt->bindParam(':expires_at', $expires);
 
     if ($stmt->execute()) {
-        // Send email with reset link
-        $mailer = new Mailer();
-        $mailer->sendPasswordReset($data->email, $reset_token);
-
-        http_response_code(200);
-        echo json_encode([
-            "message" => "Reset instructions sent successfully"
-        ]);
+        try {
+            // Send email with reset link
+            $mailer = new Mailer();
+            $result = $mailer->sendPasswordReset($data->email, $reset_token);
+            
+            if ($result) {
+                http_response_code(200);
+                echo json_encode([
+                    "message" => "Reset instructions sent successfully"
+                ]);
+            } else {
+                throw new Exception('Email sending failed');
+            }
+        } catch (Exception $e) {
+            error_log("Detailed email error: " . $e->getMessage());
+            throw new Exception('Failed to send reset email: ' . $e->getMessage());
+        }
     } else {
         throw new Exception('Failed to generate reset token');
     }

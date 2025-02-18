@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once '../../config/cors.php';
 require_once '../../config/database.php';
 require_once '../../middleware/auth.php';
@@ -9,6 +12,10 @@ $user = authenticateToken();
 try {
     $db = new Database();
     $conn = $db->getConnection();
+
+    if (!$conn) {
+        throw new Exception("Database connection failed");
+    }
 
     $sql = "SELECT 
         b.*, 
@@ -28,6 +35,7 @@ try {
     ]);
 
 } catch (Exception $e) {
+    error_log("Error in get-all.php: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',

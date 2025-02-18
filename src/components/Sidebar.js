@@ -9,6 +9,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const roleBasedLinks = {
     admin: [
       { label: 'Users', path: '/admin/users', icon: '👥' },
+      { label: 'Batches', path: '/admin/batches', icon: '📚' },
       { label: 'Attendance', path: '/admin/attendance', icon: '📋' },
       { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
       { label: 'Support', path: '/admin/support', icon: '💬' },

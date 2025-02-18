@@ -89,6 +89,27 @@ class ApiService {
   static async getAttendanceOverview() {
     return this.get('/admin/attendance-overview.php');
   }
+
+  // Batch Management endpoints
+  static async getBatches() {
+    return this.get('/batches/get-all.php');
+  }
+
+  static async createBatch(batchData) {
+    return this.post('/batches/create.php', batchData);
+  }
+
+  static async updateBatch(id, batchData) {
+    return this.put(`/batches/update.php?id=${id}`, batchData);
+  }
+
+  static async deleteBatch(id) {
+    return this.delete(`/batches/delete.php?id=${id}`);
+  }
+
+  static async getBatchDetails(id) {
+    return this.get(`/batches/get-details.php?id=${id}`);
+  }
 }
 
 export default ApiService;

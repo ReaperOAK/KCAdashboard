@@ -76,6 +76,19 @@ class ApiService {
   static delete(endpoint) {
     return this.request(endpoint, 'DELETE');
   }
+
+  // Admin Dashboard specific endpoints
+  static async getDashboardStats() {
+    return this.get('/admin/dashboard-stats.php');
+  }
+
+  static async getBatchStats() {
+    return this.get('/admin/batch-stats.php');
+  }
+
+  static async getAttendanceOverview() {
+    return this.get('/admin/attendance-overview.php');
+  }
 }
 
 export default ApiService;

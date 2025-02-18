@@ -2,7 +2,7 @@
 $config = [
     'smtp_host' => 'smtp.hostinger.com',
     'smtp_port' => 465,
-    'smtp_username' => 'no-reply@kolkatachessacademy.in',  // Changed from noreply to no-reply
+    'smtp_username' => 'admin@kolkatachessacademy.in',  // Changed from noreply to no-reply
     'smtp_password' => 'Admin1234*',  // Replace with actual password
     'from_email' => 'no-reply@kolkatachessacademy.in',
     'from_name' => 'Kolkata Chess Academy',

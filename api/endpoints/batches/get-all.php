@@ -2,9 +2,15 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once '../../config/cors.php';
-require_once '../../config/database.php';
-require_once '../../middleware/auth.php';
+define('ROOT_PATH', realpath($_SERVER['DOCUMENT_ROOT'] . '/dashboard/api'));
+
+require_once ROOT_PATH . '/config/cors.php';
+require_once ROOT_PATH . '/config/database.php';
+require_once ROOT_PATH . '/middleware/auth.php';
+
+// Add debugging
+error_log("Root path: " . ROOT_PATH);
+error_log("Current file: " . __FILE__);
 
 // Verify JWT token
 $user = authenticateToken();
@@ -36,6 +42,7 @@ try {
 
 } catch (Exception $e) {
     error_log("Error in get-all.php: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',

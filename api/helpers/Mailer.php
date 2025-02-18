@@ -1,6 +1,10 @@
 <?php
-// Update the require path to be absolute
-require_once __DIR__ . '/../vendor/autoload.php';
+// Remove autoloader requirement and use direct includes if not already included
+if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/Exception.php';
+    require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+    require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -11,25 +15,52 @@ class Mailer {
     private $config;
 
     public function __construct() {
-        $this->config = require __DIR__ . '/../config/mail.php';
-        $this->mail = new PHPMailer(true);
+        try {
+            $this->config = require __DIR__ . '/../config/mail.php';
+            $this->mail = new PHPMailer(true);
 
-        // Server settings
-        $this->mail->isSMTP();
-        $this->mail->Host = $this->config['smtp_host'];
-        $this->mail->SMTPAuth = true;
-        $this->mail->Username = $this->config['smtp_username'];
-        $this->mail->Password = $this->config['smtp_password'];
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $this->mail->Port = $this->config['smtp_port'];
+            // Debug settings
+            $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $this->mail->Debugoutput = function($str, $level) {
+                error_log("PHPMailer Debug: $str");
+            };
 
-        // Default settings
-        $this->mail->setFrom($this->config['from_email'], $this->config['from_name']);
-        $this->mail->isHTML(true);
+            // Server settings
+            $this->mail->isSMTP();
+            $this->mail->Host = $this->config['smtp_host'];
+            $this->mail->SMTPAuth = true;
+            $this->mail->Username = $this->config['smtp_username'];
+            $this->mail->Password = $this->config['smtp_password'];
+            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $this->mail->Port = $this->config['smtp_port'];
+            
+            // Additional settings for troubleshooting
+            $this->mail->SMTPOptions = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                )
+            );
+
+            // Default settings
+            $this->mail->setFrom($this->config['from_email'], $this->config['from_name']);
+            $this->mail->isHTML(true);
+            
+            error_log("Mailer initialized successfully");
+        } catch (Exception $e) {
+            error_log("Mailer initialization error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function sendPasswordReset($email, $token) {
         try {
+            error_log("Attempting to send password reset email to: " . $email);
+            
+            // Clear all recipients first
+            $this->mail->clearAddresses();
+            
             $resetLink = "https://dashboard.kolkatachessacademy.in/reset-password?token=" . $token;
 
             $this->mail->addAddress($email);
@@ -42,11 +73,13 @@ class Mailer {
                 <p>If you didn't request this, please ignore this email.</p>
             ";
 
-            $this->mail->send();
-            return true;
+            $success = $this->mail->send();
+            error_log("Email sent successfully: " . ($success ? 'true' : 'false'));
+            return $success;
         } catch (Exception $e) {
-            error_log("Email sending failed: " . $e->getMessage());
-            throw new Exception('Failed to send password reset email');
+            error_log("Email sending failed - Error: " . $e->getMessage());
+            error_log("Mailer Error: " . $this->mail->ErrorInfo);
+            throw new Exception('Failed to send password reset email: ' . $e->getMessage());
         }
     }
 }

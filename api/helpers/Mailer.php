@@ -31,7 +31,7 @@ class Mailer {
             $this->mail->SMTPAuth = true;
             $this->mail->Username = $this->config['smtp_username'];
             $this->mail->Password = $this->config['smtp_password'];
-            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $this->mail->SMTPSecure = $this->config['smtp_secure'];
             $this->mail->Port = $this->config['smtp_port'];
             
             // Additional settings for troubleshooting
@@ -46,7 +46,9 @@ class Mailer {
             // Default settings
             $this->mail->setFrom($this->config['from_email'], $this->config['from_name']);
             $this->mail->isHTML(true);
+            $this->mail->CharSet = 'UTF-8';
             
+            error_log("Mailer initialized with username: " . $this->config['smtp_username']);
             error_log("Mailer initialized successfully");
         } catch (Exception $e) {
             error_log("Mailer initialization error: " . $e->getMessage());

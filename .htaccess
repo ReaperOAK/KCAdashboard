@@ -2,14 +2,16 @@ Options -MultiViews
 RewriteEngine On
 RewriteBase /dashboard/
 
-# Allow direct access to api folder
+# Handle API requests
 RewriteCond %{REQUEST_URI} ^/dashboard/api/
 RewriteRule ^ - [L]
 
-# Handle frontend routes
+# Don't rewrite files or directories
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [L]
+
+# Rewrite everything else to index.html to allow SPA routing
+RewriteRule ^ index.html [L,QSA]
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"

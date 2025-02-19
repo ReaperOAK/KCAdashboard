@@ -1,4 +1,14 @@
 <?php
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 require_once '../../config/database.php';
 require_once '../../middleware/auth.php';
 
@@ -6,21 +16,18 @@ require_once '../../middleware/auth.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Verify JWT token
-$user = authenticateToken();
-
-// Check if user is admin
-if ($user['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
-    exit;
-}
-
 try {
+    // Verify JWT token
+    $user = authenticateToken();
+
+    // Check if user is admin
+    if ($user['role'] !== 'admin') {
+        throw new Exception('Unauthorized access');
+    }
+
     $db = new Database();
     $conn = $db->getConnection();
 
-    // Verify database connection
     if (!$conn) {
         throw new Exception("Database connection failed");
     }
@@ -58,7 +65,8 @@ try {
     $stmt = $conn->query($sql);
     $attendanceRate = round((float)$stmt->fetchColumn(), 2);
 
-    // Return the response
+    // Return the response with explicit headers
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'success',
         'stats' => [
@@ -74,9 +82,10 @@ try {
 } catch (Exception $e) {
     error_log("Dashboard stats error: " . $e->getMessage());
     http_response_code(500);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
-        'message' => 'Failed to fetch dashboard stats: ' . $e->getMessage()
+        'message' => $e->getMessage()
     ]);
 }
 ?>

@@ -1,15 +1,9 @@
 Options -MultiViews
 RewriteEngine On
-RewriteBase /dashboard/
-
-# If requested path is not a file and not a directory
+RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Handle API requests differently
-RewriteCond %{REQUEST_URI} !^/dashboard/api/
-# Send everything else to index.html
-RewriteRule ^ /dashboard/index.html [L]
+RewriteRule ^ index.html [QSA,L]
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
@@ -28,11 +22,14 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # Prevent directory listing
 Options -Indexes
 
-# Protect sensitive files
+# Protect .env file
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect config files
 <FilesMatch "^\.">
     Order allow,deny
     Deny from all
 </FilesMatch>
-
-# PHP settings
-php_value include_path ".:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php:/home/u703958259/domains/kolkatachessacademy.in/public_html/dashboard/api"

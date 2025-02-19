@@ -2,16 +2,14 @@ Options -MultiViews
 RewriteEngine On
 RewriteBase /dashboard/
 
-# Handle API requests
-RewriteCond %{REQUEST_URI} ^/dashboard/api/
-RewriteRule ^ - [L]
-
-# Don't rewrite files or directories
+# If requested path is not a file and not a directory
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Rewrite everything else to index.html to allow SPA routing
-RewriteRule ^ index.html [L,QSA]
+# Handle API requests differently
+RewriteCond %{REQUEST_URI} !^/dashboard/api/
+# Send everything else to index.html
+RewriteRule ^ /dashboard/index.html [L]
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
@@ -30,13 +28,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # Prevent directory listing
 Options -Indexes
 
-# Protect .env file
-<Files .env>
-    Order allow,deny
-    Deny from all
-</Files>
-
-# Protect config files
+# Protect sensitive files
 <FilesMatch "^\.">
     Order allow,deny
     Deny from all

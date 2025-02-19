@@ -1,4 +1,11 @@
 <?php
+define('ROOT_PATH', realpath($_SERVER['DOCUMENT_ROOT'] . '/dashboard/api'));
+
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Add CORS headers
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -9,16 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once '../../config/database.php';
-require_once '../../middleware/auth.php';
-
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require_once ROOT_PATH . '/config/database.php';
+require_once ROOT_PATH . '/middleware/auth.php';
 
 try {
+    error_log("Starting dashboard stats endpoint");
+    
     // Verify JWT token
     $user = authenticateToken();
+    error_log("User authenticated: " . json_encode($user));
 
     // Check if user is admin
     if ($user['role'] !== 'admin') {
@@ -65,27 +71,37 @@ try {
     $stmt = $conn->query($sql);
     $attendanceRate = round((float)$stmt->fetchColumn(), 2);
 
-    // Return the response with explicit headers
-    header('Content-Type: application/json');
-    echo json_encode([
+    $response = [
         'status' => 'success',
         'stats' => [
-            'totalStudents' => $totalStudents,
-            'totalTeachers' => $totalTeachers,
-            'activeClasses' => $activeClasses,
-            'monthlyRevenue' => $monthlyRevenue,
-            'totalBatches' => $totalBatches,
-            'attendanceRate' => $attendanceRate
+            'totalStudents' => (int)$totalStudents,
+            'totalTeachers' => (int)$totalTeachers,
+            'activeClasses' => (int)$activeClasses,
+            'monthlyRevenue' => (float)$monthlyRevenue,
+            'totalBatches' => (int)$totalBatches,
+            'attendanceRate' => (float)$attendanceRate
         ]
-    ]);
+    ];
+
+    error_log("Sending response: " . json_encode($response));
+    echo json_encode($response);
 
 } catch (Exception $e) {
     error_log("Dashboard stats error: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
+    
     http_response_code(500);
-    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'stats' => [
+            'totalStudents' => 0,
+            'totalTeachers' => 0,
+            'activeClasses' => 0,
+            'monthlyRevenue' => 0,
+            'totalBatches' => 0,
+            'attendanceRate' => 0
+        ]
     ]);
 }
 ?>

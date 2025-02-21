@@ -1,30 +1,25 @@
 <?php
-require_once '../../config/cors.php';
-require_once '../../config/Database.php';
-require_once '../../models/Batch.php';
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+require_once '../config/Database.php';
 
 try {
     $database = new Database();
     $db = $database->getConnection();
-    $batch = new Batch($db);
 
-    // Get batches with active status
-    $result = $batch->getAllBatches();
-
-    http_response_code(200);
-    header('Content-Type: application/json');
-    echo json_encode([
-        "status" => "success",
-        "batches" => $result
-    ]);
-
-} catch (Exception $e) {
+    $query = "SELECT b.*, u.full_name as teacher_name, 
+              (SELECT COUNT(*) FROM batch_students WHERE batch_id = b.id AND status = 'active') as current_students 
+              FROM batches b 
+              LEFT JOIN users u ON b.teacher_id = u.id 
+              ORDER BY b.created_at DESC";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $batches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode(['success' => true, 'data' => $batches]);
+} catch (PDOException $e) {
     http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode([
-        "status" => "error",
-        "message" => "Error fetching batches",
-        "error" => $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Failed to fetch batches']);
 }
 ?>

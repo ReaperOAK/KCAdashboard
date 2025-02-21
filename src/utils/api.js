@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost/KCAdashboard/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost/api/endpoints';
 
 class ApiService {
   static async request(endpoint, method = 'GET', data = null, options = {}) {
@@ -6,13 +6,11 @@ class ApiService {
     const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
     
     console.log('Making API request to:', url);
-    console.log('Request data:', data);
     
     // Default headers with CORS configuration
     const headers = {
       'Authorization': token ? `Bearer ${token}` : '',
       'Accept': 'application/json',
-      'Origin': window.location.origin
     };
 
     // Only set Content-Type if not FormData
@@ -28,8 +26,8 @@ class ApiService {
     const config = {
       method,
       headers,
-      credentials: 'same-origin', // Changed from 'include' to 'same-origin'
-      mode: 'cors' // Explicitly set CORS mode
+      credentials: 'include',
+      mode: 'cors'
     };
 
     if (data) {
@@ -41,24 +39,24 @@ class ApiService {
       const response = await fetch(url, config);
       console.log('Response status:', response.status);
       
-      // Check for empty response
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const text = await response.text();
       if (!text) {
-        return { message: 'Success' }; // Return default response for empty responses
+        return { success: true, message: 'Success' };
       }
 
-      // Parse JSON response
-      const result = JSON.parse(text);
-
-      if (!response.ok) {
-        throw new Error(result.message || 'API request failed');
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error('Failed to parse JSON response:', text);
+        throw new Error('Invalid JSON response from server');
       }
-
-      return result;
     } catch (error) {
       console.error('API Error:', error);
       console.error('Failed request URL:', url);
-      console.error('Request config:', config);
       throw error;
     }
   }

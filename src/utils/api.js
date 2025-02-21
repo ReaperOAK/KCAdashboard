@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'https://dashboard.kolkatachessacademy.in/api/endpoints';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost/KCAdashboard/api';
 
 class ApiService {
   static async request(endpoint, method = 'GET', data = null, options = {}) {
@@ -8,10 +8,11 @@ class ApiService {
     console.log('Making API request to:', url);
     console.log('Request data:', data);
     
-    // Default headers
+    // Default headers with CORS configuration
     const headers = {
       'Authorization': token ? `Bearer ${token}` : '',
-      'Accept': 'application/json'
+      'Accept': 'application/json',
+      'Origin': window.location.origin
     };
 
     // Only set Content-Type if not FormData
@@ -27,7 +28,8 @@ class ApiService {
     const config = {
       method,
       headers,
-      credentials: 'include',
+      credentials: 'same-origin', // Changed from 'include' to 'same-origin'
+      mode: 'cors' // Explicitly set CORS mode
     };
 
     if (data) {

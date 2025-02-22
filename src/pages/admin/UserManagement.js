@@ -107,13 +107,28 @@ const UserManagement = () => {
 
     const handlePermissionChange = async (userId, permissions) => {
         try {
-            await ApiService.post('/users/update-permissions.php', {
+            setError(null);
+            const response = await ApiService.post('/users/update-permissions.php', {
                 user_id: userId,
-                permissions: permissions
+                permissions: permissions.map(p => parseInt(p.id)) // Ensure we're sending permission IDs
             });
-            fetchUsers();
+
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to update permissions');
+            }
+
+            // Update local state
+            setUsers(users.map(user => {
+                if (user.id === userId) {
+                    return { ...user, permissions };
+                }
+                return user;
+            }));
+
+            setShowPermissionsModal(false);
         } catch (error) {
-            setError('Failed to update permissions');
+            setError(error.message || 'Failed to update permissions');
+            console.error('Permission update error:', error);
         }
     };
 
@@ -359,7 +374,12 @@ const UserManagement = () => {
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-xl p-6 max-w-lg w-full">
                             <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Manage Permissions</h2>
-                            <div className="space-y-4">
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                                 {Object.entries(PERMISSIONS).map(([category, perms]) => (
                                     <div key={category} className="border-b pb-4">
                                         <h3 className="font-medium text-gray-900 mb-2">{category}</h3>
@@ -390,16 +410,16 @@ const UserManagement = () => {
                             <div className="mt-6 flex justify-end space-x-3">
                                 <button
                                     type="button"
-                                    onClick={() => setShowPermissionsModal(false)}
+                                    onClick={() => {
+                                        setShowPermissionsModal(false);
+                                        setError(null);
+                                    }}
                                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        handlePermissionChange(selectedUser.id, selectedUser.permissions);
-                                        setShowPermissionsModal(false);
-                                    }}
+                                    onClick={() => handlePermissionChange(selectedUser.id, selectedUser.permissions)}
                                     className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
                                 >
                                     Save Permissions

@@ -182,7 +182,7 @@ const UserManagement = () => {
                     </div>
                 </div>
 
-                {selectedUsers.length > 0 && checkPermission(currentUser.permissions, PERMISSIONS.USER_MANAGEMENT.EDIT) && (
+                {selectedUsers.length > 0 && checkPermission(currentUser?.permissions || [], PERMISSIONS.USER_MANAGEMENT.EDIT) && (
                     <div className="mb-4 p-4 bg-white rounded-lg shadow">
                         <h3 className="text-sm font-medium text-gray-700">
                             {selectedUsers.length} users selected
@@ -409,11 +409,11 @@ const UserManagement = () => {
                                                 <label key={value} className="flex items-center space-x-2">
                                                     <input
                                                         type="checkbox"
-                                                        checked={selectedUser.permissions?.includes(value)}
+                                                        checked={selectedUser.permissions?.includes(value) || false}
                                                         onChange={(e) => {
                                                             const updatedPermissions = e.target.checked
                                                                 ? [...(selectedUser.permissions || []), value]
-                                                                : selectedUser.permissions?.filter(p => p !== value) || [];
+                                                                : (selectedUser.permissions || []).filter(p => p !== value);
                                                             setSelectedUser({
                                                                 ...selectedUser,
                                                                 permissions: updatedPermissions

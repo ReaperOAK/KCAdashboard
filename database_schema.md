@@ -270,3 +270,51 @@
 | created_by  | int(11)     | NO   | MUL | NULL    |                |
 | created_at  | timestamp   | YES  |     | CURRENT_TIMESTAMP |      |
 | updated_at  | timestamp   | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
+## Permissions & Activity Tracking
+
+### permissions
+| Column      | Type          | Null | Key | Default | Extra           |
+|------------|---------------|------|-----|---------|-----------------|
+| id         | int(11)       | NO   | PRI | NULL    | auto_increment |
+| name       | varchar(100)  | NO   | UNI | NULL    |                |
+| description| text          | YES  |     | NULL    |                |
+| created_at | timestamp     | YES  |     | CURRENT_TIMESTAMP |      |
+
+### user_permissions
+| Column      | Type      | Null | Key | Default | Extra |
+|------------|-----------|------|-----|---------|--------|
+| user_id    | int(11)   | NO   | PRI | NULL    |        |
+| permission_id| int(11)  | NO   | PRI | NULL    |        |
+| granted_by | int(11)   | NO   | MUL | NULL    |        |
+| granted_at | timestamp | YES  |     | CURRENT_TIMESTAMP |  |
+
+### role_permissions
+| Column       | Type         | Null | Key | Default | Extra |
+|-------------|--------------|------|-----|---------|--------|
+| role        | varchar(50)  | NO   | PRI | NULL    |        |
+| permission_id| int(11)     | NO   | PRI | NULL    |        |
+
+### activity_logs
+| Column      | Type          | Null | Key | Default | Extra           |
+|------------|---------------|------|-----|---------|-----------------|
+| id         | int(11)       | NO   | PRI | NULL    | auto_increment |
+| user_id    | int(11)       | NO   | MUL | NULL    |                |
+| action     | varchar(100)  | NO   |     | NULL    |                |
+| description| text          | YES  |     | NULL    |                |
+| ip_address | varchar(45)   | YES  |     | NULL    |                |
+| user_agent | text          | YES  |     | NULL    |                |
+| created_at | timestamp     | YES  |     | CURRENT_TIMESTAMP |      |
+
+## Foreign Key Relationships
+
+### user_permissions
+- `user_id` references `users(id)` ON DELETE CASCADE
+- `permission_id` references `permissions(id)` ON DELETE CASCADE
+- `granted_by` references `users(id)`
+
+### role_permissions
+- `permission_id` references `permissions(id)` ON DELETE CASCADE
+
+### activity_logs
+- `user_id` references `users(id)` ON DELETE CASCADE

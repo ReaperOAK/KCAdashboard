@@ -12,18 +12,20 @@ const PERMISSIONS = {
         EDIT: 'batch.edit',
         DELETE: 'batch.delete'
     }
-    // Add more permission categories as needed
 };
 
-export const checkPermission = (userPermissions, requiredPermission) => {
+export const checkPermission = (userPermissions = [], requiredPermission) => {
+    if (!userPermissions || !requiredPermission) return false;
     return userPermissions.includes(requiredPermission);
 };
 
-export const hasAnyPermission = (userPermissions, requiredPermissions) => {
+export const hasAnyPermission = (userPermissions = [], requiredPermissions = []) => {
+    if (!userPermissions || !requiredPermissions) return false;
     return requiredPermissions.some(permission => userPermissions.includes(permission));
 };
 
-export const hasAllPermissions = (userPermissions, requiredPermissions) => {
+export const hasAllPermissions = (userPermissions = [], requiredPermissions = []) => {
+    if (!userPermissions || !requiredPermissions) return false;
     return requiredPermissions.every(permission => userPermissions.includes(permission));
 };
 

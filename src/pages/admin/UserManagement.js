@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
 import PERMISSIONS, { checkPermission } from '../../utils/permissions';
 import { useAuth } from '../../hooks/useAuth';
+import UserActivity from './UserActivity';
 
 const PERMISSIONS_MAP = {
     'user.view': 1,
@@ -28,6 +29,7 @@ const UserManagement = () => {
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const { user: currentUser } = useAuth();
+    const [activeTab, setActiveTab] = useState('details');
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -56,15 +58,29 @@ const UserManagement = () => {
         }
     };
 
-    const handleRoleChange = async (userId, role) => {
+    const handleRoleChange = async (userId, newRole) => {
         try {
-            await ApiService.post('/users/update-role.php', {
+            const response = await ApiService.post('/users/update-role.php', {
                 user_id: userId,
-                role: role
+                role: newRole,
+                current_user_id: currentUser.id
             });
-            fetchUsers();
+
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to update role');
+            }
+
+            // Update local state
+            setUsers(users.map(user => {
+                if (user.id === userId) {
+                    return { ...user, role: newRole };
+                }
+                return user;
+            }));
+
+            await fetchUsers(); // Refresh the list
         } catch (error) {
-            setError('Failed to update user role');
+            setError(error.message || 'Failed to update user role');
         }
     };
 
@@ -152,6 +168,67 @@ const UserManagement = () => {
             console.error('Permission update error:', error);
         }
     };
+
+    const renderEditModal = () => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl p-6 max-w-2xl w-full">
+                <h2 className="text-2xl font-bold text-[#200e4a] mb-4">User Management</h2>
+                
+                {/* Tabs */}
+                <div className="border-b border-gray-200 mb-6">
+                    <nav className="-mb-px flex space-x-8">
+                        <button
+                            onClick={() => setActiveTab('details')}
+                            className={`py-2 px-1 ${
+                                activeTab === 'details'
+                                    ? 'border-b-2 border-[#461fa3] text-[#461fa3]'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            User Details
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('activity')}
+                            className={`py-2 px-1 ${
+                                activeTab === 'activity'
+                                    ? 'border-b-2 border-[#461fa3] text-[#461fa3]'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            Activity Logs
+                        </button>
+                    </nav>
+                </div>
+
+                {/* Tab Content */}
+                {activeTab === 'details' ? (
+                    <form onSubmit={handleEditSubmit} className="space-y-4">
+                        {/* ...existing form fields... */}
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowEditModal(false);
+                                    setActiveTab('details');
+                                }}
+                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <UserActivity userId={selectedUser.id} />
+                )}
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
@@ -311,84 +388,7 @@ const UserManagement = () => {
                 )}
 
                 {/* Edit Modal */}
-                {showEditModal && selectedUser && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Edit User Details</h2>
-                            <form onSubmit={handleEditSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                                    <input
-                                        type="text"
-                                        value={selectedUser.full_name}
-                                        onChange={(e) => setSelectedUser({
-                                            ...selectedUser,
-                                            full_name: e.target.value
-                                        })}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                                    <input
-                                        type="email"
-                                        value={selectedUser.email}
-                                        onChange={(e) => setSelectedUser({
-                                            ...selectedUser,
-                                            email: e.target.value
-                                        })}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Role</label>
-                                    <select
-                                        value={selectedUser.role}
-                                        onChange={(e) => setSelectedUser({
-                                            ...selectedUser,
-                                            role: e.target.value
-                                        })}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    >
-                                        <option value="student">Student</option>
-                                        <option value="teacher">Teacher</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Status</label>
-                                    <select
-                                        value={selectedUser.status}
-                                        onChange={(e) => setSelectedUser({
-                                            ...selectedUser,
-                                            status: e.target.value
-                                        })}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    >
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                        <option value="suspended">Suspended</option>
-                                    </select>
-                                </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowEditModal(false)}
-                                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
-                                    >
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
+                {showEditModal && selectedUser && renderEditModal()}
 
                 {/* Permissions Modal */}
                 {showPermissionsModal && selectedUser && (

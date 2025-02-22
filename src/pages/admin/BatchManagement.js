@@ -24,20 +24,32 @@ const BatchManagement = () => {
 
   const fetchBatches = async () => {
     try {
-      const response = await ApiService.get('/batches/get-all.php');
-      setBatches(response.batches);
-      setLoading(false);
+      setLoading(true);
+      const response = await ApiService.getBatches();
+      if (response.success && response.batches) {
+        setBatches(response.batches);
+      } else {
+        throw new Error(response.message || 'Failed to fetch batches');
+      }
     } catch (error) {
       console.error('Failed to fetch batches:', error);
+      // Consider adding a toast notification here
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchTeachers = async () => {
     try {
       const response = await ApiService.get('/users/get-teachers.php');
-      setTeachers(response.teachers);
+      if (response.success && response.teachers) {
+        setTeachers(response.teachers);
+      } else {
+        throw new Error(response.message || 'Failed to fetch teachers');
+      }
     } catch (error) {
       console.error('Failed to fetch teachers:', error);
+      // Consider adding a toast notification here
     }
   };
 

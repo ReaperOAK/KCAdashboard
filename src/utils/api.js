@@ -79,7 +79,16 @@ class ApiService {
 
   // Admin Dashboard specific endpoints
   static async getDashboardStats() {
-    return this.get('/admin/dashboard-stats.php');
+    try {
+      const response = await this.get('/admin/dashboard-stats.php');
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch dashboard stats');
+      }
+      return response;
+    } catch (error) {
+      console.error('Dashboard stats error:', error);
+      throw error;
+    }
   }
 
   static async getBatchStats() {

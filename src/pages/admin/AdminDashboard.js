@@ -13,18 +13,48 @@ const AdminDashboard = () => {
     totalBatches: 0,
     attendanceRate: 0
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const response = await ApiService.get('/admin/dashboard-stats.php');
-        setStats(response.stats);
+        if (response && response.stats) {
+          setStats(response.stats);
+        } else {
+          throw new Error('Invalid response format');
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error);
+        setError('Failed to load dashboard statistics. Please try again later.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchStats();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="p-8 bg-[#f3f1f9] min-h-screen flex items-center justify-center">
+        <div className="text-xl text-[#200e4a]">Loading dashboard data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 bg-[#f3f1f9] min-h-screen">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
+      </div>
+    );
+  }
 
   const quickAccessCards = [
     {

@@ -321,6 +321,48 @@ $sql = "CREATE TABLE IF NOT EXISTS faqs (
 )";
 $db->exec($sql);
 
+// Add after existing tables...
+
+$sql = "CREATE TABLE IF NOT EXISTS permissions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS user_permissions (
+    user_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    granted_by INT NOT NULL,
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, permission_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+    FOREIGN KEY (granted_by) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS activity_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    description TEXT,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+$db->exec($sql);
+
+$sql = "CREATE TABLE IF NOT EXISTS role_permissions (
+    role VARCHAR(50) NOT NULL,
+    permission_id INT NOT NULL,
+    PRIMARY KEY (role, permission_id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+)";
+$db->exec($sql);
+
 // Create default admin account if it doesn't exist
 if (!$user->emailExists('admin@kca.com')) {
     $user->email = 'admin@kca.com';

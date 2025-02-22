@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://dashboard.kolkatachessacademy.in/api/endpoints';
+const API_URL = process.env.REACT_APP_API_URL || 'https://dashboard.kolkatachessacademy.in/api/endpoints';
 
 class ApiService {
   static async request(endpoint, method = 'GET', data = null, options = {}) {
@@ -8,21 +8,19 @@ class ApiService {
     console.log('Making API request to:', url);
     
     // Default headers with CORS configuration
-    const headers = new Headers({
+    const headers = {
       'Authorization': token ? `Bearer ${token}` : '',
       'Accept': 'application/json',
-    });
+    };
 
     // Only set Content-Type if not FormData
     if (!(data instanceof FormData)) {
-      headers.set('Content-Type', 'application/json');
+      headers['Content-Type'] = 'application/json';
     }
 
     // Merge with custom headers from options
     if (options.headers) {
-      Object.entries(options.headers).forEach(([key, value]) => {
-        headers.set(key, value);
-      });
+      Object.assign(headers, options.headers);
     }
 
     const config = {
@@ -38,11 +36,6 @@ class ApiService {
     }
 
     try {
-      // For OPTIONS preflight request
-      if (method !== 'GET' && method !== 'HEAD') {
-        await fetch(url, { method: 'OPTIONS', headers, mode: 'cors', credentials: 'include' });
-      }
-
       const response = await fetch(url, config);
       console.log('Response status:', response.status);
       

@@ -4,6 +4,19 @@ import ApiService from '../../utils/api';
 import PERMISSIONS, { checkPermission } from '../../utils/permissions';
 import { useAuth } from '../../hooks/useAuth';
 
+const PERMISSIONS_MAP = {
+    'user.view': 1,
+    'user.create': 2,
+    'user.edit': 3,
+    'user.delete': 4,
+    'user.manage_permissions': 5,
+    'batch.view': 6,
+    'batch.create': 7,
+    'batch.edit': 8,
+    'batch.delete': 9
+    // Add more mappings as needed
+};
+
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -108,9 +121,17 @@ const UserManagement = () => {
     const handlePermissionChange = async (userId, permissions) => {
         try {
             setError(null);
+            console.log('Sending permissions:', permissions); // Debug log
+
+            // Convert permission strings to IDs using a mapping
+            const permissionIds = permissions.map(permission => ({
+                name: permission,
+                id: PERMISSIONS_MAP[permission] // You'll need to add this mapping
+            }));
+
             const response = await ApiService.post('/users/update-permissions.php', {
                 user_id: userId,
-                permissions: permissions.map(p => parseInt(p.id)) // Ensure we're sending permission IDs
+                permissions: permissionIds
             });
 
             if (!response.success) {

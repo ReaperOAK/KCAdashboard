@@ -32,6 +32,28 @@ try {
         throw new Exception('Invalid max_students value');
     }
 
+    // Validate schedule format
+    if (!isset($data['schedule']) || empty($data['schedule'])) {
+        throw new Exception('Schedule is required');
+    }
+
+    $schedule = json_decode($data['schedule'], true);
+    if (!$schedule || !isset($schedule['days']) || !isset($schedule['time']) || !isset($schedule['duration'])) {
+        throw new Exception('Invalid schedule format');
+    }
+
+    if (empty($schedule['days'])) {
+        throw new Exception('At least one day must be selected in schedule');
+    }
+
+    if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $schedule['time'])) {
+        throw new Exception('Invalid time format in schedule');
+    }
+
+    if (!is_numeric($schedule['duration']) || $schedule['duration'] < 30) {
+        throw new Exception('Duration must be at least 30 minutes');
+    }
+
     // Connect to database
     $database = new Database();
     $db = $database->getConnection();
@@ -59,7 +81,7 @@ try {
         'name' => $data['name'],
         'description' => $data['description'] ?? '',
         'level' => $data['level'],
-        'schedule' => $data['schedule'],
+        'schedule' => $data['schedule'], // Store as JSON string
         'max_students' => (int)$data['max_students'],
         'teacher_id' => (int)$data['teacher_id'],
         'status' => $data['status']
@@ -92,7 +114,8 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to create batch: ' . $e->getMessage()
+        'message' => 'Failed to create batch: ' . $e->getMessage(),
+        'error' => $e->getMessage()
     ]);
 }
 ?>

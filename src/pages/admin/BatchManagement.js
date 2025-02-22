@@ -11,7 +11,11 @@ const BatchManagement = () => {
     name: '',
     description: '',
     level: 'beginner',
-    schedule: '',
+    schedule: JSON.stringify({
+      days: [],
+      time: '09:00',
+      duration: 60
+    }),
     max_students: 10,
     teacher_id: '',
     status: 'active'
@@ -56,16 +60,25 @@ const BatchManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (selectedBatch) {
-        await ApiService.put(`/batches/update.php?id=${selectedBatch.id}`, formData);
-      } else {
-        await ApiService.post('/batches/create.php', formData);
+      // Validate schedule
+      if (!formData.schedule) {
+        throw new Error('Schedule is required');
       }
+
+      const response = selectedBatch 
+        ? await ApiService.updateBatch(selectedBatch.id, formData)
+        : await ApiService.createBatch(formData);
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to save batch');
+      }
+
       setShowModal(false);
       fetchBatches();
       resetForm();
     } catch (error) {
       console.error('Failed to save batch:', error);
+      alert(error.message); // Show error to user
     }
   };
 
@@ -89,7 +102,11 @@ const BatchManagement = () => {
       name: '',
       description: '',
       level: 'beginner',
-      schedule: '',
+      schedule: JSON.stringify({
+        days: [],
+        time: '09:00',
+        duration: 60
+      }),
       max_students: 10,
       teacher_id: '',
       status: 'active'
@@ -214,6 +231,83 @@ const BatchManagement = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Schedule</label>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
+                        const schedule = JSON.parse(formData.schedule || '{"days":[]}');
+                        return (
+                          <button
+                            key={day}
+                            type="button"
+                            className={`px-2 py-1 rounded ${
+                              schedule.days.includes(day)
+                                ? 'bg-[#461fa3] text-white'
+                                : 'bg-gray-200 text-gray-700'
+                            }`}
+                            onClick={() => {
+                              const currentSchedule = JSON.parse(formData.schedule || '{"days":[]}');
+                              const newDays = currentSchedule.days.includes(day)
+                                ? currentSchedule.days.filter(d => d !== day)
+                                : [...currentSchedule.days, day];
+                              setFormData({
+                                ...formData,
+                                schedule: JSON.stringify({
+                                  ...currentSchedule,
+                                  days: newDays
+                                })
+                              });
+                            }}
+                          >
+                            {day}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-600">Time</label>
+                        <input
+                          type="time"
+                          value={JSON.parse(formData.schedule || '{"time":"09:00"}').time}
+                          onChange={(e) => {
+                            const currentSchedule = JSON.parse(formData.schedule || '{"days":[],"time":"09:00","duration":60}');
+                            setFormData({
+                              ...formData,
+                              schedule: JSON.stringify({
+                                ...currentSchedule,
+                                time: e.target.value
+                              })
+                            });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600">Duration (minutes)</label>
+                        <input
+                          type="number"
+                          min="30"
+                          step="30"
+                          value={JSON.parse(formData.schedule || '{"duration":60}').duration}
+                          onChange={(e) => {
+                            const currentSchedule = JSON.parse(formData.schedule || '{"days":[],"time":"09:00","duration":60}');
+                            setFormData({
+                              ...formData,
+                              schedule: JSON.stringify({
+                                ...currentSchedule,
+                                duration: parseInt(e.target.value)
+                              })
+                            });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div>

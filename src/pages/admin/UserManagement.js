@@ -177,6 +177,26 @@ const UserManagement = () => {
         }
     };
 
+    const handleDelete = async (userId) => {
+        if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            try {
+                const response = await ApiService.post('/users/delete.php', {
+                    user_id: userId,
+                    current_user_id: currentUser.id
+                });
+
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to delete user');
+                }
+
+                await fetchUsers(); // Refresh the list
+                setError(null);
+            } catch (error) {
+                setError(error.message || 'Failed to delete user');
+            }
+        }
+    };
+
     const renderEditModal = () => (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl p-6 max-w-2xl w-full">
@@ -446,6 +466,12 @@ const UserManagement = () => {
                                                 className="ml-2 text-[#461fa3] hover:text-[#7646eb]"
                                             >
                                                 Manage Permissions
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(user.id)}
+                                                className="ml-2 text-red-600 hover:text-red-800"
+                                            >
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>

@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'https://dashboard.kolkatachessacademy.in/api/endpoints';
+const API_URL = 'https://dashboard.kolkatachessacademy.in/api/endpoints';
 
 class ApiService {
   static async request(endpoint, method = 'GET', data = null, options = {}) {

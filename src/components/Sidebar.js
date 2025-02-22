@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user } = useAuth();
   const location = useLocation();
+  const [expandedItem, setExpandedItem] = useState(null);
 
   const roleBasedLinks = {
     admin: [
-      { label: 'Users', path: '/admin/users', icon: '👥' },
+      {
+        label: 'Users',
+        icon: '👥',
+        path: '/admin/users',
+        subItems: [
+          { label: 'All Users', path: '/admin/users' },
+          { label: 'Activity Logs', path: '/admin/users/activity' }
+        ]
+      },
       { label: 'Batches', path: '/admin/batches', icon: '📚' },
       { label: 'Attendance', path: '/admin/attendance', icon: '📋' },
       { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
@@ -34,6 +43,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   const links = roleBasedLinks[user?.role] || [];
+
+  const handleItemClick = (item) => {
+    if (item.subItems) {
+      setExpandedItem(expandedItem === item.label ? null : item.label);
+    } else {
+      window.innerWidth < 1024 && toggleSidebar();
+    }
+  };
 
   return (
     <>
@@ -61,17 +78,49 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
         <div className="space-y-2 p-4">
           {links.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#461fa3] transition-colors ${
-                location.pathname === link.path ? 'bg-[#461fa3]' : ''
-              }`}
-              onClick={() => window.innerWidth < 1024 && toggleSidebar()}
-            >
-              <span className="text-xl">{link.icon}</span>
-              <span>{link.label}</span>
-            </Link>
+            <div key={link.path} className="space-y-1">
+              <button
+                onClick={() => handleItemClick(link)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-[#461fa3] transition-colors ${
+                  location.pathname.startsWith(link.path) ? 'bg-[#461fa3]' : ''
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">{link.icon}</span>
+                  <span>{link.label}</span>
+                </div>
+                {link.subItems && (
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      expandedItem === link.label ? 'transform rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Submenu */}
+              {link.subItems && expandedItem === link.label && (
+                <div className="ml-8 space-y-1">
+                  {link.subItems.map((subItem) => (
+                    <Link
+                      key={subItem.path}
+                      to={subItem.path}
+                      className={`block px-4 py-2 rounded-lg hover:bg-[#461fa3] transition-colors ${
+                        location.pathname === subItem.path ? 'bg-[#461fa3]' : ''
+                      }`}
+                      onClick={() => window.innerWidth < 1024 && toggleSidebar()}
+                    >
+                      {subItem.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>

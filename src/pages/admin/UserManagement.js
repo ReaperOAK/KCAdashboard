@@ -179,22 +179,29 @@ const UserManagement = () => {
     };
 
     const handleDelete = async (userId) => {
-        if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-            try {
-                const response = await ApiService.post('/users/delete.php', {
-                    user_id: userId,
-                    current_user_id: currentUser.id
-                });
+        if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            return;
+        }
 
-                if (!response.success) {
-                    throw new Error(response.message || 'Failed to delete user');
-                }
+        try {
+            setError(null);
+            const response = await ApiService.post('/users/delete.php', {
+                user_id: userId,
+                current_user_id: currentUser.id
+            });
 
+            if (response.success) {
                 await fetchUsers(); // Refresh the list
-                setError(null);
-            } catch (error) {
-                setError(error.message || 'Failed to delete user');
+                // Show success message
+                alert('User deleted successfully');
+            } else {
+                throw new Error(response.message || 'Failed to delete user');
             }
+        } catch (error) {
+            console.error('Delete error:', error);
+            setError(error.message || 'Failed to delete user. Please try again.');
+            // Show error message
+            alert(error.message || 'Failed to delete user. Please try again.');
         }
     };
 

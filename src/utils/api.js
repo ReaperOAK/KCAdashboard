@@ -37,26 +37,28 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      console.log('Response status:', response.status);
+      const contentType = response.headers.get('content-type');
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const text = await response.text();
-      if (!text) {
-        return { success: true, message: 'Success' };
+      // Parse response based on content type
+      let result;
+      if (contentType && contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          result = { success: false, message: text || 'Unknown error occurred' };
+        }
       }
 
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        console.error('Failed to parse JSON response:', text);
-        throw new Error('Invalid JSON response from server');
+      if (!response.ok) {
+        throw new Error(result.message || `HTTP error! status: ${response.status}`);
       }
+
+      return result;
     } catch (error) {
       console.error('API Error:', error);
-      console.error('Failed request URL:', url);
       throw error;
     }
   }

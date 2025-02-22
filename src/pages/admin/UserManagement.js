@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import ApiService from '../../utils/api';
+import PERMISSIONS, { checkPermission } from '../../utils/permissions';
+import { useAuth } from '../../hooks/useAuth';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -10,6 +12,9 @@ const UserManagement = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+    const { user: currentUser } = useAuth();
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -67,6 +72,48 @@ const UserManagement = () => {
         }
     };
 
+    const handleBulkAction = async (action) => {
+        try {
+            switch (action) {
+                case 'activate':
+                    await ApiService.post('/users/bulk-update-status.php', {
+                        user_ids: selectedUsers,
+                        status: 'active'
+                    });
+                    break;
+                case 'deactivate':
+                    await ApiService.post('/users/bulk-update-status.php', {
+                        user_ids: selectedUsers,
+                        status: 'inactive'
+                    });
+                    break;
+                case 'delete':
+                    if (window.confirm('Are you sure you want to delete these users?')) {
+                        await ApiService.post('/users/bulk-delete.php', {
+                            user_ids: selectedUsers
+                        });
+                    }
+                    break;
+            }
+            fetchUsers();
+            setSelectedUsers([]);
+        } catch (error) {
+            setError('Failed to perform bulk action');
+        }
+    };
+
+    const handlePermissionChange = async (userId, permissions) => {
+        try {
+            await ApiService.post('/users/update-permissions.php', {
+                user_id: userId,
+                permissions: permissions
+            });
+            fetchUsers();
+        } catch (error) {
+            setError('Failed to update permissions');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
             
@@ -96,6 +143,34 @@ const UserManagement = () => {
                     </div>
                 </div>
 
+                {selectedUsers.length > 0 && checkPermission(currentUser.permissions, PERMISSIONS.USER_MANAGEMENT.EDIT) && (
+                    <div className="mb-4 p-4 bg-white rounded-lg shadow">
+                        <h3 className="text-sm font-medium text-gray-700">
+                            {selectedUsers.length} users selected
+                        </h3>
+                        <div className="mt-2 space-x-2">
+                            <button
+                                onClick={() => handleBulkAction('activate')}
+                                className="px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700"
+                            >
+                                Activate
+                            </button>
+                            <button
+                                onClick={() => handleBulkAction('deactivate')}
+                                className="px-3 py-1 text-sm text-white bg-yellow-600 rounded hover:bg-yellow-700"
+                            >
+                                Deactivate
+                            </button>
+                            <button
+                                onClick={() => handleBulkAction('delete')}
+                                className="px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {loading ? (
                     <div className="text-center py-8">Loading...</div>
                 ) : error ? (
@@ -105,6 +180,19 @@ const UserManagement = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        <input
+                                            type="checkbox"
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedUsers(users.map(user => user.id));
+                                                } else {
+                                                    setSelectedUsers([]);
+                                                }
+                                            }}
+                                            checked={selectedUsers.length === users.length}
+                                        />
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
@@ -115,6 +203,19 @@ const UserManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {users.map((user) => (
                                     <tr key={user.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedUsers.includes(user.id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedUsers([...selectedUsers, user.id]);
+                                                    } else {
+                                                        setSelectedUsers(selectedUsers.filter(id => id !== user.id));
+                                                    }
+                                                }}
+                                            />
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
                                         </td>
@@ -152,6 +253,15 @@ const UserManagement = () => {
                                                 className="text-[#461fa3] hover:text-[#7646eb]"
                                             >
                                                 Edit Details
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedUser(user);
+                                                    setShowPermissionsModal(true);
+                                                }}
+                                                className="ml-2 text-[#461fa3] hover:text-[#7646eb]"
+                                            >
+                                                Manage Permissions
                                             </button>
                                         </td>
                                     </tr>
@@ -237,6 +347,16 @@ const UserManagement = () => {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Permissions Modal */}
+                {showPermissionsModal && selectedUser && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
+                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Manage Permissions</h2>
+                            {/* Permission management form */}
                         </div>
                     </div>
                 )}

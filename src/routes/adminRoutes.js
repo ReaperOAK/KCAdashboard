@@ -1,5 +1,6 @@
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import UserManagement from '../pages/admin/UserManagement';
+import UserActivityPage from '../pages/admin/UserActivityPage';
 import UserActivity from '../pages/admin/UserActivity';
 import BatchManagement from '../pages/admin/BatchManagement';
 import AttendanceSystem from '../pages/admin/AttendanceSystem';
@@ -16,6 +17,11 @@ const adminRoutes = [
     path: '/admin/users',
     element: UserManagement,
     title: 'User Management'
+  },
+  {
+    path: '/admin/users/activity',
+    element: UserActivityPage,
+    title: 'Activity Logs'
   },
   {
     path: '/admin/users/activity/:userId',

@@ -87,17 +87,25 @@ const UserManagement = () => {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            await ApiService.post('/users/update.php', {
+            const response = await ApiService.post('/users/update.php', {
                 user_id: selectedUser.id,
                 full_name: selectedUser.full_name,
                 email: selectedUser.email,
                 role: selectedUser.role,
-                status: selectedUser.status
+                status: selectedUser.status,
+                current_user_id: currentUser.id  // Add this line
             });
+
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to update user');
+            }
+
             setShowEditModal(false);
-            fetchUsers();
+            setActiveTab('details');
+            await fetchUsers();  // Refresh the list
+            setError(null);
         } catch (error) {
-            setError('Failed to update user details');
+            setError(error.message || 'Failed to update user details');
         }
     };
 
@@ -231,12 +239,15 @@ const UserManagement = () => {
                             <label className="block text-sm font-medium text-gray-700">Role</label>
                             <select
                                 value={selectedUser.role || 'student'}
-                                onChange={(e) => setSelectedUser({
-                                    ...selectedUser,
-                                    role: e.target.value
-                                })}
+                                onChange={(e) => {
+                                    setSelectedUser({
+                                        ...selectedUser,
+                                        role: e.target.value
+                                    });
+                                }}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
                             >
+                                <option value="">Select Role</option>
                                 <option value="student">Student</option>
                                 <option value="teacher">Teacher</option>
                                 <option value="admin">Admin</option>

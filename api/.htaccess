@@ -1,9 +1,14 @@
 RewriteEngine On
 RewriteBase /api/
 
+# Handle OPTIONS method
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L,E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
+
 # Include CORS settings
-php_value include_path "/api/config"
-Include config/cors.php
+SetEnvIf Origin "^(.*)$" ORIGIN_SUB_DOMAIN=$1
+Header set Access-Control-Allow-Origin "%{ORIGIN_SUB_DOMAIN}e" env=ORIGIN_SUB_DOMAIN
+Header set Access-Control-Allow-Credentials "true"
 
 # Allow CORS preflight requests
 RewriteCond %{REQUEST_METHOD} OPTIONS
@@ -29,3 +34,11 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 # Enable error reporting for debugging (remove in production)
 php_flag display_errors on
 php_value error_reporting E_ALL
+
+# Add these headers
+Header always set Access-Control-Max-Age "3600"
+Header always set Access-Control-Allow-Methods "POST, GET, PUT, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+
+# Remove CORS headers for non-CORS requests
+Header unset Access-Control-Allow-Origin env=!ORIGIN_SUB_DOMAIN

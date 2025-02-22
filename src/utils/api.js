@@ -8,19 +8,21 @@ class ApiService {
     console.log('Making API request to:', url);
     
     // Default headers with CORS configuration
-    const headers = {
+    const headers = new Headers({
       'Authorization': token ? `Bearer ${token}` : '',
       'Accept': 'application/json',
-    };
+    });
 
     // Only set Content-Type if not FormData
     if (!(data instanceof FormData)) {
-      headers['Content-Type'] = 'application/json';
+      headers.set('Content-Type', 'application/json');
     }
 
     // Merge with custom headers from options
     if (options.headers) {
-      Object.assign(headers, options.headers);
+      Object.entries(options.headers).forEach(([key, value]) => {
+        headers.set(key, value);
+      });
     }
 
     const config = {
@@ -36,6 +38,11 @@ class ApiService {
     }
 
     try {
+      // For OPTIONS preflight request
+      if (method !== 'GET' && method !== 'HEAD') {
+        await fetch(url, { method: 'OPTIONS', headers, mode: 'cors', credentials: 'include' });
+      }
+
       const response = await fetch(url, config);
       console.log('Response status:', response.status);
       

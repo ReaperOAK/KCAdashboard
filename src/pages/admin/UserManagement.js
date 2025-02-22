@@ -170,7 +170,7 @@ const UserManagement = () => {
     };
 
     const renderEditModal = () => (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl p-6 max-w-2xl w-full">
                 <h2 className="text-2xl font-bold text-[#200e4a] mb-4">User Management</h2>
                 
@@ -203,13 +203,70 @@ const UserManagement = () => {
                 {/* Tab Content */}
                 {activeTab === 'details' ? (
                     <form onSubmit={handleEditSubmit} className="space-y-4">
-                        {/* ...existing form fields... */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input
+                                type="text"
+                                value={selectedUser.full_name || ''}
+                                onChange={(e) => setSelectedUser({
+                                    ...selectedUser,
+                                    full_name: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <input
+                                type="email"
+                                value={selectedUser.email || ''}
+                                onChange={(e) => setSelectedUser({
+                                    ...selectedUser,
+                                    email: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Role</label>
+                            <select
+                                value={selectedUser.role || 'student'}
+                                onChange={(e) => setSelectedUser({
+                                    ...selectedUser,
+                                    role: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                            >
+                                <option value="student">Student</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Status</label>
+                            <select
+                                value={selectedUser.status || 'active'}
+                                onChange={(e) => setSelectedUser({
+                                    ...selectedUser,
+                                    status: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                            >
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                        {error && (
+                            <div className="text-red-500 text-sm">{error}</div>
+                        )}
                         <div className="flex justify-end space-x-3">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setShowEditModal(false);
                                     setActiveTab('details');
+                                    setError(null);
                                 }}
                                 className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >

@@ -17,6 +17,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
-// Set JSON content type
 header('Content-Type: application/json');
 ?>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
-import ApiService from '../../utils/api';
-import PERMISSIONS, { checkPermission } from '../../utils/permissions';
+import UserTable from '../../components/user-management/UserTable';
+import Filters from '../../components/user-management/Filters';
+import EditUserModal from '../../components/user-management/Modals/EditUserModal';
 import { useAuth } from '../../hooks/useAuth';
-import UserActivity from './UserActivity';
+import ApiService from '../../utils/api';
+import PERMISSIONS from '../../utils/permissions';
 
 const PERMISSIONS_MAP = {
     'user.view': 1,
@@ -197,157 +198,21 @@ const UserManagement = () => {
         }
     };
 
-    const renderEditModal = () => (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl p-6 max-w-2xl w-full">
-                <h2 className="text-2xl font-bold text-[#200e4a] mb-4">User Management</h2>
-                
-                {/* Tabs */}
-                <div className="border-b border-gray-200 mb-6">
-                    <nav className="-mb-px flex space-x-8">
-                        <button
-                            onClick={() => setActiveTab('details')}
-                            className={`py-2 px-1 ${
-                                activeTab === 'details'
-                                    ? 'border-b-2 border-[#461fa3] text-[#461fa3]'
-                                    : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                        >
-                            User Details
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('activity')}
-                            className={`py-2 px-1 ${
-                                activeTab === 'activity'
-                                    ? 'border-b-2 border-[#461fa3] text-[#461fa3]'
-                                    : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                        >
-                            Activity Logs
-                        </button>
-                    </nav>
-                </div>
-
-                {/* Tab Content */}
-                {activeTab === 'details' ? (
-                    <form onSubmit={handleEditSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input
-                                type="text"
-                                value={selectedUser.full_name || ''}
-                                onChange={(e) => setSelectedUser({
-                                    ...selectedUser,
-                                    full_name: e.target.value
-                                })}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Email</label>
-                            <input
-                                type="email"
-                                value={selectedUser.email || ''}
-                                onChange={(e) => setSelectedUser({
-                                    ...selectedUser,
-                                    email: e.target.value
-                                })}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Role</label>
-                            <select
-                                value={selectedUser.role || 'student'}
-                                onChange={(e) => {
-                                    setSelectedUser({
-                                        ...selectedUser,
-                                        role: e.target.value
-                                    });
-                                }}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                            >
-                                <option value="">Select Role</option>
-                                <option value="student">Student</option>
-                                <option value="teacher">Teacher</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Status</label>
-                            <select
-                                value={selectedUser.status || 'active'}
-                                onChange={(e) => setSelectedUser({
-                                    ...selectedUser,
-                                    status: e.target.value
-                                })}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                            >
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="suspended">Suspended</option>
-                            </select>
-                        </div>
-                        {error && (
-                            <div className="text-red-500 text-sm">{error}</div>
-                        )}
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowEditModal(false);
-                                    setActiveTab('details');
-                                    setError(null);
-                                }}
-                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
-                            >
-                                Save Changes
-                            </button>
-                        </div>
-                    </form>
-                ) : (
-                    <UserActivity userId={selectedUser.id} />
-                )}
-            </div>
-        </div>
-    );
-
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            
-            <div className="p-8">
+            <div className="p-4 sm:p-8">
                 <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-[#200e4a] mb-4">User Management</h1>
-                    <div className="flex space-x-4 mb-4">
-                        <div className="flex-1">
-                            <input
-                                type="text"
-                                placeholder="Search users..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
-                            />
-                        </div>
-                        <select
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                            className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
-                        >
-                            <option value="all">All Users</option>
-                            <option value="student">Students</option>
-                            <option value="teacher">Teachers</option>
-                            <option value="admin">Admins</option>
-                        </select>
-                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#200e4a] mb-4">User Management</h1>
+                    <Filters
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        filter={filter}
+                        setFilter={setFilter}
+                    />
                 </div>
 
-                {selectedUsers.length > 0 && checkPermission(currentUser?.permissions || [], PERMISSIONS.USER_MANAGEMENT.EDIT) && (
+                {/* Bulk Actions */}
+                {selectedUsers.length > 0 && (
                     <div className="mb-4 p-4 bg-white rounded-lg shadow">
                         <h3 className="text-sm font-medium text-gray-700">
                             {selectedUsers.length} users selected
@@ -375,114 +240,48 @@ const UserManagement = () => {
                     </div>
                 )}
 
+                {/* Main Content */}
                 {loading ? (
                     <div className="text-center py-8">Loading...</div>
                 ) : error ? (
                     <div className="text-red-500 py-8">{error}</div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        <input
-                                            type="checkbox"
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedUsers(users.map(user => user.id));
-                                                } else {
-                                                    setSelectedUsers([]);
-                                                }
-                                            }}
-                                            checked={selectedUsers.length === users.length}
-                                        />
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {users.map((user) => (
-                                    <tr key={user.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedUsers.includes(user.id)}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setSelectedUsers([...selectedUsers, user.id]);
-                                                    } else {
-                                                        setSelectedUsers(selectedUsers.filter(id => id !== user.id));
-                                                    }
-                                                }}
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-500">{user.email}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <select
-                                                value={user.role}
-                                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                                                className="text-sm text-gray-900 rounded-md border-gray-300 focus:ring-[#461fa3]"
-                                            >
-                                                <option value="student">Student</option>
-                                                <option value="teacher">Teacher</option>
-                                                <option value="admin">Admin</option>
-                                            </select>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <select
-                                                value={user.status}
-                                                onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                                                className="text-sm rounded-md border-gray-300 focus:ring-[#461fa3]"
-                                            >
-                                                <option value="active">Active</option>
-                                                <option value="inactive">Inactive</option>
-                                                <option value="suspended">Suspended</option>
-                                            </select>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setShowEditModal(true);
-                                                }}
-                                                className="text-[#461fa3] hover:text-[#7646eb]"
-                                            >
-                                                Edit Details
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setShowPermissionsModal(true);
-                                                }}
-                                                className="ml-2 text-[#461fa3] hover:text-[#7646eb]"
-                                            >
-                                                Manage Permissions
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(user.id)}
-                                                className="ml-2 text-red-600 hover:text-red-800"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <UserTable
+                            users={users}
+                            selectedUsers={selectedUsers}
+                            setSelectedUsers={setSelectedUsers}
+                            onEdit={(user) => {
+                                setSelectedUser(user);
+                                setShowEditModal(true);
+                            }}
+                            onPermissions={(user) => {
+                                setSelectedUser(user);
+                                setShowPermissionsModal(true);
+                            }}
+                            onDelete={handleDelete}
+                            onRoleChange={handleRoleChange}
+                            onStatusChange={handleStatusChange}
+                        />
                     </div>
                 )}
 
-                {/* Edit Modal */}
-                {showEditModal && selectedUser && renderEditModal()}
+                {/* Modals */}
+                {showEditModal && selectedUser && (
+                    <EditUserModal
+                        user={selectedUser}
+                        setUser={setSelectedUser}
+                        onSubmit={handleEditSubmit}
+                        onClose={() => {
+                            setShowEditModal(false);
+                            setActiveTab('details');
+                            setError(null);
+                        }}
+                        error={error}
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                    />
+                )}
 
                 {/* Permissions Modal */}
                 {showPermissionsModal && selectedUser && (

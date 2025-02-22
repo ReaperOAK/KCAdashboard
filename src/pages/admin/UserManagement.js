@@ -94,6 +94,9 @@ const UserManagement = () => {
                         });
                     }
                     break;
+                default:
+                    console.warn('Unknown bulk action:', action);
+                    return;
             }
             fetchUsers();
             setSelectedUsers([]);
@@ -356,7 +359,52 @@ const UserManagement = () => {
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-xl p-6 max-w-lg w-full">
                             <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Manage Permissions</h2>
-                            {/* Permission management form */}
+                            <div className="space-y-4">
+                                {Object.entries(PERMISSIONS).map(([category, perms]) => (
+                                    <div key={category} className="border-b pb-4">
+                                        <h3 className="font-medium text-gray-900 mb-2">{category}</h3>
+                                        <div className="space-y-2">
+                                            {Object.entries(perms).map(([key, value]) => (
+                                                <label key={value} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedUser.permissions?.includes(value)}
+                                                        onChange={(e) => {
+                                                            const updatedPermissions = e.target.checked
+                                                                ? [...(selectedUser.permissions || []), value]
+                                                                : selectedUser.permissions?.filter(p => p !== value) || [];
+                                                            setSelectedUser({
+                                                                ...selectedUser,
+                                                                permissions: updatedPermissions
+                                                            });
+                                                        }}
+                                                        className="rounded border-gray-300 text-[#461fa3] focus:ring-[#461fa3]"
+                                                    />
+                                                    <span className="text-sm text-gray-700">{key}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-6 flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPermissionsModal(false)}
+                                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        handlePermissionChange(selectedUser.id, selectedUser.permissions);
+                                        setShowPermissionsModal(false);
+                                    }}
+                                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
+                                >
+                                    Save Permissions
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

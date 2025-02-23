@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user } = useAuth();
   const location = useLocation();
   const [expandedItem, setExpandedItem] = useState(null);
+  const navigate = useNavigate();
 
   const roleBasedLinks = {
     admin: [
@@ -52,6 +53,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     }
   };
 
+  const handleNavigation = (path) => {
+    navigate(path);
+    if (window.innerWidth < 1024) {
+      toggleSidebar();
+    }
+  };
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -62,10 +70,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - update z-index to be lower than modal */}
       <div className={`
         fixed left-0 top-16 h-full bg-[#200e4a] text-white 
-        transform transition-transform duration-300 ease-in-out z-30
+        transform transition-transform duration-300 ease-in-out z-10
         w-64 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex justify-end p-4 lg:hidden">
@@ -80,7 +88,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           {links.map((link) => (
             <div key={link.path} className="space-y-1">
               <button
-                onClick={() => handleItemClick(link)}
+                onClick={() => {
+                  handleItemClick(link);
+                  if (!link.subItems) {
+                    handleNavigation(link.path);
+                  }
+                }}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-[#461fa3] transition-colors ${
                   location.pathname.startsWith(link.path) ? 'bg-[#461fa3]' : ''
                 }`}
@@ -107,16 +120,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               {link.subItems && expandedItem === link.label && (
                 <div className="ml-8 space-y-1">
                   {link.subItems.map((subItem) => (
-                    <Link
+                    <button
                       key={subItem.path}
-                      to={subItem.path}
-                      className={`block px-4 py-2 rounded-lg hover:bg-[#461fa3] transition-colors ${
+                      onClick={() => handleNavigation(subItem.path)}
+                      className={`block w-full text-left px-4 py-2 rounded-lg hover:bg-[#461fa3] transition-colors ${
                         location.pathname === subItem.path ? 'bg-[#461fa3]' : ''
                       }`}
-                      onClick={() => window.innerWidth < 1024 && toggleSidebar()}
                     >
                       {subItem.label}
-                    </Link>
+                    </button>
                   ))}
                 </div>
               )}

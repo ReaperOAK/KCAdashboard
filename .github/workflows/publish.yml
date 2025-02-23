@@ -13,17 +13,35 @@ jobs:
       - name: git-checkout
         uses: actions/checkout@v3
 
-      - name: Install all dependencies
+      - name: Install Node dependencies
         run: npm install
 
       - name: Build React app
         run: npm run build
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        working-directory: ./api
+        run: |
+          composer install --no-dev --optimize-autoloader
+          composer dump-autoload --optimize
 
       - name: Copy API files
         run: |
           mkdir -p build/api
           cp -r api/* build/api/
           cp .htaccess build/
+          
+          # Remove development files from build
+          rm -rf build/api/vendor/*/test/
+          rm -rf build/api/vendor/*/tests/
+          rm -rf build/api/vendor/*/docs/
+          rm -rf build/api/composer.*
 
       - name: Push
         uses: s0/git-publish-subdir-action@develop

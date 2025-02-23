@@ -4,6 +4,7 @@
         "league/oauth2-client": "^2.7",
         "vlucas/phpdotenv": "^5.6",
         "phpmailer/phpmailer": "^6.8",
-        "ralouphie/getallheaders": "^3.0"
+        "ralouphie/getallheaders": "^3.0",
+        "tecnickcom/tcpdf": "^6.8"
     }
 }

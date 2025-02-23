@@ -1,7 +1,9 @@
 <?php
 require_once '../middleware/auth.php';
 require_once '../config/Database.php';
-require_once '../vendor/autoload.php'; // For PDF generation
+require_once '../vendor/autoload.php';
+
+use TCPDF as TCPDF;
 
 $user_id = validateToken();
 $database = new Database();
@@ -25,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                  JOIN batches b ON a.batch_id = b.id
                  JOIN batch_sessions bs ON a.session_id = bs.id
                  WHERE (:batch_id = 'all' OR a.batch_id = :batch_id)
-                 AND bs.date_time BETWEEN :start_date AND :end_date
+                 AND DATE(bs.date_time) BETWEEN :start_date AND :end_date
                  ORDER BY bs.date_time DESC";
 
         $stmt = $db->prepare($query);
@@ -37,10 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Generate report based on format
         switch($format) {
             case 'pdf':
-                generatePDFReport($results);
+                generatePDFReport($results, $start_date, $end_date);
                 break;
             case 'csv':
                 generateCSVReport($results);
@@ -55,28 +56,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 
-function generatePDFReport($data) {
-    // Use TCPDF or similar library to generate PDF
-    $pdf = new TCPDF();
+function generatePDFReport($data, $start_date, $end_date) {
+    // Create new PDF document
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    // Set document information
+    $pdf->SetCreator('KCA Dashboard');
+    $pdf->SetAuthor('KCA Admin');
+    $pdf->SetTitle('Attendance Report');
+
+    // Set margins
+    $pdf->SetMargins(15, 15, 15);
+
+    // Add a page
     $pdf->AddPage();
-    
-    // Add header
+
+    // Set font
+    $pdf->SetFont('helvetica', '', 10);
+
+    // Title
     $pdf->SetFont('helvetica', 'B', 16);
     $pdf->Cell(0, 10, 'Attendance Report', 0, 1, 'C');
-    
-    // Add data
     $pdf->SetFont('helvetica', '', 12);
+    $pdf->Cell(0, 10, "Period: $start_date to $end_date", 0, 1, 'C');
+    $pdf->Ln(10);
+
+    // Table header
+    $pdf->SetFillColor(240, 240, 240);
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->Cell(50, 7, 'Student Name', 1, 0, 'C', true);
+    $pdf->Cell(50, 7, 'Batch', 1, 0, 'C', true);
+    $pdf->Cell(40, 7, 'Date', 1, 0, 'C', true);
+    $pdf->Cell(30, 7, 'Status', 1, 1, 'C', true);
+
+    // Table data
+    $pdf->SetFont('helvetica', '', 10);
     foreach ($data as $row) {
-        $pdf->Cell(0, 10, 
-            $row['student_name'] . ' - ' . 
-            $row['batch_name'] . ' - ' . 
-            $row['status'] . ' - ' . 
-            date('Y-m-d H:i', strtotime($row['session_date'])), 
-            0, 1
-        );
+        $date = date('Y-m-d', strtotime($row['session_date']));
+        $pdf->Cell(50, 6, $row['student_name'], 1);
+        $pdf->Cell(50, 6, $row['batch_name'], 1);
+        $pdf->Cell(40, 6, $date, 1);
+        $pdf->Cell(30, 6, ucfirst($row['status']), 1);
+        $pdf->Ln();
     }
-    
+
+    // Output the PDF
     $pdf->Output('attendance_report.pdf', 'D');
+    exit;
 }
 
 function generateCSVReport($data) {
@@ -85,20 +111,24 @@ function generateCSVReport($data) {
     
     $output = fopen('php://output', 'w');
     
+    // Add UTF-8 BOM for Excel
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+    
     // Add headers
-    fputcsv($output, ['Student Name', 'Batch', 'Status', 'Session Date', 'Notes']);
+    fputcsv($output, ['Student Name', 'Batch', 'Date', 'Status', 'Notes']);
     
     // Add data
     foreach ($data as $row) {
         fputcsv($output, [
             $row['student_name'],
             $row['batch_name'],
+            date('Y-m-d', strtotime($row['session_date'])),
             $row['status'],
-            $row['session_date'],
-            $row['notes']
+            $row['notes'] ?? ''
         ]);
     }
     
     fclose($output);
+    exit;
 }
 ?>

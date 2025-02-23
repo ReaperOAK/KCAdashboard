@@ -1,9 +1,17 @@
-const API_URL = 'https://dashboard.kolkatachessacademy.in/api/endpoints';
-
 class ApiService {
+  static API_URL = 'https://dashboard.kolkatachessacademy.in/api/endpoints';
+
   static async request(endpoint, method = 'GET', data = null, options = {}) {
     const token = localStorage.getItem('token');
-    const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
+    
+    // Handle query parameters
+    let url = endpoint.startsWith('http') ? endpoint : `${this.API_URL}${endpoint}`;
+    
+    // If there are query parameters in options, append them to the URL
+    if (options.params) {
+      const queryParams = new URLSearchParams(options.params).toString();
+      url = `${url}${url.includes('?') ? '&' : '?'}${queryParams}`;
+    }
     
     console.log('Making API request to:', url);
     

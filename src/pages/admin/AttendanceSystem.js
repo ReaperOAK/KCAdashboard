@@ -61,19 +61,21 @@ const AttendanceSystem = () => {
 
     const handleExportReport = async () => {
         try {
-            const queryParams = new URLSearchParams({
+            const queryParams = {
                 format: exportFormat,
                 batch_id: selectedBatch,
                 start_date: dateRange.start,
                 end_date: dateRange.end
-            }).toString();
+            };
 
-            // Direct browser to download URL
-            window.location.href = `${ApiService.API_URL}/attendance/export.php?${queryParams}`;
+            // Create the full URL
+            const url = `${ApiService.API_URL}/attendance/export.php?${new URLSearchParams(queryParams).toString()}`;
+            
+            // Direct browser to download
+            window.location.href = url;
             
         } catch (error) {
             console.error('Failed to export report:', error);
-            // Add error notification here
         }
     };
 

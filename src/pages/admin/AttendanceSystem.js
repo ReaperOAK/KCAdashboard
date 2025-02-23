@@ -61,21 +61,53 @@ const AttendanceSystem = () => {
 
     const handleExportReport = async () => {
         try {
-            const queryParams = {
-                format: exportFormat,
-                batch_id: selectedBatch,
-                start_date: dateRange.start,
-                end_date: dateRange.end
-            };
+            const token = localStorage.getItem('token');
+            
+            // Create headers with authorization
+            const headers = new Headers({
+                'Authorization': `Bearer ${token}`,
+                'Accept': '*/*'
+            });
 
-            // Create the full URL
-            const url = `${ApiService.API_URL}/attendance/export.php?${new URLSearchParams(queryParams).toString()}`;
-            
-            // Direct browser to download
-            window.location.href = url;
-            
+            const response = await fetch(
+                `${ApiService.API_URL}/attendance/export.php?` + 
+                new URLSearchParams({
+                    format: exportFormat,
+                    batch_id: selectedBatch,
+                    start_date: dateRange.start,
+                    end_date: dateRange.end
+                }),
+                {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include'
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Export failed: ${response.statusText}`);
+            }
+
+            // Get the filename from the Content-Disposition header or use default
+            const contentDisposition = response.headers.get('Content-Disposition');
+            const filename = contentDisposition
+                ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+                : `attendance_report.${exportFormat}`;
+
+            // Create blob and download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
         } catch (error) {
             console.error('Failed to export report:', error);
+            // You might want to show an error message to the user here
         }
     };
 

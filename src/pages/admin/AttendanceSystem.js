@@ -17,6 +17,8 @@ const AttendanceSystem = () => {
     const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [exportFormat, setExportFormat] = useState('pdf');
+    const [dateRange, setDateRange] = useState({ start: null, end: null });
 
     const fetchAttendanceData = useCallback(async () => {
         try {
@@ -57,6 +59,28 @@ const AttendanceSystem = () => {
         }
     };
 
+    const handleExportReport = async () => {
+        try {
+            const response = await ApiService.get(`/attendance/export.php`, {
+                format: exportFormat,
+                batch_id: selectedBatch,
+                start_date: dateRange.start,
+                end_date: dateRange.end
+            });
+            
+            // Handle file download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `attendance_report.${exportFormat}`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Failed to export report:', error);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
             
@@ -80,6 +104,38 @@ const AttendanceSystem = () => {
                                         <option key={batch.id} value={batch.id}>{batch.name}</option>
                                     ))}
                                 </select>
+                                
+                                {/* Add Export Controls */}
+                                <div className="flex space-x-2">
+                                    <input
+                                        type="date"
+                                        value={dateRange.start || ''}
+                                        onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                                        className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
+                                    />
+                                    <input
+                                        type="date"
+                                        value={dateRange.end || ''}
+                                        onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                                        className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
+                                    />
+                                    <select
+                                        value={exportFormat}
+                                        onChange={(e) => setExportFormat(e.target.value)}
+                                        className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
+                                    >
+                                        <option value="pdf">PDF</option>
+                                        <option value="csv">CSV</option>
+                                    </select>
+                                    <button
+                                        onClick={handleExportReport}
+                                        className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb]"
+                                        disabled={!dateRange.start || !dateRange.end}
+                                    >
+                                        Export Report
+                                    </button>
+                                </div>
+
                                 <button
                                     onClick={() => setShowSettingsModal(true)}
                                     className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb]"

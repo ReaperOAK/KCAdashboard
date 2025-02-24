@@ -2,21 +2,39 @@
 require_once __DIR__ . '/../config/Database.php';
 
 function validateToken() {
-    // Get HTTP Authorization Header
-    $headers = getallheaders();
-    $auth_header = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-    
-    if (empty($auth_header) || !preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
-        throw new Exception('No token provided');
-    }
-
-    $token = $matches[1];
-    
     try {
+        // Get HTTP Authorization Header
+        $headers = getallheaders();
+        if (!$headers) {
+            throw new Exception('No headers found');
+        }
+
+        // Case-insensitive header check
+        $authHeader = null;
+        foreach ($headers as $key => $value) {
+            if (strtolower($key) === 'authorization') {
+                $authHeader = $value;
+                break;
+            }
+        }
+
+        if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            throw new Exception('No token provided');
+        }
+
+        $token = trim($matches[1]);
+        if (empty($token)) {
+            throw new Exception('Empty token provided');
+        }
+
         $database = new Database();
         $db = $database->getConnection();
         
-        $query = "SELECT user_id, expires_at FROM auth_tokens WHERE token = :token";
+        // Check if token exists and is valid
+        $query = "SELECT user_id, expires_at FROM auth_tokens 
+                 WHERE token = :token 
+                 AND expires_at > NOW()";
+                 
         $stmt = $db->prepare($query);
         $stmt->bindParam(':token', $token);
         $stmt->execute();
@@ -24,16 +42,19 @@ function validateToken() {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$result) {
-            throw new Exception('Invalid token');
-        }
-        
-        if (strtotime($result['expires_at']) < time()) {
-            throw new Exception('Token has expired');
+            // Delete expired token
+            $delete_query = "DELETE FROM auth_tokens WHERE token = :token";
+            $delete_stmt = $db->prepare($delete_query);
+            $delete_stmt->bindParam(':token', $token);
+            $delete_stmt->execute();
+            
+            throw new Exception('Invalid or expired token');
         }
         
         return $result['user_id'];
         
     } catch (Exception $e) {
+        error_log('Token validation error: ' . $e->getMessage());
         throw new Exception('Authentication failed: ' . $e->getMessage());
     }
 }

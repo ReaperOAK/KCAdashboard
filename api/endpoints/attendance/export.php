@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Add CORS headers
 header('Access-Control-Allow-Origin: https://dashboard.kolkatachessacademy.in');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
@@ -18,15 +21,15 @@ require_once '../../vendor/autoload.php';
 use TCPDF as TCPDF;
 
 try {
+    // Clean any existing output
+    if (ob_get_length()) ob_clean();
+
     // Validate token before any output
     $user_id = validateToken();
     
     if (!$user_id) {
-        throw new Exception('Authentication required');
+        throw new Exception('User not authenticated');
     }
-
-    // Clean any existing output
-    if (ob_get_length()) ob_clean();
 
     $database = new Database();
     $db = $database->getConnection();
@@ -128,6 +131,8 @@ try {
     }
 
 } catch (Exception $e) {
+    error_log('Export error: ' . $e->getMessage());
+    
     // Clear any output
     if (ob_get_length()) ob_clean();
     
@@ -135,7 +140,11 @@ try {
     http_response_code(401);
     echo json_encode([
         'success' => false, 
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'debug' => [
+            'headers' => getallheaders(),
+            'method' => $_SERVER['REQUEST_METHOD']
+        ]
     ]);
     exit;
 }

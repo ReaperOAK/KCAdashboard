@@ -62,12 +62,9 @@ const AttendanceSystem = () => {
     const handleExportReport = async () => {
         try {
             const token = localStorage.getItem('token');
-            
-            // Create headers with authorization
-            const headers = new Headers({
-                'Authorization': `Bearer ${token}`,
-                'Accept': '*/*'
-            });
+            if (!token) {
+                throw new Error('Authentication required');
+            }
 
             const response = await fetch(
                 `${ApiService.API_URL}/attendance/export.php?` + 
@@ -76,30 +73,27 @@ const AttendanceSystem = () => {
                     batch_id: selectedBatch,
                     start_date: dateRange.start,
                     end_date: dateRange.end
-                }),
+                }).toString(),
                 {
                     method: 'GET',
-                    headers: headers,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': '*/*'
+                    },
                     credentials: 'include'
                 }
             );
 
             if (!response.ok) {
-                throw new Error(`Export failed: ${response.statusText}`);
+                const errorText = await response.text();
+                throw new Error(errorText || response.statusText);
             }
 
-            // Get the filename from the Content-Disposition header or use default
-            const contentDisposition = response.headers.get('Content-Disposition');
-            const filename = contentDisposition
-                ? contentDisposition.split('filename=')[1].replace(/"/g, '')
-                : `attendance_report.${exportFormat}`;
-
-            // Create blob and download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', filename);
+            link.setAttribute('download', `attendance_report.${exportFormat}`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -107,7 +101,7 @@ const AttendanceSystem = () => {
 
         } catch (error) {
             console.error('Failed to export report:', error);
-            // You might want to show an error message to the user here
+            // Add error notification here if you have a notification system
         }
     };
 

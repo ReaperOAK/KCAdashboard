@@ -63,7 +63,7 @@ const AttendanceSystem = () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error('Authentication required');
+                throw new Error('No authentication token found');
             }
 
             const response = await fetch(
@@ -78,17 +78,26 @@ const AttendanceSystem = () => {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Accept': '*/*'
+                        'Accept': 'application/pdf, text/csv, application/json',
+                        'Content-Type': 'application/json',
                     },
                     credentials: 'include'
                 }
             );
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || response.statusText);
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Export failed');
             }
 
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                // Handle error response
+                const errorData = await response.json();
+                throw new Error(errorData.message);
+            }
+
+            // Handle successful file download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -101,7 +110,7 @@ const AttendanceSystem = () => {
 
         } catch (error) {
             console.error('Failed to export report:', error);
-            // Add error notification here if you have a notification system
+            // Add notification here if you have a notification system
         }
     };
 

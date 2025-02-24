@@ -4,6 +4,8 @@ import UserActivityPage from '../pages/admin/UserActivityPage';
 import UserActivity from '../pages/admin/UserActivity';
 import BatchManagement from '../pages/admin/BatchManagement';
 import AttendanceSystem from '../pages/admin/AttendanceSystem';
+import AttendanceSettings from '../pages/admin/AttendanceSettings';
+import StudentAttendanceHistory from '../pages/admin/StudentAttendanceHistory';
 import PlatformAnalytics from '../pages/admin/PlatformAnalytics';
 import SupportSystem from '../pages/admin/SupportSystem';
 
@@ -37,6 +39,16 @@ const adminRoutes = [
     path: '/admin/attendance',
     element: AttendanceSystem,
     title: 'Attendance System'
+  },
+  {
+    path: '/admin/attendance-settings',
+    element: AttendanceSettings,
+    title: 'Attendance Settings'
+  },
+  {
+    path: '/admin/student/:studentId/attendance',
+    element: StudentAttendanceHistory,
+    title: 'Student Attendance'
   },
   {
     path: '/admin/analytics',

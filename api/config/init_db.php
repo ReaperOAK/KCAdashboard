@@ -111,6 +111,13 @@ $sql = "CREATE TABLE IF NOT EXISTS batch_sessions (
 )";
 $db->exec($sql);
 
+// Add reminder_sent column to batch_sessions if it doesn't exist
+$sql = "ALTER TABLE batch_sessions 
+        ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS attendance_taken BOOLEAN DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS online_meeting_id VARCHAR(255)";
+$db->exec($sql);
+
 // Assessment & Feedback Tables
 $sql = "CREATE TABLE IF NOT EXISTS quizzes (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -269,15 +276,54 @@ $sql = "CREATE TABLE IF NOT EXISTS attendance (
 )";
 $db->exec($sql);
 
+// Update attendance table with additional fields
+$sql = "ALTER TABLE attendance 
+        ADD COLUMN IF NOT EXISTS check_in_time DATETIME,
+        ADD COLUMN IF NOT EXISTS check_out_time DATETIME,
+        ADD COLUMN IF NOT EXISTS online_duration INT,
+        ADD COLUMN IF NOT EXISTS platform VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS sync_source VARCHAR(50)";
+$db->exec($sql);
+
+// Create attendance_settings table if not exists
 $sql = "CREATE TABLE IF NOT EXISTS attendance_settings (
     id INT PRIMARY KEY AUTO_INCREMENT,
     min_attendance_percent INT DEFAULT 75,
     late_threshold_minutes INT DEFAULT 15,
     auto_mark_absent_after_minutes INT DEFAULT 30,
     reminder_before_minutes INT DEFAULT 60,
+    zoom_api_key VARCHAR(255),
+    zoom_api_secret VARCHAR(255),
+    google_meet_credentials TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )";
+$db->exec($sql);
+
+// Create online_meeting_sync_logs table
+$sql = "CREATE TABLE IF NOT EXISTS online_meeting_sync_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    session_id INT NOT NULL,
+    platform VARCHAR(50) NOT NULL,
+    meeting_id VARCHAR(255) NOT NULL,
+    sync_status ENUM('success', 'failed') NOT NULL,
+    error_message TEXT,
+    synced_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES batch_sessions(id)
+)";
+$db->exec($sql);
+
+// Insert default attendance settings if not exists
+$sql = "INSERT IGNORE INTO attendance_settings 
+        (id, min_attendance_percent, late_threshold_minutes, auto_mark_absent_after_minutes, reminder_before_minutes) 
+        VALUES (1, 75, 15, 30, 60)";
+$db->exec($sql);
+
+// Add indexes for performance
+$sql = "ALTER TABLE attendance 
+        ADD INDEX idx_student_date (student_id, created_at),
+        ADD INDEX idx_batch_date (batch_id, created_at),
+        ADD INDEX idx_session_status (session_id, status)";
 $db->exec($sql);
 
 // Support System Tables

@@ -31,9 +31,10 @@ function validateToken() {
         $db = $database->getConnection();
         
         // Check if token exists and is valid
-        $query = "SELECT user_id, expires_at FROM auth_tokens 
+        $query = "SELECT user_id, expires_at 
+                 FROM auth_tokens 
                  WHERE token = :token 
-                 AND expires_at > NOW()";
+                 AND expires_at > CURRENT_TIMESTAMP";
                  
         $stmt = $db->prepare($query);
         $stmt->bindParam(':token', $token);
@@ -42,13 +43,28 @@ function validateToken() {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$result) {
+            // Log the token details for debugging
+            error_log("Token validation failed. Token: " . substr($token, 0, 10) . "...");
+            
+            // Check if token exists but is expired
+            $check_query = "SELECT expires_at FROM auth_tokens WHERE token = :token";
+            $check_stmt = $db->prepare($check_query);
+            $check_stmt->bindParam(':token', $token);
+            $check_stmt->execute();
+            $check_result = $check_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($check_result) {
+                error_log("Token found but expired. Expiry: " . $check_result['expires_at']);
+                throw new Exception('Token has expired');
+            }
+            
             // Delete expired token
             $delete_query = "DELETE FROM auth_tokens WHERE token = :token";
             $delete_stmt = $db->prepare($delete_query);
             $delete_stmt->bindParam(':token', $token);
             $delete_stmt->execute();
             
-            throw new Exception('Invalid or expired token');
+            throw new Exception('Invalid token');
         }
         
         return $result['user_id'];

@@ -18,11 +18,12 @@ require_once '../../middleware/auth.php';
 require_once '../../config/Database.php';
 require_once '../../vendor/autoload.php';
 
-use TCPDF as TCPDF;
-
 try {
-    // Clean any existing output
-    if (ob_get_length()) ob_clean();
+    // Ensure we start with a clean output buffer
+    while (ob_get_level()) ob_end_clean();
+    
+    // Log the incoming request details
+    error_log('Export request received. Headers: ' . json_encode(getallheaders()));
 
     // Validate token before any output
     $user_id = validateToken();
@@ -30,6 +31,9 @@ try {
     if (!$user_id) {
         throw new Exception('User not authenticated');
     }
+
+    // Log successful authentication
+    error_log('User authenticated successfully. User ID: ' . $user_id);
 
     $database = new Database();
     $db = $database->getConnection();
@@ -133,8 +137,8 @@ try {
 } catch (Exception $e) {
     error_log('Export error: ' . $e->getMessage());
     
-    // Clear any output
-    if (ob_get_length()) ob_clean();
+    // Ensure clean output
+    while (ob_get_level()) ob_end_clean();
     
     header('Content-Type: application/json');
     http_response_code(401);
@@ -143,7 +147,8 @@ try {
         'message' => $e->getMessage(),
         'debug' => [
             'headers' => getallheaders(),
-            'method' => $_SERVER['REQUEST_METHOD']
+            'method' => $_SERVER['REQUEST_METHOD'],
+            'error_details' => $e->getTraceAsString()
         ]
     ]);
     exit;

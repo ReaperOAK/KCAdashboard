@@ -36,12 +36,12 @@ function validateToken() {
         $database = new Database();
         $db = $database->getConnection();
         
-        // Detailed token check query
-        $query = "SELECT t.*, u.is_active 
+        // Check token with expiration time buffer (30 minutes)
+        $query = "SELECT t.*, u.is_active, 
+                 TIMESTAMPDIFF(MINUTE, NOW(), t.expires_at) as minutes_until_expiry
                  FROM auth_tokens t
                  JOIN users u ON t.user_id = u.id
                  WHERE t.token = :token
-                 AND t.expires_at > NOW()
                  AND u.is_active = 1";
                  
         $stmt = $db->prepare($query);
@@ -71,6 +71,23 @@ function validateToken() {
             
             error_log('Token not found in database');
             throw new Exception('Invalid token');
+        }
+
+        // If token is valid but expires soon (less than 30 minutes), renew it
+        if ($result['minutes_until_expiry'] < 30) {
+            $new_expiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
+            $update_query = "UPDATE auth_tokens 
+                           SET expires_at = :new_expiry 
+                           WHERE token = :token";
+            $update_stmt = $db->prepare($update_query);
+            $update_stmt->execute([
+                'new_expiry' => $new_expiry,
+                'token' => $token
+            ]);
+
+            // Add renewed token to response headers
+            header('X-Token-Renewed: true');
+            header('X-Token-Expires: ' . $new_expiry);
         }
 
         return $result['user_id'];

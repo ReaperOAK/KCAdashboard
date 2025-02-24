@@ -1,4 +1,4 @@
-import { useState, useContext, createContext } from 'react';
+import { useState, useEffect, useContext, createContext } from 'react';
 import ApiService from '../utils/api';
 
 const AuthContext = createContext(null);
@@ -7,11 +7,39 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  // Add token check on mount
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Verify token validity
+          await ApiService.get('/auth/verify-token.php');
+        } catch (error) {
+          // If token is invalid, clear auth data
+          console.log('Token validation failed:', error);
+          logout();
+        }
+      }
+    };
+
+    checkToken();
+  }, []);
+
   const login = async (email, password) => {
     try {
       const response = await ApiService.post('/auth/login.php', { email, password });
+      
+      // Store token with expiration
+      const tokenData = {
+        token: response.token,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+      };
+      
       localStorage.setItem('token', response.token);
+      localStorage.setItem('tokenData', JSON.stringify(tokenData));
       localStorage.setItem('user', JSON.stringify(response.user));
+      
       setToken(response.token);
       setUser(response.user);
       return response.user;

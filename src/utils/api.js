@@ -30,6 +30,20 @@ class ApiService {
         body: data ? JSON.stringify(data) : null
       });
 
+      // Check for token renewal
+      const tokenRenewed = response.headers.get('X-Token-Renewed');
+      if (tokenRenewed === 'true') {
+        const newExpiry = response.headers.get('X-Token-Expires');
+        if (newExpiry) {
+          // Update token expiry in localStorage
+          const tokenData = {
+            token: localStorage.getItem('token'),
+            expires_at: newExpiry
+          };
+          localStorage.setItem('tokenData', JSON.stringify(tokenData));
+        }
+      }
+
       // Special handling for blob responses
       if (options.responseType === 'blob') {
         if (!response.ok) {
@@ -61,6 +75,14 @@ class ApiService {
       return response;
     } catch (error) {
       console.error('API Error:', error);
+      
+      // If token is expired, clear auth data and redirect to login
+      if (error.message.includes('expired') || error.message.includes('invalid token')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+      
       throw error;
     }
   }

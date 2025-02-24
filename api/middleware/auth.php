@@ -3,11 +3,8 @@ require_once __DIR__ . '/../config/Database.php';
 
 function validateToken() {
     try {
-        // Get HTTP Authorization Header
         $headers = getallheaders();
-        if (!$headers) {
-            throw new Exception('No headers found');
-        }
+        error_log('Validating token. Headers: ' . json_encode($headers));
 
         // Case-insensitive header check
         $authHeader = null;
@@ -18,23 +15,26 @@ function validateToken() {
             }
         }
 
-        if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+        if (!$authHeader) {
+            error_log('No Authorization header found');
             throw new Exception('No token provided');
         }
 
-        $token = trim($matches[1]);
-        if (empty($token)) {
-            throw new Exception('Empty token provided');
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            error_log('Invalid Authorization header format');
+            throw new Exception('Invalid token format');
         }
+
+        $token = trim($matches[1]);
+        error_log('Token extracted: ' . substr($token, 0, 10) . '...');
 
         $database = new Database();
         $db = $database->getConnection();
         
-        // Check if token exists and is valid
-        $query = "SELECT user_id, expires_at 
+        // Check token in database
+        $query = "SELECT user_id, expires_at, created_at 
                  FROM auth_tokens 
-                 WHERE token = :token 
-                 AND expires_at > CURRENT_TIMESTAMP";
+                 WHERE token = :token";
                  
         $stmt = $db->prepare($query);
         $stmt->bindParam(':token', $token);
@@ -43,34 +43,22 @@ function validateToken() {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$result) {
-            // Log the token details for debugging
-            error_log("Token validation failed. Token: " . substr($token, 0, 10) . "...");
-            
-            // Check if token exists but is expired
-            $check_query = "SELECT expires_at FROM auth_tokens WHERE token = :token";
-            $check_stmt = $db->prepare($check_query);
-            $check_stmt->bindParam(':token', $token);
-            $check_stmt->execute();
-            $check_result = $check_stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($check_result) {
-                error_log("Token found but expired. Expiry: " . $check_result['expires_at']);
-                throw new Exception('Token has expired');
-            }
-            
-            // Delete expired token
-            $delete_query = "DELETE FROM auth_tokens WHERE token = :token";
-            $delete_stmt = $db->prepare($delete_query);
-            $delete_stmt->bindParam(':token', $token);
-            $delete_stmt->execute();
-            
+            error_log('Token not found in database');
             throw new Exception('Invalid token');
         }
-        
+
+        error_log('Token found. Expires: ' . $result['expires_at'] . ', Created: ' . $result['created_at']);
+
+        if (strtotime($result['expires_at']) < time()) {
+            error_log('Token expired at: ' . $result['expires_at']);
+            throw new Exception('Token has expired');
+        }
+
+        error_log('Token validated successfully for user_id: ' . $result['user_id']);
         return $result['user_id'];
         
     } catch (Exception $e) {
-        error_log('Token validation error: ' . $e->getMessage());
+        error_log('Token validation failed: ' . $e->getMessage());
         throw new Exception('Authentication failed: ' . $e->getMessage());
     }
 }

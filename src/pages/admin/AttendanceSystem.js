@@ -63,29 +63,17 @@ const AttendanceSystem = () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error('Authentication token not found');
+                throw new Error('No authentication token found');
             }
-
-            // Log token for debugging (first 10 chars)
-            console.log('Using token:', token.substring(0, 10) + '...');
-
-            // First verify token is still valid
-            try {
-                await ApiService.get('/auth/verify-token.php');
-            } catch (error) {
-                throw new Error('Token validation failed. Please login again.');
-            }
-
-            // Proceed with export
-            const queryString = new URLSearchParams({
-                format: exportFormat,
-                batch_id: selectedBatch,
-                start_date: dateRange.start,
-                end_date: dateRange.end
-            }).toString();
 
             const response = await fetch(
-                `${ApiService.API_URL}/attendance/export.php?${queryString}`,
+                `${ApiService.API_URL}/attendance/export.php?` + 
+                new URLSearchParams({
+                    format: exportFormat,
+                    batch_id: selectedBatch,
+                    start_date: dateRange.start,
+                    end_date: dateRange.end
+                }).toString(),
                 {
                     method: 'GET',
                     headers: {
@@ -97,15 +85,25 @@ const AttendanceSystem = () => {
             );
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Export failed');
+                // Try to parse error message
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Export failed');
+                }
+                throw new Error(`Export failed with status: ${response.status}`);
             }
 
             const blob = await response.blob();
+            const contentDisposition = response.headers.get('content-disposition');
+            const filename = contentDisposition ? 
+                contentDisposition.split('filename=')[1].replace(/"/g, '') : 
+                `attendance_report.${exportFormat}`;
+
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `attendance_report.${exportFormat}`);
+            link.setAttribute('download', filename);
             document.body.appendChild(link);
             link.click();
             link.remove();

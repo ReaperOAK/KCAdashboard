@@ -3,11 +3,8 @@ class ApiService {
 
   static async request(endpoint, method = 'GET', data = null, options = {}) {
     const token = localStorage.getItem('token');
-    
-    // Handle query parameters
     let url = endpoint.startsWith('http') ? endpoint : `${this.API_URL}${endpoint}`;
     
-    // If there are query parameters in options, append them to the URL
     if (options.params) {
       const queryParams = new URLSearchParams(options.params).toString();
       url = `${url}${url.includes('?') ? '&' : '?'}${queryParams}`;
@@ -15,56 +12,53 @@ class ApiService {
     
     console.log('Making API request to:', url);
     
-    // Default headers with CORS configuration
     const headers = {
       'Authorization': token ? `Bearer ${token}` : '',
       'Accept': 'application/json',
+      'Content-Type': 'application/json'
     };
 
-    // Only set Content-Type if not FormData
-    if (!(data instanceof FormData)) {
-      headers['Content-Type'] = 'application/json';
-    }
-
-    // Merge with custom headers from options
     if (options.headers) {
       Object.assign(headers, options.headers);
     }
 
-    const config = {
-      method,
-      headers,
-      credentials: 'include',
-      mode: 'cors'
-    };
-
-    if (data) {
-      // Don't stringify if it's FormData
-      config.body = data instanceof FormData ? data : JSON.stringify(data);
-    }
-
     try {
-      const response = await fetch(url, config);
-      const contentType = response.headers.get('content-type');
-      
-      // Parse response based on content type
-      let result;
-      if (contentType && contentType.includes('application/json')) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-        try {
-          result = JSON.parse(text);
-        } catch (e) {
-          result = { success: false, message: text || 'Unknown error occurred' };
+      const response = await fetch(url, {
+        method,
+        headers,
+        credentials: 'include',
+        body: data ? JSON.stringify(data) : null
+      });
+
+      // Special handling for blob responses
+      if (options.responseType === 'blob') {
+        if (!response.ok) {
+          const text = await response.text();
+          try {
+            const error = JSON.parse(text);
+            throw new Error(error.message || 'Failed to download file');
+          } catch (e) {
+            throw new Error('Failed to download file');
+          }
         }
+        return response.blob();
+      }
+
+      // Handle regular JSON responses
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        }
+        return result;
       }
 
       if (!response.ok) {
-        throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        throw new Error('Network response was not ok');
       }
 
-      return result;
+      return response;
     } catch (error) {
       console.error('API Error:', error);
       throw error;

@@ -63,23 +63,34 @@ const AttendanceSystem = () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error('No authentication token found');
+                throw new Error('Authentication token not found');
             }
 
+            // Log token for debugging (first 10 chars)
+            console.log('Using token:', token.substring(0, 10) + '...');
+
+            // First verify token is still valid
+            try {
+                await ApiService.get('/auth/verify-token.php');
+            } catch (error) {
+                throw new Error('Token validation failed. Please login again.');
+            }
+
+            // Proceed with export
+            const queryString = new URLSearchParams({
+                format: exportFormat,
+                batch_id: selectedBatch,
+                start_date: dateRange.start,
+                end_date: dateRange.end
+            }).toString();
+
             const response = await fetch(
-                `${ApiService.API_URL}/attendance/export.php?` + 
-                new URLSearchParams({
-                    format: exportFormat,
-                    batch_id: selectedBatch,
-                    start_date: dateRange.start,
-                    end_date: dateRange.end
-                }).toString(),
+                `${ApiService.API_URL}/attendance/export.php?${queryString}`,
                 {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/pdf, text/csv, application/json',
-                        'Content-Type': 'application/json',
+                        'Accept': exportFormat === 'pdf' ? 'application/pdf' : 'text/csv',
                     },
                     credentials: 'include'
                 }
@@ -90,14 +101,6 @@ const AttendanceSystem = () => {
                 throw new Error(errorData.message || 'Export failed');
             }
 
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                // Handle error response
-                const errorData = await response.json();
-                throw new Error(errorData.message);
-            }
-
-            // Handle successful file download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -110,7 +113,7 @@ const AttendanceSystem = () => {
 
         } catch (error) {
             console.error('Failed to export report:', error);
-            // Add notification here if you have a notification system
+            // Add error notification here
         }
     };
 

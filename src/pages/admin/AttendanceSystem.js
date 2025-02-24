@@ -63,29 +63,39 @@ const AttendanceSystem = () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error('No authentication token found');
+                throw new Error('Authentication token not found');
             }
 
+            // First verify if token is still valid
+            try {
+                await ApiService.request('/auth/verify-token.php', 'GET');
+            } catch (error) {
+                localStorage.removeItem('token');
+                throw new Error('Your session has expired. Please login again.');
+            }
+
+            // Proceed with export using fetch API
+            const queryString = new URLSearchParams({
+                format: exportFormat,
+                batch_id: selectedBatch,
+                start_date: dateRange.start,
+                end_date: dateRange.end
+            }).toString();
+
             const response = await fetch(
-                `${ApiService.API_URL}/attendance/export.php?` + 
-                new URLSearchParams({
-                    format: exportFormat,
-                    batch_id: selectedBatch,
-                    start_date: dateRange.start,
-                    end_date: dateRange.end
-                }).toString(),
+                `${ApiService.API_URL}/attendance/export.php?${queryString}`,
                 {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': exportFormat === 'pdf' ? 'application/pdf' : 'text/csv',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     credentials: 'include'
                 }
             );
 
             if (!response.ok) {
-                // Try to parse error message
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
                     const errorData = await response.json();
@@ -94,16 +104,12 @@ const AttendanceSystem = () => {
                 throw new Error(`Export failed with status: ${response.status}`);
             }
 
+            // Handle successful response
             const blob = await response.blob();
-            const contentDisposition = response.headers.get('content-disposition');
-            const filename = contentDisposition ? 
-                contentDisposition.split('filename=')[1].replace(/"/g, '') : 
-                `attendance_report.${exportFormat}`;
-
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', filename);
+            link.setAttribute('download', `attendance_report_${new Date().toISOString().split('T')[0]}.${exportFormat}`);
             document.body.appendChild(link);
             link.click();
             link.remove();

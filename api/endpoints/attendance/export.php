@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 // Add CORS headers
 header('Access-Control-Allow-Origin: https://dashboard.kolkatachessacademy.in');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
 
 // Handle preflight request

@@ -26,15 +26,23 @@ function validateToken() {
         }
 
         $token = trim($matches[1]);
-        error_log('Token extracted: ' . substr($token, 0, 10) . '...');
+        error_log('Processing token: ' . substr($token, 0, 10) . '...');
+
+        if (empty($token)) {
+            error_log('Empty token received');
+            throw new Exception('Empty token provided');
+        }
 
         $database = new Database();
         $db = $database->getConnection();
         
-        // Check token in database
-        $query = "SELECT user_id, expires_at, created_at 
-                 FROM auth_tokens 
-                 WHERE token = :token";
+        // Detailed token check query
+        $query = "SELECT t.*, u.is_active 
+                 FROM auth_tokens t
+                 JOIN users u ON t.user_id = u.id
+                 WHERE t.token = :token
+                 AND t.expires_at > NOW()
+                 AND u.is_active = 1";
                  
         $stmt = $db->prepare($query);
         $stmt->bindParam(':token', $token);
@@ -43,22 +51,32 @@ function validateToken() {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$result) {
+            // Check if token exists but is expired
+            $checkQuery = "SELECT expires_at FROM auth_tokens WHERE token = :token";
+            $checkStmt = $db->prepare($checkQuery);
+            $checkStmt->bindParam(':token', $token);
+            $checkStmt->execute();
+            $tokenInfo = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($tokenInfo) {
+                error_log('Token expired at: ' . $tokenInfo['expires_at']);
+                // Delete expired token
+                $deleteQuery = "DELETE FROM auth_tokens WHERE token = :token";
+                $deleteStmt = $db->prepare($deleteQuery);
+                $deleteStmt->bindParam(':token', $token);
+                $deleteStmt->execute();
+                
+                throw new Exception('Token has expired');
+            }
+            
             error_log('Token not found in database');
             throw new Exception('Invalid token');
         }
 
-        error_log('Token found. Expires: ' . $result['expires_at'] . ', Created: ' . $result['created_at']);
-
-        if (strtotime($result['expires_at']) < time()) {
-            error_log('Token expired at: ' . $result['expires_at']);
-            throw new Exception('Token has expired');
-        }
-
-        error_log('Token validated successfully for user_id: ' . $result['user_id']);
         return $result['user_id'];
         
     } catch (Exception $e) {
-        error_log('Token validation failed: ' . $e->getMessage());
+        error_log('Token validation error: ' . $e->getMessage());
         throw new Exception('Authentication failed: ' . $e->getMessage());
     }
 }

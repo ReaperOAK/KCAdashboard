@@ -20,7 +20,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         ]
       },
       { label: 'Batches', path: '/admin/batches', icon: '📚' },
-      { label: 'Attendance', path: '/admin/attendance', icon: '📋' },
+      {
+        label: 'Attendance',
+        icon: '📋',
+        path: '/admin/attendance',
+        subItems: [
+          { label: 'Overview', path: '/admin/attendance' },
+          { label: 'Student Records', path: '/admin/students/attendance' },
+          { label: 'Settings', path: '/admin/attendance-settings' }
+        ]
+      },
       { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
       { label: 'Support', path: '/admin/support', icon: '💬' },
       { label: 'Settings', path: '/admin/settings', icon: '⚙️' }

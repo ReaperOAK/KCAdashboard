@@ -8,6 +8,7 @@ import AttendanceSettings from '../pages/admin/AttendanceSettings';
 import StudentAttendanceHistory from '../pages/admin/StudentAttendanceHistory';
 import PlatformAnalytics from '../pages/admin/PlatformAnalytics';
 import SupportSystem from '../pages/admin/SupportSystem';
+import StudentAttendanceList from '../pages/admin/StudentAttendanceList';
 
 const adminRoutes = [
   {
@@ -46,9 +47,14 @@ const adminRoutes = [
     title: 'Attendance Settings'
   },
   {
+    path: '/admin/students/attendance',
+    element: StudentAttendanceList,
+    title: 'Student Attendance List'
+  },
+  {
     path: '/admin/student/:studentId/attendance',
     element: StudentAttendanceHistory,
-    title: 'Student Attendance'
+    title: 'Student Attendance History'
   },
   {
     path: '/admin/analytics',

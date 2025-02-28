@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-
 import ApiService from '../../utils/api';
+import BatchList from '../../components/batches/BatchList';
+import CreateBatchForm from '../../components/batches/CreateBatchForm';
+import Modal from '../../components/common/Modal';
 
 const BatchManagement = () => {
     const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [newBatch, setNewBatch] = useState({
-        name: '',
-        description: '',
-        level: 'beginner',
-        schedule: '',
-        max_students: 10
-    });
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showStudentModal, setShowStudentModal] = useState(false);
+    const [selectedBatch, setSelectedBatch] = useState(null);
+    const [students, setStudents] = useState([]);
 
     useEffect(() => {
         fetchBatches();
@@ -21,97 +19,115 @@ const BatchManagement = () => {
 
     const fetchBatches = async () => {
         try {
-            // Using the existing classroom endpoint
-            const response = await ApiService.get('/classroom/get-teacher-classes.php');
-            setBatches(response.classes);
+            const response = await ApiService.getBatches();
+            if (response.success) {
+                setBatches(response.batches);
+            }
             setLoading(false);
         } catch (error) {
-            setError('Failed to fetch batches');
+            setError(error.message);
             setLoading(false);
         }
     };
 
-    const handleAddBatch = async (e) => {
-        e.preventDefault();
+    const handleManageStudents = async (batch) => {
+        setSelectedBatch(batch);
         try {
-            // Using the existing classroom endpoint
-            await ApiService.post('/classroom/create.php', newBatch);
-            setShowAddModal(false);
-            fetchBatches();
-            setNewBatch({ name: '', description: '', level: 'beginner', schedule: '', max_students: 10 });
+            const response = await ApiService.getBatchStudents(batch.id);
+            if (response.success) {
+                setStudents(response.students);
+            }
+            setShowStudentModal(true);
         } catch (error) {
-            setError('Failed to create batch');
+            console.error('Error fetching students:', error);
         }
+    };
+
+    const handleCreateSuccess = () => {
+        fetchBatches();
+        setShowCreateModal(false);
     };
 
     return (
-        <div className="min-h-screen bg-[#f3f1f9]">
-            
-            <div className="p-8">
+        <div className="min-h-screen bg-[#f3f1f9] p-6">
+            <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-[#200e4a]">Batch Management</h1>
                     <button
-                        onClick={() => setShowAddModal(true)}
-                        className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb]"
+                        onClick={() => setShowCreateModal(true)}
+                        className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb] transition-colors"
                     >
                         Create New Batch
                     </button>
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-8">Loading...</div>
-                ) : error ? (
-                    <div className="text-red-500 py-8">{error}</div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {batches.map((batch) => (
-                            <div
-                                key={batch.id}
-                                className="bg-white rounded-xl shadow-lg overflow-hidden"
-                            >
-                                <div className="p-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h3 className="text-xl font-semibold text-[#461fa3]">
-                                            {batch.name}
-                                        </h3>
-                                        <span className={`px-3 py-1 rounded-full text-xs
-                                            ${batch.status === 'active' ? 'bg-green-100 text-green-800' :
-                                            batch.status === 'completed' ? 'bg-gray-100 text-gray-800' :
-                                            'bg-yellow-100 text-yellow-800'}`}
-                                        >
-                                            {batch.status}
-                                        </span>
-                                    </div>
-                                    <p className="text-gray-600 mb-4">{batch.description}</p>
-                                    <div className="space-y-2 text-sm text-gray-500">
-                                        <p><span className="font-semibold">Level:</span> {batch.level}</p>
-                                        <p><span className="font-semibold">Schedule:</span> {batch.schedule}</p>
-                                        <p><span className="font-semibold">Students:</span> {batch.student_count}/{batch.max_students}</p>
-                                    </div>
-                                </div>
-                                <div className="px-6 py-4 bg-gray-50 border-t flex justify-between">
-                                    <button className="text-[#461fa3] hover:text-[#7646eb]">
-                                        View Details
-                                    </button>
-                                    <button className="text-[#461fa3] hover:text-[#7646eb]">
-                                        Manage Students
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#461fa3]"></div>
                     </div>
+                ) : error ? (
+                    <div className="bg-red-50 text-red-500 p-4 rounded-lg">
+                        {error}
+                    </div>
+                ) : (
+                    <BatchList 
+                        batches={batches} 
+                        onManageStudents={handleManageStudents}
+                    />
                 )}
 
-                {/* Add Batch Modal */}
-                {showAddModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-xl p-6 max-w-md w-full">
-                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Create New Batch</h2>
-                            <form onSubmit={handleAddBatch}>
-                                {/* Form fields here */}
-                            </form>
+                {/* Create Batch Modal */}
+                {showCreateModal && (
+                    <Modal
+                        title="Create New Batch"
+                        onClose={() => setShowCreateModal(false)}
+                    >
+                        <CreateBatchForm
+                            onClose={() => setShowCreateModal(false)}
+                            onSuccess={handleCreateSuccess}
+                        />
+                    </Modal>
+                )}
+
+                {/* Manage Students Modal */}
+                {showStudentModal && selectedBatch && (
+                    <Modal
+                        title={`Manage Students - ${selectedBatch.name}`}
+                        onClose={() => setShowStudentModal(false)}
+                    >
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-medium">
+                                    Current Students ({students.length}/{selectedBatch.max_students})
+                                </h3>
+                                <button
+                                    onClick={() => {/* Handle add student */}}
+                                    className="px-3 py-1 bg-[#461fa3] text-white rounded-md hover:bg-[#7646eb]"
+                                >
+                                    Add Student
+                                </button>
+                            </div>
+                            <div className="divide-y">
+                                {students.map(student => (
+                                    <div 
+                                        key={student.id} 
+                                        className="py-3 flex justify-between items-center"
+                                    >
+                                        <div>
+                                            <p className="font-medium">{student.full_name}</p>
+                                            <p className="text-sm text-gray-500">{student.email}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {/* Handle remove student */}}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    </Modal>
                 )}
             </div>
         </div>

@@ -19,13 +19,17 @@ const BatchManagement = () => {
 
     const fetchBatches = async () => {
         try {
+            setLoading(true);
             const response = await ApiService.getBatches();
-            if (response.success) {
-                setBatches(response.batches);
+            if (response && response.success) {
+                setBatches(response.batches || []);
+            } else {
+                throw new Error(response?.message || 'Failed to fetch batches');
             }
             setLoading(false);
         } catch (error) {
-            setError(error.message);
+            console.error('Error fetching batches:', error);
+            setError(error.message || 'An error occurred while fetching batches');
             setLoading(false);
         }
     };
@@ -34,8 +38,8 @@ const BatchManagement = () => {
         setSelectedBatch(batch);
         try {
             const response = await ApiService.getBatchStudents(batch.id);
-            if (response.success) {
-                setStudents(response.students);
+            if (response && response.success) {
+                setStudents(response.students || []);
             }
             setShowStudentModal(true);
         } catch (error) {
@@ -68,6 +72,10 @@ const BatchManagement = () => {
                 ) : error ? (
                     <div className="bg-red-50 text-red-500 p-4 rounded-lg">
                         {error}
+                    </div>
+                ) : batches.length === 0 ? (
+                    <div className="bg-white rounded-xl p-8 text-center text-gray-500">
+                        <p>No batches found. Create your first batch to get started.</p>
                     </div>
                 ) : (
                     <BatchList 
@@ -107,25 +115,29 @@ const BatchManagement = () => {
                                     Add Student
                                 </button>
                             </div>
-                            <div className="divide-y">
-                                {students.map(student => (
-                                    <div 
-                                        key={student.id} 
-                                        className="py-3 flex justify-between items-center"
-                                    >
-                                        <div>
-                                            <p className="font-medium">{student.full_name}</p>
-                                            <p className="text-sm text-gray-500">{student.email}</p>
-                                        </div>
-                                        <button
-                                            onClick={() => {/* Handle remove student */}}
-                                            className="text-red-500 hover:text-red-700"
+                            {students.length === 0 ? (
+                                <p className="text-center text-gray-500 py-4">No students enrolled in this batch yet.</p>
+                            ) : (
+                                <div className="divide-y">
+                                    {students.map(student => (
+                                        <div 
+                                            key={student.id} 
+                                            className="py-3 flex justify-between items-center"
                                         >
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
+                                            <div>
+                                                <p className="font-medium">{student.full_name}</p>
+                                                <p className="text-sm text-gray-500">{student.email}</p>
+                                            </div>
+                                            <button
+                                                onClick={() => {/* Handle remove student */}}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </Modal>
                 )}

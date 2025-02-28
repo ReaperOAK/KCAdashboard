@@ -145,6 +145,18 @@ class ApiService {
   static async getBatchDetails(id) {
     return this.get(`/batches/get-details.php?id=${id}`);
   }
+
+  static async getBatchStudents(id) {
+    return this.get(`/batches/get-students.php?id=${id}`);
+  }
+
+  static async addStudentToBatch(batchId, studentId) {
+    return this.post('/batches/add-student.php', { batch_id: batchId, student_id: studentId });
+  }
+
+  static async removeStudentFromBatch(batchId, studentId) {
+    return this.post('/batches/remove-student.php', { batch_id: batchId, student_id: studentId });
+  }
 }
 
 export default ApiService;

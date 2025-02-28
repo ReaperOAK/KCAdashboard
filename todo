@@ -113,7 +113,7 @@ User permissions system -->
    - **Students:** Calendar-based attendance tracking with reminders.
    - **Teachers:** Bulk/manual marking of attendance, Zoom/Google Meet sync.
    - **Admins:** Export attendance reports and set policies.
-<!-- The PHP endpoints for attendance management
+<!--  DONE!! The PHP endpoints for attendance management
 Automated attendance reminders
 Attendance reports and exports
 Student attendance history view

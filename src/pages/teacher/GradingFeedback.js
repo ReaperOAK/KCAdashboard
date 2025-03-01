@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ApiService from '../../utils/api';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -10,7 +9,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  BarElement,
 } from 'chart.js';
+import ApiService from '../../utils/api';
 
 // Register ChartJS components
 ChartJS.register(
@@ -18,6 +19,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -33,6 +35,9 @@ const GradingFeedback = () => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [showPerformanceModal, setShowPerformanceModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
+    const [feedbackHistory, setFeedbackHistory] = useState([]);
+    const [performanceData, setPerformanceData] = useState(null);
+    const [selectedTimeframe, setSelectedTimeframe] = useState('month');
     const [feedback, setFeedback] = useState({
         rating: 5,
         comment: '',
@@ -71,30 +76,137 @@ const GradingFeedback = () => {
     const handleSubmitFeedback = async (e) => {
         e.preventDefault();
         try {
-            await ApiService.post('/grading/submit-feedback.php', {
+            await ApiService.submitFeedback({
                 student_id: selectedStudent.id,
                 ...feedback
             });
             setShowFeedbackModal(false);
             fetchStudents(); // Refresh the list
+            resetFeedbackForm();
         } catch (error) {
             setError('Failed to submit feedback');
         }
     };
 
-    const handleShowHistory = (student) => {
-        setSelectedStudent(student);
-        setShowHistoryModal(true);
+    const resetFeedbackForm = () => {
+        setFeedback({
+            rating: 5,
+            comment: '',
+            areas_of_improvement: '',
+            strengths: ''
+        });
     };
 
-    const handleShowPerformance = (student) => {
+    const handleViewHistory = async (student) => {
         setSelectedStudent(student);
-        setShowPerformanceModal(true);
+        setLoading(true);
+        
+        try {
+            const response = await ApiService.getFeedbackHistory(student.id);
+            setFeedbackHistory(response.feedback);
+            setShowHistoryModal(true);
+        } catch (error) {
+            setError('Failed to fetch feedback history');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewPerformance = async (student) => {
+        setSelectedStudent(student);
+        setLoading(true);
+        
+        try {
+            const response = await ApiService.getStudentPerformance(
+                student.id, 
+                selectedTimeframe
+            );
+            setPerformanceData(response);
+            setShowPerformanceModal(true);
+        } catch (error) {
+            setError('Failed to fetch performance data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updatePerformanceTimeframe = async (timeframe) => {
+        setSelectedTimeframe(timeframe);
+        
+        if (selectedStudent) {
+            setLoading(true);
+            try {
+                const response = await ApiService.getStudentPerformance(
+                    selectedStudent.id, 
+                    timeframe
+                );
+                setPerformanceData(response);
+            } catch (error) {
+                setError('Failed to update performance data');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const getRatingColor = (rating) => {
+        if (rating >= 4) return 'bg-green-100 text-green-800';
+        if (rating >= 3) return 'bg-yellow-100 text-yellow-800';
+        return 'bg-red-100 text-red-800';
+    };
+
+    // Prepare chart data for performance view
+    const prepareChartData = () => {
+        if (!performanceData || !performanceData.feedback_trend) return null;
+
+        const labels = performanceData.feedback_trend.map(item => item.period);
+        const ratings = performanceData.feedback_trend.map(item => parseFloat(item.avg_rating));
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: 'Average Rating',
+                    data: ratings,
+                    fill: false,
+                    backgroundColor: 'rgba(70, 31, 163, 0.2)',
+                    borderColor: 'rgba(70, 31, 163, 1)',
+                    tension: 0.4
+                }
+            ]
+        };
+    };
+
+    const chartOptions = {
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 1,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            title: {
+                display: true,
+                text: 'Rating Trend Over Time'
+            }
+        }
     };
 
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            
             <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-[#200e4a]">Student Grading & Feedback</h1>
@@ -110,10 +222,12 @@ const GradingFeedback = () => {
                     </select>
                 </div>
 
+                {error && <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
+
                 {loading ? (
-                    <div className="text-center py-8">Loading...</div>
-                ) : error ? (
-                    <div className="text-red-500 py-8">{error}</div>
+                    <div className="flex justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#461fa3]"></div>
+                    </div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -127,51 +241,62 @@ const GradingFeedback = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {students.map((student) => (
-                                    <tr key={student.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                                            <div className="text-sm text-gray-500">{student.email}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {student.batch_name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                ${student.last_rating >= 4 ? 'bg-green-100 text-green-800' :
-                                                student.last_rating >= 3 ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-red-100 text-red-800'}`}>
-                                                {student.last_rating}/5
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {student.last_feedback_date ? new Date(student.last_feedback_date).toLocaleDateString() : 'No feedback yet'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedStudent(student);
-                                                    setShowFeedbackModal(true);
-                                                }}
-                                                className="text-[#461fa3] hover:text-[#7646eb]"
-                                            >
-                                                Add Feedback
-                                            </button>
-                                            <button
-                                                onClick={() => handleShowHistory(student)}
-                                                className="ml-4 text-[#461fa3] hover:text-[#7646eb]"
-                                            >
-                                                View History
-                                            </button>
-                                            <button
-                                                onClick={() => handleShowPerformance(student)}
-                                                className="ml-4 text-[#461fa3] hover:text-[#7646eb]"
-                                            >
-                                                View Performance
-                                            </button>
+                                {students.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                                            No students found
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    students.map((student) => (
+                                        <tr key={student.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                                                <div className="text-sm text-gray-500">{student.email}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {student.batch_name}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {student.last_rating ? (
+                                                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRatingColor(student.last_rating)}`}>
+                                                        {student.last_rating}/5
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400">Not rated</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {student.last_feedback_date ? formatDate(student.last_feedback_date) : 'No feedback yet'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div className="flex space-x-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedStudent(student);
+                                                            setShowFeedbackModal(true);
+                                                        }}
+                                                        className="text-[#461fa3] hover:text-[#7646eb]"
+                                                    >
+                                                        Add Feedback
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleViewHistory(student)}
+                                                        className="text-[#461fa3] hover:text-[#7646eb]"
+                                                    >
+                                                        History
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleViewPerformance(student)}
+                                                        className="text-[#461fa3] hover:text-[#7646eb]"
+                                                    >
+                                                        Performance
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -179,7 +304,7 @@ const GradingFeedback = () => {
 
                 {/* Feedback Modal */}
                 {showFeedbackModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
                         <div className="bg-white rounded-xl p-6 max-w-lg w-full">
                             <h2 className="text-2xl font-bold text-[#200e4a] mb-4">
                                 Feedback for {selectedStudent.name}
@@ -189,7 +314,7 @@ const GradingFeedback = () => {
                                     <label className="block text-sm font-medium text-gray-700">Rating</label>
                                     <select
                                         value={feedback.rating}
-                                        onChange={(e) => setFeedback({...feedback, rating: e.target.value})}
+                                        onChange={(e) => setFeedback({...feedback, rating: parseInt(e.target.value)})}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
                                     >
                                         {[1,2,3,4,5].map(num => (
@@ -227,7 +352,10 @@ const GradingFeedback = () => {
                                 <div className="flex justify-end space-x-3">
                                     <button
                                         type="button"
-                                        onClick={() => setShowFeedbackModal(false)}
+                                        onClick={() => {
+                                            setShowFeedbackModal(false);
+                                            resetFeedbackForm();
+                                        }}
                                         className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
                                     >
                                         Cancel
@@ -244,62 +372,191 @@ const GradingFeedback = () => {
                     </div>
                 )}
 
-                {/* History Modal */}
-                {showHistoryModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">
-                                Feedback History for {selectedStudent.name}
-                            </h2>
-                            {/* Render feedback history here */}
-                            <button
-                                onClick={() => setShowHistoryModal(false)}
-                                className="mt-4 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Close
-                            </button>
+                {/* Feedback History Modal */}
+                {showHistoryModal && selectedStudent && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+                        <div className="bg-white rounded-xl p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-[#200e4a]">
+                                    Feedback History for {selectedStudent.name}
+                                </h2>
+                                <button
+                                    onClick={() => setShowHistoryModal(false)}
+                                    className="text-gray-400 hover:text-gray-500"
+                                >
+                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            {feedbackHistory.length === 0 ? (
+                                <p className="text-gray-500 text-center py-8">No feedback history available</p>
+                            ) : (
+                                <div className="space-y-6">
+                                    {feedbackHistory.map((feedback) => (
+                                        <div key={feedback.id} className="border-b pb-6 last:border-b-0">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="font-medium">{formatDate(feedback.created_at)}</span>
+                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRatingColor(feedback.rating)}`}>
+                                                    {feedback.rating}/5
+                                                </span>
+                                            </div>
+                                            
+                                            {feedback.comment && (
+                                                <div className="mb-3">
+                                                    <h4 className="text-sm font-medium text-gray-700">General Feedback:</h4>
+                                                    <p className="text-sm text-gray-600">{feedback.comment}</p>
+                                                </div>
+                                            )}
+                                            
+                                            {feedback.strengths && (
+                                                <div className="mb-3">
+                                                    <h4 className="text-sm font-medium text-gray-700">Strengths:</h4>
+                                                    <p className="text-sm text-gray-600">{feedback.strengths}</p>
+                                                </div>
+                                            )}
+                                            
+                                            {feedback.areas_of_improvement && (
+                                                <div className="mb-3">
+                                                    <h4 className="text-sm font-medium text-gray-700">Areas for Improvement:</h4>
+                                                    <p className="text-sm text-gray-600">{feedback.areas_of_improvement}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
 
                 {/* Performance Modal */}
-                {showPerformanceModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">
-                                Performance Tracking for {selectedStudent.name}
-                            </h2>
-                            <Line
-                                data={{
-                                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                                    datasets: [
-                                        {
-                                            label: 'Performance',
-                                            data: [3, 2, 2, 1, 5, 4, 3],
-                                            borderColor: 'rgba(75, 192, 192, 1)',
-                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                        },
-                                    ],
-                                }}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: {
-                                            position: 'top',
-                                        },
-                                        title: {
-                                            display: true,
-                                            text: 'Student Performance Over Time',
-                                        },
-                                    },
-                                }}
-                            />
-                            <button
-                                onClick={() => setShowPerformanceModal(false)}
-                                className="mt-4 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Close
-                            </button>
+                {showPerformanceModal && selectedStudent && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+                        <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-[#200e4a]">
+                                    Performance Analytics: {selectedStudent.name}
+                                </h2>
+                                <button
+                                    onClick={() => setShowPerformanceModal(false)}
+                                    className="text-gray-400 hover:text-gray-500"
+                                >
+                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            {/* Time frame selector */}
+                            <div className="flex space-x-2 mb-6">
+                                <span className="text-gray-700">Time Period:</span>
+                                {['week', 'month', 'quarter', 'year'].map((period) => (
+                                    <button
+                                        key={period}
+                                        onClick={() => updatePerformanceTimeframe(period)}
+                                        className={`px-3 py-1 text-sm rounded-md ${
+                                            selectedTimeframe === period
+                                                ? 'bg-[#461fa3] text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        {period.charAt(0).toUpperCase() + period.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                            
+                            {!performanceData ? (
+                                <div className="flex justify-center py-12">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#461fa3]"></div>
+                                </div>
+                            ) : (
+                                <div className="space-y-8">
+                                    {/* Rating Trend Chart */}
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <h3 className="text-lg font-medium text-[#200e4a] mb-4">Rating Trend</h3>
+                                        {performanceData.feedback_trend && performanceData.feedback_trend.length > 0 ? (
+                                            <div className="h-64">
+                                                <Line data={prepareChartData()} options={chartOptions} />
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 text-center py-8">No rating data available for this time period</p>
+                                        )}
+                                    </div>
+                                    
+                                    {/* Attendance Statistics */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="bg-gray-50 p-4 rounded-lg">
+                                            <h3 className="text-lg font-medium text-[#200e4a] mb-4">Attendance Summary</h3>
+                                            {performanceData.attendance ? (
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="bg-white p-3 rounded-md text-center">
+                                                        <div className="text-2xl font-bold text-[#461fa3]">
+                                                            {performanceData.attendance.present_count || 0}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">Present</div>
+                                                    </div>
+                                                    <div className="bg-white p-3 rounded-md text-center">
+                                                        <div className="text-2xl font-bold text-red-500">
+                                                            {performanceData.attendance.absent_count || 0}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">Absent</div>
+                                                    </div>
+                                                    <div className="bg-white p-3 rounded-md text-center">
+                                                        <div className="text-2xl font-bold text-yellow-500">
+                                                            {performanceData.attendance.late_count || 0}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">Late</div>
+                                                    </div>
+                                                    <div className="bg-white p-3 rounded-md text-center">
+                                                        <div className="text-2xl font-bold text-blue-500">
+                                                            {performanceData.attendance.total_sessions 
+                                                                ? Math.round((performanceData.attendance.present_count / performanceData.attendance.total_sessions) * 100)
+                                                                : 0
+                                                            }%
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">Attendance Rate</div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 text-center py-4">No attendance data available</p>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Quiz Performance */}
+                                        <div className="bg-gray-50 p-4 rounded-lg">
+                                            <h3 className="text-lg font-medium text-[#200e4a] mb-4">Recent Quiz Results</h3>
+                                            {performanceData.quizzes && performanceData.quizzes.length > 0 ? (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full divide-y divide-gray-200">
+                                                        <thead>
+                                                            <tr>
+                                                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Quiz</th>
+                                                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Score</th>
+                                                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Date</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {performanceData.quizzes.slice(0, 5).map((quiz, index) => (
+                                                                <tr key={index} className="bg-white">
+                                                                    <td className="px-3 py-2 text-sm text-gray-900">{quiz.title}</td>
+                                                                    <td className="px-3 py-2 text-sm text-gray-900">{quiz.score}%</td>
+                                                                    <td className="px-3 py-2 text-sm text-gray-500">
+                                                                        {formatDate(quiz.completed_at)}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 text-center py-4">No quiz data available</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

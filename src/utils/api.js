@@ -207,6 +207,19 @@ class ApiService {
   static async getBatchComparison(batchIds = []) {
     return this.post('/analytics/batch-comparison.php', { batch_ids: batchIds });
   }
+
+  // Grading & Feedback endpoints
+  static async submitFeedback(feedbackData) {
+    return this.post('/grading/submit-feedback.php', feedbackData);
+  }
+  
+  static async getFeedbackHistory(studentId) {
+    return this.get(`/grading/get-student-feedback-history.php?student_id=${studentId}`);
+  }
+  
+  static async getStudentPerformance(studentId, timeframe = 'month') {
+    return this.get(`/grading/get-student-performance.php?student_id=${studentId}&timeframe=${timeframe}`);
+  }
 }
 
 export default ApiService;

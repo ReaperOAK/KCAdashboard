@@ -176,9 +176,14 @@ class ApiService {
     return this.get(`/analytics/teacher-stats.php?batch=${batchId}`);
   }
 
-  static async getStudentPerformance(studentId, batchId = null) {
-    let url = `/analytics/student-performance.php?student_id=${studentId}`;
-    if (batchId) url += `&batch_id=${batchId}`;
+  static async getStudentPerformance(studentId, timeframe = 'month', batchId = null) {
+    let url = `/analytics/student-performance.php?student_id=${studentId}&timeframe=${timeframe}`;
+    
+    // Add batch_id parameter if provided (for the teacher analytics endpoint)
+    if (batchId) {
+      url += `&batch_id=${batchId}`;
+    }
+    
     return this.get(url);
   }
 
@@ -215,10 +220,6 @@ class ApiService {
   
   static async getFeedbackHistory(studentId) {
     return this.get(`/grading/get-student-feedback-history.php?student_id=${studentId}`);
-  }
-  
-  static async getStudentPerformance(studentId, timeframe = 'month') {
-    return this.get(`/grading/get-student-performance.php?student_id=${studentId}&timeframe=${timeframe}`);
   }
 }
 

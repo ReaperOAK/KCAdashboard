@@ -169,5 +169,83 @@ class Batch {
             throw new Exception("Error fetching batch students: " . $e->getMessage());
         }
     }
+
+    public function verifyTeacherOwnership($batchId, $teacherId) {
+        try {
+            $query = "SELECT id FROM " . $this->table_name . " 
+                     WHERE id = :batch_id AND teacher_id = :teacher_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->bindParam(':teacher_id', $teacherId);
+            $stmt->execute();
+            
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            throw new Exception("Error verifying teacher ownership: " . $e->getMessage());
+        }
+    }
+    
+    public function addStudent($batchId, $studentId) {
+        try {
+            // Check if the batch exists
+            $query = "SELECT id, max_students FROM " . $this->table_name . " WHERE id = :batch_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->execute();
+            
+            $batch = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$batch) {
+                throw new Exception("Batch not found");
+            }
+            
+            // Check if student exists with role 'student'
+            $query = "SELECT id FROM users WHERE id = :student_id AND role = 'student'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':student_id', $studentId);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                throw new Exception("Student not found or user is not a student");
+            }
+            
+            // Check if batch is not full
+            $query = "SELECT COUNT(*) AS student_count FROM batch_students WHERE batch_id = :batch_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result['student_count'] >= $batch['max_students']) {
+                throw new Exception("Batch is already full");
+            }
+            
+            // Check if student is already in the batch
+            $query = "SELECT * FROM batch_students 
+                     WHERE batch_id = :batch_id AND student_id = :student_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->bindParam(':student_id', $studentId);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                throw new Exception("Student is already in this batch");
+            }
+            
+            // Add the student to the batch
+            $query = "INSERT INTO batch_students (batch_id, student_id) 
+                     VALUES (:batch_id, :student_id)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->bindParam(':student_id', $studentId);
+            
+            if($stmt->execute()) {
+                return true;
+            } else {
+                throw new Exception("Failed to add student to batch");
+            }
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage());
+        }
+    }
 }
 ?>

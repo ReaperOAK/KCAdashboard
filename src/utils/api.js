@@ -61,15 +61,21 @@ class ApiService {
       // Handle regular JSON responses
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        try {
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.message || `HTTP error! status: ${response.status}`);
+          }
+          return result;
+        } catch (jsonError) {
+          console.error('JSON parsing error:', jsonError);
+          throw new Error(`Failed to parse JSON response: ${jsonError.message}`);
         }
-        return result;
       }
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const text = await response.text();
+        throw new Error(text || 'Network response was not ok');
       }
 
       return response;

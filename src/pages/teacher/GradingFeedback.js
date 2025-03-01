@@ -1,6 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
 import ApiService from '../../utils/api';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const GradingFeedback = () => {
     const [students, setStudents] = useState([]);
@@ -9,6 +30,8 @@ const GradingFeedback = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [showPerformanceModal, setShowPerformanceModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [feedback, setFeedback] = useState({
         rating: 5,
@@ -57,6 +80,16 @@ const GradingFeedback = () => {
         } catch (error) {
             setError('Failed to submit feedback');
         }
+    };
+
+    const handleShowHistory = (student) => {
+        setSelectedStudent(student);
+        setShowHistoryModal(true);
+    };
+
+    const handleShowPerformance = (student) => {
+        setSelectedStudent(student);
+        setShowPerformanceModal(true);
     };
 
     return (
@@ -123,6 +156,18 @@ const GradingFeedback = () => {
                                                 className="text-[#461fa3] hover:text-[#7646eb]"
                                             >
                                                 Add Feedback
+                                            </button>
+                                            <button
+                                                onClick={() => handleShowHistory(student)}
+                                                className="ml-4 text-[#461fa3] hover:text-[#7646eb]"
+                                            >
+                                                View History
+                                            </button>
+                                            <button
+                                                onClick={() => handleShowPerformance(student)}
+                                                className="ml-4 text-[#461fa3] hover:text-[#7646eb]"
+                                            >
+                                                View Performance
                                             </button>
                                         </td>
                                     </tr>
@@ -195,6 +240,66 @@ const GradingFeedback = () => {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* History Modal */}
+                {showHistoryModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
+                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">
+                                Feedback History for {selectedStudent.name}
+                            </h2>
+                            {/* Render feedback history here */}
+                            <button
+                                onClick={() => setShowHistoryModal(false)}
+                                className="mt-4 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Performance Modal */}
+                {showPerformanceModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
+                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">
+                                Performance Tracking for {selectedStudent.name}
+                            </h2>
+                            <Line
+                                data={{
+                                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                                    datasets: [
+                                        {
+                                            label: 'Performance',
+                                            data: [3, 2, 2, 1, 5, 4, 3],
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        },
+                                    ],
+                                }}
+                                options={{
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            position: 'top',
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Student Performance Over Time',
+                                        },
+                                    },
+                                }}
+                            />
+                            <button
+                                onClick={() => setShowPerformanceModal(false)}
+                                className="mt-4 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 )}

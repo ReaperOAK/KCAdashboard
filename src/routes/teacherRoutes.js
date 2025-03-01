@@ -1,5 +1,6 @@
 import TeacherDashboard from '../pages/teacher/TeacherDashboard';
 import BatchManagement from '../pages/teacher/BatchManagement';
+import BatchDetail from '../pages/teacher/BatchDetail';
 import ReportsAnalytics from '../pages/teacher/ReportsAnalytics';
 import GradingFeedback from '../pages/teacher/GradingFeedback';
 import PGNDatabase from '../pages/teacher/PGNDatabase';
@@ -15,6 +16,11 @@ const teacherRoutes = [
     path: '/teacher/batches',
     element: BatchManagement,
     title: 'Batch Management'
+  },
+  {
+    path: '/teacher/batches/:id',
+    element: BatchDetail,
+    title: 'Batch Details'
   },
   {
     path: '/teacher/analytics',

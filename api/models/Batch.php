@@ -247,5 +247,44 @@ class Batch {
             throw new Exception("Database error: " . $e->getMessage());
         }
     }
+
+    public function removeStudent($batchId, $studentId) {
+        try {
+            // Check if the student is in the batch
+            $query = "SELECT * FROM batch_students 
+                     WHERE batch_id = :batch_id AND student_id = :student_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->bindParam(':student_id', $studentId);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                throw new Exception("Student is not in this batch");
+            }
+            
+            // Remove the student from the batch
+            $query = "DELETE FROM batch_students 
+                     WHERE batch_id = :batch_id AND student_id = :student_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->bindParam(':student_id', $studentId);
+            
+            if($stmt->execute()) {
+                // Also remove related attendance records
+                $query = "DELETE FROM attendance 
+                         WHERE batch_id = :batch_id AND student_id = :student_id";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':batch_id', $batchId);
+                $stmt->bindParam(':student_id', $studentId);
+                $stmt->execute();
+                
+                return true;
+            } else {
+                throw new Exception("Failed to remove student from batch");
+            }
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage());
+        }
+    }
 }
 ?>

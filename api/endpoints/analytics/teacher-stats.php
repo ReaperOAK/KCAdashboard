@@ -9,8 +9,9 @@ header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once '../config/Database.php';
-require_once '../utils/authorize.php';
+// Fix the paths - go up two directories from /endpoints/analytics/ to reach /api/
+require_once '../../config/Database.php';
+require_once '../../utils/authorize.php';
 
 try {
     // Authorize request (only teachers and admins can access)

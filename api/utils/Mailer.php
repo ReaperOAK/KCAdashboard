@@ -91,6 +91,103 @@ class Mailer {
         ";
     }
 
+    /**
+     * Send a notification email for new feedback
+     * 
+     * @param string $to Student email
+     * @param string $studentName Student name
+     * @param string $teacherName Teacher name
+     * @param int $rating Feedback rating
+     * @param string $comment Feedback comment
+     * @param string $areasOfImprovement Areas that need improvement
+     * @param string $strengths Student strengths
+     * @return bool True if email was sent successfully
+     */
+    public function sendFeedbackNotification($to, $studentName, $teacherName, $rating, $comment = '', $areasOfImprovement = '', $strengths = '') {
+        try {
+            $this->mailer->clearAddresses();
+            $this->mailer->addAddress($to);
+            $this->mailer->Subject = "New Feedback from your Teacher";
+            
+            // HTML content
+            $htmlContent = "
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .container { padding: 20px; }
+                    .header { background-color: #200e4a; color: white; padding: 10px; }
+                    .rating { font-size: 18px; font-weight: bold; margin: 15px 0; }
+                    .section { margin: 15px 0; }
+                    .footer { margin-top: 20px; font-size: 12px; color: #777; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h2>Kolkata Chess Academy - Feedback Notification</h2>
+                    </div>
+                    <p>Hello {$studentName},</p>
+                    <p>Your teacher {$teacherName} has provided new feedback for you.</p>
+                    <div class='rating'>Rating: {$rating}/5</div>";
+            
+            if (!empty($comment)) {
+                $htmlContent .= "<div class='section'><strong>Comment:</strong> {$comment}</div>";
+            }
+            
+            if (!empty($strengths)) {
+                $htmlContent .= "<div class='section'><strong>Your Strengths:</strong> {$strengths}</div>";
+            }
+            
+            if (!empty($areasOfImprovement)) {
+                $htmlContent .= "<div class='section'><strong>Areas for Improvement:</strong> {$areasOfImprovement}</div>";
+            }
+            
+            $htmlContent .= "
+                    <p>Please log in to your dashboard to view the complete feedback.</p>
+                    <p>Regards,<br>Kolkata Chess Academy Team</p>
+                    <div class='footer'>
+                        This is an automated message. Please do not reply to this email.
+                    </div>
+                </div>
+            </body>
+            </html>";
+            
+            // Plain text alternative
+            $plainText = "Hello {$studentName},\n\n";
+            $plainText .= "Your teacher {$teacherName} has provided new feedback for you.\n\n";
+            $plainText .= "Rating: {$rating}/5\n";
+            
+            if (!empty($comment)) {
+                $plainText .= "Comment: {$comment}\n\n";
+            }
+            
+            if (!empty($strengths)) {
+                $plainText .= "Your Strengths: {$strengths}\n\n";
+            }
+            
+            if (!empty($areasOfImprovement)) {
+                $plainText .= "Areas for Improvement: {$areasOfImprovement}\n\n";
+            }
+            
+            $plainText .= "Please log in to your dashboard to view the complete feedback.\n\n";
+            $plainText .= "Regards,\nKolkata Chess Academy Team";
+            
+            $this->mailer->Body = $htmlContent;
+            $this->mailer->AltBody = $plainText;
+            
+            $result = $this->mailer->send();
+            
+            // Log successful send
+            error_log("Feedback notification sent to {$to} from teacher {$teacherName}");
+            
+            return $result;
+        } catch (Exception $e) {
+            error_log("Failed to send feedback notification to {$to}: " . $e->getMessage());
+            return false;
+        }
+    }
+
     // Additional method for testing connection
     public function testConnection() {
         try {

@@ -20,11 +20,20 @@ try {
         exit;
     }
 
+    // Get batch ID from request
+    if (!isset($_GET['batch_id'])) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "Batch ID is required"]);
+        exit;
+    }
+
+    $batchId = $_GET['batch_id'];
+
     // Create DB connection
     $database = new Database();
     $db = $database->getConnection();
 
-    // Query to get all students assigned to the teacher with their latest feedback
+    // Query to get students in the batch with their latest feedback
     $query = "SELECT 
                 u.id, 
                 u.full_name AS name, 
@@ -39,15 +48,14 @@ try {
             JOIN 
                 batches b ON bs.batch_id = b.id
             WHERE 
-                b.teacher_id = :teacher_id
+                bs.batch_id = :batch_id
                 AND u.role = 'student'
                 AND bs.status = 'active'
-            GROUP BY
-                u.id
             ORDER BY 
                 u.full_name ASC";
 
     $stmt = $db->prepare($query);
+    $stmt->bindParam(':batch_id', $batchId);
     $stmt->bindParam(':teacher_id', $userId);
     $stmt->execute();
 

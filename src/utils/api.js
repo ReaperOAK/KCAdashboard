@@ -157,6 +157,43 @@ class ApiService {
   static async removeStudentFromBatch(batchId, studentId) {
     return this.post('/batches/remove-student.php', { batch_id: batchId, student_id: studentId });
   }
+
+  // Teacher Analytics Endpoints
+  static async getTeacherStats(batchId = 'all') {
+    return this.get(`/analytics/teacher-stats.php?batch=${batchId}`);
+  }
+
+  static async getStudentPerformance(studentId, batchId = null) {
+    let url = `/analytics/student-performance.php?student_id=${studentId}`;
+    if (batchId) url += `&batch_id=${batchId}`;
+    return this.get(url);
+  }
+
+  static async getBatchAttendance(batchId, startDate = null, endDate = null) {
+    let url = `/analytics/attendance.php?batch_id=${batchId}`;
+    if (startDate) url += `&start_date=${startDate}`;
+    if (endDate) url += `&end_date=${endDate}`;
+    return this.get(url);
+  }
+
+  static async getQuizResults(batchId = null, quizId = null) {
+    let url = '/analytics/quiz-results.php?';
+    if (batchId) url += `batch_id=${batchId}&`;
+    if (quizId) url += `quiz_id=${quizId}`;
+    return this.get(url);
+  }
+
+  static async exportReport(type, filters = {}) {
+    return this.request('/analytics/export.php', 'POST', { type, filters }, { responseType: 'blob' });
+  }
+
+  static async getStudentProgress(studentId, timeframe = 'month') {
+    return this.get(`/analytics/student-progress.php?student_id=${studentId}&timeframe=${timeframe}`);
+  }
+
+  static async getBatchComparison(batchIds = []) {
+    return this.post('/analytics/batch-comparison.php', { batch_ids: batchIds });
+  }
 }
 
 export default ApiService;

@@ -62,7 +62,14 @@ class ApiService {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         try {
-          const result = await response.json();
+          // First check if the response is empty
+          const text = await response.text();
+          if (!text.trim()) {
+            throw new Error('Empty response from server');
+          }
+          
+          // Then parse the JSON
+          const result = JSON.parse(text);
           if (!response.ok) {
             throw new Error(result.message || `HTTP error! status: ${response.status}`);
           }

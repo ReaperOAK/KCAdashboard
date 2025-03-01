@@ -3,6 +3,7 @@ import ApiService from '../../utils/api';
 import BatchList from '../../components/batches/BatchList';
 import CreateBatchForm from '../../components/batches/CreateBatchForm';
 import Modal from '../../components/common/Modal';
+import StudentSearch from '../../components/batches/StudentSearch';
 
 const BatchManagement = () => {
     const [batches, setBatches] = useState([]);
@@ -12,6 +13,8 @@ const BatchManagement = () => {
     const [showStudentModal, setShowStudentModal] = useState(false);
     const [selectedBatch, setSelectedBatch] = useState(null);
     const [students, setStudents] = useState([]);
+    const [addingStudent, setAddingStudent] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(null);
 
     useEffect(() => {
         fetchBatches();
@@ -44,6 +47,48 @@ const BatchManagement = () => {
             setShowStudentModal(true);
         } catch (error) {
             console.error('Error fetching students:', error);
+        }
+    };
+
+    const handleAddStudent = () => {
+        setAddingStudent(true);
+    };
+
+    const handleStudentSelect = (student) => {
+        setSelectedStudent(student);
+    };
+
+    const handleConfirmAddStudent = async () => {
+        if (!selectedStudent) {
+            return;
+        }
+        
+        try {
+            await ApiService.addStudentToBatch(selectedBatch.id, selectedStudent.id);
+            // Refresh student list
+            const response = await ApiService.getBatchStudents(selectedBatch.id);
+            if (response && response.success) {
+                setStudents(response.students || []);
+            }
+            setAddingStudent(false);
+            setSelectedStudent(null);
+        } catch (error) {
+            console.error('Error adding student:', error);
+            alert(error.message || 'Failed to add student');
+        }
+    };
+
+    const handleRemoveStudent = async (studentId) => {
+        try {
+            await ApiService.removeStudentFromBatch(selectedBatch.id, studentId);
+            // Refresh student list
+            const response = await ApiService.getBatchStudents(selectedBatch.id);
+            if (response && response.success) {
+                setStudents(response.students || []);
+            }
+        } catch (error) {
+            console.error('Error removing student:', error);
+            alert(error.message || 'Failed to remove student');
         }
     };
 
@@ -101,42 +146,79 @@ const BatchManagement = () => {
                 {showStudentModal && selectedBatch && (
                     <Modal
                         title={`Manage Students - ${selectedBatch.name}`}
-                        onClose={() => setShowStudentModal(false)}
+                        onClose={() => {
+                            setShowStudentModal(false);
+                            setAddingStudent(false);
+                            setSelectedStudent(null);
+                        }}
                     >
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
                                 <h3 className="text-lg font-medium">
                                     Current Students ({students.length}/{selectedBatch.max_students})
                                 </h3>
-                                <button
-                                    onClick={() => {/* Handle add student */}}
-                                    className="px-3 py-1 bg-[#461fa3] text-white rounded-md hover:bg-[#7646eb]"
-                                >
-                                    Add Student
-                                </button>
+                                {!addingStudent && (
+                                    <button
+                                        onClick={handleAddStudent}
+                                        className="px-3 py-1 bg-[#461fa3] text-white rounded-md hover:bg-[#7646eb]"
+                                    >
+                                        Add Student
+                                    </button>
+                                )}
                             </div>
-                            {students.length === 0 ? (
-                                <p className="text-center text-gray-500 py-4">No students enrolled in this batch yet.</p>
-                            ) : (
-                                <div className="divide-y">
-                                    {students.map(student => (
-                                        <div 
-                                            key={student.id} 
-                                            className="py-3 flex justify-between items-center"
+                            
+                            {addingStudent ? (
+                                <div className="space-y-4">
+                                    <StudentSearch 
+                                        onSelectStudent={handleStudentSelect} 
+                                        maxStudents={selectedBatch.max_students}
+                                        currentCount={students.length}
+                                    />
+                                    <div className="flex justify-end space-x-3">
+                                        <button
+                                            onClick={() => {
+                                                setAddingStudent(false);
+                                                setSelectedStudent(null);
+                                            }}
+                                            className="px-3 py-1 border border-gray-300 rounded-md text-gray-700"
                                         >
-                                            <div>
-                                                <p className="font-medium">{student.full_name}</p>
-                                                <p className="text-sm text-gray-500">{student.email}</p>
-                                            </div>
-                                            <button
-                                                onClick={() => {/* Handle remove student */}}
-                                                className="text-red-500 hover:text-red-700"
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    ))}
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleConfirmAddStudent}
+                                            disabled={!selectedStudent}
+                                            className="px-3 py-1 bg-[#461fa3] text-white rounded-md hover:bg-[#7646eb] disabled:opacity-50"
+                                        >
+                                            Add Selected Student
+                                        </button>
+                                    </div>
                                 </div>
+                            ) : (
+                                <>
+                                    {students.length === 0 ? (
+                                        <p className="text-center text-gray-500 py-4">No students enrolled in this batch yet.</p>
+                                    ) : (
+                                        <div className="divide-y">
+                                            {students.map(student => (
+                                                <div 
+                                                    key={student.id} 
+                                                    className="py-3 flex justify-between items-center"
+                                                >
+                                                    <div>
+                                                        <p className="font-medium">{student.full_name}</p>
+                                                        <p className="text-sm text-gray-500">{student.email}</p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleRemoveStudent(student.id)}
+                                                        className="text-red-500 hover:text-red-700"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     </Modal>

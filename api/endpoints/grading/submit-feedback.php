@@ -16,7 +16,7 @@ ob_start();
 try {
     require_once '../../config/Database.php';
     require_once '../../middleware/auth.php';
-    require_once '../../utils/Mailer.php';
+    require_once '../../utils/Mailer.php'; // Make sure we use the right path
 
     // Get request body
     $data = json_decode(file_get_contents("php://input"), true);
@@ -79,12 +79,13 @@ try {
         
         $student = $studentStmt->fetch(PDO::FETCH_ASSOC);
         
-        // Only try to send email if student exists and we have required data
+        // Skip email if we can't send it
+        $emailSent = false;
         if ($student && !empty($student['email']) && !empty($student['full_name'])) {
             try {
-                // Send email notification to student using the existing Mailer class
+                // Try to send email notification but don't fail if it doesn't work
                 $mailer = new Mailer();
-                $mailer->sendFeedbackNotification(
+                $emailSent = $mailer->sendFeedbackNotification(
                     $student['email'], 
                     $student['full_name'], 
                     $teacher['full_name'], 
@@ -96,14 +97,14 @@ try {
             } catch (Exception $emailError) {
                 // Log email error but don't fail the whole request
                 error_log("Email notification failed: " . $emailError->getMessage());
-                // Continue processing - the feedback was stored successfully
             }
         }
         
         // Return success even if email fails
         echo json_encode([
             "success" => true,
-            "message" => "Feedback submitted successfully"
+            "message" => "Feedback submitted successfully" . ($emailSent ? " and notification sent" : ""),
+            "email_sent" => $emailSent
         ]);
     } else {
         throw new Exception("Database error: Failed to insert feedback");

@@ -1,4 +1,36 @@
 <?php
+// First try to use composer autoloader if available
+$vendorAutoloadPaths = [
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../vendor/autoload.php'
+];
+
+$autoloaderFound = false;
+foreach ($vendorAutoloadPaths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $autoloaderFound = true;
+        break;
+    }
+}
+
+// Fallback to direct includes if autoloader not found
+if (!$autoloaderFound || !class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    $phpmailerPaths = [
+        __DIR__ . '/../vendor/phpmailer/phpmailer/src/',
+        __DIR__ . '/../../vendor/phpmailer/phpmailer/src/'
+    ];
+    
+    foreach ($phpmailerPaths as $path) {
+        if (file_exists($path)) {
+            require_once $path . 'Exception.php';
+            require_once $path . 'PHPMailer.php';
+            require_once $path . 'SMTP.php';
+            break;
+        }
+    }
+}
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
@@ -8,14 +40,47 @@ class Mailer {
     private $config;
 
     public function __construct() {
-        $this->mailer = new PHPMailer(true);
-        $this->config = require __DIR__ . '/../config/mail.php';
-        $this->setupMailer();
+        try {
+            if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+                error_log("PHPMailer class not found. Make sure it's installed correctly.");
+                throw new Exception("Email system configuration error: PHPMailer not found");
+            }
+            
+            $this->mailer = new PHPMailer(true);
+            
+            // Load config or use defaults if config file not found
+            $configFile = __DIR__ . '/../config/mail.php';
+            if (file_exists($configFile)) {
+                $this->config = require $configFile;
+            } else {
+                error_log("Mail config file not found, using defaults");
+                $this->config = [
+                    'smtp_host' => 'smtp.hostinger.com',
+                    'smtp_port' => 465,
+                    'smtp_username' => 'no-reply@kolkatachessacademy.in',
+                    'smtp_password' => getenv('SMTP_PASSWORD') ?: '',
+                    'from_email' => 'no-reply@kolkatachessacademy.in',
+                    'from_name' => 'Kolkata Chess Academy',
+                    'smtp_secure' => 'ssl'
+                ];
+            }
+            
+            $this->setupMailer();
+            
+        } catch (Exception $e) {
+            error_log("Mailer initialization error: " . $e->getMessage());
+            throw new Exception("Failed to initialize mail system: " . $e->getMessage());
+        }
     }
 
     private function setupMailer() {
         try {
-            $this->mailer->SMTPDebug = defined('MAIL_DEBUG') && MAIL_DEBUG ? SMTP::DEBUG_SERVER : SMTP::DEBUG_OFF;
+            // Debug settings - set to 0 for production
+            $this->mailer->SMTPDebug = 0;
+            $this->mailer->Debugoutput = function($str, $level) {
+                error_log("PHPMailer Debug: $str");
+            };
+            
             $this->mailer->isSMTP();
             $this->mailer->Host = $this->config['smtp_host'];
             $this->mailer->SMTPAuth = true;
@@ -25,6 +90,7 @@ class Mailer {
             $this->mailer->Port = $this->config['smtp_port'];
             $this->mailer->setFrom($this->config['from_email'], $this->config['from_name']);
             $this->mailer->isHTML(true);
+            $this->mailer->CharSet = 'UTF-8';
             
             // Set additional options for reliability
             $this->mailer->SMTPOptions = [
@@ -34,78 +100,24 @@ class Mailer {
                     'allow_self_signed' => true
                 ]
             ];
+            
+            error_log("Mailer setup completed for: " . $this->config['smtp_username']);
+            
         } catch (Exception $e) {
             error_log("Mailer setup failed: " . $e->getMessage());
-            throw new Exception("Failed to configure email system");
+            throw new Exception("Failed to configure email system: " . $e->getMessage());
         }
-    }
-
-    public function sendAttendanceReminder($data) {
-        try {
-            $this->mailer->clearAddresses();
-            $this->mailer->addAddress($data['email'], $data['name']);
-            $this->mailer->Subject = "Reminder: Upcoming Class - {$data['batch_name']}";
-            
-            $body = $this->getAttendanceReminderTemplate($data);
-            $this->mailer->Body = $body;
-            $this->mailer->AltBody = strip_tags($body);
-            
-            $result = $this->mailer->send();
-            
-            // Log successful send
-            error_log("Attendance reminder sent to {$data['email']} for batch {$data['batch_name']}");
-            
-            return $result;
-        } catch (Exception $e) {
-            error_log("Failed to send attendance reminder to {$data['email']}: " . $e->getMessage());
-            throw new Exception("Failed to send attendance reminder");
-        }
-    }
-
-    private function getAttendanceReminderTemplate($data) {
-        $time = date('g:i A', strtotime($data['session_time']));
-        $date = date('l, F j, Y', strtotime($data['session_time']));
-        
-        return "
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                <h2 style='color: #200e4a;'>Class Reminder</h2>
-                <p>Dear {$data['name']},</p>
-                <p>This is a reminder that you have an upcoming class:</p>
-                <div style='background: #f3f1f9; padding: 15px; border-radius: 5px; margin: 15px 0;'>
-                    <p><strong>Batch:</strong> {$data['batch_name']}</p>
-                    <p><strong>Date:</strong> {$date}</p>
-                    <p><strong>Time:</strong> {$time}</p>
-                    " . ($data['meeting_link'] ? "
-                    <p><strong>Join Class:</strong><br>
-                        <a href='{$data['meeting_link']}' 
-                           style='background: #461fa3; color: white; padding: 10px 20px; 
-                                  text-decoration: none; border-radius: 5px; display: inline-block; 
-                                  margin-top: 10px;'>
-                            Join Online Class
-                        </a>
-                    </p>" : "") . "
-                </div>
-                <p>Please ensure you join the class on time.</p>
-                <p>Best regards,<br>KCA Academy</p>
-            </div>
-        ";
     }
 
     /**
      * Send a notification email for new feedback
-     * 
-     * @param string $to Student email
-     * @param string $studentName Student name
-     * @param string $teacherName Teacher name
-     * @param int $rating Feedback rating
-     * @param string $comment Feedback comment
-     * @param string $areasOfImprovement Areas that need improvement
-     * @param string $strengths Student strengths
-     * @return bool True if email was sent successfully
      */
     public function sendFeedbackNotification($to, $studentName, $teacherName, $rating, $comment = '', $areasOfImprovement = '', $strengths = '') {
         try {
+            // Clear previous recipients
             $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
+            
             $this->mailer->addAddress($to);
             $this->mailer->Subject = "New Feedback from your Teacher";
             
@@ -188,11 +200,102 @@ class Mailer {
         }
     }
 
-    // Additional method for testing connection
+    /**
+     * Send attendance reminder
+     */
+    public function sendAttendanceReminder($data) {
+        try {
+            // Clear previous recipients
+            $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
+            
+            $this->mailer->addAddress($data['email'], $data['name']);
+            $this->mailer->Subject = "Reminder: Upcoming Class - {$data['batch_name']}";
+            
+            $body = $this->getAttendanceReminderTemplate($data);
+            $this->mailer->Body = $body;
+            $this->mailer->AltBody = strip_tags($body);
+            
+            $result = $this->mailer->send();
+            
+            // Log successful send
+            error_log("Attendance reminder sent to {$data['email']} for batch {$data['batch_name']}");
+            
+            return $result;
+        } catch (Exception $e) {
+            error_log("Failed to send attendance reminder to {$data['email']}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function getAttendanceReminderTemplate($data) {
+        $time = date('g:i A', strtotime($data['session_time']));
+        $date = date('l, F j, Y', strtotime($data['session_time']));
+        
+        return "
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                <h2 style='color: #200e4a;'>Class Reminder</h2>
+                <p>Dear {$data['name']},</p>
+                <p>This is a reminder that you have an upcoming class:</p>
+                <div style='background: #f3f1f9; padding: 15px; border-radius: 5px; margin: 15px 0;'>
+                    <p><strong>Batch:</strong> {$data['batch_name']}</p>
+                    <p><strong>Date:</strong> {$date}</p>
+                    <p><strong>Time:</strong> {$time}</p>
+                    " . ($data['meeting_link'] ? "
+                    <p><strong>Join Class:</strong><br>
+                        <a href='{$data['meeting_link']}' 
+                           style='background: #461fa3; color: white; padding: 10px 20px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block; 
+                                  margin-top: 10px;'>
+                            Join Online Class
+                        </a>
+                    </p>" : "") . "
+                </div>
+                <p>Please ensure you join the class on time.</p>
+                <p>Best regards,<br>KCA Academy</p>
+            </div>
+        ";
+    }
+
+    /**
+     * Send password reset email
+     */
+    public function sendPasswordReset($email, $token) {
+        try {
+            // Clear previous recipients
+            $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
+            
+            $resetLink = "https://dashboard.kolkatachessacademy.in/reset-password?token=" . $token;
+
+            $this->mailer->addAddress($email);
+            $this->mailer->Subject = 'Reset Your Password - KCA Dashboard';
+            $this->mailer->Body = "
+                <h2>Password Reset Request</h2>
+                <p>You have requested to reset your password. Click the link below to proceed:</p>
+                <p><a href='{$resetLink}'>{$resetLink}</a></p>
+                <p>This link will expire in 1 hour.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+            ";
+            $this->mailer->AltBody = "You have requested to reset your password. Open this link to proceed: {$resetLink}";
+
+            $result = $this->mailer->send();
+            error_log("Password reset email sent to: {$email}");
+            return $result;
+        } catch (Exception $e) {
+            error_log("Failed to send password reset email to {$email}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Test connection method
     public function testConnection() {
         try {
+            // Turn on debug mode for testing
             $this->mailer->SMTPDebug = SMTP::DEBUG_SERVER;
-            return $this->mailer->smtpConnect();
+            $result = $this->mailer->smtpConnect();
+            $this->mailer->SMTPDebug = 0; // Turn debug off again
+            return $result;
         } catch (Exception $e) {
             error_log("SMTP connection test failed: " . $e->getMessage());
             return false;

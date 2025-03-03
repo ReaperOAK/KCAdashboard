@@ -108,8 +108,23 @@ const ReportsAnalytics = () => {
             
             console.log(`Exporting ${exportType} report with filters:`, filters);
             
+            // Check if date filters are valid
+            if (filters.start_date && filters.end_date) {
+                const start = new Date(filters.start_date);
+                const end = new Date(filters.end_date);
+                
+                if (start > end) {
+                    throw new Error('Start date cannot be after end date');
+                }
+            }
+            
             // Call the API to get the report
             const blob = await ApiService.exportReport(exportType, filters);
+            
+            // Verify that we got a valid blob
+            if (!blob || blob.size === 0) {
+                throw new Error('Received empty file from server');
+            }
             
             // Create a download link and trigger download
             const url = window.URL.createObjectURL(blob);
@@ -142,7 +157,7 @@ const ReportsAnalytics = () => {
         } catch (error) {
             console.error('Export error:', error);
             setExportLoading(false);
-            alert(`Export failed: ${error.message || 'Unknown error'}`);
+            alert(`Export failed: ${error.message || 'Unknown error. Please contact support if this issue persists.'}`);
         }
     };
     

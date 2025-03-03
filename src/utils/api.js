@@ -202,7 +202,66 @@ class ApiService {
   }
 
   static async exportReport(type, filters = {}) {
-    return this.request('/analytics/export.php', 'POST', { type, filters }, { responseType: 'blob' });
+    try {
+      console.log(`Starting export of ${type} report with filters:`, filters);
+      
+      // Add some basic validation
+      if (!type) {
+        throw new Error('Export type is required');
+      }
+      
+      // Create the request body
+      const requestBody = { type, filters };
+      
+      // Make the request with special handling for blob response
+      const response = await fetch(`${this.API_URL}/analytics/export.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : '',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      // Log the response status for debugging
+      console.log(`Export API response status: ${response.status}`);
+      
+      if (!response.ok) {
+        // Try to get error details from response if possible
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Export failed with status: ${response.status}`);
+        } else {
+          const errorText = await response.text();
+          console.error('Export API error text:', errorText);
+          throw new Error(`Export failed with status: ${response.status}`);
+        }
+      }
+      
+      // Check if we got a spreadsheet file
+      const contentType = response.headers.get('content-type');
+      const contentDisposition = response.headers.get('content-disposition');
+      
+      if (!contentType || !contentType.includes('spreadsheetml.sheet')) {
+        console.error('Unexpected content type:', contentType);
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Invalid response format from server');
+        } else {
+          const errorText = await response.text();
+          console.error('Unexpected response:', errorText);
+          throw new Error('Server did not return an Excel file');
+        }
+      }
+      
+      // Return the blob for downloading
+      return await response.blob();
+    } catch (error) {
+      console.error('Export request error:', error);
+      throw error;
+    }
   }
 
   static async getStudentProgress(studentId, timeframe = 'month') {

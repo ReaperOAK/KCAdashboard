@@ -1,12 +1,24 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Include database and CORS headers
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Path to autoload.php might need adjustment based on your project structure
 require_once '../../config/Database.php';
 require_once '../../utils/authorize.php';
-require_once '../../vendor/autoload.php'; // Make sure you have PhpSpreadsheet installed via composer
+require_once '../../vendor/autoload.php'; // Make sure this path is correct
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -19,11 +31,16 @@ try {
         exit;
     }
 
-    // Authorize request (only teachers and admins can access)
-    $user = authorize(['teacher', 'admin']);
-    
     // Get JSON data from request body
-    $data = json_decode(file_get_contents("php://input"), true);
+    $input = file_get_contents("php://input");
+    if (empty($input)) {
+        throw new Exception("No input data provided");
+    }
+
+    $data = json_decode($input, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new Exception("Invalid JSON: " . json_last_error_msg());
+    }
     
     if (!isset($data['type'])) {
         throw new Exception("Export type is required");
@@ -31,7 +48,22 @@ try {
     
     $type = $data['type'];
     $filters = $data['filters'] ?? [];
-    $teacher_id = $user['id'];
+    
+    // Authorize request (only teachers and admins can access)
+    // Wrap in try/catch to provide better error messages
+    try {
+        $user = authorize(['teacher', 'admin']);
+        $teacher_id = $user['id'];
+    } catch (Exception $e) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Authorization failed: ' . $e->getMessage()]);
+        exit;
+    }
+    
+    // Check if PhpSpreadsheet classes exist
+    if (!class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')) {
+        throw new Exception("PhpSpreadsheet library not found. Please install using composer.");
+    }
     
     // Create DB connection
     $database = new Database();
@@ -40,6 +72,9 @@ try {
     // Create a new spreadsheet
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
+    
+    // Log the export type
+    error_log("Exporting report of type: $type with filters: " . json_encode($filters));
     
     switch($type) {
         case 'attendance':
@@ -63,15 +98,37 @@ try {
             break;
             
         default:
-            throw new Exception("Invalid export type");
+            throw new Exception("Invalid export type: $type");
     }
     
     // Create an XLSX writer
     $writer = new Xlsx($spreadsheet);
     
     // Save to a temporary file
-    $temp_file = tempnam(sys_get_temp_dir(), 'export_');
-    $writer->save($temp_file);
+    $temp_dir = sys_get_temp_dir();
+    if (!is_writable($temp_dir)) {
+        throw new Exception("Temporary directory is not writable: $temp_dir");
+    }
+    
+    $temp_file = tempnam($temp_dir, 'export_');
+    if (!$temp_file) {
+        throw new Exception("Failed to create temporary file");
+    }
+    
+    try {
+        $writer->save($temp_file);
+    } catch (Exception $e) {
+        error_log("Failed to save spreadsheet: " . $e->getMessage());
+        throw new Exception("Failed to generate Excel file: " . $e->getMessage());
+    }
+    
+    // Check if file was created and is readable
+    if (!file_exists($temp_file) || !is_readable($temp_file)) {
+        throw new Exception("Failed to create or read the generated file");
+    }
+    
+    // Clear any previous output
+    if (ob_get_level()) ob_end_clean();
     
     // Set headers for file download
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -85,11 +142,17 @@ try {
     exit;
     
 } catch (Exception $e) {
+    error_log("Export error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+    
+    // Clear any previous output
+    if (ob_get_level()) ob_end_clean();
+    
     http_response_code(400);
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'trace' => DEBUG_MODE ? $e->getTraceAsString() : null
     ]);
 }
 
@@ -131,19 +194,19 @@ function exportAttendance($db, $sheet, $teacher_id, $filters) {
               
     $params = [':teacher_id' => $teacher_id];
     
-    // Apply filters
+    // Apply filters - only add conditions if filters are set
     if (!empty($filters['batch_id'])) {
         $query .= " AND a.batch_id = :batch_id";
         $params[':batch_id'] = $filters['batch_id'];
     }
     
     if (!empty($filters['start_date'])) {
-        $query .= " AND bs.date_time >= :start_date";
+        $query .= " AND DATE(bs.date_time) >= :start_date";
         $params[':start_date'] = $filters['start_date'];
     }
     
     if (!empty($filters['end_date'])) {
-        $query .= " AND bs.date_time <= :end_date";
+        $query .= " AND DATE(bs.date_time) <= :end_date";
         $params[':end_date'] = $filters['end_date'];
     }
     
@@ -154,24 +217,41 @@ function exportAttendance($db, $sheet, $teacher_id, $filters) {
     
     $query .= " ORDER BY bs.date_time DESC, b.name, u.full_name";
     
-    $stmt = $db->prepare($query);
-    foreach($params as $key => $value) {
-        $stmt->bindValue($key, $value);
+    // Log the query for debugging
+    error_log("Attendance query: $query");
+    error_log("Query params: " . json_encode($params));
+    
+    try {
+        $stmt = $db->prepare($query);
+        foreach($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->execute();
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        throw new Exception("Database error: " . $e->getMessage());
     }
-    $stmt->execute();
     
     // Add data rows
     $row = 2;
-    while ($record = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $sheet->setCellValue('A' . $row, $record['batch_name']);
-        $sheet->setCellValue('B' . $row, $record['student_name']);
-        $sheet->setCellValue('C' . $row, date('Y-m-d', strtotime($record['session_date'])));
-        $sheet->setCellValue('D' . $row, $record['session_title']);
-        $sheet->setCellValue('E' . $row, ucfirst($record['status']));
-        $sheet->setCellValue('F' . $row, $record['check_in_time'] ? date('H:i:s', strtotime($record['check_in_time'])) : '');
-        $sheet->setCellValue('G' . $row, $record['check_out_time'] ? date('H:i:s', strtotime($record['check_out_time'])) : '');
-        $sheet->setCellValue('H' . $row, $record['online_duration'] ? $record['online_duration'] : '');
-        $row++;
+    
+    // If no records found, add a message
+    $recordCount = $stmt->rowCount();
+    if ($recordCount == 0) {
+        $sheet->setCellValue('A2', 'No attendance records found matching your criteria.');
+        $sheet->mergeCells('A2:H2');
+    } else {
+        while ($record = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $sheet->setCellValue('A' . $row, $record['batch_name'] ?? 'N/A');
+            $sheet->setCellValue('B' . $row, $record['student_name'] ?? 'N/A');
+            $sheet->setCellValue('C' . $row, $record['session_date'] ? date('Y-m-d', strtotime($record['session_date'])) : 'N/A');
+            $sheet->setCellValue('D' . $row, $record['session_title'] ?? 'N/A');
+            $sheet->setCellValue('E' . $row, $record['status'] ? ucfirst($record['status']) : 'N/A');
+            $sheet->setCellValue('F' . $row, $record['check_in_time'] ? date('H:i:s', strtotime($record['check_in_time'])) : 'N/A');
+            $sheet->setCellValue('G' . $row, $record['check_out_time'] ? date('H:i:s', strtotime($record['check_out_time'])) : 'N/A');
+            $sheet->setCellValue('H' . $row, $record['online_duration'] ? $record['online_duration'] : 'N/A');
+            $row++;
+        }
     }
     
     // Auto-size columns

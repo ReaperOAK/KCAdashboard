@@ -229,15 +229,31 @@ class ApiService {
       if (!response.ok) {
         // Try to get error details from response if possible
         const contentType = response.headers.get('content-type');
+        const errorText = await response.text();
         
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `Export failed with status: ${response.status}`);
-        } else {
-          const errorText = await response.text();
-          console.error('Export API error text:', errorText);
-          throw new Error(`Export failed with status: ${response.status}`);
+        // First check if it's HTML error (like PHP errors)
+        if (errorText.includes('Fatal error') || errorText.includes('<br />')) {
+          console.error('PHP error detected:', errorText);
+          
+          // Extract the error message from HTML if possible
+          const errorMatch = errorText.match(/Uncaught Error: ([^<]+)/);
+          const message = errorMatch ? errorMatch[1] : 'Server error occurred';
+          
+          throw new Error(`Server error: ${message.trim()}`);
         }
+        
+        // Try to parse as JSON if it seems to be JSON
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = JSON.parse(errorText);
+            throw new Error(errorData.message || `Export failed with status: ${response.status}`);
+          } catch (jsonError) {
+            console.error('Failed to parse error response as JSON:', jsonError);
+          }
+        }
+        
+        // Fallback error message
+        throw new Error(`Export failed with status: ${response.status}`);
       }
       
       // Check if we got a spreadsheet file
@@ -245,14 +261,12 @@ class ApiService {
       
       if (!contentType || !contentType.includes('spreadsheetml.sheet')) {
         console.error('Unexpected content type:', contentType);
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Invalid response format from server');
-        } else {
-          const errorText = await response.text();
-          console.error('Unexpected response:', errorText);
-          throw new Error('Server did not return an Excel file');
-        }
+        
+        // Try to read the response to see what we got instead
+        const responseText = await response.text();
+        console.error('Received instead of Excel file:', responseText);
+        
+        throw new Error('Server did not return an Excel file');
       }
       
       // Return the blob for downloading

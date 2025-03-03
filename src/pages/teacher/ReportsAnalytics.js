@@ -116,48 +116,65 @@ const ReportsAnalytics = () => {
                 if (start > end) {
                     throw new Error('Start date cannot be after end date');
                 }
+                
+                // Check if dates are in the future
+                const now = new Date();
+                if (start > now) {
+                    console.warn('Warning: Start date is in the future');
+                }
             }
             
-            // Call the API to get the report
-            const blob = await ApiService.exportReport(exportType, filters);
-            
-            // Verify that we got a valid blob
-            if (!blob || blob.size === 0) {
-                throw new Error('Received empty file from server');
+            try {
+                // Call the API to get the report
+                const blob = await ApiService.exportReport(exportType, filters);
+                
+                // Verify that we got a valid blob
+                if (!blob || blob.size === 0) {
+                    throw new Error('Received empty file from server');
+                }
+                
+                // Create a download link and trigger download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                
+                // Set filename based on export type
+                let filename = `${exportType}_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+                a.download = filename;
+                
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                setExportLoading(false);
+                setShowExportModal(false);
+                
+                // Reset filters
+                setExportFilters({
+                    batch_id: '',
+                    start_date: '',
+                    end_date: '',
+                    status: ''
+                });
+            } catch (apiError) {
+                console.error('API Error during export:', apiError);
+                throw apiError;
             }
-            
-            // Create a download link and trigger download
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            
-            // Set filename based on export type
-            let filename = `${exportType}_report_${new Date().toISOString().split('T')[0]}.xlsx`;
-            a.download = filename;
-            
-            document.body.appendChild(a);
-            a.click();
-            
-            // Clean up
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            
-            setExportLoading(false);
-            setShowExportModal(false);
-            
-            // Reset filters
-            setExportFilters({
-                batch_id: '',
-                start_date: '',
-                end_date: '',
-                status: ''
-            });
             
         } catch (error) {
             console.error('Export error:', error);
             setExportLoading(false);
-            alert(`Export failed: ${error.message || 'Unknown error. Please contact support if this issue persists.'}`);
+            
+            // Show a more user-friendly error message
+            const errorMessage = error.message.includes('Server error:') || error.message.includes('Failed')
+                ? error.message
+                : `Export failed: ${error.message || 'Unknown error. Please contact support if this issue persists.'}`;
+                
+            alert(errorMessage);
         }
     };
     

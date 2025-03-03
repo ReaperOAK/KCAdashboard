@@ -190,31 +190,50 @@ function exportQuizResults($db, $pdf, $teacher_id, $filters) {
                   WHERE 
                    q.created_by = :teacher_id";
     
-    $params = [':teacher_id' => $teacher_id];
+    // Reset params for stats query to avoid parameter mismatches
+    $stats_params = [':teacher_id' => $teacher_id];
     
-    // Apply same filters
+    // Apply same filters but rebuild parameters array for stats query
     if (!empty($filters['quiz_id'])) {
         $stats_query .= " AND qa.quiz_id = :quiz_id";
+        $stats_params[':quiz_id'] = $filters['quiz_id'];
     }
     
     if (!empty($filters['batch_id'])) {
         $stats_query .= " AND qa.user_id IN (SELECT student_id FROM batch_students WHERE batch_id = :batch_id)";
+        $stats_params[':batch_id'] = $filters['batch_id'];
     }
     
     if (!empty($filters['start_date'])) {
         $stats_query .= " AND qa.completed_at >= :start_date";
+        $stats_params[':start_date'] = $filters['start_date'];
     }
     
     if (!empty($filters['end_date'])) {
         $stats_query .= " AND qa.completed_at <= :end_date";
+        $stats_params[':end_date'] = $filters['end_date'];
     }
     
-    $stats_stmt = $db->prepare($stats_query);
-    foreach($params as $key => $value) {
-        $stats_stmt->bindValue($key, $value);
+    try {
+        $stats_stmt = $db->prepare($stats_query);
+        foreach($stats_params as $key => $value) {
+            $stats_stmt->bindValue($key, $value);
+        }
+        $stats_stmt->execute();
+        $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Stats query error: " . $e->getMessage());
+        $pdf->SetTextColor(200, 0, 0); // Red text for error
+        $pdf->Cell(0, 8, 'Unable to generate statistics: ' . $e->getMessage(), 0, 1, 'L');
+        $pdf->SetTextColor(0, 0, 0); // Reset text color
+        $stats = [
+            'attempt_count' => 0,
+            'avg_score' => 0,
+            'min_score' => 0,
+            'max_score' => 0,
+            'avg_time' => 0
+        ];
     }
-    $stats_stmt->execute();
-    $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     
     // Print summary stats
     $pdf->Cell(50, 8, 'Total Quiz Attempts:', 0, 0, 'L');

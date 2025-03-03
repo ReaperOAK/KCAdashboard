@@ -247,6 +247,7 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
     
     if (!empty($filters['batch_id'])) {
         $query .= " AND a.batch_id = :batch_id";
+        $params[':batch_id'] = $filters['batch_id']; // Add parameter to params array
     }
     
     if (!empty($filters['start_date']) || !empty($filters['end_date'])) {
@@ -254,42 +255,59 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
         
         if (!empty($filters['start_date'])) {
             $query .= " AND DATE(date_time) >= :start_date";
+            $params[':start_date'] = $filters['start_date']; // Add parameter to params array
         }
         
         if (!empty($filters['end_date'])) {
             $query .= " AND DATE(date_time) <= :end_date";
+            $params[':end_date'] = $filters['end_date']; // Add parameter to params array
         }
         
         $query .= ")";
     }
     
+    if (!empty($filters['status'])) {
+        $query .= " AND a.status = :status";
+        $params[':status'] = $filters['status']; // Add parameter for status
+    }
+    
     $query .= " GROUP BY status";
     
-    $stmt = $db->prepare($query);
-    foreach($params as $key => $value) {
-        $stmt->bindValue($key, $value);
-    }
-    $stmt->execute();
-    
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        switch($row['status']) {
-            case 'present':
-                $presentCount = $row['count'];
-                $totalSessions += $row['count'];
-                break;
-            case 'absent':
-                $absentCount = $row['count'];
-                $totalSessions += $row['count'];
-                break;
-            case 'late':
-                $lateCount = $row['count'];
-                $totalSessions += $row['count'];
-                break;
-            case 'excused':
-                $excusedCount = $row['count'];
-                $totalSessions += $row['count'];
-                break;
+    try {
+        $stmt = $db->prepare($query);
+        foreach($params as $key => $value) {
+            $stmt->bindValue($key, $value);
         }
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            switch($row['status']) {
+                case 'present':
+                    $presentCount = $row['count'];
+                    $totalSessions += $row['count'];
+                    break;
+                case 'absent':
+                    $absentCount = $row['count'];
+                    $totalSessions += $row['count'];
+                    break;
+                case 'late':
+                    $lateCount = $row['count'];
+                    $totalSessions += $row['count'];
+                    break;
+                case 'excused':
+                    $excusedCount = $row['count'];
+                    $totalSessions += $row['count'];
+                    break;
+            }
+        }
+        
+        // ...existing code...
+    } catch (PDOException $e) {
+        error_log("Summary statistics error: " . $e->getMessage());
+        // Continue with the report even if summary fails
+        $pdf->SetTextColor(200, 0, 0); // Red text for error
+        $pdf->Cell(0, 8, 'Unable to generate summary statistics: ' . $e->getMessage(), 0, 1, 'L');
+        $pdf->SetTextColor(0, 0, 0); // Reset text color
     }
     
     // Print summary statistics

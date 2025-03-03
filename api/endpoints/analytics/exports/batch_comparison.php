@@ -46,24 +46,25 @@ function exportBatchComparison($db, $pdf, $teacher_id, $filters) {
     // If specific batch IDs were provided, add them to the query
     if (!empty($filters['batch_ids'])) {
         $batch_ids = $filters['batch_ids'];
-        $placeholders = implode(',', array_fill(0, count($batch_ids), '?'));
-        $batch_query .= " AND id IN ($placeholders)";
+        // Use named parameters instead of positional placeholders
+        $placeholders = [];
+        $i = 0;
+        foreach ($batch_ids as $id) {
+            $paramName = ":batch_id_" . $i;
+            $placeholders[] = $paramName;
+            $params[$paramName] = $id;
+            $i++;
+        }
+        $batch_query .= " AND id IN (" . implode(',', $placeholders) . ")";
     }
     
     $batch_query .= " ORDER BY name";
     
     $batch_stmt = $db->prepare($batch_query);
     
-    // Bind teacher_id
-    $batch_stmt->bindValue(1, $teacher_id, PDO::PARAM_INT);
-    
-    // Bind batch IDs if provided
-    if (!empty($filters['batch_ids'])) {
-        $i = 2;
-        foreach ($filters['batch_ids'] as $batch_id) {
-            $batch_stmt->bindValue($i, $batch_id, PDO::PARAM_INT);
-            $i++;
-        }
+    // Bind all parameters at once
+    foreach($params as $key => $value) {
+        $batch_stmt->bindValue($key, $value);
     }
     
     $batch_stmt->execute();

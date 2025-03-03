@@ -55,8 +55,7 @@ const ReportsAnalytics = () => {
         status: ''
     });
     const [exportType, setExportType] = useState('attendance');
-    const [exportLoading, setExportLoading] = useState(false);
-
+    
     const fetchData = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -288,7 +287,7 @@ const ReportsAnalytics = () => {
                                 <ExportButton 
                                     reportType={exportType}
                                     defaultFilters={exportFilters}
-                                    buttonText={exportLoading ? 'Exporting...' : 'Export Report'}
+                                    buttonText="Export Report"
                                     className="px-4 py-2"
                                 />
                             </div>

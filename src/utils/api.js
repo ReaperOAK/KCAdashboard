@@ -242,7 +242,6 @@ class ApiService {
       
       // Check if we got a spreadsheet file
       const contentType = response.headers.get('content-type');
-      const contentDisposition = response.headers.get('content-disposition');
       
       if (!contentType || !contentType.includes('spreadsheetml.sheet')) {
         console.error('Unexpected content type:', contentType);

@@ -4,6 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Define the missing DEBUG_MODE constant
+define('DEBUG_MODE', false); // Set to true only in development environment
+
 // Include database and CORS headers
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -152,6 +155,7 @@ try {
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage(),
+        // Use the constant safely now
         'trace' => DEBUG_MODE ? $e->getTraceAsString() : null
     ]);
 }

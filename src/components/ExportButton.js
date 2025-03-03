@@ -26,8 +26,8 @@ const ExportButton = ({ reportType = 'attendance', defaultFilters = {}, buttonTe
             a.style.display = 'none';
             a.href = url;
             
-            // Set filename based on export type
-            let filename = `${reportType}_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+            // Set filename based on export type - use .pdf extension now
+            let filename = `${reportType}_report_${new Date().toISOString().split('T')[0]}.pdf`;
             a.download = filename;
             
             document.body.appendChild(a);
@@ -39,7 +39,14 @@ const ExportButton = ({ reportType = 'attendance', defaultFilters = {}, buttonTe
             
         } catch (error) {
             console.error('Export error:', error);
-            setErrorMessage(error.message || 'Unknown error occurred during export');
+            let message = error.message || 'Unknown error occurred during export';
+            
+            // If there's a more detailed API error message, use that instead
+            if (error.response && error.response.data && error.response.data.message) {
+                message = error.response.data.message;
+            }
+            
+            setErrorMessage(message);
             // Show error message for 5 seconds
             setTimeout(() => setErrorMessage(null), 5000);
         } finally {
@@ -52,7 +59,7 @@ const ExportButton = ({ reportType = 'attendance', defaultFilters = {}, buttonTe
             <button
                 onClick={handleExport}
                 disabled={loading}
-                className={`px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center ${className}`}
+                className={`px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center ${className} ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
                 {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>

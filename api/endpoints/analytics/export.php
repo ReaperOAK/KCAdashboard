@@ -4,8 +4,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Define the missing DEBUG_MODE constant
-define('DEBUG_MODE', false); // Set to true only in development environment
+// Define the missing DEBUG_MODE constant - change to true for development environment
+define('DEBUG_MODE', true); // Set to true only in development environment
 
 // Include database and CORS headers
 header('Access-Control-Allow-Origin: *');
@@ -160,7 +160,8 @@ try {
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage(),
-        'trace' => DEBUG_MODE ? $e->getTraceAsString() : null
+        'trace' => DEBUG_MODE ? $e->getTraceAsString() : null,
+        'sql_error' => DEBUG_MODE && $e instanceof PDOException ? $e->errorInfo : null
     ]);
 }
 ?>

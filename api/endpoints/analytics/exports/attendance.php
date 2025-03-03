@@ -1,6 +1,12 @@
 <?php
 // Helper function to export attendance to PDF
 function exportAttendance($db, $pdf, $teacher_id, $filters) {
+    // First check if the new columns exist in the attendance table
+    $columnCheckQuery = "SHOW COLUMNS FROM attendance LIKE 'check_in_time'";
+    $columnCheckStmt = $db->prepare($columnCheckQuery);
+    $columnCheckStmt->execute();
+    $hasNewColumns = $columnCheckStmt->rowCount() > 0;
+    
     // Add a title
     $pdf->SetFont('helvetica', 'B', 16);
     $pdf->Cell(0, 10, 'Attendance Report', 0, 1, 'C');
@@ -45,16 +51,29 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
     $pdf->Cell($colWidth[6], 10, 'Check-out', 1, 0, 'C', true);
     $pdf->Cell($colWidth[7], 10, 'Duration', 1, 1, 'C', true); // Last parameter 1 means new line after this cell
     
-    // Build query based on filters
+    // Build query based on filters with column check
     $query = "SELECT 
               b.name as batch_name,
               u.full_name as student_name,
               bs.date_time as session_date,
               bs.title as session_title,
-              a.status,
+              a.status,";
+    
+    // Only include these columns if they exist
+    if ($hasNewColumns) {
+        $query .= "
               a.check_in_time,
               a.check_out_time,
-              a.online_duration
+              a.online_duration,";
+    } else {
+        $query .= "
+              NULL as check_in_time,
+              NULL as check_out_time,
+              NULL as online_duration,";
+    }
+    
+    $query .= "
+              a.created_at
             FROM 
               attendance a
             INNER JOIN 
@@ -141,7 +160,7 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
                     break;
             }
             
-            // Format dates and times
+            // Format dates and times with fallbacks for missing columns
             $sessionDate = $record['session_date'] ? date('Y-m-d', strtotime($record['session_date'])) : 'N/A';
             $checkIn = $record['check_in_time'] ? date('H:i', strtotime($record['check_in_time'])) : 'N/A';
             $checkOut = $record['check_out_time'] ? date('H:i', strtotime($record['check_out_time'])) : 'N/A';
@@ -300,5 +319,13 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
     $pdf->Ln(5);
     $pdf->SetFont('helvetica', 'I', 8);
     $pdf->Cell(0, 5, 'Report generated on: ' . date('Y-m-d H:i:s'), 0, 1, 'R');
+}
+
+// Helper function to check if a column exists in a table
+function columnExists($db, $table, $column) {
+    $query = "SHOW COLUMNS FROM $table LIKE '$column'";
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    return $stmt->rowCount() > 0;
 }
 ?>

@@ -233,7 +233,7 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
     
     // Get summary data from the database
     $query = "SELECT 
-              status,
+              a.status,  /* Added table alias 'a.' to make column reference explicit */
               COUNT(*) as count
             FROM 
               attendance a
@@ -267,11 +267,11 @@ function exportAttendance($db, $pdf, $teacher_id, $filters) {
     }
     
     if (!empty($filters['status'])) {
-        $query .= " AND a.status = :status";
+        $query .= " AND a.status = :status";  /* Added table alias 'a.' to make column reference explicit */
         $params[':status'] = $filters['status']; // Add parameter for status
     }
     
-    $query .= " GROUP BY status";
+    $query .= " GROUP BY a.status";  /* Added table alias 'a.' to make column reference explicit */
     
     try {
         $stmt = $db->prepare($query);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import ApiService from '../../utils/api';
+import ExportButton from '../../components/ExportButton'; // Import the export button
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -46,6 +47,15 @@ const ReportsAnalytics = () => {
     });
     const [selectedBatch, setSelectedBatch] = useState('all');
     const [batches, setBatches] = useState([]);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [exportFilters, setExportFilters] = useState({
+        batch_id: '',
+        start_date: '',
+        end_date: '',
+        status: ''
+    });
+    const [exportType, setExportType] = useState('attendance');
+    const [exportLoading, setExportLoading] = useState(false);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -98,6 +108,15 @@ const ReportsAnalytics = () => {
                             className="px-4 py-2 rounded-lg bg-[#461fa3] text-white hover:bg-[#7646eb]"
                         >
                             Refresh
+                        </button>
+                        <button
+                            onClick={() => setShowExportModal(true)}
+                            className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 flex items-center"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export Data
                         </button>
                     </div>
                 </div>
@@ -181,6 +200,97 @@ const ReportsAnalytics = () => {
                                     <p className="text-sm text-gray-600">Classes This Month</p>
                                     <p className="text-2xl font-bold text-[#200e4a]">24</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                
+                {/* Export Modal */}
+                {showExportModal && (
+                    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                            <h2 className="text-xl font-semibold mb-4">Export Report</h2>
+                            
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+                                <select
+                                    value={exportType}
+                                    onChange={(e) => setExportType(e.target.value)}
+                                    className="w-full p-2 border rounded"
+                                >
+                                    <option value="attendance">Attendance Report</option>
+                                    <option value="student_performance">Student Performance</option>
+                                    <option value="quiz_results">Quiz Results</option>
+                                    <option value="batch_comparison">Batch Comparison</option>
+                                </select>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Batch</label>
+                                <select
+                                    value={exportFilters.batch_id}
+                                    onChange={(e) => setExportFilters({...exportFilters, batch_id: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                >
+                                    <option value="">All Batches</option>
+                                    {batches.map(batch => (
+                                        <option key={batch.id} value={batch.id}>{batch.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                    <input
+                                        type="date"
+                                        value={exportFilters.start_date}
+                                        onChange={(e) => setExportFilters({...exportFilters, start_date: e.target.value})}
+                                        className="w-full p-2 border rounded"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                                    <input
+                                        type="date"
+                                        value={exportFilters.end_date}
+                                        onChange={(e) => setExportFilters({...exportFilters, end_date: e.target.value})}
+                                        className="w-full p-2 border rounded"
+                                    />
+                                </div>
+                            </div>
+                            
+                            {exportType === 'attendance' && (
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select
+                                        value={exportFilters.status}
+                                        onChange={(e) => setExportFilters({...exportFilters, status: e.target.value})}
+                                        className="w-full p-2 border rounded"
+                                    >
+                                        <option value="">All</option>
+                                        <option value="present">Present</option>
+                                        <option value="absent">Absent</option>
+                                        <option value="late">Late</option>
+                                        <option value="excused">Excused</option>
+                                    </select>
+                                </div>
+                            )}
+                            
+                            <div className="flex justify-end gap-2 mt-6">
+                                <button
+                                    onClick={() => setShowExportModal(false)}
+                                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                
+                                <ExportButton 
+                                    reportType={exportType}
+                                    defaultFilters={exportFilters}
+                                    buttonText={exportLoading ? 'Exporting...' : 'Export Report'}
+                                    className="px-4 py-2"
+                                />
                             </div>
                         </div>
                     </div>

@@ -222,12 +222,14 @@ const PGNDatabase = () => {
                     </div>
                 </div>
 
+                {/* Error display */}
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         {error}
                     </div>
                 )}
 
+                {/* PGN listing */}
                 {loading ? (
                     <div className="text-center py-8">Loading...</div>
                 ) : pgns.length === 0 ? (
@@ -332,7 +334,7 @@ const PGNDatabase = () => {
                                         value={uploadForm.category}
                                         onChange={(e) => setUploadForm({...uploadForm, category: e.target.value})}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    ></select>
+                                    >
                                         <option value="opening">Opening</option>
                                         <option value="middlegame">Middlegame</option>
                                         <option value="endgame">Endgame</option>
@@ -402,7 +404,7 @@ const PGNDatabase = () => {
 
                 {/* Share Modal */}
                 {shareModalOpen && selectedPGNForShare && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">,j</div>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                         <div className="bg-white rounded-xl p-6 max-w-lg w-full">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-[#200e4a]">Share "{selectedPGNForShare.title}"</h2>
@@ -445,7 +447,7 @@ const PGNDatabase = () => {
                                     </div>
                                 </div>
                                 
-                                <div className="mb-4"></div>
+                                <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Select Teachers ({teacherList.length})
                                     </label>
@@ -493,7 +495,7 @@ const PGNDatabase = () => {
 
                 {/* PGN Viewer Modal */}
                 {showViewerModal && selectedPGN && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"></div>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                         <div className="bg-white rounded-xl p-6 max-w-4xl w-full h-[80vh] flex flex-col">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-[#200e4a]">{selectedPGN.title}</h2>

@@ -1,7 +1,7 @@
 <?php
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Methods: POST, DELETE');
 header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
 require_once '../config/Database.php';
@@ -21,22 +21,28 @@ try {
     $db = $database->getConnection();
     $pgn = new PGN($db);
     
-    // Get shared filter param
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'own';
+    // Get request data
+    $data = json_decode(file_get_contents('php://input'), true);
     
-    if ($filter === 'shared') {
-        // Get PGNs shared with this teacher
-        $pgns = $pgn->getSharedWithMe($user['id']);
-    } else {
-        // Get teacher's own PGNs
-        $pgns = $pgn->getTeacherPGNs($user['id']);
+    // Validate required fields
+    if (empty($data['pgn_id']) || empty($data['user_id'])) {
+        throw new Exception('PGN ID and User ID are required');
     }
     
-    // Return PGNs
+    // Verify that user owns this PGN
+    $pgnData = $pgn->getPGNById($data['pgn_id'], $user['id']);
+    if (!$pgnData || $pgnData['teacher_id'] != $user['id']) {
+        throw new Exception('You do not have permission to modify this PGN\'s shares');
+    }
+    
+    // Remove the share
+    $result = $pgn->removeShare($data['pgn_id'], $data['user_id']);
+    
+    // Return success response
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'pgns' => $pgns
+        'message' => 'Share removed successfully'
     ]);
 } catch (Exception $e) {
     http_response_code(400);

@@ -21,22 +21,26 @@ try {
     $db = $database->getConnection();
     $pgn = new PGN($db);
     
-    // Get shared filter param
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'own';
+    // Get pgn_id from URL parameter
+    if (!isset($_GET['pgn_id'])) {
+        throw new Exception('PGN ID is required');
+    }
+    $pgn_id = $_GET['pgn_id'];
     
-    if ($filter === 'shared') {
-        // Get PGNs shared with this teacher
-        $pgns = $pgn->getSharedWithMe($user['id']);
-    } else {
-        // Get teacher's own PGNs
-        $pgns = $pgn->getTeacherPGNs($user['id']);
+    // Verify that user owns this PGN
+    $pgnData = $pgn->getPGNById($pgn_id, $user['id']);
+    if (!$pgnData || $pgnData['teacher_id'] != $user['id']) {
+        throw new Exception('You do not have permission to view this PGN\'s shares');
     }
     
-    // Return PGNs
+    // Get users with whom the PGN is shared
+    $shares = $pgn->getShareUsers($pgn_id);
+    
+    // Return shares
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'pgns' => $pgns
+        'shares' => $shares
     ]);
 } catch (Exception $e) {
     http_response_code(400);

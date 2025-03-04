@@ -409,6 +409,18 @@ $sql = "CREATE TABLE IF NOT EXISTS role_permissions (
 )";
 $db->exec($sql);
 
+// Add PGN sharing table
+$sql = "CREATE TABLE IF NOT EXISTS pgn_shares (
+    pgn_id INT NOT NULL,
+    user_id INT NOT NULL,
+    permission ENUM('view', 'edit') DEFAULT 'view',
+    shared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (pgn_id, user_id),
+    FOREIGN KEY (pgn_id) REFERENCES pgn_files(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+$db->exec($sql);
+
 // Create default admin account if it doesn't exist
 if (!$user->emailExists('admin@kca.com')) {
     $user->email = 'admin@kca.com';

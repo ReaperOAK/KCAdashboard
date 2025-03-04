@@ -5,7 +5,7 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
 require_once '../config/Database.php';
-require_once '../models/PGN.php';
+require_once '../models/User.php';
 require_once '../middleware/auth.php';
 
 try {
@@ -19,24 +19,27 @@ try {
 
     $database = new Database();
     $db = $database->getConnection();
-    $pgn = new PGN($db);
+    $userModel = new User($db);
     
-    // Get shared filter param
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'own';
+    // Get all teachers except the current user
+    $query = "SELECT id, full_name, email 
+              FROM users 
+              WHERE role = 'teacher' 
+              AND id <> :user_id 
+              AND is_active = 1
+              ORDER BY full_name";
+              
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':user_id', $user['id']);
+    $stmt->execute();
     
-    if ($filter === 'shared') {
-        // Get PGNs shared with this teacher
-        $pgns = $pgn->getSharedWithMe($user['id']);
-    } else {
-        // Get teacher's own PGNs
-        $pgns = $pgn->getTeacherPGNs($user['id']);
-    }
+    $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Return PGNs
+    // Return teachers list
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'pgns' => $pgns
+        'teachers' => $teachers
     ]);
 } catch (Exception $e) {
     http_response_code(400);

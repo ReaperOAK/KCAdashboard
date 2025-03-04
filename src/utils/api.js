@@ -224,7 +224,14 @@ class ApiService {
 
   // PGN Database endpoints
   static async getTeacherPGNs(filter = 'own') {
-    return this.get(`/pgn/get-teacher-pgns.php?filter=${filter}`);
+    try {
+      const response = await this.get(`/pgn/get-teacher-pgns.php?filter=${filter}`);
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch PGNs:', error);
+      // Return a default structure with an empty array to prevent UI errors
+      return { success: false, pgns: [], message: error.message };
+    }
   }
 
   static async getPGNById(id) {

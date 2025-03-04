@@ -59,7 +59,7 @@ const PGNDatabase = () => {
             let cleanedPgn = pgnContent.replace(/\[\s*.*?\s*".*?"\s*\]/g, '').trim();
             
             // Try to load the PGN
-            const result = chess.load_pgn(cleanedPgn);
+            const result = chess.loadPgn(cleanedPgn);
             
             if (!result) {
                 return { valid: false, message: 'Invalid PGN format' };

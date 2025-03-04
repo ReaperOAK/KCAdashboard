@@ -78,19 +78,9 @@ const PGNDatabase = () => {
             // Read file content
             const reader = new FileReader();
             reader.onload = (e) => {
-                const content = e.target.result;
-                
-                // Validate PGN
-                const validation = validatePGN(content);
-                if (!validation.valid) {
-                    setError(`Invalid PGN file: ${validation.message}`);
-                    setSelectedFile(null);
-                    return;
-                }
-                
                 setUploadForm(prev => ({
                     ...prev,
-                    pgn_content: content
+                    pgn_content: e.target.result
                 }));
             };
             reader.readAsText(file);
@@ -99,28 +89,35 @@ const PGNDatabase = () => {
 
     const handleUploadSubmit = async (e) => {
         e.preventDefault();
-        
-        // Basic client-side validation
-        if (!uploadForm.title.trim()) {
-            setError('Title is required');
-            return;
-        }
-        
-        if (!uploadForm.pgn_content.trim()) {
-            setError('PGN content is required');
-            return;
-        }
-        
-        // Validate PGN
-        const validation = validatePGN(uploadForm.pgn_content);
-        if (!validation.valid) {
-            setError(`Invalid PGN: ${validation.message}`);
-            return;
-        }
-
         try {
             setLoading(true);
-            const response = await ApiService.uploadPGN(uploadForm, selectedFile);
+            
+            // Create form data using the approach from the working version
+            const formData = new FormData();
+            const jsonData = {
+                title: uploadForm.title,
+                description: uploadForm.description,
+                category: uploadForm.category,
+                pgn_content: uploadForm.pgn_content,
+                is_public: uploadForm.is_public
+            };
+            
+            formData.append('data', JSON.stringify(jsonData));
+            
+            if (selectedFile) {
+                formData.append('pgn_file', selectedFile);
+            }
+
+            // Log the form data for debugging
+            console.log('Form data:', Object.fromEntries(formData));
+
+            // Use the direct post method that worked before
+            const response = await ApiService.post('/pgn/upload.php', formData, {
+                headers: {
+                    // Don't set Content-Type here, browser will set it with boundary
+                    'Content-Type': undefined
+                }
+            });
 
             if (response.message === "PGN uploaded successfully") {
                 setShowUploadModal(false);
@@ -133,6 +130,7 @@ const PGNDatabase = () => {
                     is_public: false
                 });
                 setSelectedFile(null);
+                setError(null);
             } else {
                 throw new Error('Upload failed');
             }

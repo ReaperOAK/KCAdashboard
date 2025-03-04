@@ -100,6 +100,49 @@ class ApiService {
     }
   }
 
+  static async postFormData(endpoint, formData) {
+    const token = localStorage.getItem('token');
+    const url = endpoint.startsWith('http') ? endpoint : `${this.API_URL}${endpoint}`;
+    
+    try {
+      console.log('Making FormData API request to:', url);
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          // Don't set Content-Type for FormData, browser will set it with boundary
+        },
+        credentials: 'include',
+        body: formData
+      });
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text();
+        if (!text.trim()) {
+          throw new Error('Empty response from server');
+        }
+        
+        const result = JSON.parse(text);
+        if (!response.ok) {
+          throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        }
+        return result;
+      }
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'Network response was not ok');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('API FormData Error:', error);
+      throw error;
+    }
+  }
+
   static get(endpoint) {
     return this.request(endpoint);
   }
@@ -249,17 +292,14 @@ class ApiService {
   }
 
   static async uploadPGN(pgnData, pgnFile = null) {
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(pgnData));
+    
     if (pgnFile) {
-      const formData = new FormData();
-      formData.append('data', JSON.stringify(pgnData));
       formData.append('pgn_file', pgnFile);
-      
-      return this.request('/pgn/upload.php', 'POST', formData, {
-        headers: { 'Content-Type': undefined } // Let browser set content type with boundary
-      });
-    } else {
-      return this.post('/pgn/upload.php', pgnData);
     }
+    
+    return this.postFormData('/pgn/upload.php', formData);
   }
 
   static async updatePGN(id, pgnData) {

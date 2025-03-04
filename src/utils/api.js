@@ -286,6 +286,10 @@ class ApiService {
   static async getTeachers() {
     return this.get('/pgn/get-teachers.php');
   }
+
+  static async validatePGN(pgnContent) {
+    return this.post('/pgn/validate.php', { pgn_content: pgnContent });
+  }
 }
 
 export default ApiService;

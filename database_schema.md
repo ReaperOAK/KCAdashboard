@@ -149,12 +149,20 @@
 | id         | int(11)                                     | NO   | PRI | NULL    | auto_increment |
 | title      | varchar(255)                                | NO   |     | NULL    |                |
 | description| text                                        | YES  |     | NULL    |                |
-| category   | enum('opening','middlegame','endgame','tactics')| NO | | NULL    |                |
+| category   | enum('opening','middlegame','endgame','tactics','strategy')| NO | | NULL    |                |
 | pgn_content| text                                        | NO   |     | NULL    |                |
 | file_path  | varchar(512)                                | YES  |     | NULL    |                |
-| is_public  | tinyint(1)                                 | YES  |     | NULL    |                |
+| is_public  | tinyint(1)                                 | YES  |     | FALSE   |                |
 | teacher_id | int(11)                                    | NO   | MUL | NULL    |                |
 | created_at | timestamp                                  | YES  |     | NULL    |                |
+
+### pgn_shares
+| Column     | Type                    | Null | Key | Default | Extra |
+|-----------|-------------------------|------|-----|---------|-------|
+| pgn_id    | int(11)                | NO   | PRI | NULL    |       |
+| user_id   | int(11)                | NO   | PRI | NULL    |       |
+| permission| enum('view','edit')    | YES  |     | 'view'  |       |
+| shared_at | timestamp              | YES  |     | CURRENT_TIMESTAMP |  |
 
 ### tournaments
 | Column          | Type                                      | Null | Key | Default | Extra           |

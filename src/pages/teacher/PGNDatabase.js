@@ -56,7 +56,7 @@ const PGNDatabase = () => {
             const chess = new Chess();
             
             // Clean the PGN content to extract moves
-            let cleanedPgn = pgnContent.replace(/\[\s*.*?\s*\".*?\"\s*\]/g, '').trim();
+            let cleanedPgn = pgnContent.replace(/\[\s*.*?\s*".*?"\s*\]/g, '').trim();
             
             // Try to load the PGN
             const result = chess.load_pgn(cleanedPgn);

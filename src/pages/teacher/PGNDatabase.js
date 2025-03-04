@@ -92,6 +92,27 @@ const PGNDatabase = () => {
         try {
             setLoading(true);
             
+            // Basic client-side validation
+            if (!uploadForm.title.trim()) {
+                setError('Title is required');
+                setLoading(false);
+                return;
+            }
+            
+            if (!uploadForm.pgn_content.trim()) {
+                setError('PGN content is required');
+                setLoading(false);
+                return;
+            }
+            
+            // Use validatePGN function to validate the PGN content
+            const validation = validatePGN(uploadForm.pgn_content);
+            if (!validation.valid) {
+                setError(`Invalid PGN: ${validation.message}`);
+                setLoading(false);
+                return;
+            }
+            
             // Create form data using the approach from the working version
             const formData = new FormData();
             const jsonData = {

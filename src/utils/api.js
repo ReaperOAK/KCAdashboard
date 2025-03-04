@@ -247,7 +247,7 @@ class ApiService {
       formData.append('data', JSON.stringify(pgnData));
       formData.append('pgn_file', pgnFile);
       
-      return this.post('/pgn/upload.php', formData, {
+      return this.request('/pgn/upload.php', 'POST', formData, {
         headers: { 'Content-Type': undefined } // Let browser set content type with boundary
       });
     } else {

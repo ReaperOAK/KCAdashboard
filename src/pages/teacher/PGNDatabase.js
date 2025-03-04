@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Chess } from 'chess.js'; // Import chess.js for validation
-
+// Remove chess.js import since we're not validating client-side
 import ApiService from '../../utils/api';
 
 const PGNDatabase = () => {
@@ -50,27 +49,6 @@ const PGNDatabase = () => {
         fetchPGNs();
     }, [fetchPGNs]);
 
-    // Function to validate PGN using chess.js
-    const validatePGN = (pgnContent) => {
-        try {
-            const chess = new Chess();
-            
-            // Clean the PGN content to extract moves
-            let cleanedPgn = pgnContent.replace(/\[\s*.*?\s*".*?"\s*\]/g, '').trim();
-            
-            // Try to load the PGN
-            const result = chess.loadPgn(cleanedPgn);
-            
-            if (!result) {
-                return { valid: false, message: 'Invalid PGN format' };
-            }
-            
-            return { valid: true };
-        } catch (error) {
-            return { valid: false, message: error.message };
-        }
-    };
-
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -105,13 +83,7 @@ const PGNDatabase = () => {
                 return;
             }
             
-            // Use validatePGN function to validate the PGN content
-            const validation = validatePGN(uploadForm.pgn_content);
-            if (!validation.valid) {
-                setError(`Invalid PGN: ${validation.message}`);
-                setLoading(false);
-                return;
-            }
+            // Remove PGN validation since server will handle it
             
             // Create form data using the approach from the working version
             const formData = new FormData();
@@ -162,7 +134,7 @@ const PGNDatabase = () => {
             setLoading(false);
         }
     };
-    
+
     const handleDeletePGN = async (pgn) => {
         if (window.confirm(`Are you sure you want to delete "${pgn.title}"?`)) {
             try {
@@ -300,7 +272,7 @@ const PGNDatabase = () => {
                                                 Share
                                             </button>
                                         )}
-                                        <a
+                                        <a 
                                             href={`data:text/plain;charset=utf-8,${encodeURIComponent(pgn.pgn_content)}`}
                                             download={`${pgn.title}.pgn`}
                                             className="text-[#461fa3] hover:text-[#7646eb]"
@@ -541,3 +513,4 @@ const PGNDatabase = () => {
 };
 
 export default PGNDatabase;
+

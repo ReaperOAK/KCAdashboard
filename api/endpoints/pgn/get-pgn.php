@@ -11,32 +11,46 @@ require_once '../middleware/auth.php';
 try {
     // Validate user token and get user data
     $user = getAuthUser();
-    if (!$user || $user['role'] !== 'teacher') {
+    if (!$user) {
         http_response_code(403);
         echo json_encode(['message' => 'Unauthorized access']);
         exit();
     }
 
+    // Get pgn_id from URL parameter
+    if (!isset($_GET['id'])) {
+        throw new Exception('PGN ID is required');
+    }
+    $pgn_id = $_GET['id'];
+    
     $database = new Database();
     $db = $database->getConnection();
     $pgn = new PGN($db);
     
-    // Get shared filter param
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'own';
+    // Get PGN data
+    $pgnData = $pgn->getPGNById($pgn_id, $user['id']);
     
-    if ($filter === 'shared') {
-        // Get PGNs shared with this teacher
-        $pgns = $pgn->getSharedWithMe($user['id']);
-    } else {
-        // Get teacher's own PGNs
-        $pgns = $pgn->getTeacherPGNs($user['id']);
+    if (!$pgnData) {
+        throw new Exception('PGN not found');
     }
     
-    // Return PGNs
+    // Check permissions
+    if ($pgnData['teacher_id'] != $user['id'] && !$pgnData['has_access'] && !$pgnData['is_public']) {
+        if ($user['role'] !== 'student' || !$pgnData['is_public']) {
+            throw new Exception('You do not have permission to view this PGN');
+        }
+    }
+    
+    // Get share details if user is the owner
+    if ($pgnData['teacher_id'] == $user['id']) {
+        $pgnData['shares'] = $pgn->getShareUsers($pgn_id);
+    }
+    
+    // Return PGN data
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'pgns' => $pgns
+        'pgn' => $pgnData
     ]);
 } catch (Exception $e) {
     http_response_code(400);

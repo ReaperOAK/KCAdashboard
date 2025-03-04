@@ -221,6 +221,71 @@ class ApiService {
   static async getFeedbackHistory(studentId) {
     return this.get(`/grading/get-student-feedback-history.php?student_id=${studentId}`);
   }
+
+  // PGN Database endpoints
+  static async getTeacherPGNs(filter = 'own') {
+    return this.get(`/pgn/get-teacher-pgns.php?filter=${filter}`);
+  }
+
+  static async getPGNById(id) {
+    return this.get(`/pgn/get-pgn.php?id=${id}`);
+  }
+
+  static async getPublicPGNs(category = null, teacherId = null) {
+    let url = '/pgn/get-public-pgns.php';
+    const params = {};
+    
+    if (category) params.category = category;
+    if (teacherId) params.teacher_id = teacherId;
+    
+    return this.get(url, { params });
+  }
+
+  static async uploadPGN(pgnData, pgnFile = null) {
+    if (pgnFile) {
+      const formData = new FormData();
+      formData.append('data', JSON.stringify(pgnData));
+      formData.append('pgn_file', pgnFile);
+      
+      return this.post('/pgn/upload.php', formData, {
+        headers: { 'Content-Type': undefined } // Let browser set content type with boundary
+      });
+    } else {
+      return this.post('/pgn/upload.php', pgnData);
+    }
+  }
+
+  static async updatePGN(id, pgnData) {
+    pgnData.id = id;
+    return this.put('/pgn/update.php', pgnData);
+  }
+
+  static async deletePGN(id) {
+    return this.delete(`/pgn/delete.php?id=${id}`);
+  }
+
+  static async sharePGN(pgnId, userIds, permission = 'view') {
+    return this.post('/pgn/share.php', {
+      pgn_id: pgnId,
+      user_ids: userIds,
+      permission
+    });
+  }
+
+  static async removeShare(pgnId, userId) {
+    return this.post('/pgn/remove-share.php', {
+      pgn_id: pgnId,
+      user_id: userId
+    });
+  }
+
+  static async getPGNShareUsers(pgnId) {
+    return this.get(`/pgn/get-share-users.php?pgn_id=${pgnId}`);
+  }
+
+  static async getTeachers() {
+    return this.get('/pgn/get-teachers.php');
+  }
 }
 
 export default ApiService;

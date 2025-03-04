@@ -1,11 +1,12 @@
 <?php
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
 require_once '../config/Database.php';
 require_once '../models/PGN.php';
+require_once '../models/User.php';
 require_once '../middleware/auth.php';
 
 try {
@@ -21,22 +22,29 @@ try {
     $db = $database->getConnection();
     $pgn = new PGN($db);
     
-    // Get shared filter param
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'own';
+    // Get request data
+    $data = json_decode(file_get_contents('php://input'), true);
     
-    if ($filter === 'shared') {
-        // Get PGNs shared with this teacher
-        $pgns = $pgn->getSharedWithMe($user['id']);
-    } else {
-        // Get teacher's own PGNs
-        $pgns = $pgn->getTeacherPGNs($user['id']);
+    // Validate required fields
+    if (empty($data['pgn_id']) || empty($data['user_ids'])) {
+        throw new Exception('PGN ID and User IDs are required');
     }
     
-    // Return PGNs
+    // Verify that user owns this PGN
+    $pgnData = $pgn->getPGNById($data['pgn_id'], $user['id']);
+    if (!$pgnData || $pgnData['teacher_id'] != $user['id']) {
+        throw new Exception('You do not have permission to share this PGN');
+    }
+    
+    // Share the PGN with specified users
+    $permission = isset($data['permission']) ? $data['permission'] : 'view';
+    $result = $pgn->sharePGN($data['pgn_id'], $data['user_ids'], $permission);
+    
+    // Return success response
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'pgns' => $pgns
+        'message' => 'PGN shared successfully'
     ]);
 } catch (Exception $e) {
     http_response_code(400);

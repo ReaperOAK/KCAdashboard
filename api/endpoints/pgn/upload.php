@@ -1,91 +1,96 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
-require_once '../../config/cors.php';
-require_once '../../config/Database.php';
-require_once '../../models/PGN.php';
+require_once '../config/Database.php';
+require_once '../models/PGN.php';
+require_once '../middleware/auth.php';
 
 try {
-    // Create uploads directory if it doesn't exist
-    $uploadDir = __DIR__ . '/../../uploads/pgn';
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
+    // Validate user token and get user data
+    $user = getAuthUser();
+    if (!$user || $user['role'] !== 'teacher') {
+        http_response_code(403);
+        echo json_encode(['message' => 'Unauthorized access']);
+        exit();
     }
-
-    // Log incoming request
-    error_log('Received upload request');
-    error_log('POST data: ' . print_r($_POST, true));
-    error_log('FILES data: ' . print_r($_FILES, true));
 
     $database = new Database();
     $db = $database->getConnection();
     $pgn = new PGN($db);
-
-    // Get teacher_id from token (implement proper token validation)
-    $headers = getallheaders();
-    $token = str_replace('Bearer ', '', $headers['Authorization'] ?? '');
-    $teacher_id = 1; // Temporary! Replace with actual teacher_id from token
-
-    // Parse the JSON data
-    $jsonData = json_decode($_POST['data'] ?? '{}', true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception('Invalid JSON data: ' . json_last_error_msg());
-    }
-
-    // Handle file upload
-    $pgnFile = $_FILES['pgn_file'] ?? null;
-    $filePath = null;
-    $pgnContent = $jsonData['pgn_content'] ?? '';
-
-    if ($pgnFile && $pgnFile['error'] === UPLOAD_ERR_OK) {
-        $filePath = $uploadDir . '/' . uniqid() . '_' . basename($pgnFile['name']);
-        if (!move_uploaded_file($pgnFile['tmp_name'], $filePath)) {
-            throw new Exception('Failed to upload file: ' . error_get_last()['message']);
-        }
+    
+    // Handle JSON data from request
+    $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+    
+    if ($contentType === 'application/json') {
+        $data = json_decode(file_get_contents('php://input'), true);
+    } else if (strpos($contentType, 'multipart/form-data') !== false) {
+        // Handle form data with possible file upload
+        $data = isset($_POST['data']) ? json_decode($_POST['data'], true) : [];
         
-        // Read PGN content from file
-        $pgnContent = file_get_contents($filePath);
-        if ($pgnContent === false) {
-            throw new Exception('Failed to read uploaded file');
+        // Process file upload if present
+        if (isset($_FILES['pgn_file']) && $_FILES['pgn_file']['error'] == 0) {
+            $file = $_FILES['pgn_file'];
+            $uploadDir = '../../uploads/pgn/';
+            
+            // Create directory if it doesn't exist
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            
+            $filename = uniqid() . '_' . basename($file['name']);
+            $targetPath = $uploadDir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                // File uploaded successfully, read content
+                $pgn_content = file_get_contents($targetPath);
+                $data['pgn_content'] = $pgn_content;
+                $data['file_path'] = 'uploads/pgn/' . $filename;
+            } else {
+                throw new Exception('Failed to upload file');
+            }
         }
+    } else {
+        throw new Exception('Unsupported content type');
     }
-
-    $uploadData = [
-        'title' => $jsonData['title'] ?? '',
-        'description' => $jsonData['description'] ?? '',
-        'category' => $jsonData['category'] ?? 'opening',
-        'pgn_content' => $pgnContent,
-        'file_path' => $filePath,
-        'is_public' => isset($jsonData['is_public']) ? 1 : 0,
-        'teacher_id' => $teacher_id
-    ];
-
+    
     // Validate required fields
-    if (empty($uploadData['title']) || empty($uploadData['pgn_content'])) {
+    if (empty($data['title']) || empty($data['pgn_content'])) {
         throw new Exception('Title and PGN content are required');
     }
-
-    if ($pgn->upload($uploadData)) {
-        http_response_code(201);
-        header('Content-Type: application/json');
-        echo json_encode([
-            "message" => "PGN uploaded successfully",
-            "data" => $uploadData
-        ]);
-    } else {
-        throw new Exception('Failed to save PGN to database');
+    
+    // Validate PGN content
+    $validation = $pgn->validatePGN($data['pgn_content']);
+    if (!$validation['valid']) {
+        throw new Exception('Invalid PGN: ' . $validation['message']);
     }
-
-} catch (Exception $e) {
-    error_log("PGN Upload Error: " . $e->getMessage());
-    http_response_code(500);
-    header('Content-Type: application/json');
+    
+    // Sanitize input
+    $uploadData = [
+        'title' => htmlspecialchars(strip_tags($data['title'])),
+        'description' => isset($data['description']) ? htmlspecialchars(strip_tags($data['description'])) : '',
+        'category' => isset($data['category']) ? htmlspecialchars(strip_tags($data['category'])) : 'opening',
+        'pgn_content' => $data['pgn_content'], // Already validated
+        'file_path' => isset($data['file_path']) ? $data['file_path'] : null,
+        'is_public' => isset($data['is_public']) ? (bool)$data['is_public'] : false,
+        'teacher_id' => $user['id']
+    ];
+    
+    // Upload PGN to database
+    $pgn_id = $pgn->upload($uploadData);
+    
+    // Return success response
+    http_response_code(201);
     echo json_encode([
-        "message" => "Error uploading PGN",
-        "error" => $e->getMessage(),
-        "file" => $e->getFile(),
-        "line" => $e->getLine()
+        'message' => 'PGN uploaded successfully',
+        'id' => $pgn_id
+    ]);
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode([
+        'message' => $e->getMessage()
     ]);
 }
 ?>

@@ -11,7 +11,7 @@ require_once '../middleware/auth.php';
 try {
     // Validate user token and get user data
     $user = getAuthUser();
-    if (!$user || $user['role'] !== 'teacher') {
+    if (!$user) {
         http_response_code(403);
         echo json_encode(['message' => 'Unauthorized access']);
         exit();
@@ -21,16 +21,12 @@ try {
     $db = $database->getConnection();
     $pgn = new PGN($db);
     
-    // Get shared filter param
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'own';
+    // Get filter options
+    $category = isset($_GET['category']) ? $_GET['category'] : null;
+    $teacher_id = isset($_GET['teacher_id']) ? $_GET['teacher_id'] : null;
     
-    if ($filter === 'shared') {
-        // Get PGNs shared with this teacher
-        $pgns = $pgn->getSharedWithMe($user['id']);
-    } else {
-        // Get teacher's own PGNs
-        $pgns = $pgn->getTeacherPGNs($user['id']);
-    }
+    // Get public PGNs
+    $pgns = $pgn->getPublicPGNs($category, $teacher_id);
     
     // Return PGNs
     http_response_code(200);

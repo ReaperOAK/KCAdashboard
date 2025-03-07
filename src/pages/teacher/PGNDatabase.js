@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// Remove chess.js import since we're not validating client-side
 import ApiService from '../../utils/api';
+// Import the simple viewer instead of the problematic one
+import SimplePgnViewer from '../../components/SimplePgnViewer';
+import ErrorBoundary from '../../components/ErrorBoundary';
+import LichessPgnViewer from '../../components/LichessPgnViewer';
 
 const PGNDatabase = () => {
     const [pgns, setPgns] = useState([]);
@@ -170,49 +173,6 @@ const PGNDatabase = () => {
                 ? prev.filter(id => id !== teacherId)
                 : [...prev, teacherId]
         );
-    };
-
-    // Add this function to properly handle PGN content for Lichess
-    const prepareLichessUrl = (pgnContent) => {
-        // Method 1: Try using the pgn parameter with proper encoding
-        try {
-            // Clean the PGN content by removing extra whitespace
-            const cleanedPgn = pgnContent.trim().replace(/\r\n/g, '\n');
-            
-            // Lichess has a URL length limit, so for large PGNs
-            // we'll use their import feature instead
-            if (cleanedPgn.length < 2000) {
-                return `https://lichess.org/analysis/pgn/${encodeURIComponent(cleanedPgn)}`;
-            } else {
-                // For larger PGNs, open Lichess analysis board without PGN
-                // We'll use their paste feature instead
-                return 'https://lichess.org/analysis';
-            }
-        } catch (error) {
-            console.error('Error preparing Lichess URL:', error);
-            return 'https://lichess.org/analysis';
-        }
-    };
-
-    // Add this function for alternative PGN viewing
-    const openLichessInNewTab = (pgn) => {
-        // Create a new window/tab with Lichess
-        const lichessWindow = window.open('https://lichess.org/analysis', '_blank');
-        
-        // Wait for the window to load, then paste the PGN
-        if (lichessWindow) {
-            setTimeout(() => {
-                // Try to use the clipboard API to copy the PGN
-                navigator.clipboard.writeText(pgn.pgn_content)
-                    .then(() => {
-                        alert('PGN copied to clipboard! Paste it in the Lichess analysis board that just opened.');
-                    })
-                    .catch(err => {
-                        console.error('Clipboard write failed:', err);
-                        alert('Please copy the PGN manually and paste it in the Lichess analysis board.');
-                    });
-            }, 1000);
-        }
     };
 
     return (
@@ -528,13 +488,14 @@ const PGNDatabase = () => {
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-[#200e4a]">{selectedPGN.title}</h2>
                                 <div className="flex space-x-3">
-                                    {/* Add an alternative way to open in Lichess */}
-                                    <button
-                                        onClick={() => openLichessInNewTab(selectedPGN)}
+                                    <a 
+                                        href={`https://lichess.org/analysis/pgn/${encodeURIComponent(selectedPGN.pgn_content)}`}
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
                                         className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
                                     >
-                                        Open in New Tab
-                                    </button>
+                                        Open in Lichess
+                                    </a>
                                     <button
                                         onClick={() => setShowViewerModal(false)}
                                         className="text-gray-500 hover:text-gray-700"
@@ -544,17 +505,36 @@ const PGNDatabase = () => {
                                 </div>
                             </div>
                             <div className="flex-1 overflow-auto">
-                                <iframe
-                                    title="Lichess Analysis Board"
-                                    src={prepareLichessUrl(selectedPGN.pgn_content)}
-                                    className="w-full h-full"
-                                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                                />
+                                {/* Try to use LichessPgnViewer first */}
+                                <React.Suspense fallback={<div className="p-4">Loading PGN viewer...</div>}>
+                                    <ErrorBoundary fallback={<SimplePgnViewer pgn={selectedPGN.pgn_content} />}>
+                                        <LichessPgnViewer 
+                                            pgn={selectedPGN.pgn_content}
+                                            options={{
+                                                showPlayers: true,
+                                                showClocks: true,
+                                                showMoves: 'right',
+                                                showControls: true,
+                                                chessground: {
+                                                    coordinates: true,
+                                                    drawable: { enabled: true }
+                                                }
+                                            }}
+                                        />
+                                    </ErrorBoundary>
+                                </React.Suspense>
                             </div>
-                            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                                <p className="text-sm text-gray-700">
-                                    If the analysis board doesn't load correctly, click the "Open in New Tab" button and paste the PGN content there.
-                                </p>
+                            <div className="flex justify-between items-center mt-4">
+                                <div className="text-sm text-gray-500">
+                                    <p className="font-semibold">{selectedPGN.category}</p>
+                                </div>
+                                <a 
+                                    href={`data:text/plain;charset=utf-8,${encodeURIComponent(selectedPGN.pgn_content)}`}
+                                    download={`${selectedPGN.title}.pgn`}
+                                    className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
+                                >
+                                    Download PGN
+                                </a>
                             </div>
                         </div>
                     </div>

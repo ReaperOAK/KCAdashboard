@@ -83,15 +83,15 @@ const PGNDatabase = () => {
                 return;
             }
             
-            // Remove PGN validation since server will handle it
-            
-            // Create form data using the approach from the working version
+            // Create form data with very simple structure
             const formData = new FormData();
+            
+            // Manually serialize the JSON to ensure consistency
             const jsonData = {
-                title: uploadForm.title,
-                description: uploadForm.description,
+                title: uploadForm.title.trim(),
+                description: uploadForm.description.trim(),
                 category: uploadForm.category,
-                pgn_content: uploadForm.pgn_content,
+                pgn_content: uploadForm.pgn_content.trim(),
                 is_public: uploadForm.is_public
             };
             
@@ -100,19 +100,13 @@ const PGNDatabase = () => {
             if (selectedFile) {
                 formData.append('pgn_file', selectedFile);
             }
-
-            // Log the form data for debugging
-            console.log('Form data:', Object.fromEntries(formData));
-
-            // Use the direct post method that worked before
-            const response = await ApiService.post('/pgn/upload.php', formData, {
-                headers: {
-                    // Don't set Content-Type here, browser will set it with boundary
-                    'Content-Type': undefined
-                }
-            });
-
-            if (response.message === "PGN uploaded successfully") {
+            
+            console.log('Form data:', jsonData);
+            
+            // Try using the dedicated postFormData method from ApiService
+            const response = await ApiService.postFormData('/pgn/upload.php', formData);
+            
+            if (response && response.message === "PGN uploaded successfully") {
                 setShowUploadModal(false);
                 fetchPGNs();
                 setUploadForm({
@@ -125,7 +119,7 @@ const PGNDatabase = () => {
                 setSelectedFile(null);
                 setError(null);
             } else {
-                throw new Error('Upload failed');
+                throw new Error('Upload failed: ' + (response?.error || 'Unknown error'));
             }
         } catch (error) {
             console.error('Upload error:', error);

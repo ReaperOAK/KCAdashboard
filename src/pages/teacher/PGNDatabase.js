@@ -172,6 +172,49 @@ const PGNDatabase = () => {
         );
     };
 
+    // Add this function to properly handle PGN content for Lichess
+    const prepareLichessUrl = (pgnContent) => {
+        // Method 1: Try using the pgn parameter with proper encoding
+        try {
+            // Clean the PGN content by removing extra whitespace
+            const cleanedPgn = pgnContent.trim().replace(/\r\n/g, '\n');
+            
+            // Lichess has a URL length limit, so for large PGNs
+            // we'll use their import feature instead
+            if (cleanedPgn.length < 2000) {
+                return `https://lichess.org/analysis/pgn/${encodeURIComponent(cleanedPgn)}`;
+            } else {
+                // For larger PGNs, open Lichess analysis board without PGN
+                // We'll use their paste feature instead
+                return 'https://lichess.org/analysis';
+            }
+        } catch (error) {
+            console.error('Error preparing Lichess URL:', error);
+            return 'https://lichess.org/analysis';
+        }
+    };
+
+    // Add this function for alternative PGN viewing
+    const openLichessInNewTab = (pgn) => {
+        // Create a new window/tab with Lichess
+        const lichessWindow = window.open('https://lichess.org/analysis', '_blank');
+        
+        // Wait for the window to load, then paste the PGN
+        if (lichessWindow) {
+            setTimeout(() => {
+                // Try to use the clipboard API to copy the PGN
+                navigator.clipboard.writeText(pgn.pgn_content)
+                    .then(() => {
+                        alert('PGN copied to clipboard! Paste it in the Lichess analysis board that just opened.');
+                    })
+                    .catch(err => {
+                        console.error('Clipboard write failed:', err);
+                        alert('Please copy the PGN manually and paste it in the Lichess analysis board.');
+                    });
+            }, 1000);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
             <div className="p-8">
@@ -484,19 +527,34 @@ const PGNDatabase = () => {
                         <div className="bg-white rounded-xl p-6 max-w-4xl w-full h-[80vh] flex flex-col">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-[#200e4a]">{selectedPGN.title}</h2>
-                                <button
-                                    onClick={() => setShowViewerModal(false)}
-                                    className="text-gray-500 hover:text-gray-700"
-                                >
-                                    ✕
-                                </button>
+                                <div className="flex space-x-3">
+                                    {/* Add an alternative way to open in Lichess */}
+                                    <button
+                                        onClick={() => openLichessInNewTab(selectedPGN)}
+                                        className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
+                                    >
+                                        Open in New Tab
+                                    </button>
+                                    <button
+                                        onClick={() => setShowViewerModal(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
                             </div>
                             <div className="flex-1 overflow-auto">
                                 <iframe
                                     title="Lichess Analysis Board"
-                                    src={`https://lichess.org/analysis/pgn/${encodeURIComponent(selectedPGN.pgn_content)}`}
+                                    src={prepareLichessUrl(selectedPGN.pgn_content)}
                                     className="w-full h-full"
+                                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                                 />
+                            </div>
+                            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+                                <p className="text-sm text-gray-700">
+                                    If the analysis board doesn't load correctly, click the "Open in New Tab" button and paste the PGN content there.
+                                </p>
                             </div>
                         </div>
                     </div>

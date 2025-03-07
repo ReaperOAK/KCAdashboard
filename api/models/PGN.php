@@ -164,15 +164,23 @@ class PGN {
             $this->conn->beginTransaction();
             
             // First, delete any existing shares for these users and PGN
+            // The error is here - mixing named parameters (:pgn_id) with positional parameters (?)
+            // Let's fix it by using consistent named parameters
+            
+            $placeholders = [];
+            foreach ($user_ids as $index => $id) {
+                $placeholders[] = ':user_id_' . $index;
+            }
+            
             $query = "DELETE FROM " . $this->shares_table . " 
-                     WHERE pgn_id = :pgn_id AND user_id IN (" . implode(',', array_fill(0, count($user_ids), '?')) . ")";
+                     WHERE pgn_id = :pgn_id AND user_id IN (" . implode(',', $placeholders) . ")";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":pgn_id", $pgn_id);
             
-            // Bind each user_id to a placeholder
+            // Bind each user_id to its named parameter
             foreach ($user_ids as $index => $user_id) {
-                $stmt->bindValue($index + 1, $user_id);
+                $stmt->bindValue(':user_id_' . $index, $user_id);
             }
             $stmt->execute();
             

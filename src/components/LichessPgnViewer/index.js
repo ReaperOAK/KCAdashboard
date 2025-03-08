@@ -1,26 +1,35 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-// Import the compiled JS version directly instead of the TypeScript source
+// Import the compiled JS version directly
 import LichessPgnViewerLib from 'lichess-pgn-viewer/dist/lichess-pgn-viewer';
 import 'lichess-pgn-viewer/dist/lichess-pgn-viewer.css';
 
+// Import the fallback component
+import PgnFallback from './fallback';
+
 /**
  * React component that wraps the Lichess PGN Viewer library
- * @param {Object} props Component props
- * @param {string} props.pgn - PGN string to render
- * @param {Object} props.options - Additional options for the viewer
  */
 const LichessPgnViewer = ({ pgn, options = {} }) => {
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!pgn || !containerRef.current) return;
 
+    // Store container reference to avoid cleanup issues
+    const currentContainer = containerRef.current;
+
     try {
+      console.log("Initializing PGN Viewer with local package");
+      
       // Clean up previous instance if it exists
       if (viewerRef.current) {
-        containerRef.current.innerHTML = '';
+        if (typeof viewerRef.current.destroy === 'function') {
+          viewerRef.current.destroy();
+        }
+        currentContainer.innerHTML = '';
       }
 
       // Default options
@@ -34,35 +43,46 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
         showCoords: true,
       };
 
-      // Initialize the PGN viewer with merged options
+      // Initialize directly with the imported library
       viewerRef.current = LichessPgnViewerLib(
-        containerRef.current, 
+        currentContainer, 
         { ...defaultOptions, ...options }
       );
 
+      setError(null);
+
       return () => {
-        // Clean up on unmount
+        // Clean up on unmount using captured ref
         if (viewerRef.current && typeof viewerRef.current.destroy === 'function') {
           viewerRef.current.destroy();
-          viewerRef.current = null;
         }
+        if (currentContainer) {
+          currentContainer.innerHTML = '';
+        }
+        viewerRef.current = null;
       };
     } catch (error) {
       console.error('Error initializing Lichess PGN Viewer:', error);
-      if (containerRef.current) {
-        containerRef.current.innerHTML = 
-          '<div class="p-4 text-red-600">Error loading PGN viewer. Please try again.</div>';
-      }
+      setError(error.message || "Failed to initialize PGN viewer");
     }
   }, [pgn, options]);
 
   return (
     <div className="lichess-pgn-viewer-wrapper w-full h-full">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+      
       <div 
         ref={containerRef} 
         className="w-full h-full"
         style={{ minHeight: '400px' }}
       ></div>
+      
+      {/* Show fallback if there's an error */}
+      {error && pgn && <PgnFallback pgn={pgn} title="PGN Content" />}
       
       {/* Fallback for empty PGN */}
       {!pgn && (

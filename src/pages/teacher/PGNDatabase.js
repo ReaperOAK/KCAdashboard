@@ -494,9 +494,9 @@ const PGNDatabase = () => {
                                 </button>
                             </div>
                             <div className="flex-1 overflow-auto" style={{ minHeight: "400px" }}>
-                                {/* Use the improved component with key to force remount */}
+                                {/* Use key to ensure component remounts with new PGN */}
                                 <LichessPgnViewer 
-                                    key={`pgn-viewer-${selectedPGN.id}`}
+                                    key={`pgn-${selectedPGN.id}-${Date.now()}`}
                                     pgn={selectedPGN.pgn_content}
                                     options={{
                                         boardTheme: 'blue',

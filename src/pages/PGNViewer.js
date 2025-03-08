@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 const PGNViewer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { /* user */ } = useAuth();  // Removed unused variable
   const [pgn, setPgn] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

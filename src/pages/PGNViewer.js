@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 const PGNViewer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { /* user */ } = useAuth();  // Removed unused variable
+  const { user } = useAuth();
   const [pgn, setPgn] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -122,6 +122,7 @@ const PGNViewer = () => {
           <div className="text-sm text-gray-600">
             <p><span className="font-semibold">Category:</span> {pgn.category}</p>
             <p><span className="font-semibold">Created:</span> {new Date(pgn.created_at).toLocaleDateString()}</p>
+            <p><span className="font-semibold">Viewing as:</span> {user?.full_name || user?.email}</p>
           </div>
           <div className="flex space-x-4">
             <a 

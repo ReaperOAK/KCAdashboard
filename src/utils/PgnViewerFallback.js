@@ -12,15 +12,20 @@ export const createFallbackViewer = (container, options) => {
     return null;
   }
 
-  // Create an iframe to lichess analysis board
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.minHeight = '450px';
-  iframe.style.border = 'none';
-  iframe.title = 'Chess Analysis';
-  
+  console.log("Using fallback PGN viewer with iframe to lichess.org");
+
+  // Display loading state
+  container.innerHTML = '<div class="p-4 text-gray-600 text-center">Loading external viewer...</div>';
+
   try {
+    // Create an iframe to lichess analysis board
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.minHeight = '450px';
+    iframe.style.border = 'none';
+    iframe.title = 'Chess Analysis';
+    
     // Clean the PGN content and encode it
     const cleanedPgn = pgn.trim();
     
@@ -42,6 +47,7 @@ export const createFallbackViewer = (container, options) => {
       // Set a basic URL first - we'll post to it later
       iframe.src = 'https://lichess.org/analysis';
       
+      // Add event listeners to detect load failures
       iframe.onload = () => {
         try {
           // Try to open the PGN in the iframe's analysis board via console
@@ -51,15 +57,22 @@ export const createFallbackViewer = (container, options) => {
           }, 'https://lichess.org');
         } catch (e) {
           console.error('Failed to post PGN to iframe:', e);
+          viewerContainer.innerHTML = `<div class="p-4 bg-red-100 text-red-600">Failed to load external viewer: ${e.message}</div>`;
         }
+      };
+      
+      iframe.onerror = (error) => {
+        console.error('Iframe failed to load:', error);
+        container.innerHTML = `<div class="p-4 bg-red-100 text-red-600">Failed to load external viewer</div>`;
       };
     } else {
       // For smaller PGNs, use the URL method
       iframe.src = `https://lichess.org/analysis/pgn/${encodeURIComponent(cleanedPgn)}`;
+      
+      // Clear container and add the iframe
+      container.innerHTML = '';
+      container.appendChild(iframe);
     }
-    
-    container.innerHTML = '';
-    container.appendChild(iframe);
     
     return {
       destroy: () => {
@@ -73,8 +86,9 @@ export const createFallbackViewer = (container, options) => {
     console.error('Error creating fallback viewer:', error);
     container.innerHTML = `
       <div class="p-4 bg-red-100 text-red-700 rounded">
-        <p class="font-bold">Error loading PGN viewer</p>
+        <p class="font-bold">Error loading fallback PGN viewer</p>
         <p class="text-sm mt-1">${error.message}</p>
+        <pre class="p-2 bg-white border rounded text-xs font-mono overflow-auto max-h-60">${pgn}</pre>
       </div>
     `;
     return null;

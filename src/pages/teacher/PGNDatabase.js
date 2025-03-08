@@ -493,9 +493,10 @@ const PGNDatabase = () => {
                                     ✕
                                 </button>
                             </div>
-                            <div className="flex-1 overflow-auto">
-                                {/* Use the new component */}
+                            <div className="flex-1 overflow-auto" style={{ minHeight: "400px" }}>
+                                {/* Use the improved component with key to force remount */}
                                 <LichessPgnViewer 
+                                    key={`pgn-viewer-${selectedPGN.id}`}
                                     pgn={selectedPGN.pgn_content}
                                     options={{
                                         boardTheme: 'blue',
@@ -503,19 +504,30 @@ const PGNDatabase = () => {
                                         showCoords: true
                                     }}
                                 />
-                                {/* Alternative solution: <PgnViewer pgn={selectedPGN.pgn_content} /> */}
                             </div>
                             <div className="flex justify-between items-center mt-4">
                                 <div className="text-sm text-gray-500">
                                     <p className="font-semibold">{selectedPGN.category}</p>
                                 </div>
-                                <a 
-                                    href={`data:text/plain;charset=utf-8,${encodeURIComponent(selectedPGN.pgn_content)}`}
-                                    download={`${selectedPGN.title}.pgn`}
-                                    className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
-                                >
-                                    Download PGN
-                                </a>
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={() => {
+                                            // Force re-render the viewer
+                                            setShowViewerModal(false);
+                                            setTimeout(() => setShowViewerModal(true), 50);
+                                        }}
+                                        className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm"
+                                    >
+                                        Reload Viewer
+                                    </button>
+                                    <a 
+                                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(selectedPGN.pgn_content)}`}
+                                        download={`${selectedPGN.title}.pgn`}
+                                        className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
+                                    >
+                                        Download PGN
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

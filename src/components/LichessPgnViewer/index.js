@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import LichessPgnViewerLib from 'lichess-pgn-viewer';
 // Import the CSS for styling
 import 'lichess-pgn-viewer/dist/lichess-pgn-viewer.css';
+import PgnFallback from './fallback';
 
 /**
  * React component that wraps the Lichess PGN Viewer library
@@ -28,16 +29,36 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
       }
       currentContainer.innerHTML = '';
       
-      // Initialize exactly as shown in the documentation
-      // Combine default options with user provided options
+      // Initialize with default options merged with user provided options
+      // Based on the documentation for proper configuration
       viewerRef.current = LichessPgnViewerLib(currentContainer, {
         pgn: pgn,
-        showMoves: true, 
+        showPlayers: 'auto',
         showClocks: true,
+        showMoves: 'auto', // 'auto', 'right', 'bottom' or false
+        showControls: true,
         scrollToMove: true,
-        boardTheme: 'blue',
-        pieceSet: 'cburnett',
-        showCoords: true,
+        keyboardToMove: true, 
+        orientation: undefined, // Will use orientation from PGN
+        initialPly: 0,
+        chessground: {
+          animation: { duration: 250 },
+          highlight: { lastMove: true, check: true },
+          movable: { free: false },
+        },
+        drawArrows: true,
+        menu: {
+          getPgn: {
+            enabled: true,
+            fileName: undefined, // Auto-generate filename
+          },
+          practiceWithComputer: {
+            enabled: true,
+          },
+          analysisBoard: {
+            enabled: true,
+          },
+        },
         ...options
       });
       
@@ -53,26 +74,16 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
     } catch (error) {
       console.error('Error initializing Lichess PGN Viewer:', error);
       setError(error.message || "Failed to initialize PGN viewer");
-      
-      // Show a simple error message rather than falling back to iframe
-      currentContainer.innerHTML = `
-        <div class="p-4 bg-gray-100 rounded">
-          <p class="mb-2 text-red-500">Error loading PGN viewer:</p>
-          <p class="mb-4">${error.message || 'Unknown error'}</p>
-          <pre class="p-2 bg-white border rounded text-xs font-mono overflow-auto max-h-60">${pgn}</pre>
-        </div>
-      `;
     }
   }, [pgn, options]);
 
+  // If there's an error, show the fallback component
+  if (error) {
+    return <PgnFallback pgn={pgn} title="PGN Analysis (Fallback View)" />;
+  }
+
   return (
     <div className="lichess-pgn-viewer-wrapper w-full h-full">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-      
       <div 
         ref={containerRef} 
         className="w-full h-full"

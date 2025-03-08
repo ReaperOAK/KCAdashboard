@@ -483,7 +483,7 @@ const PGNDatabase = () => {
                 {/* PGN Viewer Modal */}
                 {showViewerModal && selectedPGN && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 max-w-4xl w-full h-[80vh] flex flex-col">
+                        <div className="bg-white rounded-xl p-6 max-w-5xl w-full h-[85vh] flex flex-col">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-[#200e4a]">{selectedPGN.title}</h2>
                                 <button
@@ -493,37 +493,64 @@ const PGNDatabase = () => {
                                     ✕
                                 </button>
                             </div>
-                            <div className="flex-1 overflow-auto" style={{ minHeight: "400px" }}>
+                            
+                            {selectedPGN.description && (
+                                <p className="text-gray-600 mb-4">{selectedPGN.description}</p>
+                            )}
+                            
+                            <div className="flex-1 overflow-hidden" style={{ minHeight: "500px" }}>
                                 {/* Use key to ensure component remounts with new PGN */}
                                 <LichessPgnViewer 
                                     key={`pgn-${selectedPGN.id}-${Date.now()}`}
                                     pgn={selectedPGN.pgn_content}
                                     options={{
+                                        showPlayers: 'auto',
+                                        showClocks: true,
+                                        showMoves: 'auto',
+                                        showControls: true,
+                                        scrollToMove: true,
+                                        keyboardToMove: true,
                                         boardTheme: 'blue',
                                         pieceSet: 'cburnett',
-                                        showCoords: true
+                                        showCoords: true,
+                                        drawArrows: true,
+                                        chessground: {
+                                            animation: { duration: 250 },
+                                            highlight: { lastMove: true, check: true },
+                                            movable: { free: false },
+                                        },
+                                        menu: {
+                                            getPgn: { enabled: true },
+                                            practiceWithComputer: { enabled: true },
+                                            analysisBoard: { enabled: true },
+                                        }
                                     }}
                                 />
                             </div>
-                            <div className="flex justify-between items-center mt-4">
-                                <div className="text-sm text-gray-500">
-                                    <p className="font-semibold">{selectedPGN.category}</p>
+                            <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-200">
+                                <div className="text-sm text-gray-600">
+                                    <span className="font-semibold">Category:</span> {selectedPGN.category}
+                                    {viewMode === 'shared' && (
+                                        <span className="ml-4">
+                                            <span className="font-semibold">Shared by:</span> {selectedPGN.shared_by}
+                                        </span>
+                                    )}
                                 </div>
-                                <div className="flex space-x-2">
+                                <div className="flex space-x-3">
                                     <button
                                         onClick={() => {
                                             // Force re-render the viewer
                                             setShowViewerModal(false);
                                             setTimeout(() => setShowViewerModal(true), 50);
                                         }}
-                                        className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm"
+                                        className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
                                     >
                                         Reload Viewer
                                     </button>
                                     <a 
                                         href={`data:text/plain;charset=utf-8,${encodeURIComponent(selectedPGN.pgn_content)}`}
                                         download={`${selectedPGN.title}.pgn`}
-                                        className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
+                                        className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm hover:bg-[#7646eb]"
                                     >
                                         Download PGN
                                     </a>

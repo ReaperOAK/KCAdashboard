@@ -1,12 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-// Import the package directly instead of trying to access a specific path
+// Import the package exactly as shown in the documentation
 import LichessPgnViewerLib from 'lichess-pgn-viewer';
-// Import the CSS directly from the package
+// Import the CSS for styling
 import 'lichess-pgn-viewer/dist/lichess-pgn-viewer.css';
-
-// Import the fallback component
-import PgnFallback from './fallback';
 
 /**
  * React component that wraps the Lichess PGN Viewer library
@@ -21,50 +18,50 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
 
     // Store container reference to avoid cleanup issues
     const currentContainer = containerRef.current;
-
+    
     try {
       console.log("Initializing PGN Viewer with local package");
       
       // Clean up previous instance if it exists
-      if (viewerRef.current) {
-        if (typeof viewerRef.current.destroy === 'function') {
-          viewerRef.current.destroy();
-        }
-        currentContainer.innerHTML = '';
+      if (viewerRef.current && typeof viewerRef.current.destroy === 'function') {
+        viewerRef.current.destroy();
       }
-
-      // Default options
-      const defaultOptions = {
-        pgn,
+      currentContainer.innerHTML = '';
+      
+      // Initialize exactly as shown in the documentation
+      // Combine default options with user provided options
+      viewerRef.current = LichessPgnViewerLib(currentContainer, {
+        pgn: pgn,
         showMoves: true, 
         showClocks: true,
         scrollToMove: true,
         boardTheme: 'blue',
         pieceSet: 'cburnett',
         showCoords: true,
-      };
-
-      // Initialize directly with the imported library
-      viewerRef.current = LichessPgnViewerLib(
-        currentContainer, 
-        { ...defaultOptions, ...options }
-      );
-
+        ...options
+      });
+      
       setError(null);
-
+      
       return () => {
-        // Clean up on unmount using captured ref
+        // Clean up on unmount
         if (viewerRef.current && typeof viewerRef.current.destroy === 'function') {
           viewerRef.current.destroy();
-        }
-        if (currentContainer) {
-          currentContainer.innerHTML = '';
         }
         viewerRef.current = null;
       };
     } catch (error) {
       console.error('Error initializing Lichess PGN Viewer:', error);
       setError(error.message || "Failed to initialize PGN viewer");
+      
+      // Show a simple error message rather than falling back to iframe
+      currentContainer.innerHTML = `
+        <div class="p-4 bg-gray-100 rounded">
+          <p class="mb-2 text-red-500">Error loading PGN viewer:</p>
+          <p class="mb-4">${error.message || 'Unknown error'}</p>
+          <pre class="p-2 bg-white border rounded text-xs font-mono overflow-auto max-h-60">${pgn}</pre>
+        </div>
+      `;
     }
   }, [pgn, options]);
 
@@ -82,10 +79,6 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
         style={{ minHeight: '400px' }}
       ></div>
       
-      {/* Show fallback if there's an error */}
-      {error && pgn && <PgnFallback pgn={pgn} title="PGN Content" />}
-      
-      {/* Fallback for empty PGN */}
       {!pgn && (
         <div className="p-4 text-gray-500 text-center">
           No PGN content available to display.

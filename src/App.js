@@ -8,6 +8,7 @@ import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
 import Profile from './pages/Profile';
+import PGNViewer from './pages/PGNViewer';
 
 import adminRoutes from './routes/adminRoutes';
 import teacherRoutes from './routes/teacherRoutes';
@@ -70,27 +71,39 @@ const AppContent = () => {
         <>
           <TopNavbar toggleSidebar={toggleSidebar} />
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-          <div className="lg:ml-64 pt-16">
-            <div className="p-8">
-              <Breadcrumbs />
-              <Routes>
-                {/* Common Routes */}
-                <Route path="/" element={<DashboardRedirect />} />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
-                      <Profile />
-                    </ProtectedRoute>
-                  } 
-                />
+          <div className={window.location.pathname.startsWith('/pgn-viewer') ? '' : 'lg:ml-64 pt-16'}>
+            {!window.location.pathname.startsWith('/pgn-viewer') && (
+              <div className="p-8">
+                <Breadcrumbs />
+              </div>
+            )}
+            <Routes>
+              {/* Common Routes */}
+              <Route path="/" element={<DashboardRedirect />} />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* PGN Viewer Standalone Route */}
+              <Route 
+                path="/pgn-viewer/:id" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                    <PGNViewer />
+                  </ProtectedRoute>
+                }
+              />
 
-                {/* Role-based Routes */}
-                {renderRoutes(adminRoutes, ['admin'])}
-                {renderRoutes(teacherRoutes, ['teacher'])}
-                {renderRoutes(studentRoutes, ['student'])}
-              </Routes>
-            </div>
+              {/* Role-based Routes */}
+              {renderRoutes(adminRoutes, ['admin'])}
+              {renderRoutes(teacherRoutes, ['teacher'])}
+              {renderRoutes(studentRoutes, ['student'])}
+            </Routes>
           </div>
         </>
       )}

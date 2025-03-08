@@ -9,7 +9,7 @@ import PgnFallback from './fallback';
 /**
  * React component that wraps the Lichess PGN Viewer library
  */
-const LichessPgnViewer = ({ pgn, options = {} }) => {
+const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
   const [error, setError] = useState(null);
@@ -62,6 +62,19 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
         ...options
       });
       
+      // Give the viewer a moment to initialize before fixing layout
+      setTimeout(() => {
+        // Try to adapt layout based on container size
+        const containerWidth = currentContainer.clientWidth;
+        if (containerWidth < 768) {
+          const movesList = currentContainer.querySelector('.lpv__moves');
+          if (movesList) {
+            movesList.style.maxHeight = '200px';
+            movesList.style.overflow = 'auto';
+          }
+        }
+      }, 500);
+      
       setError(null);
       
       return () => {
@@ -83,7 +96,7 @@ const LichessPgnViewer = ({ pgn, options = {} }) => {
   }
 
   return (
-    <div className="lichess-pgn-viewer-wrapper w-full h-full">
+    <div className={`lichess-pgn-viewer-wrapper w-full h-full ${containerClassName}`}>
       <div 
         ref={containerRef} 
         className="w-full h-full"

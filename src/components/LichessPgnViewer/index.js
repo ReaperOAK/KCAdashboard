@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-// Import the compiled JS version directly
-import LichessPgnViewerLib from 'lichess-pgn-viewer/dist/lichess-pgn-viewer';
+// Import the package directly instead of trying to access a specific path
+import LichessPgnViewerLib from 'lichess-pgn-viewer';
+// Import the CSS directly from the package
 import 'lichess-pgn-viewer/dist/lichess-pgn-viewer.css';
 
 // Import the fallback component

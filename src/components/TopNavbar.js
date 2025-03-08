@@ -34,7 +34,7 @@ const TopNavbar = ({ toggleSidebar }) => {
               </svg>
             </button>
 
-            <Link to="/" className="text-xl font-bold">Dashboard ozak</Link>
+            <Link to="/" className="text-xl font-bold">Dashboard oak</Link>
             
             {/* Common Links - Hidden on Mobile */}
             <div className="hidden lg:flex ml-10 space-x-4">

@@ -16,21 +16,6 @@ jobs:
           fetch-depth: 0  # Fetch all history for proper branch handling
           ref: main       # Explicitly checkout main branch
 
-      # Configure Git to handle divergent branches with merge strategy
-      - name: Configure Git
-        run: |
-          git config --global pull.rebase false
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      # Check if build branch exists and delete it if needed
-      - name: Remove existing build branch if exists
-        run: |
-          git fetch origin
-          if git ls-remote --exit-code --heads origin build; then
-            echo "Remote build branch exists but we'll create a fresh one"
-          fi
-
       - name: Install dependencies (excluding problematic packages)
         run: |
           # Create .npmrc to ignore specific packages

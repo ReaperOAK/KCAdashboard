@@ -1,89 +1,80 @@
 import React, { useEffect, useRef } from 'react';
-import LichessPgnViewerPackage from 'lichess-pgn-viewer';
-import 'lichess-pgn-viewer/dist/lichess-pgn-viewer.css';
 
-/**
- * React component wrapper for lichess-pgn-viewer
- */
+// Import the package directly using its main entry point
+import lichessPgnViewer from 'lichess-pgn-viewer';
+
 const LichessPgnViewer = ({ pgn, options = {} }) => {
   const containerRef = useRef(null);
-  const viewerRef = useRef(null);
+  const viewerInstanceRef = useRef(null);
 
   useEffect(() => {
-    if (!pgn || !containerRef.current) return;
+    if (!containerRef.current || !pgn) return;
+
+    // Capture the current value of the ref
+    const currentContainer = containerRef.current;
 
     try {
-      // Clean up previous instance if it exists
-      if (viewerRef.current && viewerRef.current.destroy) {
-        viewerRef.current.destroy();
-        viewerRef.current = null;
+      // Clean up previous instance to avoid memory leaks
+      if (viewerInstanceRef.current) {
+        currentContainer.innerHTML = '';
       }
 
-      // Initialize the viewer with the given PGN and options
-      const defaultOptions = {
-        pgn: pgn,
-        showPlayers: true,
+      // Default configuration
+      const defaultConfig = {
+        pgn,
+        showMoves: true,
         showClocks: true,
-        showMoves: 'right',
-        showControls: true,
         scrollToMove: true,
-        keyboardToMove: true,
-        orientation: undefined, // will use orientation from PGN
-        initialPly: 0,
-        chessground: {
-          highlight: { lastMove: true, check: true },
-          animation: { enabled: true },
-          movable: { free: false },
-          viewOnly: false,
-          coordinates: true,
-          drawable: { enabled: true, defaultSnapToValidMove: true }
-        },
-        menu: {
-          getPgn: { enabled: true },
-          practiceWithComputer: { enabled: true },
-          analysisBoard: { enabled: true }
-        }
+        boardTheme: 'blue',
+        pieceSet: 'cburnett',
+        showCoords: true
       };
 
-      // Merge defaults with provided options
-      const mergedOptions = { ...defaultOptions, ...options };
-      
-      // Initialize the lichess-pgn-viewer
-      viewerRef.current = LichessPgnViewerPackage(containerRef.current, mergedOptions);
-      
-      // Example of using methods on the viewer
-      console.log('Lichess PGN Viewer initialized successfully');
-      
-    } catch (error) {
-      console.error('Error initializing Lichess PGN Viewer:', error);
-      
-      // Fallback to simpler iframe-based solution
-      containerRef.current.innerHTML = '';
-      const iframe = document.createElement('iframe');
-      iframe.style.width = '100%';
-      iframe.style.height = '500px';
-      iframe.style.border = 'none';
-      iframe.title = 'Lichess Analysis';
-      iframe.src = `https://lichess.org/analysis/pgn/${encodeURIComponent(pgn)}`;
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
-      containerRef.current.appendChild(iframe);
-    }
+      // Initialize the viewer with the merged options
+      viewerInstanceRef.current = lichessPgnViewer(
+        currentContainer, 
+        {
+          ...defaultConfig,
+          ...options
+        }
+      );
 
-    return () => {
-      // Clean up on unmount
-      if (viewerRef.current && viewerRef.current.destroy) {
-        viewerRef.current.destroy();
+      return () => {
+        // Cleanup function using captured value
+        if (currentContainer) {
+          currentContainer.innerHTML = '';
+        }
+        viewerInstanceRef.current = null;
+      };
+    } catch (error) {
+      console.error("Error initializing Lichess PGN Viewer:", error);
+      
+      // Fallback to showing raw PGN
+      if (currentContainer) {
+        currentContainer.innerHTML = `
+          <div class="p-4 bg-gray-100 rounded">
+            <p class="mb-2 text-red-500">Error loading PGN viewer:</p>
+            <p class="mb-4">${error.message}</p>
+            <pre class="p-2 bg-white border rounded text-xs font-mono overflow-auto max-h-60">${pgn}</pre>
+            <p class="mt-2 text-sm">The PGN content is still available above.</p>
+          </div>
+        `;
       }
-    };
+    }
   }, [pgn, options]);
 
   return (
-    <div className="lichess-pgn-viewer-wrapper">
-      <div 
-        ref={containerRef} 
-        className="lichess-pgn-viewer" 
-        style={{ width: '100%', minHeight: '500px' }}
-      ></div>
+    <div className="lichess-pgn-viewer-wrapper w-full h-full">
+      <div
+        ref={containerRef}
+        className="w-full h-full"
+        style={{ minHeight: '400px' }}
+      />
+      {!pgn && (
+        <div className="p-4 text-gray-500 text-center">
+          No PGN content available to display.
+        </div>
+      )}
     </div>
   );
 };

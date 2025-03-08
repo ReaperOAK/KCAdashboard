@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
-// Import the simple viewer instead of the problematic one
-import SimplePgnViewer from '../../components/SimplePgnViewer';
-import ErrorBoundary from '../../components/ErrorBoundary';
 import LichessPgnViewer from '../../components/LichessPgnViewer';
 
 const PGNDatabase = () => {
@@ -44,8 +41,10 @@ const PGNDatabase = () => {
             const response = await ApiService.getTeachers();
             setTeacherList(response.teachers || []);
         } catch (error) {
+            const response = await ApiService.getTeachers();
+            setTeacherList(response.teachers || []);
             console.error('Failed to fetch teachers:', error);
-        }
+        } 
     }, []);
 
     useEffect(() => {
@@ -487,42 +486,24 @@ const PGNDatabase = () => {
                         <div className="bg-white rounded-xl p-6 max-w-4xl w-full h-[80vh] flex flex-col">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-[#200e4a]">{selectedPGN.title}</h2>
-                                <div className="flex space-x-3">
-                                    <a 
-                                        href={`https://lichess.org/analysis/pgn/${encodeURIComponent(selectedPGN.pgn_content)}`}
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm"
-                                    >
-                                        Open in Lichess
-                                    </a>
-                                    <button
-                                        onClick={() => setShowViewerModal(false)}
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={() => setShowViewerModal(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    ✕
+                                </button>
                             </div>
                             <div className="flex-1 overflow-auto">
-                                {/* Try to use LichessPgnViewer first */}
-                                <React.Suspense fallback={<div className="p-4">Loading PGN viewer...</div>}>
-                                    <ErrorBoundary fallback={<SimplePgnViewer pgn={selectedPGN.pgn_content} />}>
-                                        <LichessPgnViewer 
-                                            pgn={selectedPGN.pgn_content}
-                                            options={{
-                                                showPlayers: true,
-                                                showClocks: true,
-                                                showMoves: 'right',
-                                                showControls: true,
-                                                chessground: {
-                                                    coordinates: true,
-                                                    drawable: { enabled: true }
-                                                }
-                                            }}
-                                        />
-                                    </ErrorBoundary>
-                                </React.Suspense>
+                                {/* Use the new component */}
+                                <LichessPgnViewer 
+                                    pgn={selectedPGN.pgn_content}
+                                    options={{
+                                        boardTheme: 'blue',
+                                        pieceSet: 'cburnett',
+                                        showCoords: true
+                                    }}
+                                />
+                                {/* Alternative solution: <PgnViewer pgn={selectedPGN.pgn_content} /> */}
                             </div>
                             <div className="flex justify-between items-center mt-4">
                                 <div className="text-sm text-gray-500">

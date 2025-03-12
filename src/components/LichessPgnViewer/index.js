@@ -43,45 +43,56 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
     // Add custom CSS to ensure proper layout
     const styleEl = document.createElement('style');
     styleEl.innerHTML = `
+      /* Base styles that apply to all device sizes */
       .lichess-pgn-viewer-wrapper .lpv {
         display: flex !important;
-        flex-direction: column !important; /* Default to column layout for mobile */
         height: 100% !important;
         overflow: hidden !important;
       }
       
-      /* On larger screens, use row layout */
+      /* Mobile-specific layout (column direction) */
+      @media (max-width: 639px) {
+        .lichess-pgn-viewer-wrapper .lpv {
+          flex-direction: column !important;
+        }
+        
+        .lichess-pgn-viewer-wrapper .lpv__board {
+          width: 100% !important;
+          max-height: 50vh !important;
+        }
+        
+        .lichess-pgn-viewer-wrapper .lpv__side {
+          width: 100% !important;
+          max-height: 50vh !important;
+        }
+      }
+      
+      /* Desktop-specific layout (row direction) */
       @media (min-width: 640px) {
         .lichess-pgn-viewer-wrapper .lpv {
           flex-direction: row !important;
         }
-      }
-      
-      .lichess-pgn-viewer-wrapper .lpv__board {
-        flex: 0 0 auto !important;
-        width: 100% !important; /* Full width on mobile */
-        aspect-ratio: 1 / 1 !important;
-        max-height: 50vh !important; /* Limit height on small screens */
-      }
-      
-      @media (min-width: 640px) {
+        
         .lichess-pgn-viewer-wrapper .lpv__board {
           min-width: 300px !important;
+          height: 100% !important;
           max-height: none !important;
         }
+        
+        .lichess-pgn-viewer-wrapper .lpv__side {
+          max-height: 100% !important;
+        }
+      }
+      
+      /* Common styles for both layouts */
+      .lichess-pgn-viewer-wrapper .lpv__board {
+        flex: 0 0 auto !important;
+        aspect-ratio: 1 / 1 !important;
       }
       
       .lichess-pgn-viewer-wrapper .lpv__side {
         flex: 1 1 auto !important;
         overflow: auto !important;
-        max-height: 50vh !important; /* Limit height on small screens */
-        width: 100% !important; /* Full width on mobile */
-      }
-      
-      @media (min-width: 640px) {
-        .lichess-pgn-viewer-wrapper .lpv__side {
-          max-height: 100% !important;
-        }
       }
       
       .lichess-pgn-viewer-wrapper .cg-wrap {

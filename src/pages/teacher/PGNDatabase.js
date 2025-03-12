@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
 import PGNList from '../../components/PGNDatabase/PGNList';
 import UploadModal from '../../components/PGNDatabase/UploadModal';
-import ViewerModal from '../../components/PGNDatabase/ViewerModal';
 import ShareModal from '../../components/PGNDatabase/ShareModal';
+// We're not using ViewerModal anymore since we're navigating to a page
 
 const PGNDatabase = () => {
+    const navigate = useNavigate();
     const [pgns, setPgns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
-    const [showViewerModal, setShowViewerModal] = useState(false);
-    const [selectedPGN, setSelectedPGN] = useState(null);
+    // Remove ViewerModal state
+    // const [showViewerModal, setShowViewerModal] = useState(false);
+    // const [selectedPGN, setSelectedPGN] = useState(null);
     const [uploadForm, setUploadForm] = useState({
         title: '',
         description: '',
@@ -26,6 +29,14 @@ const PGNDatabase = () => {
     const [selectedPGNForShare, setSelectedPGNForShare] = useState(null);
     const [selectedTeachers, setSelectedTeachers] = useState([]);
     const [sharePermission, setSharePermission] = useState('view');
+
+    // Add function to navigate to PGN viewer page
+    const navigateToPGNViewer = (pgn) => {
+        // Store PGN data in sessionStorage for retrieval on the viewer page
+        sessionStorage.setItem('viewPGN', JSON.stringify(pgn));
+        // Navigate to the dedicated viewer page with the PGN ID
+        navigate(`/pgn-viewer/${pgn.id}`);
+    };
 
     const fetchPGNs = useCallback(async () => {
         try {
@@ -232,10 +243,7 @@ const PGNDatabase = () => {
                     <PGNList
                         pgns={pgns}
                         viewMode={viewMode}
-                        onView={(pgn) => {
-                            setSelectedPGN(pgn);
-                            setShowViewerModal(true);
-                        }}
+                        onView={navigateToPGNViewer}
                         onShare={openShareModal}
                         onDelete={handleDeletePGN}
                     />
@@ -274,15 +282,7 @@ const PGNDatabase = () => {
                     />
                 )}
 
-                {/* PGN Viewer Modal */}
-                {showViewerModal && selectedPGN && (
-                    <ViewerModal
-                        show={showViewerModal}
-                        onClose={() => setShowViewerModal(false)}
-                        pgn={selectedPGN}
-                        viewMode={viewMode}
-                    />
-                )}
+                {/* Remove PGN Viewer Modal since we're navigating to a page instead */}
             </div>
         </div>
     );

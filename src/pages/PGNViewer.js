@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import LichessPgnViewer from '../components/LichessPgnViewer';
 import ApiService from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
+import '../styles/chess-viewer-overrides.css';
 
 const PGNViewer = () => {
   const { id } = useParams();
@@ -93,6 +94,7 @@ const PGNViewer = () => {
         <div className="h-[70vh] border border-gray-200 rounded-lg">
           <LichessPgnViewer
             pgn={pgn.pgn_content}
+            containerClassName="chess-viewer-container"
             options={{
               showPlayers: 'auto',
               showClocks: true,
@@ -104,10 +106,13 @@ const PGNViewer = () => {
               pieceSet: 'cburnett',
               showCoords: true,
               drawArrows: true,
+              viewOnly: true,
+              resizable: true,
               chessground: {
                 animation: { duration: 250 },
                 highlight: { lastMove: true, check: true },
                 movable: { free: false },
+                responsive: true,
               },
               menu: {
                 getPgn: { enabled: true },
@@ -122,6 +127,9 @@ const PGNViewer = () => {
           <div className="text-sm text-gray-600">
             <p><span className="font-semibold">Category:</span> {pgn.category}</p>
             <p><span className="font-semibold">Created:</span> {new Date(pgn.created_at).toLocaleDateString()}</p>
+            {pgn.shared_by && (
+              <p><span className="font-semibold">Shared by:</span> {pgn.shared_by}</p>
+            )}
             <p><span className="font-semibold">Viewing as:</span> {user?.full_name || user?.email}</p>
           </div>
           <div className="flex space-x-4">

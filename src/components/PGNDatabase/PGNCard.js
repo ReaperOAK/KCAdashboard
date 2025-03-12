@@ -1,6 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PGNCard = ({ pgn, viewMode, onView, onShare, onDelete }) => {
+  const navigate = useNavigate();
+  
+  const handleView = () => {
+    // Store PGN data in sessionStorage for the viewer page
+    sessionStorage.setItem('viewPGN', JSON.stringify(pgn));
+    // Navigate to dedicated viewer page
+    navigate(`/pgn-viewer/${pgn.id}`);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="p-6">
@@ -25,7 +35,7 @@ const PGNCard = ({ pgn, viewMode, onView, onShare, onDelete }) => {
       </div>
       <div className="px-6 py-4 bg-gray-50 border-t flex justify-between">
         <button
-          onClick={() => onView(pgn)}
+          onClick={handleView}
           className="text-[#461fa3] hover:text-[#7646eb]"
         >
           View Analysis

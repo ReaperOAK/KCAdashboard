@@ -71,7 +71,11 @@ const AppContent = () => {
         <>
           <TopNavbar toggleSidebar={toggleSidebar} />
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-          <div className={window.location.pathname.startsWith('/pgn-viewer') ? '' : 'lg:ml-64 pt-16'}>
+          <div className={`transition-all duration-300 pt-16 ${
+            window.location.pathname.startsWith('/pgn-viewer') 
+              ? (isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0') 
+              : (isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0 lg:ml-64')
+          }`}>
             {!window.location.pathname.startsWith('/pgn-viewer') && (
               <div className="p-8">
                 <Breadcrumbs />

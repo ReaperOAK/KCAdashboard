@@ -109,20 +109,20 @@ const PGNViewer = () => {
               drawArrows: true,
               viewOnly: true,
               resizable: true,
+              boardSize: 'medium', // Add board size control
               chessground: {
                 animation: { duration: 250 },
                 highlight: { lastMove: true, check: true },
                 movable: { free: false },
                 responsive: true,
-                width: '90%', // Scale board down to 90% of container
+                width: '90%',  // Scale board down to 90% of container
                 height: '90%',
               },
               menu: {
                 getPgn: { enabled: true },
                 practiceWithComputer: { enabled: true },
                 analysisBoard: { enabled: true },
-              },
-              boardSize: 'medium', // Add this to control board size
+              }
             }}
           />
         </div>

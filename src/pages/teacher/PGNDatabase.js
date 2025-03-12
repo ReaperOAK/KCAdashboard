@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
-import LichessPgnViewer from '../../components/LichessPgnViewer';
+import PGNList from '../../components/PGNDatabase/PGNList';
+import UploadModal from '../../components/PGNDatabase/UploadModal';
+import ViewerModal from '../../components/PGNDatabase/ViewerModal';
+import ShareModal from '../../components/PGNDatabase/ShareModal';
 
 const PGNDatabase = () => {
     const [pgns, setPgns] = useState([]);
@@ -226,338 +229,59 @@ const PGNDatabase = () => {
                             : "No PGNs have been shared with you yet."}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pgns.map((pgn) => (
-                            <div key={pgn.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                                <div className="p-6">
-                                    <h3 className="text-xl font-semibold text-[#461fa3] mb-2">
-                                        {pgn.title}
-                                    </h3>
-                                    <p className="text-gray-600 mb-4">{pgn.description}</p>
-                                    <div className="text-sm text-gray-500">
-                                        <p><span className="font-semibold">Category:</span> {pgn.category}</p>
-                                        <p><span className="font-semibold">Created:</span> {new Date(pgn.created_at).toLocaleDateString()}</p>
-                                        <p><span className="font-semibold">Access:</span> {pgn.is_public ? 'Public' : 'Private'}</p>
-                                        {viewMode === 'shared' && (
-                                            <>
-                                                <p><span className="font-semibold">Shared by:</span> {pgn.shared_by}</p>
-                                                <p><span className="font-semibold">Permission:</span> {pgn.permission === 'edit' ? 'Can Edit' : 'View Only'}</p>
-                                            </>
-                                        )}
-                                        {viewMode === 'own' && pgn.share_count > 0 && (
-                                            <p><span className="font-semibold">Shared with:</span> {pgn.share_count} {pgn.share_count === 1 ? 'teacher' : 'teachers'}</p>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="px-6 py-4 bg-gray-50 border-t flex justify-between">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedPGN(pgn);
-                                            setShowViewerModal(true);
-                                        }}
-                                        className="text-[#461fa3] hover:text-[#7646eb]"
-                                    >
-                                        View Analysis
-                                    </button>
-                                    <div className="flex space-x-3">
-                                        {viewMode === 'own' && (
-                                            <button
-                                                onClick={() => openShareModal(pgn)}
-                                                className="text-[#461fa3] hover:text-[#7646eb]"
-                                            >
-                                                Share
-                                            </button>
-                                        )}
-                                        <a 
-                                            href={`data:text/plain;charset=utf-8,${encodeURIComponent(pgn.pgn_content)}`}
-                                            download={`${pgn.title}.pgn`}
-                                            className="text-[#461fa3] hover:text-[#7646eb]"
-                                        >
-                                            Download
-                                        </a>
-                                        {viewMode === 'own' && (
-                                            <button
-                                                onClick={() => handleDeletePGN(pgn)}
-                                                className="text-red-600 hover:text-red-800"
-                                            >
-                                                Delete
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <PGNList
+                        pgns={pgns}
+                        viewMode={viewMode}
+                        onView={(pgn) => {
+                            setSelectedPGN(pgn);
+                            setShowViewerModal(true);
+                        }}
+                        onShare={openShareModal}
+                        onDelete={handleDeletePGN}
+                    />
                 )}
 
                 {/* Upload Modal */}
                 {showUploadModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Upload PGN</h2>
-                            <form onSubmit={handleUploadSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Title</label>
-                                    <input
-                                        type="text"
-                                        value={uploadForm.title}
-                                        onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Description</label>
-                                    <textarea
-                                        value={uploadForm.description}
-                                        onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                        rows={2}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                                    <select
-                                        value={uploadForm.category}
-                                        onChange={(e) => setUploadForm({...uploadForm, category: e.target.value})}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    >
-                                        <option value="opening">Opening</option>
-                                        <option value="middlegame">Middlegame</option>
-                                        <option value="endgame">Endgame</option>
-                                        <option value="tactics">Tactics</option>
-                                        <option value="strategy">Strategy</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">PGN Content</label>
-                                    <textarea
-                                        value={uploadForm.pgn_content}
-                                        onChange={(e) => setUploadForm({...uploadForm, pgn_content: e.target.value})}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3] font-mono"
-                                        rows={6}
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Upload PGN File</label>
-                                    <input
-                                        type="file"
-                                        accept=".pgn"
-                                        onChange={handleFileChange}
-                                        className="mt-1 block w-full text-sm text-gray-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-md file:border-0
-                                            file:text-sm file:font-medium
-                                            file:bg-[#461fa3] file:text-white
-                                            hover:file:bg-[#7646eb]"
-                                    />
-                                </div>
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="is_public"
-                                        checked={uploadForm.is_public}
-                                        onChange={(e) => setUploadForm({...uploadForm, is_public: e.target.checked})}
-                                        className="rounded border-gray-300 text-[#461fa3] focus:ring-[#461fa3]"
-                                    />
-                                    <label htmlFor="is_public" className="ml-2 text-sm text-gray-700">
-                                        Make this PGN public to all students
-                                    </label>
-                                </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowUploadModal(false);
-                                            setError(null);
-                                        }}
-                                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb] disabled:opacity-50"
-                                    >
-                                        {loading ? 'Uploading...' : 'Upload'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <UploadModal
+                        show={showUploadModal}
+                        onClose={() => {
+                            setShowUploadModal(false);
+                            setError(null);
+                        }}
+                        uploadForm={uploadForm}
+                        setUploadForm={setUploadForm}
+                        handleFileChange={handleFileChange}
+                        handleSubmit={handleUploadSubmit}
+                        loading={loading}
+                        error={error}
+                    />
                 )}
 
                 {/* Share Modal */}
                 {shareModalOpen && selectedPGNForShare && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-2xl font-bold text-[#200e4a]">Share "{selectedPGNForShare.title}"</h2>
-                                <button 
-                                    onClick={() => setShareModalOpen(false)}
-                                    className="text-gray-500 hover:text-gray-700"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                            
-                            {error && (
-                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                                    {error}
-                                </div>
-                            )}
-                            
-                            <form onSubmit={handleShareSubmit}>
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Permission</label>
-                                    <div className="flex space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                checked={sharePermission === 'view'} 
-                                                onChange={() => setSharePermission('view')} 
-                                                className="form-radio text-[#461fa3]"
-                                            />
-                                            <span className="ml-2">View only</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                checked={sharePermission === 'edit'} 
-                                                onChange={() => setSharePermission('edit')} 
-                                                className="form-radio text-[#461fa3]"
-                                            />
-                                            <span className="ml-2">Can edit</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Select Teachers ({teacherList.length})
-                                    </label>
-                                    <div className="border rounded-md max-h-60 overflow-y-auto p-1">
-                                        {teacherList.length === 0 && (
-                                            <div className="p-3 text-gray-500 text-center">No other teachers found</div>
-                                        )}
-                                        {teacherList.map((teacher) => (
-                                            <div key={teacher.id} className="flex items-center p-2 hover:bg-gray-50">
-                                                <input
-                                                    type="checkbox"
-                                                    id={`teacher-${teacher.id}`}
-                                                    checked={selectedTeachers.includes(teacher.id)}
-                                                    onChange={() => toggleTeacherSelection(teacher.id)}
-                                                    className="h-4 w-4 text-[#461fa3] rounded"
-                                                />
-                                                <label htmlFor={`teacher-${teacher.id}`} className="ml-3 block text-sm font-medium text-gray-700">
-                                                    {teacher.full_name} <span className="text-xs text-gray-500">({teacher.email})</span>
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShareModalOpen(false)}
-                                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={selectedTeachers.length === 0}
-                                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb] disabled:opacity-50"
-                                    >
-                                        Share
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <ShareModal
+                        show={shareModalOpen}
+                        onClose={() => setShareModalOpen(false)}
+                        pgn={selectedPGNForShare}
+                        teacherList={teacherList}
+                        selectedTeachers={selectedTeachers}
+                        toggleTeacherSelection={toggleTeacherSelection}
+                        sharePermission={sharePermission}
+                        setSharePermission={setSharePermission}
+                        handleSubmit={handleShareSubmit}
+                        error={error}
+                    />
                 )}
 
                 {/* PGN Viewer Modal */}
                 {showViewerModal && selectedPGN && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 max-w-5xl w-full h-[85vh] flex flex-col">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-2xl font-bold text-[#200e4a]">{selectedPGN.title}</h2>
-                                <button
-                                    onClick={() => setShowViewerModal(false)}
-                                    className="text-gray-500 hover:text-gray-700"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                            
-                            {selectedPGN.description && (
-                                <p className="text-gray-600 mb-4">{selectedPGN.description}</p>
-                            )}
-                            
-                            <div className="flex-1 overflow-hidden" style={{ minHeight: "500px" }}>
-                                {/* Use key to ensure component remounts with new PGN */}
-                                <LichessPgnViewer 
-                                    key={`pgn-${selectedPGN.id}-${Date.now()}`}
-                                    pgn={selectedPGN.pgn_content}
-                                    options={{
-                                        showPlayers: 'auto',
-                                        showClocks: true,
-                                        showMoves: 'auto',
-                                        showControls: true,
-                                        scrollToMove: true,
-                                        keyboardToMove: true,
-                                        boardTheme: 'blue',
-                                        pieceSet: 'cburnett',
-                                        showCoords: true,
-                                        drawArrows: true,
-                                        chessground: {
-                                            animation: { duration: 250 },
-                                            highlight: { lastMove: true, check: true },
-                                            movable: { free: false },
-                                        },
-                                        menu: {
-                                            getPgn: { enabled: true },
-                                            practiceWithComputer: { enabled: true },
-                                            analysisBoard: { enabled: true },
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-200">
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-semibold">Category:</span> {selectedPGN.category}
-                                    {viewMode === 'shared' && (
-                                        <span className="ml-4">
-                                            <span className="font-semibold">Shared by:</span> {selectedPGN.shared_by}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex space-x-3">
-                                    <button
-                                        onClick={() => {
-                                            // Force re-render the viewer
-                                            setShowViewerModal(false);
-                                            setTimeout(() => setShowViewerModal(true), 50);
-                                        }}
-                                        className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
-                                    >
-                                        Reload Viewer
-                                    </button>
-                                    <a 
-                                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(selectedPGN.pgn_content)}`}
-                                        download={`${selectedPGN.title}.pgn`}
-                                        className="px-3 py-1 bg-[#461fa3] text-white rounded text-sm hover:bg-[#7646eb]"
-                                    >
-                                        Download PGN
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ViewerModal
+                        show={showViewerModal}
+                        onClose={() => setShowViewerModal(false)}
+                        pgn={selectedPGN}
+                        viewMode={viewMode}
+                    />
                 )}
             </div>
         </div>

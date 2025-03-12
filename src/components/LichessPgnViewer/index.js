@@ -21,8 +21,6 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
     const currentContainer = containerRef.current;
     
     try {
-      console.log("Initializing PGN Viewer with local package");
-      
       // Clean up previous instance if it exists
       if (viewerRef.current && typeof viewerRef.current.destroy === 'function') {
         viewerRef.current.destroy();
@@ -30,16 +28,14 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       currentContainer.innerHTML = '';
       
       // Initialize with default options merged with user provided options
-      // Based on the documentation for proper configuration
       viewerRef.current = LichessPgnViewerLib(currentContainer, {
         pgn: pgn,
         showPlayers: 'auto',
         showClocks: true,
-        showMoves: 'auto', // 'auto', 'right', 'bottom' or false
-        showControls: true,
+        showMoves: 'auto',
         scrollToMove: true,
         keyboardToMove: true, 
-        orientation: undefined, // Will use orientation from PGN
+        orientation: undefined,
         initialPly: 0,
         chessground: {
           animation: { duration: 250 },
@@ -48,29 +44,28 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
         },
         drawArrows: true,
         menu: {
-          getPgn: {
-            enabled: true,
-            fileName: undefined, // Auto-generate filename
-          },
-          practiceWithComputer: {
-            enabled: true,
-          },
-          analysisBoard: {
-            enabled: true,
-          },
+          getPgn: { enabled: true },
+          practiceWithComputer: { enabled: true },
+          analysisBoard: { enabled: true },
         },
         ...options
       });
       
-      // Give the viewer a moment to initialize before fixing layout
+      // Adjust the layout based on container size
       setTimeout(() => {
-        // Try to adapt layout based on container size
-        const containerWidth = currentContainer.clientWidth;
-        if (containerWidth < 768) {
-          const movesList = currentContainer.querySelector('.lpv__moves');
-          if (movesList) {
-            movesList.style.maxHeight = '200px';
-            movesList.style.overflow = 'auto';
+        // Try to make the board more responsive
+        const boardElement = currentContainer.querySelector('.lpv__board');
+        const movesElement = currentContainer.querySelector('.lpv__moves');
+        
+        if (boardElement && movesElement) {
+          const container = currentContainer.parentElement;
+          const containerHeight = container.clientHeight;
+          
+          // If container is small, adjust layout
+          if (containerHeight < 600) {
+            boardElement.style.maxHeight = '350px';
+            movesElement.style.maxHeight = '150px';
+            movesElement.style.overflow = 'auto';
           }
         }
       }, 500);

@@ -8,23 +8,39 @@
 }
 
 .chess-viewer-container .lpv__board {
-  flex: 0.8; /* Reduce from 1 to 0.8 to make board smaller */
-  min-height: 250px; /* Reduce from 300px */
-  max-height: 500px !important; /* Add max-height constraint */
-}
-
-.chess-viewer-container .cg-wrap {
-  width: 90% !important; /* Scale down to 90% */
-  height: 90% !important; /* Scale down to 90% */
-  margin: 0 auto; /* Center the board */
+  flex: 1; /* Let board take maximum available space */
+  min-height: 300px;
   position: relative !important;
 }
 
+/* Make board container square using aspect ratio */
+.chess-viewer-container .cg-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  aspect-ratio: 1 / 1; /* Force square aspect ratio */
+  margin: 0 auto;
+}
+
+/* Ensure board and pieces stay properly sized */
+.chess-viewer-container cg-board {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Make moves panel more readable */
 .chess-viewer-container .lpv__side {
-  max-height: 30%;
+  max-height: 40%;
   overflow-y: auto;
 }
 
+.chess-viewer-container .lpv__moves {
+  font-size: 14px;
+}
+
+/* Mobile-friendly layout */
 @media (max-width: 768px) {
   .chess-viewer-container .lpv--moves-auto {
     grid-template-areas:
@@ -32,7 +48,11 @@
       "controls"
       "side";
     grid-template-columns: 1fr;
-    grid-template-rows: auto var(--controls-height) auto;
+    grid-template-rows: minmax(300px, 50vh) var(--controls-height) auto;
+  }
+  
+  .chess-viewer-container .lpv__board {
+    min-height: 250px;
   }
 }
 

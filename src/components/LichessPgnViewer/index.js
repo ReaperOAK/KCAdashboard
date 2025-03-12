@@ -14,32 +14,23 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
   const viewerRef = useRef(null);
   const [error, setError] = useState(null);
 
-  // Function to handle resize and adjust the board
+  // Improved function to handle resize and adjust the board
   const handleResize = () => {
     if (!containerRef.current || !viewerRef.current) return;
 
     try {
-      // Find the board element
-      const boardElement = containerRef.current.querySelector('.lpv__board');
-      const mainElement = containerRef.current.querySelector('.lpv');
-      const container = containerRef.current;
+      // Trigger global resize event
+      window.dispatchEvent(new Event('resize'));
       
-      if (boardElement && mainElement) {
-        // Calculate available width and height
-        const containerWidth = container.clientWidth;
-        const containerHeight = container.clientHeight;
-
-        // Force the board to be square and fit within the container
-        const boardSize = Math.min(containerWidth - 20, containerHeight - 80);
-        if (boardSize > 100) {
-          mainElement.style.width = '100%';
-          mainElement.style.height = `${containerHeight}px`;
-          
+      const lpvElement = containerRef.current.querySelector('.lpv');
+      if (lpvElement) {
+        // Apply a slight delay to ensure layout is complete
+        setTimeout(() => {
           // Force redraw if needed
           if (viewerRef.current && typeof viewerRef.current.redraw === 'function') {
             viewerRef.current.redraw();
           }
-        }
+        }, 50);
       }
     } catch (e) {
       console.error('Error adjusting board size:', e);
@@ -59,48 +50,52 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       }
       currentContainer.innerHTML = '';
       
-      // Add responsive styles to container
+      // Set key dimensions initially for proper sizing
       currentContainer.style.display = 'flex';
       currentContainer.style.flexDirection = 'column';
       currentContainer.style.width = '100%';
       currentContainer.style.height = '100%';
       
-      // Initialize with default options merged with user provided options
-      viewerRef.current = LichessPgnViewerLib(currentContainer, {
-        pgn: pgn,
-        showPlayers: 'auto',
-        showClocks: true,
-        showMoves: 'auto',
-        scrollToMove: true,
-        keyboardToMove: true, 
-        orientation: undefined,
-        initialPly: 0,
-        chessground: {
-          animation: { duration: 250 },
-          highlight: { lastMove: true, check: true },
-          movable: { free: false },
-        },
-        drawArrows: true,
-        menu: {
-          getPgn: { enabled: true },
-          practiceWithComputer: { enabled: true },
-          analysisBoard: { enabled: true },
-        },
-        ...options
+      // Wait for next frame to ensure container has dimensions
+      requestAnimationFrame(() => {
+        // Initialize with default options merged with user provided options
+        viewerRef.current = LichessPgnViewerLib(currentContainer, {
+          pgn: pgn,
+          showPlayers: 'auto',
+          showClocks: true,
+          showMoves: 'auto',
+          scrollToMove: true,
+          keyboardToMove: true, 
+          orientation: undefined,
+          initialPly: 0,
+          chessground: {
+            animation: { duration: 250 },
+            highlight: { lastMove: true, check: true },
+            movable: { free: false },
+            responsive: true
+          },
+          drawArrows: true,
+          viewOnly: true,
+          resizable: true,
+          menu: {
+            getPgn: { enabled: true },
+            practiceWithComputer: { enabled: true },
+            analysisBoard: { enabled: true },
+          },
+          ...options
+        });
+        
+        // Use both ResizeObserver and window resize event for better coverage
+        const resizeObserver = new ResizeObserver(() => {
+          handleResize();
+        });
+        
+        resizeObserver.observe(currentContainer);
+        window.addEventListener('resize', handleResize);
+        
+        // Initial adjustment after a delay to ensure full rendering
+        setTimeout(handleResize, 200);
       });
-      
-      // Use both ResizeObserver and window resize event for better coverage
-      const resizeObserver = new ResizeObserver(() => {
-        handleResize();
-      });
-      
-      resizeObserver.observe(currentContainer);
-      
-      // Add window resize listener
-      window.addEventListener('resize', handleResize);
-      
-      // Initial adjustment
-      setTimeout(handleResize, 100);
       
       setError(null);
       

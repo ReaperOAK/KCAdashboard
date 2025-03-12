@@ -1,0 +1,44 @@
+/* Chess Viewer Overrides */
+.chess-viewer-container .lpv {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.chess-viewer-container .lpv__board {
+  flex: 1;
+  min-height: 300px;
+  max-height: none !important;
+}
+
+.chess-viewer-container .cg-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+.chess-viewer-container .lpv__side {
+  max-height: 30%;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .chess-viewer-container .lpv--moves-auto {
+    grid-template-areas:
+      "board"
+      "controls"
+      "side";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto var(--controls-height) auto;
+  }
+}
+
+/* Ensure the container adapts to available space */
+.lichess-pgn-viewer-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}

@@ -1,30 +1,68 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import LichessPgnViewer from '../../components/LichessPgnViewer';
 
 const ViewerModal = ({ show, onClose, pgn, viewMode }) => {
-  // Create refs for the container and board - moved to top of component
+  // Create refs for the container and board
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
+  // Track if the viewer is fully loaded
+  const [viewerLoaded, setViewerLoaded] = useState(false);
+  
+  // Custom function to force resize the board
+  const resizeBoard = () => {
+    if (!containerRef.current || !viewerRef.current) return;
+    
+    try {
+      // Force resize event to trigger board adjustments
+      window.dispatchEvent(new Event('resize'));
+      
+      // Try to directly adjust the board if possible
+      const boardContainer = viewerRef.current.querySelector('.cg-wrap');
+      const lpvElement = viewerRef.current.querySelector('.lpv');
+      
+      if (boardContainer && lpvElement) {
+        // Make sure lpv takes full height and width
+        lpvElement.style.width = '100%';
+        lpvElement.style.height = '100%'; 
+        lpvElement.style.maxHeight = 'none';
+        
+        // Re-render after short delay to ensure proper sizing
+        setTimeout(() => {
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
+      }
+    } catch (e) {
+      console.error('Error adjusting board:', e);
+    }
+  };
   
   // Add resize observer to adjust board size to container
   useEffect(() => {
     // Only proceed if the modal is shown, has pgn data, and container is mounted
     if (!show || !pgn || !containerRef.current) return;
     
-    const resizeObserver = new ResizeObserver(entries => {
-      if (viewerRef.current) {
-        const boardContainer = viewerRef.current.querySelector('.cg-wrap');
-        if (boardContainer) {
-          // Trigger resize event to make Lichess viewer readjust
-          window.dispatchEvent(new Event('resize'));
-        }
-      }
+    // Reset loaded state when modal opens
+    setViewerLoaded(false);
+    
+    const resizeObserver = new ResizeObserver(() => {
+      resizeBoard();
     });
     
     resizeObserver.observe(containerRef.current);
     
+    // Also listen to window resize events
+    window.addEventListener('resize', resizeBoard);
+    
+    // Set viewer as loaded after a delay
+    const loadTimer = setTimeout(() => {
+      setViewerLoaded(true);
+      resizeBoard(); // Force resize after "loading"
+    }, 300);
+    
     return () => {
       resizeObserver.disconnect();
+      window.removeEventListener('resize', resizeBoard);
+      clearTimeout(loadTimer);
     };
   }, [show, pgn]);
 
@@ -51,14 +89,33 @@ const ViewerModal = ({ show, onClose, pgn, viewMode }) => {
         <div 
           ref={containerRef}
           className="flex-1 overflow-auto relative w-full" 
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
+          {!viewerLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-80 z-10">
+              <div className="animate-pulse text-gray-600">Loading chess board...</div>
+            </div>
+          )}
+          
           <div 
             ref={viewerRef} 
-            className="w-full h-full flex items-center justify-center"
+            className="w-full h-full"
+            style={{
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
             <LichessPgnViewer 
               key={`pgn-${pgn.id}-${Date.now()}`}
               pgn={pgn.pgn_content}
+              containerClassName="chess-viewer-container"
               options={{
                 showPlayers: 'auto',
                 showClocks: true,

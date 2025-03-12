@@ -45,24 +45,59 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
     styleEl.innerHTML = `
       .lichess-pgn-viewer-wrapper .lpv {
         display: flex !important;
-        flex-direction: row !important;
+        flex-direction: column !important; /* Default to column layout for mobile */
         height: 100% !important;
         overflow: hidden !important;
       }
+      
+      /* On larger screens, use row layout */
+      @media (min-width: 640px) {
+        .lichess-pgn-viewer-wrapper .lpv {
+          flex-direction: row !important;
+        }
+      }
+      
       .lichess-pgn-viewer-wrapper .lpv__board {
         flex: 0 0 auto !important;
-        min-width: 300px !important;
-        height: 100% !important;
+        width: 100% !important; /* Full width on mobile */
         aspect-ratio: 1 / 1 !important;
+        max-height: 50vh !important; /* Limit height on small screens */
       }
+      
+      @media (min-width: 640px) {
+        .lichess-pgn-viewer-wrapper .lpv__board {
+          min-width: 300px !important;
+          max-height: none !important;
+        }
+      }
+      
       .lichess-pgn-viewer-wrapper .lpv__side {
         flex: 1 1 auto !important;
         overflow: auto !important;
-        max-height: 100% !important;
+        max-height: 50vh !important; /* Limit height on small screens */
+        width: 100% !important; /* Full width on mobile */
       }
+      
+      @media (min-width: 640px) {
+        .lichess-pgn-viewer-wrapper .lpv__side {
+          max-height: 100% !important;
+        }
+      }
+      
       .lichess-pgn-viewer-wrapper .cg-wrap {
         width: 100% !important;
         height: 100% !important;
+      }
+      
+      /* Improve control buttons for touch */
+      .lichess-pgn-viewer-wrapper .lpv__controls {
+        padding: 8px 4px !important;
+      }
+      
+      .lichess-pgn-viewer-wrapper .lpv__controls button {
+        min-width: 32px !important;
+        min-height: 32px !important;
+        padding: 6px !important;
       }
     `;
     document.head.appendChild(styleEl);
@@ -167,14 +202,14 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
 
   return (
     <div className={`lichess-pgn-viewer-wrapper w-full h-full ${containerClassName}`} 
-         style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+         style={{ minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
       <div 
         ref={containerRef} 
         className="w-full h-full"
         style={{ 
           position: 'relative',
           flex: '1 1 auto',
-          minHeight: '400px'
+          minHeight: '300px'
         }}
       ></div>
       

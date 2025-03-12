@@ -74,25 +74,25 @@ const PGNViewer = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f3f1f9] pt-20 p-6">
-      <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-[#200e4a]">{pgn.title}</h1>
+    <div className="min-h-screen bg-[#f3f1f9] pt-16 sm:pt-20 px-2 sm:p-6">
+      <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-3 sm:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
+          <div className="mb-3 sm:mb-0">
+            <h1 className="text-xl sm:text-3xl font-bold text-[#200e4a]">{pgn.title}</h1>
             {pgn.description && (
-              <p className="text-gray-600 mt-2">{pgn.description}</p>
+              <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">{pgn.description}</p>
             )}
           </div>
           <button
             onClick={handleBack}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
+            className="bg-gray-100 text-gray-700 px-3 py-1 sm:px-4 sm:py-2 rounded-md hover:bg-gray-200 text-sm sm:text-base"
           >
             Back
           </button>
         </div>
 
-        {/* More flexible height constraints to avoid unnecessary limitations */}
-        <div className="h-[65vh] border border-gray-200 rounded-lg">
+        {/* Adaptive height based on screen size */}
+        <div className="h-[50vh] sm:h-[65vh] border border-gray-200 rounded-lg">
           <LichessPgnViewer
             pgn={pgn.pgn_content}
             containerClassName="chess-viewer-container"
@@ -109,13 +109,11 @@ const PGNViewer = () => {
               drawArrows: true,
               viewOnly: true,
               resizable: true,
-              // Remove boardSize to avoid conflicts
               chessground: {
                 animation: { duration: 250 },
                 highlight: { lastMove: true, check: true },
                 movable: { free: false },
                 responsive: true,
-                // Remove explicit width/height to let CSS handle it
               },
               menu: {
                 getPgn: { enabled: true },
@@ -126,8 +124,8 @@ const PGNViewer = () => {
           />
         </div>
 
-        <div className="flex justify-between items-center mt-6">
-          <div className="text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 sm:mt-6">
+          <div className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-0">
             <p><span className="font-semibold">Category:</span> {pgn.category}</p>
             <p><span className="font-semibold">Created:</span> {new Date(pgn.created_at).toLocaleDateString()}</p>
             {pgn.shared_by && (
@@ -135,11 +133,11 @@ const PGNViewer = () => {
             )}
             <p><span className="font-semibold">Viewing as:</span> {user?.full_name || user?.email}</p>
           </div>
-          <div className="flex space-x-4">
+          <div className="self-end sm:self-auto">
             <a 
               href={`data:text/plain;charset=utf-8,${encodeURIComponent(pgn.pgn_content)}`}
               download={`${pgn.title}.pgn`}
-              className="px-4 py-2 bg-[#461fa3] text-white rounded hover:bg-[#7646eb]"
+              className="px-3 py-1 sm:px-4 sm:py-2 bg-[#461fa3] text-white text-sm sm:text-base rounded hover:bg-[#7646eb]"
             >
               Download PGN
             </a>

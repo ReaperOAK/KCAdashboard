@@ -51,7 +51,7 @@ const PGNViewer = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f3f1f9] pt-20 flex justify-center">
+      <div className="min-h-screen bg-[#f3f1f9] pt-20 flex justify-center lg:ml-64">
         <div className="text-[#200e4a] text-xl">Loading PGN viewer...</div>
       </div>
     );
@@ -59,7 +59,7 @@ const PGNViewer = () => {
 
   if (error || !pgn) {
     return (
-      <div className="min-h-screen bg-[#f3f1f9] pt-20 p-6 flex flex-col items-center">
+      <div className="min-h-screen bg-[#f3f1f9] pt-20 p-6 flex flex-col items-center lg:ml-64">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded max-w-2xl w-full mb-4">
           {error || 'PGN not found'}
         </div>
@@ -74,7 +74,7 @@ const PGNViewer = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f3f1f9] pt-20 p-6">
+    <div className="min-h-screen bg-[#f3f1f9] pt-20 p-6 lg:ml-64">
       <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <div>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -46,6 +46,15 @@ const AppContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
   const publicRoutes = ['/login', '/register', '/reset-password'];
+  const location = useLocation();
+
+  // Effect to handle route changes
+  useEffect(() => {
+    // Close sidebar on mobile when route changes
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const renderRoutes = (routes, allowedRoles) => {
     return routes.map(route => (
@@ -71,11 +80,13 @@ const AppContent = () => {
         <>
           <TopNavbar toggleSidebar={toggleSidebar} />
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-          <div className={`transition-all duration-300 pt-16 ${
-            window.location.pathname.startsWith('/pgn-viewer') 
-              ? (isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0') 
-              : (isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0 lg:ml-64')
-          }`}>
+          <div 
+            className={`transition-all duration-300 pt-16 ${
+              isSidebarOpen 
+                ? 'ml-0 md:ml-64' 
+                : 'ml-0'
+            } lg:ml-64`}
+          >
             {!window.location.pathname.startsWith('/pgn-viewer') && (
               <div className="p-8">
                 <Breadcrumbs />

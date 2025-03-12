@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -8,7 +8,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [expandedItem, setExpandedItem] = useState(null);
   const navigate = useNavigate();
 
-  const roleBasedLinks = {
+  // Use useMemo to prevent roleBasedLinks recreation on each render
+  const roleBasedLinks = useMemo(() => ({
     admin: [
       {
         label: 'Users',
@@ -50,7 +51,28 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       { label: 'Games', path: '/student/games', icon: '♟️' },
       { label: 'Classroom', path: '/student/classroom', icon: '🏫' }
     ]
-  };
+  }), []); // Empty dependency array since this object is static
+
+  // Add effect to update active menu item based on current path
+  useEffect(() => {
+    // Find if current path matches any menu item and expand its parent if needed
+    const currentPath = location.pathname;
+    
+    // Find all menu items with subitems
+    const allLinks = roleBasedLinks[user?.role] || [];
+    for (const link of allLinks) {
+      if (link.subItems) {
+        const matchingSubItem = link.subItems.find(
+          subItem => currentPath === subItem.path || currentPath.startsWith(subItem.path + '/')
+        );
+        
+        if (matchingSubItem) {
+          setExpandedItem(link.label);
+          break;
+        }
+      }
+    }
+  }, [location.pathname, user?.role, roleBasedLinks]);
 
   const links = roleBasedLinks[user?.role] || [];
 
@@ -91,11 +113,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         />
       )}
 
-      {/* Sidebar - update classes for better transitions */}
+      {/* Sidebar - improve positioning and z-index */}
       <div className={`
         fixed left-0 top-16 h-full bg-[#200e4a] text-white 
         transform transition-all duration-300 ease-in-out z-30
         w-64 shadow-xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        lg:z-10
       `}>
         <div className="flex justify-end p-4 lg:hidden">
           <button onClick={toggleSidebar} className="text-white">

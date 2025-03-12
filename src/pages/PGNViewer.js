@@ -91,7 +91,8 @@ const PGNViewer = () => {
           </button>
         </div>
 
-        <div className="h-[70vh] border border-gray-200 rounded-lg">
+        {/* Reduced height from 70vh to 60vh and added max-height constraint */}
+        <div className="h-[60vh] max-h-[600px] border border-gray-200 rounded-lg">
           <LichessPgnViewer
             pgn={pgn.pgn_content}
             containerClassName="chess-viewer-container"
@@ -113,12 +114,15 @@ const PGNViewer = () => {
                 highlight: { lastMove: true, check: true },
                 movable: { free: false },
                 responsive: true,
+                width: '90%', // Scale board down to 90% of container
+                height: '90%',
               },
               menu: {
                 getPgn: { enabled: true },
                 practiceWithComputer: { enabled: true },
                 analysisBoard: { enabled: true },
-              }
+              },
+              boardSize: 'medium', // Add this to control board size
             }}
           />
         </div>

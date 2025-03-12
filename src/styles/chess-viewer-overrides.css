@@ -8,14 +8,15 @@
 }
 
 .chess-viewer-container .lpv__board {
-  flex: 1;
-  min-height: 300px;
-  max-height: none !important;
+  flex: 0.8; /* Reduce from 1 to 0.8 to make board smaller */
+  min-height: 250px; /* Reduce from 300px */
+  max-height: 500px !important; /* Add max-height constraint */
 }
 
 .chess-viewer-container .cg-wrap {
-  width: 100% !important;
-  height: 100% !important;
+  width: 90% !important; /* Scale down to 90% */
+  height: 90% !important; /* Scale down to 90% */
+  margin: 0 auto; /* Center the board */
   position: relative !important;
 }
 

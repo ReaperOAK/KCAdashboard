@@ -108,15 +108,15 @@ const PGNViewer = () => {
               showCoords: true,
               drawArrows: true,
               viewOnly: true,
-              resizable: false,
-              boardSize: 'small', // Add board size control
+              resizable: true,
+              boardSize: 'medium', // Add board size control
               chessground: {
                 animation: { duration: 250 },
                 highlight: { lastMove: true, check: true },
                 movable: { free: false },
                 responsive: true,
-                width: '50%',  // Scale board down to 90% of container
-                height: '50%',
+                width: '90%',  // Scale board down to 90% of container
+                height: '90%',
               },
               menu: {
                 getPgn: { enabled: true },

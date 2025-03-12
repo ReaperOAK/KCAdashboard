@@ -56,6 +56,9 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       currentContainer.style.width = '100%';
       currentContainer.style.height = '100%';
       
+      // Declare resizeObserver outside requestAnimationFrame to fix scope issue
+      let resizeObserver;
+      
       // Wait for next frame to ensure container has dimensions
       requestAnimationFrame(() => {
         // Initialize with default options merged with user provided options
@@ -86,7 +89,7 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
         });
         
         // Use both ResizeObserver and window resize event for better coverage
-        const resizeObserver = new ResizeObserver(() => {
+        resizeObserver = new ResizeObserver(() => {
           handleResize();
         });
         
@@ -105,7 +108,9 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
           viewerRef.current.destroy();
         }
         viewerRef.current = null;
-        resizeObserver.disconnect();
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
         window.removeEventListener('resize', handleResize);
       };
     } catch (error) {

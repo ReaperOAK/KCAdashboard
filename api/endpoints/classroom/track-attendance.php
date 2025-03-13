@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
-require_once '../config/Database.php';
-require_once '../middleware/auth.php';
+require_once '../../config/Database.php';
+require_once '../../middleware/auth.php';
 
 // Get JSON request data
 $data = json_decode(file_get_contents("php://input"), true);

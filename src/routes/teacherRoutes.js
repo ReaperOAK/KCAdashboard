@@ -5,6 +5,7 @@ import ReportsAnalytics from '../pages/teacher/ReportsAnalytics';
 import GradingFeedback from '../pages/teacher/GradingFeedback';
 import PGNDatabase from '../pages/teacher/PGNDatabase';
 import ClassroomManagement from '../pages/teacher/ClassroomManagement';
+import ClassroomDetail from '../pages/teacher/ClassroomDetail';
 
 const teacherRoutes = [
   {
@@ -41,6 +42,11 @@ const teacherRoutes = [
     path: '/teacher/classroom',
     element: ClassroomManagement,
     title: 'Classroom'
+  },
+  {
+    path: '/teacher/classroom/:id',
+    element: ClassroomDetail,
+    title: 'Classroom Details'
   }
 ];
 

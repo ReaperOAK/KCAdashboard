@@ -1,52 +1,77 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header('Content-Type: application/json');
+require_once '../config/Database.php';
+require_once '../middleware/auth.php';
 
-require_once '../../config/Database.php';
-require_once '../../middleware/auth.php';
-require_once '../../models/Classroom.php';
+// Verify token and get user
+$user_data = verifyToken();
+
+if (!$user_data) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Unauthorized access'
+    ]);
+    exit;
+}
+
+// Only teachers can access this endpoint
+if ($user_data['role'] !== 'teacher') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Permission denied'
+    ]);
+    exit;
+}
 
 try {
-    // Validate token and get user ID
-    $teacher_id = validateToken();
-    $teacher = getAuthUser();
-
-    // Make sure we have a valid teacher role
-    if (!$teacher || $teacher['role'] !== 'teacher') {
-        http_response_code(403);
-        echo json_encode([
-            "success" => false,
-            "message" => "Unauthorized access. Only teachers can view classes."
-        ]);
-        exit;
-    }
-
     $database = new Database();
     $db = $database->getConnection();
     
-    // Use the Classroom model to get classes
-    $classroom = new Classroom($db);
-    $classes = $classroom->getTeacherClasses($teacher_id);
+    $teacher_id = $user_data['id'];
     
-    // Log for debugging purposes
-    error_log("Teacher ID: " . $teacher_id . " | Classes found: " . count($classes));
+    // Get all classrooms owned by this teacher
+    $stmt = $db->prepare("
+        SELECT 
+            c.id, 
+            c.name, 
+            c.description, 
+            c.status,
+            c.created_at,
+            COUNT(cs.student_id) as student_count,
+            (
+                SELECT MIN(bs.date_time)
+                FROM batch_sessions bs
+                WHERE bs.batch_id = c.id AND bs.date_time > NOW()
+                ORDER BY bs.date_time ASC
+                LIMIT 1
+            ) as next_session
+        FROM classrooms c
+        LEFT JOIN classroom_students cs ON c.id = cs.classroom_id
+        WHERE c.teacher_id = :teacher_id
+        GROUP BY c.id
+    ");
     
-    http_response_code(200);
+    $stmt->bindParam(':teacher_id', $teacher_id);
+    $stmt->execute();
+    
+    $classrooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Format dates nicely
+    foreach ($classrooms as &$classroom) {
+        if ($classroom['next_session']) {
+            $datetime = new DateTime($classroom['next_session']);
+            $classroom['next_session'] = $datetime->format('M d, Y h:i A');
+        }
+    }
+    
     echo json_encode([
-        "success" => true,
-        "classes" => $classes
+        'success' => true,
+        'classes' => $classrooms
     ]);
-
 } catch (Exception $e) {
-    error_log("Error in get-teacher-classes.php: " . $e->getMessage());
-    http_response_code(500);
     echo json_encode([
-        "success" => false,
-        "message" => "Error fetching classes",
-        "error" => $e->getMessage()
+        'success' => false,
+        'message' => 'Error fetching classrooms: ' . $e->getMessage()
     ]);
 }
 ?>

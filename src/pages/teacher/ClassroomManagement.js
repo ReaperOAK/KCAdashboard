@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import ApiService from '../../utils/api';
+import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
+import AttendanceModal from '../../components/classroom/AttendanceModal';
+import MaterialsView from '../../components/classroom/MaterialsView';
 
 const ClassroomManagement = () => {
     const [classrooms, setClassrooms] = useState([]);
@@ -24,6 +27,11 @@ const ClassroomManagement = () => {
         content: '',
         file: null
     });
+    // New state variables for enhanced features
+    const [currentView, setCurrentView] = useState('calendar'); // 'calendar' or 'materials'
+    const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+    const [selectedSession, setSelectedSession] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const handleScheduleChange = (e) => {
         const { name, value } = e.target;
@@ -50,6 +58,7 @@ const ClassroomManagement = () => {
 
     const fetchClassrooms = useCallback(async () => {
         try {
+            setLoading(true);
             const response = await ApiService.get('/classroom/get-teacher-classes.php');
             setClassrooms(response.classes);
             setLoading(false);
@@ -71,6 +80,7 @@ const ClassroomManagement = () => {
                 ...scheduleForm
             });
             setShowScheduleModal(false);
+            setRefreshTrigger(prev => prev + 1); // Refresh calendar
             fetchClassrooms();
         } catch (error) {
             setError('Failed to schedule class');
@@ -95,15 +105,25 @@ const ClassroomManagement = () => {
                 }
             });
             setShowMaterialsModal(false);
-            fetchClassrooms();
+            setRefreshTrigger(prev => prev + 1); // Refresh materials list
         } catch (error) {
             setError('Failed to upload material');
         }
     };
 
+    // Calendar event click handler
+    const handleEventClick = (eventData) => {
+        setSelectedSession(eventData);
+        setShowAttendanceModal(true);
+    };
+
+    // Handle attendance submission
+    const handleAttendanceSubmitted = () => {
+        setRefreshTrigger(prev => prev + 1); // Refresh calendar to update attendance status
+    };
+
     return (
         <div className="min-h-screen bg-[#f3f1f9]">
-            
             <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-[#200e4a]">Classroom Management</h1>
@@ -114,42 +134,94 @@ const ClassroomManagement = () => {
                 ) : error ? (
                     <div className="text-red-500 py-8">{error}</div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {classrooms.map((classroom) => (
-                            <div key={classroom.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                                <div className="p-6">
-                                    <h3 className="text-xl font-semibold text-[#461fa3] mb-2">
-                                        {classroom.name}
-                                    </h3>
-                                    <p className="text-gray-600 mb-4">{classroom.description}</p>
-                                    <div className="text-sm text-gray-500">
-                                        <p><span className="font-semibold">Students:</span> {classroom.student_count}</p>
-                                        <p><span className="font-semibold">Next Class:</span> {classroom.next_session || 'Not scheduled'}</p>
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            {classrooms.map((classroom) => (
+                                <div key={classroom.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                    <div className="p-6">
+                                        <h3 className="text-xl font-semibold text-[#461fa3] mb-2">
+                                            {classroom.name}
+                                        </h3>
+                                        <p className="text-gray-600 mb-4">{classroom.description}</p>
+                                        <div className="text-sm text-gray-500">
+                                            <p><span className="font-semibold">Students:</span> {classroom.student_count}</p>
+                                            <p><span className="font-semibold">Next Class:</span> {classroom.next_session || 'Not scheduled'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="px-6 py-4 bg-gray-50 border-t flex justify-between">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedClass(classroom);
+                                                setShowScheduleModal(true);
+                                            }}
+                                            className="text-[#461fa3] hover:text-[#7646eb]"
+                                        >
+                                            Schedule Class
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedClass(classroom);
+                                                setShowMaterialsModal(true);
+                                            }}
+                                            className="text-[#461fa3] hover:text-[#7646eb]"
+                                        >
+                                            Add Materials
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="px-6 py-4 bg-gray-50 border-t flex justify-between">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedClass(classroom);
-                                            setShowScheduleModal(true);
-                                        }}
-                                        className="text-[#461fa3] hover:text-[#7646eb]"
-                                    >
-                                        Schedule Class
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedClass(classroom);
-                                            setShowMaterialsModal(true);
-                                        }}
-                                        className="text-[#461fa3] hover:text-[#7646eb]"
-                                    >
-                                        Add Materials
-                                    </button>
+                            ))}
+                        </div>
+
+                        {selectedClass && (
+                            <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-[#200e4a]">
+                                        {selectedClass.name}
+                                    </h2>
+                                    
+                                    <div className="flex space-x-4">
+                                        <button 
+                                            className={`px-4 py-2 rounded-md ${currentView === 'calendar' 
+                                                ? 'bg-[#461fa3] text-white' 
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                            onClick={() => setCurrentView('calendar')}
+                                        >
+                                            Calendar
+                                        </button>
+                                        <button 
+                                            className={`px-4 py-2 rounded-md ${currentView === 'materials' 
+                                                ? 'bg-[#461fa3] text-white' 
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                            onClick={() => setCurrentView('materials')}
+                                        >
+                                            Materials
+                                        </button>
+                                    </div>
                                 </div>
+
+                                {currentView === 'calendar' ? (
+                                    <ClassroomCalendar 
+                                        classroomId={selectedClass.id} 
+                                        onEventClick={handleEventClick} 
+                                        refreshTrigger={refreshTrigger}
+                                    />
+                                ) : (
+                                    <MaterialsView 
+                                        classroomId={selectedClass.id} 
+                                        refreshTrigger={refreshTrigger}
+                                    />
+                                )}
                             </div>
-                        ))}
-                    </div>
+                        )}
+
+                        {!selectedClass && classrooms.length > 0 && (
+                            <div className="text-center p-8 bg-white rounded-xl shadow-lg">
+                                <p className="text-lg text-gray-600">
+                                    Select a classroom to view its calendar and materials.
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* Schedule Modal */}
@@ -335,6 +407,15 @@ const ClassroomManagement = () => {
                             </form>
                         </div>
                     </div>
+                )}
+
+                {/* Attendance Modal */}
+                {showAttendanceModal && selectedSession && (
+                    <AttendanceModal
+                        session={selectedSession}
+                        onClose={() => setShowAttendanceModal(false)}
+                        onAttendanceSubmitted={handleAttendanceSubmitted}
+                    />
                 )}
             </div>
         </div>

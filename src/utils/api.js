@@ -69,14 +69,26 @@ class ApiService {
           }
           
           // Then parse the JSON
-          const result = JSON.parse(text);
-          if (!response.ok) {
-            throw new Error(result.message || `HTTP error! status: ${response.status}`);
+          try {
+            const result = JSON.parse(text);
+            if (!response.ok) {
+              throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+            return result;
+          } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            // If the response contains HTML (likely an error page)
+            if (text.includes('<!DOCTYPE html>') || text.includes('<br />')) {
+              // Extract error message from PHP error if possible
+              const errorMatch = text.match(/Fatal error:(.*?)in/);
+              const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned HTML instead of JSON';
+              throw new Error(`Server error: ${errorMessage}`);
+            }
+            throw new Error(`Failed to parse JSON response: ${text.substring(0, 100)}...`);
           }
-          return result;
         } catch (jsonError) {
           console.error('JSON parsing error:', jsonError);
-          throw new Error(`Failed to parse JSON response: ${jsonError.message}`);
+          throw jsonError;
         }
       }
 

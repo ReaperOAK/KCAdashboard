@@ -117,4 +117,29 @@ function getAuthUser() {
         return null;
     }
 }
+
+// Add this missing function
+function verifyToken() {
+    try {
+        $user_id = validateToken();
+        
+        if (!$user_id) {
+            return null;
+        }
+        
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        $query = "SELECT id, email, full_name, role FROM users WHERE id = :id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $user_id);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+        
+    } catch (Exception $e) {
+        error_log("Token verification error: " . $e->getMessage());
+        return null;
+    }
+}
 ?>

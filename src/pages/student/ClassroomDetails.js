@@ -25,6 +25,8 @@ const ClassroomDetails = () => {
         fetchClassroomDetails();
     }, [id]);
 
+    // TODO: Uncomment and use this function when implementing materials list
+    /* 
     const handleOpenMaterial = (material) => {
         if (material.type === 'video') {
             window.open(material.url, '_blank');
@@ -36,6 +38,7 @@ const ClassroomDetails = () => {
             }
         }
     };
+    */
 
     if (loading) return (
         <div className="min-h-screen bg-[#f3f1f9]">

@@ -25,6 +25,18 @@ const ClassroomDetails = () => {
         fetchClassroomDetails();
     }, [id]);
 
+    const handleOpenMaterial = (material) => {
+        if (material.type === 'video') {
+            window.open(material.url, '_blank');
+        } else {
+            if (material.url && (material.url.startsWith('http://') || material.url.startsWith('https://'))) {
+                window.open(material.url, '_blank');
+            } else {
+                window.open(`${ApiService.API_URL.replace('/endpoints', '')}/uploads/${material.url}`, '_blank');
+            }
+        }
+    };
+
     if (loading) return (
         <div className="min-h-screen bg-[#f3f1f9]">
             

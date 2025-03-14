@@ -89,7 +89,8 @@ try {
         
         // Move the uploaded file
         if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-            $file_url = 'uploads/classroom_materials/' . $filename;
+            // Store only the path relative to the uploads directory, without the 'uploads/' prefix
+            $file_url = 'classroom_materials/' . $filename;
         } else {
             echo json_encode([
                 'success' => false,

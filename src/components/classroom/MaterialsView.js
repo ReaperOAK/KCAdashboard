@@ -48,8 +48,14 @@ const MaterialsView = ({ classroomId, refreshTrigger = 0 }) => {
     if (material.type === 'video') {
       window.open(material.url, '_blank');
     } else {
-      // For documents and other file types, open in new window
-      window.open(`${ApiService.API_URL}/uploads/${material.url}`, '_blank');
+      // For documents and other file types, construct the proper URL path
+      // If URL already contains http:// or https://, use it directly
+      if (material.url && (material.url.startsWith('http://') || material.url.startsWith('https://'))) {
+        window.open(material.url, '_blank');
+      } else {
+        // Otherwise, construct the full URL with the API uploads directory
+        window.open(`${ApiService.API_URL.replace('/endpoints', '')}/uploads/${material.url}`, '_blank');
+      }
     }
   };
   

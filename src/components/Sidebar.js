@@ -40,8 +40,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       { label: 'Analytics', path: '/teacher/analytics', icon: '📊' },
       { label: 'Grading', path: '/teacher/grading', icon: '📝' },
       { label: 'PGN Database', path: '/teacher/pgn', icon: '♟️' },
-      { label: 'Classroom', path: '/teacher/classroom', icon: '🏫' },
-      { label: 'Students', path: '/teacher/students', icon: '👨‍🎓' }
+      { label: 'Classroom', path: '/teacher/classroom', icon: '🏫' }
     ],
     student: [
       { label: 'My Classes', path: '/student/classes', icon: '📚' },

@@ -2,6 +2,7 @@
 class Classroom {
     // Database connection
     private $conn;
+    private $table = 'classrooms';
 
     // Class properties
     public $id;
@@ -131,6 +132,46 @@ class Classroom {
         }
         
         return $students;
+    }
+
+    // Get classes for a student
+    public function getStudentClasses($student_id) {
+        try {
+            // Query to get all classes that a student is enrolled in
+            $query = "SELECT c.id, c.name, c.description, c.status, c.schedule, 
+                    CONCAT(u.first_name, ' ', u.last_name) as teacher_name 
+                    FROM " . $this->table . " c
+                    JOIN enrollments e ON c.id = e.classroom_id
+                    JOIN users u ON c.teacher_id = u.id
+                    WHERE e.student_id = :student_id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':student_id', $student_id);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception("Database error: " . $e->getMessage());
+        }
+    }
+    
+    // Get classroom details by ID
+    public function getClassroomDetails($id) {
+        try {
+            $query = "SELECT c.id, c.name, c.description, c.status, c.schedule, 
+                    CONCAT(u.first_name, ' ', u.last_name) as teacher_name 
+                    FROM " . $this->table . " c
+                    JOIN users u ON c.teacher_id = u.id
+                    WHERE c.id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception("Database error: " . $e->getMessage());
+        }
     }
 }
 ?>

@@ -245,7 +245,7 @@ const ClassroomManagement = () => {
 
                 {/* Schedule Modal */}
                 {showScheduleModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
                         <div className="bg-white rounded-xl p-6 max-w-lg w-full">
                             <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Schedule Class</h2>
                             <form onSubmit={handleScheduleSubmit} className="space-y-4">
@@ -353,7 +353,7 @@ const ClassroomManagement = () => {
 
                 {/* Materials Modal */}
                 {showMaterialsModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
                         <div className="bg-white rounded-xl p-6 max-w-lg w-full">
                             <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Add Study Material</h2>
                             <form onSubmit={handleMaterialSubmit} className="space-y-4">

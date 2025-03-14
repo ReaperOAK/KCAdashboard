@@ -83,7 +83,7 @@ const AttendanceModal = ({ session, onClose, onAttendanceSubmitted }) => {
   };
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
       <div className="bg-white rounded-xl p-6 max-w-4xl w-full h-3/4 flex flex-col">
         <h2 className="text-2xl font-bold text-[#200e4a] mb-4">
           Take Attendance: {session.title}

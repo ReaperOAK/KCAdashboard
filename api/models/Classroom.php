@@ -137,13 +137,18 @@ class Classroom {
     // Get classes for a student
     public function getStudentClasses($student_id) {
         try {
-            // Query to get all classes that a student is enrolled in
-            $query = "SELECT c.id, c.name, c.description, c.status, c.schedule, 
-                    CONCAT(u.first_name, ' ', u.last_name) as teacher_name 
-                    FROM " . $this->table . " c
-                    JOIN enrollments e ON c.id = e.classroom_id
-                    JOIN users u ON c.teacher_id = u.id
-                    WHERE e.student_id = :student_id";
+            // Updated query to use batches and batch_students tables instead of classrooms and enrollments
+            $query = "SELECT 
+                    b.id, 
+                    b.name, 
+                    b.description, 
+                    b.status, 
+                    CONCAT('Every ', b.day_of_week, ' at ', b.time) as schedule, 
+                    CONCAT(u.full_name) as teacher_name 
+                    FROM batches b
+                    JOIN batch_students bs ON b.id = bs.batch_id
+                    JOIN users u ON b.teacher_id = u.id
+                    WHERE bs.student_id = :student_id";
 
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':student_id', $student_id);
@@ -158,11 +163,17 @@ class Classroom {
     // Get classroom details by ID
     public function getClassroomDetails($id) {
         try {
-            $query = "SELECT c.id, c.name, c.description, c.status, c.schedule, 
-                    CONCAT(u.first_name, ' ', u.last_name) as teacher_name 
-                    FROM " . $this->table . " c
-                    JOIN users u ON c.teacher_id = u.id
-                    WHERE c.id = :id";
+            // Updated query to use batches table instead of classrooms
+            $query = "SELECT 
+                    b.id, 
+                    b.name, 
+                    b.description, 
+                    b.status, 
+                    CONCAT('Every ', b.day_of_week, ' at ', b.time) as schedule, 
+                    u.full_name as teacher_name 
+                    FROM batches b
+                    JOIN users u ON b.teacher_id = u.id
+                    WHERE b.id = :id";
 
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);

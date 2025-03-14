@@ -1,5 +1,24 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Log request data for debugging
+error_log("Material upload request received");
+error_log("POST data: " . print_r($_POST, true));
+error_log("FILES data: " . print_r($_FILES, true));
+
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
 
@@ -14,11 +33,20 @@ if (!$user_data || $user_data['role'] !== 'teacher') {
     exit;
 }
 
-// Check if request has form data
-if (!isset($_POST['classroom_id']) || !isset($_POST['title']) || !isset($_POST['type'])) {
+// Check for required fields with detailed error
+$missing_fields = [];
+if (!isset($_POST['classroom_id'])) $missing_fields[] = 'classroom_id';
+if (!isset($_POST['title'])) $missing_fields[] = 'title';
+if (!isset($_POST['type'])) $missing_fields[] = 'type';
+
+if (!empty($missing_fields)) {
     echo json_encode([
         'success' => false,
-        'message' => 'Missing required fields'
+        'message' => 'Missing required fields: ' . implode(', ', $missing_fields),
+        'debug' => [
+            'post_data' => $_POST,
+            'files' => isset($_FILES) ? array_keys($_FILES) : 'No files'
+        ]
     ]);
     exit;
 }
@@ -65,7 +93,7 @@ try {
         } else {
             echo json_encode([
                 'success' => false,
-                'message' => 'Failed to upload file'
+                'message' => 'Failed to upload file: ' . error_get_last()['message']
             ]);
             exit;
         }
@@ -136,9 +164,11 @@ try {
     ]);
     
 } catch (Exception $e) {
+    error_log("Material upload error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Error adding material: ' . $e->getMessage()
+        'message' => 'Error adding material: ' . $e->getMessage(),
+        'trace' => $e->getTraceAsString()
     ]);
 }
 ?>

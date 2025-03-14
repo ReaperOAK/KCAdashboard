@@ -90,24 +90,43 @@ const ClassroomManagement = () => {
     const handleMaterialSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Create FormData object
             const formData = new FormData();
             formData.append('classroom_id', selectedClass.id);
             formData.append('title', materialForm.title);
             formData.append('type', materialForm.type);
             formData.append('content', materialForm.content);
+            
             if (materialForm.file) {
                 formData.append('file', materialForm.file);
             }
 
-            await ApiService.post('/classroom/add-material.php', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+            console.log('Submitting material:', {
+                classroom_id: selectedClass.id,
+                title: materialForm.title,
+                type: materialForm.type,
+                content: materialForm.content,
+                file: materialForm.file ? materialForm.file.name : 'No file'
             });
-            setShowMaterialsModal(false);
-            setRefreshTrigger(prev => prev + 1); // Refresh materials list
+
+            // Use postFormData instead of post for multipart/form-data
+            const response = await ApiService.postFormData('/classroom/add-material.php', formData);
+            
+            if (response.success) {
+                setShowMaterialsModal(false);
+                setRefreshTrigger(prev => prev + 1); // Refresh materials list
+                setMaterialForm({
+                    title: '',
+                    type: 'document',
+                    content: '',
+                    file: null
+                });
+            } else {
+                setError(response.message || 'Failed to upload material');
+            }
         } catch (error) {
-            setError('Failed to upload material');
+            console.error('Material upload error:', error);
+            setError('Failed to upload material: ' + error.message);
         }
     };
 

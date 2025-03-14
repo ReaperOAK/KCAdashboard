@@ -143,8 +143,8 @@ class ApiService {
         throw new Error(`PHP Error: ${errorMessage}`);
       }
       
-      // Parse as JSON if it looks like JSON
-      if (contentType && contentType.includes('application/json') || 
+      // Parse as JSON if it looks like JSON - fix operator precedence with parentheses
+      if ((contentType && contentType.includes('application/json')) || 
           (text.startsWith('{') && text.endsWith('}'))) {
         try {
           const result = JSON.parse(text);

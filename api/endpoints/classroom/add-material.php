@@ -142,7 +142,7 @@ try {
     $stmt->bindParam(':classroom_id', $_POST['classroom_id']);
     $stmt->execute();
     
-    // Create notifications for students
+    // Create notifications for students - FIX HERE
     $stmt = $db->prepare("
         INSERT INTO notifications (user_id, title, message, type, created_at)
         SELECT 
@@ -155,12 +155,15 @@ try {
         WHERE cs.classroom_id = :classroom_id
     ");
     
+    // Store all values in variables first before binding
     $notif_title = "New Learning Material Available";
-    $notif_message = "A new {$_POST['type']} material '{$_POST['title']}' has been added to your classroom.";
+    $notif_message = "A new " . $type . " material '" . $title . "' has been added to your classroom.";
+    $classroom_id = $_POST['classroom_id']; // Use a variable for classroom_id too
     
+    // Now bind the variables, not expressions or literals
     $stmt->bindParam(':notif_title', $notif_title);
     $stmt->bindParam(':notif_message', $notif_message);
-    $stmt->bindParam(':classroom_id', $_POST['classroom_id']);
+    $stmt->bindParam(':classroom_id', $classroom_id);
     $stmt->execute();
     
     echo json_encode([

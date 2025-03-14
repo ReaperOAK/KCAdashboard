@@ -47,8 +47,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       { label: 'Resources', path: '/student/resources', icon: '📖' },
       { label: 'Quiz', path: '/student/quiz', icon: '✏️' },
       { label: 'Tournaments', path: '/student/tournaments', icon: '🏆' },
-      { label: 'Games', path: '/student/games', icon: '♟️' },
-      { label: 'Classroom', path: '/student/classroom', icon: '🏫' }
+      { label: 'Simul Games', path: '/student/simul', icon: '👥' },
+      { label: 'Chess Studies', path: '/student/studies', icon: '📝' },
+      { label: 'Interactive Board', path: '/student/board', icon: '🎮' },
+      { label: 'Game Area', path: '/student/games', icon: '♟️' }
     ]
   }), []); // Empty dependency array since this object is static
 

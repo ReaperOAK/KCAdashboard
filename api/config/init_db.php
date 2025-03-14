@@ -6,6 +6,57 @@ $database = new Database();
 $db = $database->getConnection();
 $user = new User($db);
 
+try {
+    // Create users table
+    $query = "CREATE TABLE IF NOT EXISTS users (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        role ENUM('admin', 'teacher', 'student') NOT NULL DEFAULT 'student',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )";
+    
+    $db->exec($query);
+    
+    // Create user_tokens table for authentication
+    $query = "CREATE TABLE IF NOT EXISTS user_tokens (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        token VARCHAR(255) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP,
+        last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    
+    $db->exec($query);
+    
+    // Create lichess_integration table to store Lichess OAuth tokens
+    $query = "CREATE TABLE IF NOT EXISTS lichess_integration (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        lichess_username VARCHAR(100),
+        access_token VARCHAR(255),
+        token_type VARCHAR(50),
+        expires_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE KEY (user_id)
+    )";
+    
+    $db->exec($query);
+    
+    echo "Database tables created successfully.\n";
+    
+} catch(PDOException $e) {
+    echo "Error creating database tables: " . $e->getMessage() . "\n";
+}
+
 // Authentication & Users Tables
 $sql = "CREATE TABLE IF NOT EXISTS users (
     id INT PRIMARY KEY AUTO_INCREMENT,

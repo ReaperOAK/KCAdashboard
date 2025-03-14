@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ResetPassword from './pages/auth/ResetPassword';
 import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
@@ -13,6 +10,7 @@ import PGNViewer from './pages/PGNViewer';
 import adminRoutes from './routes/adminRoutes';
 import teacherRoutes from './routes/teacherRoutes';
 import studentRoutes from './routes/studentRoutes';
+import publicRoutes from './routes/publicRoutes';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -45,7 +43,6 @@ const DashboardRedirect = () => {
 const AppContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
-  const publicRoutes = ['/login', '/register', '/reset-password'];
   const location = useLocation();
 
   // Effect to handle route changes
@@ -74,9 +71,12 @@ const AppContent = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Check if current route is public
+  const isPublicRoute = publicRoutes.some(route => location.pathname === route.path);
+
   return (
     <div className="min-h-screen bg-[#f3f1f9]">
-      {user && !publicRoutes.includes(window.location.pathname) && (
+      {user && !isPublicRoute && (
         <>
           <TopNavbar toggleSidebar={toggleSidebar} />
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
@@ -122,12 +122,13 @@ const AppContent = () => {
           </div>
         </>
       )}
-      {(!user || publicRoutes.includes(window.location.pathname)) && (
+      {(!user || isPublicRoute) && (
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          {publicRoutes.map(route => (
+            <Route key={route.path} path={route.path} element={<route.element />} />
+          ))}
           <Route path="/" element={<DashboardRedirect />} />
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       )}
     </div>

@@ -118,28 +118,145 @@ function getAuthUser() {
     }
 }
 
-// Add this missing function
 function verifyToken() {
-    try {
-        $user_id = validateToken();
+    // Check if Authorization header exists
+    $headers = getallheaders();
+    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+    
+    // Check if cookie exists (for web-based authentication)
+    $cookieToken = isset($_COOKIE['auth_token']) ? $_COOKIE['auth_token'] : '';
+    
+    // Check if token is in query params (for specific API calls)
+    $queryToken = isset($_GET['token']) ? $_GET['token'] : '';
+    
+    // Determine which token to use
+    $token = '';
+    if (!empty($authHeader) && strpos($authHeader, 'Bearer') !== false) {
+        // Extract token from Authorization header
+        list(, $token) = explode(' ', $authHeader, 2);
+    } elseif (!empty($cookieToken)) {
+        // Use token from cookie
+        $token = $cookieToken;
+    } elseif (!empty($queryToken)) {
+        // Use token from query parameter
+        $token = $queryToken;
+    }
+    
+    // If no token found
+    if (empty($token)) {
+        return false;
+    }
+    
+    // Connect to database
+    require_once __DIR__ . '/../config/Database.php';
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Verify token and get user data
+    $query = "SELECT 
+                u.id, u.username, u.email, u.role 
+              FROM 
+                users u
+              JOIN 
+                user_tokens ut ON u.id = ut.user_id
+              WHERE 
+                ut.token = :token 
+                AND ut.expires_at > NOW()";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+    
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($user) {
+        // Update last activity
+        $updateQuery = "UPDATE user_tokens SET last_activity = NOW() WHERE token = :token";
+        $updateStmt = $db->prepare($updateQuery);
+        $updateStmt->bindParam(':token', $token);
+        $updateStmt->execute();
         
-        if (!$user_id) {
-            return null;
-        }
-        
-        $database = new Database();
-        $db = $database->getConnection();
-        
-        $query = "SELECT id, email, full_name, role FROM users WHERE id = :id";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':id', $user_id);
-        $stmt->execute();
-        
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-        
-    } catch (Exception $e) {
-        error_log("Token verification error: " . $e->getMessage());
-        return null;
+        return $user;
+    }
+    
+    return false;
+}
+
+function requireRole($requiredRole) {
+    $user = verifyToken();
+    
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Unauthorized: Authentication required"
+        ));
+        exit();
+    }
+    
+    if ($user['role'] !== $requiredRole && $user['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Forbidden: Insufficient permissions"
+        ));
+        exit();
+    }
+    
+    return $user;
+}
+
+// Function to create Lichess API integration with authentication
+function getLichessData($endpoint, $token = null) {
+    $curl = curl_init();
+    $url = "https://lichess.org" . $endpoint;
+    
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    
+    // Set headers
+    $headers = [];
+    
+    // Add authorization if token is provided
+    if ($token) {
+        $headers[] = "Authorization: Bearer $token";
+    }
+    
+    // Set headers if any
+    if (!empty($headers)) {
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+    }
+    
+    $response = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    
+    // Check for errors
+    if (curl_errno($curl)) {
+        $error = curl_error($curl);
+        curl_close($curl);
+        return [
+            'success' => false,
+            'message' => "cURL Error: $error",
+            'data' => null
+        ];
+    }
+    
+    curl_close($curl);
+    
+    // Process response based on HTTP code
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $data = json_decode($response, true);
+        return [
+            'success' => true,
+            'message' => "Request successful",
+            'data' => $data
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => "API returned error code $httpCode",
+            'data' => json_decode($response, true)
+        ];
     }
 }
 ?>

@@ -108,18 +108,24 @@ try {
         )
     ");
     
-    $stmt->bindParam(':title', $_POST['title']);
-    $stmt->bindParam(':description', $_POST['content'] ?? '');
-    $stmt->bindParam(':type', $_POST['type']);
+    $title = $_POST['title'];
+    $description = isset($_POST['content']) ? $_POST['content'] : '';
+    $type = $_POST['type'];
+    $created_by = $user_data['id'];
     
-    // For video, use the content as URL
-    if ($_POST['type'] === 'video') {
-        $stmt->bindParam(':url', $_POST['content']);
+    // Store URL in a variable first for proper binding
+    $url = '';
+    if ($type === 'video') {
+        $url = isset($_POST['content']) ? $_POST['content'] : '';
     } else {
-        $stmt->bindParam(':url', $file_url);
+        $url = $file_url;
     }
     
-    $stmt->bindParam(':created_by', $user_data['id']);
+    $stmt->bindParam(':title', $title);
+    $stmt->bindParam(':description', $description);
+    $stmt->bindParam(':type', $type);
+    $stmt->bindParam(':url', $url);
+    $stmt->bindParam(':created_by', $created_by);
     $stmt->execute();
     
     $resource_id = $db->lastInsertId();

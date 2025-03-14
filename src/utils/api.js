@@ -130,25 +130,39 @@ class ApiService {
       });
       
       const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const text = await response.text();
-        if (!text.trim()) {
-          throw new Error('Empty response from server');
+      
+      // First get response as text
+      const text = await response.text();
+      
+      // Check if response contains PHP error
+      if (text.includes('Fatal error') || text.includes('<br />')) {
+        console.error('PHP Error in response:', text);
+        // Extract the error message from PHP error output
+        const errorMatch = text.match(/Fatal error:(.*?)in/);
+        const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned an error';
+        throw new Error(`PHP Error: ${errorMessage}`);
+      }
+      
+      // Parse as JSON if it looks like JSON
+      if (contentType && contentType.includes('application/json') || 
+          (text.startsWith('{') && text.endsWith('}'))) {
+        try {
+          const result = JSON.parse(text);
+          if (!response.ok) {
+            throw new Error(result.message || `HTTP error! status: ${response.status}`);
+          }
+          return result;
+        } catch (jsonError) {
+          console.error('JSON parsing error:', jsonError, 'Response text:', text);
+          throw new Error('Invalid JSON response from server');
         }
-        
-        const result = JSON.parse(text);
-        if (!response.ok) {
-          throw new Error(result.message || `HTTP error! status: ${response.status}`);
-        }
-        return result;
       }
       
       if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || 'Network response was not ok');
+        throw new Error(text || `HTTP error! status: ${response.status}`);
       }
       
-      return response;
+      return { success: true, message: 'Operation completed successfully' };
     } catch (error) {
       console.error('API FormData Error:', error);
       throw error;

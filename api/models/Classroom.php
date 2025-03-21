@@ -290,17 +290,30 @@ class Classroom {
                 return false;
             }
             
-            // Get next session if any
-            $nextSessionQuery = "SELECT title, date_time 
-                               FROM classroom_sessions 
-                               WHERE classroom_id = :class_id AND date_time > NOW() 
-                               ORDER BY date_time ASC
-                               LIMIT 1";
-                               
-            $nextStmt = $this->conn->prepare($nextSessionQuery);
-            $nextStmt->bindParam(":class_id", $class_id);
-            $nextStmt->execute();
-            $nextSession = $nextStmt->fetch(PDO::FETCH_ASSOC);
+            // Get next session from batch_sessions instead of classroom_sessions
+            // First check if this classroom is linked to a batch
+            $batchQuery = "SELECT b.id FROM batches b 
+                          WHERE b.teacher_id = :teacher_id 
+                          LIMIT 1";
+                          
+            $batchStmt = $this->conn->prepare($batchQuery);
+            $batchStmt->bindParam(":teacher_id", $classroom['teacher_id']);
+            $batchStmt->execute();
+            $batch = $batchStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $nextSession = null;
+            if ($batch) {
+                $nextSessionQuery = "SELECT title, date_time 
+                                   FROM batch_sessions 
+                                   WHERE batch_id = :batch_id AND date_time > NOW() 
+                                   ORDER BY date_time ASC
+                                   LIMIT 1";
+                                   
+                $nextStmt = $this->conn->prepare($nextSessionQuery);
+                $nextStmt->bindParam(":batch_id", $batch['id']);
+                $nextStmt->execute();
+                $nextSession = $nextStmt->fetch(PDO::FETCH_ASSOC);
+            }
             
             // Format data for response
             $classDetails = [

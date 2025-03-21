@@ -55,7 +55,29 @@ try {
         throw new Exception('You do not have access to this classroom');
     }
     
-    // Get assignments with submission status for this student
+    // Check if classroom_assignments table exists
+    $tableExists = false;
+    try {
+        $checkTableQuery = "SHOW TABLES LIKE 'classroom_assignments'";
+        $checkStmt = $db->prepare($checkTableQuery);
+        $checkStmt->execute();
+        $tableExists = ($checkStmt->rowCount() > 0);
+    } catch (PDOException $e) {
+        // Ignore errors from this query
+    }
+    
+    // Return empty assignments array if table doesn't exist
+    if (!$tableExists) {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'assignments' => [],
+            'message' => 'Assignments feature not yet available'
+        ]);
+        exit;
+    }
+    
+    // Only proceed with query if table exists
     $query = "SELECT a.id, a.title, a.description, a.due_date, a.created_at,
               CASE 
                 WHEN s.id IS NULL THEN 'pending'

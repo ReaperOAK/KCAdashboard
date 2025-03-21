@@ -55,17 +55,30 @@ try {
         throw new Exception('You do not have access to this classroom');
     }
     
-    // Get material list
+    // Get materials for this classroom based on the teacher who created them
+    // First get the teacher_id for this classroom
+    $teacherQuery = "SELECT teacher_id FROM classrooms WHERE id = :classroom_id";
+    $teacherStmt = $db->prepare($teacherQuery);
+    $teacherStmt->bindParam(':classroom_id', $classroom_id);
+    $teacherStmt->execute();
+    $teacherData = $teacherStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$teacherData) {
+        throw new Exception('Classroom not found');
+    }
+    
+    $teacher_id = $teacherData['teacher_id'];
+    
+    // Get materials created by this teacher
     $query = "SELECT r.id, r.title, r.description, r.type, r.url, r.category, r.created_at,
               u.full_name AS uploaded_by
               FROM resources r
               JOIN users u ON r.created_by = u.id
-              JOIN classroom_resources cr ON r.id = cr.resource_id
-              WHERE cr.classroom_id = :classroom_id
+              WHERE r.created_by = :teacher_id
               ORDER BY r.created_at DESC";
               
     $stmt = $db->prepare($query);
-    $stmt->bindParam(':classroom_id', $classroom_id);
+    $stmt->bindParam(':teacher_id', $teacher_id);
     $stmt->execute();
     
     $materials = [];

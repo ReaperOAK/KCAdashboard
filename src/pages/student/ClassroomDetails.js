@@ -16,7 +16,6 @@ const ClassroomDetails = () => {
     const [discussions, setDiscussions] = useState([]);
     const [newDiscussion, setNewDiscussion] = useState('');
     const [submissionFile, setSubmissionFile] = useState(null);
-    const [assignmentId, setAssignmentId] = useState(null);
     const [submissionText, setSubmissionText] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);

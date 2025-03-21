@@ -132,5 +132,107 @@ class Classroom {
         
         return $students;
     }
+
+    /**
+     * Get all classes in which a student is enrolled
+     */
+    public function getStudentClasses($student_id) {
+        $query = "SELECT 
+                    c.id, 
+                    c.name, 
+                    c.description, 
+                    c.schedule,
+                    c.status,
+                    u.full_name as teacher_name
+                  FROM 
+                    classrooms c
+                  JOIN 
+                    classroom_students cs ON c.id = cs.classroom_id
+                  JOIN 
+                    users u ON c.teacher_id = u.id
+                  WHERE 
+                    cs.student_id = :student_id
+                  ORDER BY
+                    c.name ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id", $student_id);
+        $stmt->execute();
+        
+        $classes = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $classes[] = [
+                "id" => $row['id'],
+                "name" => $row['name'],
+                "description" => $row['description'],
+                "schedule" => $row['schedule'],
+                "status" => $row['status'],
+                "teacher_name" => $row['teacher_name']
+            ];
+        }
+        
+        return $classes;
+    }
+    
+    /**
+     * Get available classes that a student can join
+     */
+    public function getAvailableClasses($student_id) {
+        $query = "SELECT 
+                    c.id, 
+                    c.name, 
+                    c.description, 
+                    c.schedule,
+                    c.status,
+                    u.full_name as teacher_name,
+                    b.level,
+                    (
+                      SELECT COUNT(*) FROM classroom_students 
+                      WHERE classroom_id = c.id
+                    ) as enrolled_students,
+                    b.max_students - (
+                      SELECT COUNT(*) FROM classroom_students 
+                      WHERE classroom_id = c.id
+                    ) as available_slots
+                  FROM 
+                    classrooms c
+                  JOIN 
+                    users u ON c.teacher_id = u.id
+                  JOIN
+                    batches b ON c.batch_id = b.id
+                  WHERE 
+                    c.status IN ('active', 'upcoming')
+                    AND c.id NOT IN (
+                      SELECT classroom_id FROM classroom_students 
+                      WHERE student_id = :student_id
+                    )
+                    AND (
+                      SELECT COUNT(*) FROM classroom_students 
+                      WHERE classroom_id = c.id
+                    ) < b.max_students
+                  ORDER BY
+                    c.created_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id", $student_id);
+        $stmt->execute();
+        
+        $classes = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $classes[] = [
+                "id" => $row['id'],
+                "name" => $row['name'],
+                "description" => $row['description'],
+                "schedule" => $row['schedule'],
+                "status" => $row['status'],
+                "teacher_name" => $row['teacher_name'],
+                "level" => $row['level'],
+                "enrolled_students" => (int)$row['enrolled_students'],
+                "available_slots" => (int)$row['available_slots']
+            ];
+        }
+        
+        return $classes;
+    }
 }
 ?>

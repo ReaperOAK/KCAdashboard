@@ -207,7 +207,8 @@ const ResourceCenter = () => {
         // Extract video ID from YouTube links
         let videoId = '';
         if (url.includes('youtube.com') || url.includes('youtu.be')) {
-            const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            // Fix: Remove unnecessary escape character in the character class
+            const regex = /(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
             const match = url.match(regex);
             videoId = match ? match[1] : '';
         }

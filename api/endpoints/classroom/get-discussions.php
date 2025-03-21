@@ -50,6 +50,28 @@ try {
         throw new Exception('You do not have access to this classroom');
     }
     
+    // Check if classroom_discussions table exists
+    $tableExists = false;
+    try {
+        $checkTableQuery = "SHOW TABLES LIKE 'classroom_discussions'";
+        $checkStmt = $db->prepare($checkTableQuery);
+        $checkStmt->execute();
+        $tableExists = ($checkStmt->rowCount() > 0);
+    } catch (PDOException $e) {
+        // Ignore errors from this query
+    }
+    
+    // Return empty discussions array if table doesn't exist
+    if (!$tableExists) {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'discussions' => [],
+            'message' => 'Discussions feature not yet available'
+        ]);
+        exit;
+    }
+    
     // Get discussions for this classroom
     $query = "SELECT d.id, d.message, d.created_at, 
               u.id as user_id, u.full_name as user_name, u.role as user_role

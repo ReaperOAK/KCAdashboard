@@ -235,6 +235,16 @@ $sql = "CREATE TABLE IF NOT EXISTS resources (
 )";
 $db->exec($sql);
 
+// Update resources table with additional fields
+$sql = "ALTER TABLE resources 
+        ADD COLUMN IF NOT EXISTS file_size INT DEFAULT NULL,
+        ADD COLUMN IF NOT EXISTS downloads INT DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS thumbnail_url VARCHAR(512),
+        ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS tags TEXT,
+        ADD COLUMN IF NOT EXISTS difficulty ENUM('beginner', 'intermediate', 'advanced') DEFAULT 'beginner'";
+$db->exec($sql);
+
 $sql = "CREATE TABLE IF NOT EXISTS resource_access (
     resource_id INT,
     user_id INT,
@@ -242,6 +252,17 @@ $sql = "CREATE TABLE IF NOT EXISTS resource_access (
     PRIMARY KEY (resource_id, user_id),
     FOREIGN KEY (resource_id) REFERENCES resources(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
+)";
+$db->exec($sql);
+
+// Create bookmarks table
+$sql = "CREATE TABLE IF NOT EXISTS resource_bookmarks (
+    user_id INT NOT NULL,
+    resource_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, resource_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE
 )";
 $db->exec($sql);
 

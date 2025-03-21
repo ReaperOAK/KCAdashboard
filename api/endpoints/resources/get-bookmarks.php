@@ -5,7 +5,7 @@ require_once '../../models/Resource.php';
 require_once '../../middleware/auth.php';
 
 try {
-    // Get user from token
+    // Validate user token
     $user = verifyToken();
     if (!$user) {
         http_response_code(401);
@@ -17,23 +17,24 @@ try {
     $db = $database->getConnection();
     $resource = new Resource($db);
 
-    $data = json_decode(file_get_contents("php://input"));
+    // Get bookmarks for current user
+    $bookmarks = $resource->getUserBookmarks($user['id']);
     
-    if(!empty($data->resource_id)) {
-        if($resource->logAccess($user['id'], $data->resource_id)) {
-            http_response_code(200);
-            echo json_encode(["message" => "Access logged successfully"]);
-        } else {
-            throw new Exception("Failed to log access");
-        }
-    } else {
-        throw new Exception("Resource ID is required");
+    // Add bookmark status (always true for bookmarks endpoint)
+    foreach ($bookmarks as &$item) {
+        $item['is_bookmarked'] = true;
     }
+    
+    http_response_code(200);
+    echo json_encode([
+        "resources" => $bookmarks,
+        "count" => count($bookmarks)
+    ]);
 
-} catch (Exception $e) {
+} catch(Exception $e) {
     http_response_code(500);
     echo json_encode([
-        "message" => "Error logging resource access",
+        "message" => "Error fetching bookmarks",
         "error" => $e->getMessage()
     ]);
 }

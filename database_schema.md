@@ -191,16 +191,22 @@
 
 ## Resources & Materials
 ### resources
-| Column     | Type                           | Null | Key | Default | Extra           |
-|------------|--------------------------------|------|-----|---------|-----------------|
-| id         | int(11)                        | NO   | PRI | NULL    | auto_increment |
-| title      | varchar(255)                   | NO   |     | NULL    |                |
-| description| text                           | YES  |     | NULL    |                |
-| type       | enum('pgn','pdf','video','link')| NO  |    | NULL    |                |
-| url        | varchar(512)                   | NO   |     | NULL    |                |
-| category   | varchar(100)                   | NO   |     | NULL    |                |
-| created_by | int(11)                        | NO   | MUL | NULL    |                |
-| created_at | timestamp                      | YES  |     | NULL    |                |
+| Column        | Type                           | Null | Key | Default | Extra           |
+|---------------|--------------------------------|------|-----|---------|-----------------|
+| id            | int(11)                        | NO   | PRI | NULL    | auto_increment |
+| title         | varchar(255)                   | NO   |     | NULL    |                |
+| description   | text                           | YES  |     | NULL    |                |
+| type          | enum('pgn','pdf','video','link')| NO  |    | NULL    |                |
+| url           | varchar(512)                   | NO   |     | NULL    |                |
+| category      | varchar(100)                   | NO   |     | NULL    |                |
+| created_by    | int(11)                        | NO   | MUL | NULL    |                |
+| created_at    | timestamp                      | YES  |     | NULL    |                |
+| file_size     | int                            | YES  |     | NULL    |                |
+| downloads     | int                            | YES  |     | 0       |                |
+| thumbnail_url | varchar(512)                   | YES  |     | NULL    |                |
+| is_featured   | boolean                        | YES  |     | FALSE   |                |
+| tags          | text                           | YES  |     | NULL    |                |
+| difficulty    | enum('beginner','intermediate','advanced') | YES | | 'beginner' |     |
 
 ### resource_access
 | Column       | Type      | Null | Key | Default | Extra |
@@ -208,6 +214,13 @@
 | resource_id | int(11)   | NO   | PRI | NULL    |        |
 | user_id     | int(11)   | NO   | PRI | NULL    |        |
 | last_accessed| timestamp | YES  |     | NULL    |        |
+
+### resource_bookmarks
+| Column       | Type      | Null | Key | Default | Extra |
+|-------------|-----------|------|-----|---------|--------|
+| user_id     | int(11)   | NO   | PRI | NULL    |        |
+| resource_id | int(11)   | NO   | PRI | NULL    |        |
+| created_at  | timestamp | YES  |     | CURRENT_TIMESTAMP |  |
 
 ## Notifications
 ### notifications

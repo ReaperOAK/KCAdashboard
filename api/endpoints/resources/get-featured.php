@@ -9,25 +9,25 @@ try {
     $db = $database->getConnection();
     $resource = new Resource($db);
 
-    $resources = $resource->getAll();
-
+    $featured = $resource->getFeatured();
+    
     // Add bookmark status if user is logged in
     $user = verifyToken();
     if ($user) {
-        foreach ($resources as &$item) {
+        foreach ($featured as &$item) {
             $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
         }
     }
-
+    
     http_response_code(200);
     echo json_encode([
-        "resources" => $resources
+        "resources" => $featured
     ]);
 
-} catch (Exception $e) {
+} catch(Exception $e) {
     http_response_code(500);
     echo json_encode([
-        "message" => "Error fetching resources",
+        "message" => "Error fetching featured resources",
         "error" => $e->getMessage()
     ]);
 }

@@ -363,6 +363,79 @@ class ApiService {
   static async validatePGN(pgnContent) {
     return this.post('/pgn/validate.php', { pgn_content: pgnContent });
   }
+
+  // Resource Management endpoints
+  static async getResources(category = null) {
+    try {
+      const endpoint = category && category !== 'all' 
+        ? `/resources/get-by-category.php?category=${category}`
+        : '/resources/get-all.php';
+        
+      return this.get(endpoint);
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+      throw error;
+    }
+  }
+
+  static async getFeaturedResources() {
+    return this.get('/resources/get-featured.php');
+  }
+
+  static async searchResources(query, filters = {}) {
+    let endpoint = `/resources/search.php?q=${encodeURIComponent(query)}`;
+    
+    // Add filters to query string
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        endpoint += `&${key}=${encodeURIComponent(value)}`;
+      }
+    });
+    
+    return this.get(endpoint);
+  }
+
+  static async uploadResource(formData) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${this.API_URL}/resources/upload.php`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData
+    });
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || `HTTP error! status: ${response.status}`);
+      }
+      return result;
+    }
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload resource');
+    }
+    
+    return { success: true };
+  }
+
+  static async bookmarkResource(resourceId) {
+    return this.post('/resources/bookmark.php', { resource_id: resourceId });
+  }
+
+  static async unbookmarkResource(resourceId) {
+    return this.post('/resources/unbookmark.php', { resource_id: resourceId });
+  }
+
+  static async getUserBookmarks() {
+    return this.get('/resources/get-bookmarks.php');
+  }
+
+  static getResourceDownloadUrl(resourceId) {
+    return `${this.API_URL}/resources/download.php?id=${resourceId}`;
+  }
 }
 
 export default ApiService;

@@ -35,7 +35,7 @@ Create email notifications in addition to in-app notifications -->
 ### **Student Features**
 1. **Simul Games:** Integration with [Lichess.org](https://lichess.org) for simultaneous exhibition matches.
 2. **Classroom:** View and manage enrolled batches, teachers, and materials.
-<!-- Class detail view
+<!-- DONE!! Class detail view
 Enrollment functionality
 Class materials section
 Assignment submission system

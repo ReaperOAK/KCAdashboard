@@ -231,5 +231,96 @@ class Classroom {
         
         return $classes;
     }
+
+    /**
+     * Get detailed information about a specific classroom
+     */
+    public function getClassDetails($class_id, $user_id) {
+        try {
+            // First check if the user has access to this classroom
+            $accessQuery = "SELECT c.*, 
+                         u.full_name as teacher_name,
+                         (SELECT COUNT(*) FROM classroom_students WHERE classroom_id = c.id) as student_count
+                        FROM 
+                         classrooms c
+                        JOIN 
+                         users u ON c.teacher_id = u.id
+                        LEFT JOIN
+                         classroom_students cs ON c.id = cs.classroom_id AND cs.student_id = :user_id
+                        WHERE 
+                         c.id = :class_id 
+                         AND (c.teacher_id = :user_id OR cs.student_id = :user_id)";
+            
+            $stmt = $this->conn->prepare($accessQuery);
+            $stmt->bindParam(":class_id", $class_id);
+            $stmt->bindParam(":user_id", $user_id);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                // Try to check if user is admin - admins can access any classroom
+                $userQuery = "SELECT role FROM users WHERE id = :user_id";
+                $userStmt = $this->conn->prepare($userQuery);
+                $userStmt->bindParam(":user_id", $user_id);
+                $userStmt->execute();
+                
+                $userRole = $userStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$userRole || $userRole['role'] !== 'admin') {
+                    return false; // User doesn't have access
+                }
+                
+                // If admin, fetch classroom details without access check
+                $query = "SELECT c.*, 
+                          u.full_name as teacher_name,
+                          (SELECT COUNT(*) FROM classroom_students WHERE classroom_id = c.id) as student_count
+                         FROM 
+                          classrooms c
+                         JOIN 
+                          users u ON c.teacher_id = u.id
+                         WHERE 
+                          c.id = :class_id";
+                          
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(":class_id", $class_id);
+                $stmt->execute();
+            }
+            
+            $classroom = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$classroom) {
+                return false;
+            }
+            
+            // Get next session if any
+            $nextSessionQuery = "SELECT title, date_time 
+                               FROM classroom_sessions 
+                               WHERE classroom_id = :class_id AND date_time > NOW() 
+                               ORDER BY date_time ASC
+                               LIMIT 1";
+                               
+            $nextStmt = $this->conn->prepare($nextSessionQuery);
+            $nextStmt->bindParam(":class_id", $class_id);
+            $nextStmt->execute();
+            $nextSession = $nextStmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Format data for response
+            $classDetails = [
+                "id" => $classroom['id'],
+                "name" => $classroom['name'],
+                "description" => $classroom['description'],
+                "schedule" => $classroom['schedule'],
+                "status" => $classroom['status'],
+                "teacher_id" => $classroom['teacher_id'],
+                "teacher_name" => $classroom['teacher_name'],
+                "student_count" => (int)$classroom['student_count'],
+                "next_session" => $nextSession ? $nextSession['title'] . ' on ' . date('M j, Y, g:i A', strtotime($nextSession['date_time'])) : null
+            ];
+            
+            return $classDetails;
+        } catch (PDOException $e) {
+            // Log error and rethrow
+            error_log("Database error in getClassDetails: " . $e->getMessage());
+            throw new Exception("Database error: " . $e->getMessage());
+        }
+    }
 }
 ?>

@@ -185,21 +185,18 @@ class Classroom {
                     c.schedule,
                     c.status,
                     u.full_name as teacher_name,
-                    b.level,
                     (
                       SELECT COUNT(*) FROM classroom_students 
                       WHERE classroom_id = c.id
                     ) as enrolled_students,
-                    b.max_students - (
+                    (20 - (
                       SELECT COUNT(*) FROM classroom_students 
                       WHERE classroom_id = c.id
-                    ) as available_slots
+                    )) as available_slots
                   FROM 
                     classrooms c
                   JOIN 
                     users u ON c.teacher_id = u.id
-                  JOIN
-                    batches b ON c.batch_id = b.id
                   WHERE 
                     c.status IN ('active', 'upcoming')
                     AND c.id NOT IN (
@@ -209,7 +206,7 @@ class Classroom {
                     AND (
                       SELECT COUNT(*) FROM classroom_students 
                       WHERE classroom_id = c.id
-                    ) < b.max_students
+                    ) < 20
                   ORDER BY
                     c.created_at DESC";
         
@@ -226,7 +223,7 @@ class Classroom {
                 "schedule" => $row['schedule'],
                 "status" => $row['status'],
                 "teacher_name" => $row['teacher_name'],
-                "level" => $row['level'],
+                "level" => isset($row['level']) ? $row['level'] : 'All Levels',
                 "enrolled_students" => (int)$row['enrolled_students'],
                 "available_slots" => (int)$row['available_slots']
             ];

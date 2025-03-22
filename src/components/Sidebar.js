@@ -39,6 +39,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       { label: 'Batches', path: '/teacher/batches', icon: '👨‍👧‍👦' },
       { label: 'Analytics', path: '/teacher/analytics', icon: '📊' },
       { label: 'Grading', path: '/teacher/grading', icon: '📝' },
+      { label: 'Quizzes', path: '/teacher/quizzes', icon: '📋' },
       { label: 'PGN Database', path: '/teacher/pgn', icon: '♟️' },
       { label: 'Classroom', path: '/teacher/classroom', icon: '🏫' }
     ],

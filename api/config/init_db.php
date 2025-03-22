@@ -221,6 +221,23 @@ $sql = "CREATE TABLE IF NOT EXISTS tournament_registrations (
 )";
 $db->exec($sql);
 
+// Create tournament_payments table if not exists
+$sql = "CREATE TABLE IF NOT EXISTS tournament_payments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    tournament_id INT NOT NULL,
+    user_id INT NOT NULL,
+    screenshot_path VARCHAR(255) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    verified_by INT,
+    verified_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+)";
+$db->exec($sql);
+
 // Resources & Materials Tables
 $sql = "CREATE TABLE IF NOT EXISTS resources (
     id INT PRIMARY KEY AUTO_INCREMENT,

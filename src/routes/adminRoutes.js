@@ -9,6 +9,8 @@ import StudentAttendanceHistory from '../pages/admin/StudentAttendanceHistory';
 import PlatformAnalytics from '../pages/admin/PlatformAnalytics';
 import SupportSystem from '../pages/admin/SupportSystem';
 import StudentAttendanceList from '../pages/admin/StudentAttendanceList';
+import TournamentManagement from '../pages/admin/TournamentManagement';
+import TournamentRegistrations from '../pages/admin/TournamentRegistrations';
 
 const adminRoutes = [
   {
@@ -65,6 +67,17 @@ const adminRoutes = [
     path: '/admin/support',
     element: SupportSystem,
     title: 'Support'
+  },
+  // New Tournament routes
+  {
+    path: '/admin/tournaments',
+    element: TournamentManagement,
+    title: 'Tournament Management'
+  },
+  {
+    path: '/admin/tournaments/:id/registrations',
+    element: TournamentRegistrations,
+    title: 'Tournament Registrations'
   }
 ];
 

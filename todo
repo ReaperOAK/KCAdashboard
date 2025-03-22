@@ -50,7 +50,7 @@ Video embedding for chess tutorials
 Resource search and filtering
 Resource bookmarking system -->
 7. **Quiz Page:** Chess-related quizzes for practice.
-<!-- The Quiz detail/taking page
+<!-- DONE The Quiz detail/taking page
 The PHP endpoints for quizzes
 The scoring system
 Quiz results and history

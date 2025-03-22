@@ -65,27 +65,15 @@ jobs:
           rm -rf node_modules
           rm -rf temp-build
 
-      - name: Configure Git and Authentication
-        env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          
-          # Set up authentication with PAT_TOKEN
-          git remote set-url origin https://${PAT_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          
-      - name: Create fresh build branch
-        run: |
-          # Create a fresh build branch with single commit history
-          git checkout --orphan temp-build
-          git rm -rf .
-          cp -r build/* .
-          cp build/.* . 2>/dev/null || true
-          git add .
-          git commit -m "Build from: ${{ github.sha }} - ${{ github.event.head_commit.message }}"
-          
-          # Force push to build branch to ensure it has linear history
-          git branch -D build 2>/dev/null || true
-          git branch -m build
-          git push -f origin build
+      # Replace the manual Git steps with peaceiris/actions-gh-pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.PAT_TOKEN }}  # Using personal token for full repo access
+          publish_dir: ./build
+          publish_branch: build
+          force_orphan: true  # Creates a clean history
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: "Build from: ${{ github.sha }} - ${{ github.event.head_commit.message }}"
+          keep_files: false

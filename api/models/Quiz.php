@@ -346,5 +346,249 @@ class Quiz {
             throw new Exception("Error fetching latest result: " . $e->getMessage());
         }
     }
+    
+    // Get quizzes created by a specific teacher
+    public function getTeacherQuizzes($teacherId, $difficulty = null) {
+        try {
+            $query = "SELECT q.*, 
+                     (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
+                     u.full_name as creator_name 
+                     FROM " . $this->table_name . " q
+                     JOIN users u ON q.created_by = u.id
+                     WHERE q.created_by = :teacher_id";
+                     
+            if ($difficulty) {
+                $query .= " AND q.difficulty = :difficulty";
+            }
+            
+            $query .= " ORDER BY q.created_at DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":teacher_id", $teacherId);
+            
+            if ($difficulty) {
+                $stmt->bindParam(":difficulty", $difficulty);
+            }
+            
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching teacher quizzes: " . $e->getMessage());
+        }
+    }
+    
+    // Create a new quiz
+    public function create($data) {
+        try {
+            $this->conn->beginTransaction();
+            
+            // Insert the quiz
+            $query = "INSERT INTO " . $this->table_name . " 
+                    (title, description, difficulty, time_limit, created_by) 
+                    VALUES (:title, :description, :difficulty, :time_limit, :created_by)";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            // Clean and bind data
+            $title = htmlspecialchars(strip_tags($data['title']));
+            $description = htmlspecialchars(strip_tags($data['description'] ?? ''));
+            $difficulty = htmlspecialchars(strip_tags($data['difficulty']));
+            $time_limit = (int)$data['time_limit'];
+            
+            $stmt->bindParam(":title", $title);
+            $stmt->bindParam(":description", $description);
+            $stmt->bindParam(":difficulty", $difficulty);
+            $stmt->bindParam(":time_limit", $time_limit);
+            $stmt->bindParam(":created_by", $data['created_by']);
+            
+            $stmt->execute();
+            $quizId = $this->conn->lastInsertId();
+            
+            // Add questions if any
+            if (isset($data['questions']) && is_array($data['questions']) && count($data['questions']) > 0) {
+                $this->addQuestions($quizId, $data['questions']);
+            }
+            
+            $this->conn->commit();
+            return $quizId;
+            
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw new Exception("Error creating quiz: " . $e->getMessage());
+        }
+    }
+    
+    // Update an existing quiz
+    public function update($id, $data, $teacherId) {
+        try {
+            $this->conn->beginTransaction();
+            
+            // Verify that quiz belongs to the teacher
+            $query = "SELECT id FROM " . $this->table_name . " WHERE id = :id AND created_by = :teacher_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":id", $id);
+            $stmt->bindParam(":teacher_id", $teacherId);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                throw new Exception("Quiz not found or you don't have permission to edit it");
+            }
+            
+            // Update the quiz
+            $query = "UPDATE " . $this->table_name . " SET 
+                     title = :title, 
+                     description = :description, 
+                     difficulty = :difficulty, 
+                     time_limit = :time_limit 
+                     WHERE id = :id";
+                     
+            $stmt = $this->conn->prepare($query);
+            
+            // Clean and bind data
+            $title = htmlspecialchars(strip_tags($data['title']));
+            $description = htmlspecialchars(strip_tags($data['description'] ?? ''));
+            $difficulty = htmlspecialchars(strip_tags($data['difficulty']));
+            $time_limit = (int)$data['time_limit'];
+            
+            $stmt->bindParam(":title", $title);
+            $stmt->bindParam(":description", $description);
+            $stmt->bindParam(":difficulty", $difficulty);
+            $stmt->bindParam(":time_limit", $time_limit);
+            $stmt->bindParam(":id", $id);
+            
+            $stmt->execute();
+            
+            // Handle questions update
+            if (isset($data['questions']) && is_array($data['questions'])) {
+                // Delete existing questions and answers
+                $this->deleteQuizQuestions($id);
+                
+                // Add updated questions
+                $this->addQuestions($id, $data['questions']);
+            }
+            
+            $this->conn->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw new Exception("Error updating quiz: " . $e->getMessage());
+        }
+    }
+    
+    // Delete a quiz
+    public function delete($id, $teacherId) {
+        try {
+            // Verify quiz ownership
+            $query = "SELECT id FROM " . $this->table_name . " WHERE id = :id AND created_by = :teacher_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":id", $id);
+            $stmt->bindParam(":teacher_id", $teacherId);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                throw new Exception("Quiz not found or you don't have permission to delete it");
+            }
+            
+            $this->conn->beginTransaction();
+            
+            // First delete all answers for this quiz
+            $query = "DELETE qa FROM quiz_answers qa
+                     JOIN quiz_questions qq ON qa.question_id = qq.id
+                     WHERE qq.quiz_id = :quiz_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $id);
+            $stmt->execute();
+            
+            // Then delete questions
+            $query = "DELETE FROM quiz_questions WHERE quiz_id = :quiz_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $id);
+            $stmt->execute();
+            
+            // Finally delete quiz attempts and the quiz itself
+            $query = "DELETE FROM quiz_attempts WHERE quiz_id = :quiz_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $id);
+            $stmt->execute();
+            
+            $query = "DELETE FROM " . $this->table_name . " WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            
+            $this->conn->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            throw new Exception("Error deleting quiz: " . $e->getMessage());
+        }
+    }
+    
+    // Helper method to add questions to a quiz
+    private function addQuestions($quizId, $questions) {
+        foreach ($questions as $question) {
+            $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type) 
+                     VALUES (:quiz_id, :question, :image_url, :type)";
+            $stmt = $this->conn->prepare($query);
+            
+            $questionText = htmlspecialchars(strip_tags($question['question']));
+            $imageUrl = isset($question['image_url']) ? htmlspecialchars(strip_tags($question['image_url'])) : '';
+            $type = 'multiple_choice'; // Default for now
+            
+            $stmt->bindParam(":quiz_id", $quizId);
+            $stmt->bindParam(":question", $questionText);
+            $stmt->bindParam(":image_url", $imageUrl);
+            $stmt->bindParam(":type", $type);
+            
+            $stmt->execute();
+            $questionId = $this->conn->lastInsertId();
+            
+            // Add answers for this question
+            if (isset($question['answers']) && is_array($question['answers'])) {
+                foreach ($question['answers'] as $answer) {
+                    $query = "INSERT INTO quiz_answers (question_id, answer_text, is_correct) 
+                             VALUES (:question_id, :answer_text, :is_correct)";
+                    $stmt = $this->conn->prepare($query);
+                    
+                    $answerText = htmlspecialchars(strip_tags($answer['answer_text']));
+                    $isCorrect = $answer['is_correct'] ? 1 : 0;
+                    
+                    $stmt->bindParam(":question_id", $questionId);
+                    $stmt->bindParam(":answer_text", $answerText);
+                    $stmt->bindParam(":is_correct", $isCorrect);
+                    
+                    $stmt->execute();
+                }
+            }
+        }
+    }
+    
+    // Helper method to delete questions (and answers) for a quiz
+    private function deleteQuizQuestions($quizId) {
+        // Get questions for this quiz
+        $query = "SELECT id FROM quiz_questions WHERE quiz_id = :quiz_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":quiz_id", $quizId);
+        $stmt->execute();
+        $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Delete answers for each question
+        foreach ($questions as $question) {
+            $query = "DELETE FROM quiz_answers WHERE question_id = :question_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":question_id", $question['id']);
+            $stmt->execute();
+        }
+        
+        // Delete questions
+        $query = "DELETE FROM quiz_questions WHERE quiz_id = :quiz_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":quiz_id", $quizId);
+        $stmt->execute();
+    }
 }
 ?>

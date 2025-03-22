@@ -6,6 +6,8 @@ import GradingFeedback from '../pages/teacher/GradingFeedback';
 import PGNDatabase from '../pages/teacher/PGNDatabase';
 import ClassroomManagement from '../pages/teacher/ClassroomManagement';
 import ClassroomDetail from '../pages/teacher/ClassroomDetail';
+import QuizManagement from '../pages/teacher/QuizManagement';
+import QuizCreator from '../pages/teacher/QuizCreator';
 
 const teacherRoutes = [
   {
@@ -47,6 +49,22 @@ const teacherRoutes = [
     path: '/teacher/classroom/:id',
     element: ClassroomDetail,
     title: 'Classroom Details'
+  },
+  // New quiz routes
+  {
+    path: '/teacher/quizzes',
+    element: QuizManagement,
+    title: 'Quiz Management'
+  },
+  {
+    path: '/teacher/quiz/create',
+    element: QuizCreator,
+    title: 'Create Quiz'
+  },
+  {
+    path: '/teacher/quiz/edit/:id',
+    element: QuizCreator,
+    title: 'Edit Quiz'
   }
 ];
 

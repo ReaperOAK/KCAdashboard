@@ -44,7 +44,7 @@ Class discussion feature -->
 4. **Interactive Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
 5. **Game Area:** Dedicated space for chess games and practice.
 6. **Resource Center:** Downloadable PGN files, notes, and videos.
-<!-- The PHP endpoints for fetching resources
+<!-- DONE The PHP endpoints for fetching resources
 File upload functionality for PGN and PDF files
 Video embedding for chess tutorials
 Resource search and filtering

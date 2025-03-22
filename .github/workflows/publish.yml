@@ -58,6 +58,29 @@ jobs:
           mkdir -p build/api
           cp -r api/* build/api/
           cp .htaccess build/
+      
+      - name: Create Hostinger Git Config
+        run: |
+          # Create a git config file for Hostinger deployment
+          echo "[pull]" > build/.hostinger-git-config
+          echo "  rebase = false" >> build/.hostinger-git-config
+          
+          # Create a script to handle deployment on Hostinger
+          echo "#!/bin/bash" > build/hostinger-deploy.sh
+          echo "# Apply git config for this repository" >> build/hostinger-deploy.sh
+          echo "git config pull.rebase false" >> build/hostinger-deploy.sh
+          echo "# Then perform pull" >> build/hostinger-deploy.sh
+          echo "git pull origin build" >> build/hostinger-deploy.sh
+          chmod +x build/hostinger-deploy.sh
+          
+          # Create a README for Hostinger deployment
+          echo "# Hostinger Deployment" > build/HOSTINGER.md
+          echo "If you encounter git divergence issues, run:" >> build/HOSTINGER.md
+          echo "\`\`\`" >> build/HOSTINGER.md
+          echo "git config pull.rebase false" >> build/HOSTINGER.md
+          echo "git pull" >> build/HOSTINGER.md
+          echo "\`\`\`" >> build/HOSTINGER.md
+          echo "Or execute the included hostinger-deploy.sh script." >> build/HOSTINGER.md
 
       - name: Clean workspace before pushing
         run: |
@@ -65,7 +88,6 @@ jobs:
           rm -rf node_modules
           rm -rf temp-build
 
-      # Replace the manual Git steps with peaceiris/actions-gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

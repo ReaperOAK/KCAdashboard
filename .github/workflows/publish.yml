@@ -16,23 +16,42 @@ jobs:
           fetch-depth: 0  # Fetch all history for proper branch handling
           ref: main       # Explicitly checkout main branch
 
-      - name: Install dependencies (excluding problematic packages)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16' # Specify your Node.js version here
+
+      - name: Install dependencies
         run: |
-          # Create .npmrc to ignore specific packages
+          # Create temporary build directory to isolate the node_modules
+          mkdir -p temp-build
+          cd temp-build
+          
+          # Copy source files excluding node_modules
+          cp -r ../src ../public ../package.json ../package-lock.json ./
+          
+          # Copy fixed packages to use in installation
+          mkdir -p fixed-packages
+          cp -r ../fixed-packages ./
+          
+          # Create .npmrc to handle problematic packages
           echo "lichess-pgn-viewer@*:*: --no-save" > .npmrc
           echo "snabbdom@*:*: --no-save" >> .npmrc
+          
+          # Install dependencies
           npm install
-
-      - name: Copy fixed packages
-        run: |
-          # Copy pre-fixed packages to node_modules
+          
+          # Copy fixed packages after installation
           mkdir -p node_modules/lichess-pgn-viewer
           mkdir -p node_modules/snabbdom
           cp -r fixed-packages/lichess-pgn-viewer/* node_modules/lichess-pgn-viewer/
           cp -r fixed-packages/snabbdom/* node_modules/snabbdom/
 
       - name: Build React app
-        run: npm run build
+        run: |
+          cd temp-build
+          npm run build
+          cp -r build ../build
 
       - name: Copy API files
         run: |
@@ -40,12 +59,17 @@ jobs:
           cp -r api/* build/api/
           cp .htaccess build/
 
-      - name: Push (creating new build branch)
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: build
-          FOLDER: build
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          SQUASH_HISTORY: true       # Squash all history to prevent issues
-          MESSAGE: "Build: ({sha}) {msg}"
+      - name: Clean workspace before pushing
+        run: |
+          # Remove unnecessary files before pushing
+          rm -rf node_modules
+          rm -rf temp-build
+
+      - name: Push to build branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          publish_dir: ./build
+          publish_branch: build
+          force_orphan: true # Creates a new history for build branch, avoiding conflicts
+          commit_message: "Build: ${{ github.sha }} - ${{ github.event.head_commit.message }}"

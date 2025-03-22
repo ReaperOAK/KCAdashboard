@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
 import { FaChessPawn, FaClock, FaChessKnight } from 'react-icons/fa';
@@ -33,50 +33,8 @@ const QuizDetailPage = () => {
     fetchQuiz();
   }, [id]);
 
-  // Timer functionality
-  useEffect(() => {
-    if (quizStarted && timeLeft !== null) {
-      if (timeLeft <= 0) {
-        handleSubmitQuiz();
-        return;
-      }
-
-      timerRef.current = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [timeLeft, quizStarted]);
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleStartQuiz = () => {
-    setQuizStarted(true);
-  };
-
-  const handleAnswerSelect = (questionId, answerId) => {
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [questionId]: answerId
-    });
-  };
-
-  const handleNextQuestion = () => {
-    setCurrentQuestionIndex(currentQuestionIndex + 1);
-  };
-
-  const handlePreviousQuestion = () => {
-    setCurrentQuestionIndex(currentQuestionIndex - 1);
-  };
-
-  const handleSubmitQuiz = async () => {
+  // Memoize the handleSubmitQuiz function to fix the dependency warning
+  const handleSubmitQuiz = useCallback(async () => {
     if (isSubmitting) return;
     
     setIsSubmitting(true);
@@ -101,6 +59,49 @@ const QuizDetailPage = () => {
       setError('Failed to submit quiz');
       setIsSubmitting(false);
     }
+  }, [id, isSubmitting, navigate, quiz, selectedAnswers, timeLeft]);
+
+  // Timer functionality
+  useEffect(() => {
+    if (quizStarted && timeLeft !== null) {
+      if (timeLeft <= 0) {
+        handleSubmitQuiz();
+        return;
+      }
+
+      timerRef.current = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [timeLeft, quizStarted, handleSubmitQuiz]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleStartQuiz = () => {
+    setQuizStarted(true);
+  };
+
+  const handleAnswerSelect = (questionId, answerId) => {
+    setSelectedAnswers({
+      ...selectedAnswers,
+      [questionId]: answerId
+    });
+  };
+
+  const handleNextQuestion = () => {
+    setCurrentQuestionIndex(currentQuestionIndex + 1);
+  };
+
+  const handlePreviousQuestion = () => {
+    setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
 
   if (loading) {

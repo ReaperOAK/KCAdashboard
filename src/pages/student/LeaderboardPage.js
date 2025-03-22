@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ApiService from '../../utils/api';
-import { FaTrophy, FaMedal, FaChess, FaFilter } from 'react-icons/fa';
+import { FaTrophy, FaChess, FaFilter } from 'react-icons/fa';
 
 const LeaderboardPage = () => {
   const [leaderboards, setLeaderboards] = useState({});

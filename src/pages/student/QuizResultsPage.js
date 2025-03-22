@@ -9,6 +9,7 @@ const QuizResultsPage = () => {
   const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [latestResult, setLatestResult] = useState(null);
   
   // Extract result from location state
   const result = location.state?.result;
@@ -29,7 +30,7 @@ const QuizResultsPage = () => {
         try {
           // Fetch the latest quiz result for this quiz
           const response = await ApiService.get(`/quiz/get-latest-result.php?quiz_id=${id}`);
-          // Handle response
+          setLatestResult(response); // Use the response by setting it to state
         } catch (error) {
           console.error("Failed to fetch quiz result:", error);
         }
@@ -50,11 +51,14 @@ const QuizResultsPage = () => {
   }, [id, result]);
   
   // If no result and not loading, probably navigated directly to this page
-  if (!result && !loading) {
+  if (!result && !latestResult && !loading) {
     navigate('/student/quiz');
     return null;
   }
   
+  // Use either the passed result or the fetched latest result
+  const resultData = result || latestResult;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f3f1f9] p-8 flex items-center justify-center">
@@ -63,7 +67,7 @@ const QuizResultsPage = () => {
     );
   }
   
-  const percentageScore = Math.round((result.score / result.total_questions) * 100);
+  const percentageScore = Math.round((resultData.score / resultData.total_questions) * 100);
   const isPassing = percentageScore >= 70;
   
   return (
@@ -88,7 +92,7 @@ const QuizResultsPage = () => {
               <div className="bg-gray-50 p-4 rounded-lg text-center">
                 <FaTrophy className="mx-auto text-[#7646eb] text-xl mb-2" />
                 <p className="text-sm text-gray-500">Score</p>
-                <p className="text-xl font-semibold">{result.score} / {result.total_questions}</p>
+                <p className="text-xl font-semibold">{resultData.score} / {resultData.total_questions}</p>
               </div>
               
               <div className="bg-gray-50 p-4 rounded-lg text-center">
@@ -100,14 +104,14 @@ const QuizResultsPage = () => {
               <div className="bg-gray-50 p-4 rounded-lg text-center">
                 <FaChartLine className="mx-auto text-[#7646eb] text-xl mb-2" />
                 <p className="text-sm text-gray-500">Percentile</p>
-                <p className="text-xl font-semibold">{result.percentile || '-'}</p>
+                <p className="text-xl font-semibold">{resultData.percentile || '-'}</p>
               </div>
             </div>
             
-            {result.feedback && (
+            {resultData.feedback && (
               <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                 <h3 className="font-semibold text-blue-800 mb-1">Feedback</h3>
-                <p className="text-blue-700">{result.feedback}</p>
+                <p className="text-blue-700">{resultData.feedback}</p>
               </div>
             )}
             
@@ -157,7 +161,7 @@ const QuizResultsPage = () => {
                     {leaderboard.map((entry, index) => (
                       <tr 
                         key={index} 
-                        className={`border-b ${result.user_id === entry.user_id ? 'bg-[#f3f1f9]' : ''}`}
+                        className={`border-b ${resultData.user_id === entry.user_id ? 'bg-[#f3f1f9]' : ''}`}
                       >
                         <td className="py-2 px-4">
                           {index === 0 ? (

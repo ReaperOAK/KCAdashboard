@@ -24,11 +24,7 @@ try {
     $db = $database->getConnection();
     log_progress("Database connection established.");
     
-    $user = new User($db);
-    
-    // Start transaction for better error handling
-    $db->beginTransaction();
-    log_progress("Transaction started.");
+    // No transaction - removing transaction management since it's causing issues
     
     // Authentication & Users Tables
     log_progress("Creating users table...");
@@ -69,7 +65,6 @@ try {
     )";
     $db->exec($sql);
     
-    // Add password resets table
     log_progress("Creating password_resets table...");
     $sql = "CREATE TABLE IF NOT EXISTS password_resets (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -84,7 +79,6 @@ try {
     )";
     $db->exec($sql);
     
-    // Continue with other tables...
     log_progress("Creating classrooms table...");
     $sql = "CREATE TABLE IF NOT EXISTS classrooms (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -98,9 +92,6 @@ try {
     )";
     $db->exec($sql);
     
-    // ... (continue with all your other tables)
-    
-    // Tournament tables
     log_progress("Creating tournaments table...");
     $sql = "CREATE TABLE IF NOT EXISTS tournaments (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -132,7 +123,6 @@ try {
     )";
     $db->exec($sql);
 
-    // Create tournament_payments table if not exists
     log_progress("Creating tournament_payments table...");
     $sql = "CREATE TABLE IF NOT EXISTS tournament_payments (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -150,7 +140,6 @@ try {
     )";
     $db->exec($sql);
 
-    // Create tournament_results table if not exists
     log_progress("Creating tournament_results table...");
     $sql = "CREATE TABLE IF NOT EXISTS tournament_results (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -167,49 +156,58 @@ try {
     )";
     $db->exec($sql);
 
-    // ... (continue with all remaining tables)
-    
     // Create necessary directories for file uploads
     log_progress("Creating upload directories...");
+    
+    // Define directories relative to the script location
+    $base_path = dirname(__FILE__) . '/../../';
     $upload_dirs = [
-        '../uploads',
-        '../uploads/payments',
-        '../uploads/profiles',
-        '../uploads/resources'
+        'api/uploads',
+        'api/uploads/payments',
+        'api/uploads/profiles',
+        'api/uploads/resources'
     ];
     
     foreach ($upload_dirs as $dir) {
-        $full_path = __DIR__ . '/' . $dir;
+        $full_path = $base_path . $dir;
         if (!file_exists($full_path)) {
-            if (mkdir($full_path, 0755, true)) {
+            if (@mkdir($full_path, 0755, true)) {
                 log_progress("Created directory: $dir");
             } else {
-                log_progress("Warning: Failed to create directory: $dir");
+                log_progress("Warning: Failed to create directory: $dir (may require manual creation)");
             }
+        } else {
+            log_progress("Directory already exists: $dir");
         }
     }
     
     // Create default admin account if it doesn't exist
     log_progress("Checking for default admin account...");
-    if (!$user->emailExists('admin@kca.com')) {
-        log_progress("Creating default admin account...");
-        $user->email = 'admin@kca.com';
-        $user->password = password_hash('admin123', PASSWORD_DEFAULT);
-        $user->role = 'admin';
-        $user->full_name = 'Admin';
-        $user->create();
+    try {
+        $user = new User($db);
+        if (!$user->emailExists('admin@kca.com')) {
+            log_progress("Creating default admin account...");
+            $user->email = 'admin@kca.com';
+            $user->password = password_hash('admin123', PASSWORD_DEFAULT);
+            $user->role = 'admin';
+            $user->full_name = 'Admin';
+            $result = $user->create();
+            
+            if ($result) {
+                log_progress("Admin account created successfully!");
+            } else {
+                log_progress("Warning: Failed to create admin account. You may need to create it manually.");
+            }
+        } else {
+            log_progress("Admin account already exists");
+        }
+    } catch (Exception $e) {
+        log_progress("Error creating admin account: " . $e->getMessage());
     }
     
-    // Commit transaction
-    $db->commit();
     log_progress("Database initialization completed successfully!");
     
 } catch (Exception $e) {
-    // Rollback transaction on error
-    if (isset($db) && $db->inTransaction()) {
-        $db->rollBack();
-    }
-    
     echo "<div style='color: red; font-weight: bold; margin: 20px;'>";
     echo "Error: " . $e->getMessage() . "<br>";
     echo "File: " . $e->getFile() . "<br>";

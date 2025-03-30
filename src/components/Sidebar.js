@@ -31,6 +31,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           { label: 'Settings', path: '/admin/attendance-settings' }
         ]
       },
+      // Add Tournaments menu item
+      { label: 'Tournaments', path: '/admin/tournaments', icon: '🏆' },
       { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
       { label: 'Support', path: '/admin/support', icon: '💬' },
       { label: 'Settings', path: '/admin/settings', icon: '⚙️' }

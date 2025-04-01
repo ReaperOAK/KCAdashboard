@@ -1,7 +1,7 @@
 <?php
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
-require_once '../../models/Notification.php';
+require_once '../../models/NotificationPreference.php';
 require_once '../../middleware/auth.php';
 
 try {
@@ -10,21 +10,21 @@ try {
     
     $database = new Database();
     $db = $database->getConnection();
-    $notification = new Notification($db);
-
-    $notifications = $notification->getUserNotifications($user_id);
-    $unread_count = $notification->getUnreadCount($user_id);
-
+    $preference = new NotificationPreference($db);
+    
+    // Get user preferences
+    $preference->user_id = $user_id;
+    $preferences = $preference->getUserPreferences($user_id);
+    
     http_response_code(200);
     echo json_encode([
-        "notifications" => $notifications,
-        "unread_count" => $unread_count
+        "preferences" => $preferences
     ]);
-
+    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        "message" => "Error fetching notifications",
+        "message" => "Error retrieving notification preferences",
         "error" => $e->getMessage()
     ]);
 }

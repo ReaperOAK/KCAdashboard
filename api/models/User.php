@@ -246,5 +246,28 @@ class User {
             throw new Exception("Error fetching users: " . $e->getMessage());
         }
     }
+
+    public function getAllUserIds() {
+        $query = "SELECT id FROM " . $this->table_name . "
+                 WHERE is_active = 1
+                 ORDER BY id";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+    
+    public function getUserIdsByRole($role) {
+        $query = "SELECT id FROM " . $this->table_name . "
+                 WHERE role = :role AND is_active = 1
+                 ORDER BY id";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":role", $role);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }
 ?>

@@ -11,20 +11,22 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     $notification = new Notification($db);
-
-    $notifications = $notification->getUserNotifications($user_id);
-    $unread_count = $notification->getUnreadCount($user_id);
-
-    http_response_code(200);
-    echo json_encode([
-        "notifications" => $notifications,
-        "unread_count" => $unread_count
-    ]);
-
+    
+    // Mark all notifications as read
+    if($notification->markAllAsRead($user_id)) {
+        http_response_code(200);
+        echo json_encode([
+            "message" => "All notifications marked as read",
+            "unread_count" => 0
+        ]);
+    } else {
+        http_response_code(400);
+        echo json_encode(["message" => "Failed to mark notifications as read"]);
+    }
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        "message" => "Error fetching notifications",
+        "message" => "Error marking notifications as read",
         "error" => $e->getMessage()
     ]);
 }

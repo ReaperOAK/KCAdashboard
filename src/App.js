@@ -9,6 +9,7 @@ import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
 import Profile from './pages/Profile';
 import PGNViewer from './pages/PGNViewer';
+import NotificationPreferences from './pages/notifications/NotificationPreferences';
 
 import adminRoutes from './routes/adminRoutes';
 import teacherRoutes from './routes/teacherRoutes';
@@ -100,6 +101,16 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
                     <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Add Notification Preferences Route */}
+              <Route 
+                path="/notifications/preferences" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                    <NotificationPreferences />
                   </ProtectedRoute>
                 } 
               />

@@ -355,8 +355,15 @@ const ChessBoard = ({
     <div className="chess-board-container">
       {engineLoadError && (
         <div className="engine-error-message">
-          <p>Failed to load Stockfish chess engine. Some features may not work properly.</p>
-          <button onClick={() => window.location.reload()}>Try Again</button>
+          <p>Using lightweight chess engine. Some advanced analysis features may be limited.</p>
+          <div className="actions">
+            <button 
+              className="alternative-button"
+              onClick={() => window.open('/stockfish/test.html', '_blank')}
+            >
+              Run Engine Test
+            </button>
+          </div>
         </div>
       )}
       

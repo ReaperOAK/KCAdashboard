@@ -245,13 +245,17 @@
   margin-bottom: 15px;
   border-radius: 4px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .engine-error-message p {
   margin: 0;
-  flex: 1;
+}
+
+.engine-error-message .actions {
+  display: flex;
+  gap: 8px;
 }
 
 .engine-error-message button {
@@ -266,4 +270,12 @@
 
 .engine-error-message button:hover {
   background-color: #d62424;
+}
+
+.engine-error-message .alternative-button {
+  background-color: #3b3a52;
+}
+
+.engine-error-message .alternative-button:hover {
+  background-color: #200e4a;
 }

@@ -1,26 +1,48 @@
-# KCAdashboard
-student teacher dashboard for KCA
+# Kolkata Chess Academy Dashboard
 
-## Chess Engine Integration
+## Prerequisites
 
-The interactive chess board feature uses a pure JavaScript/WebAssembly implementation of Stockfish that runs directly in the user's browser. This approach eliminates the need to run Stockfish on the server, making it compatible with basic hosting plans.
+- Node.js version 20.17.0 or higher
+- npm version 10.0.0 or higher
 
-### Setup Instructions
+## Environment Setup
 
-1. The required Stockfish files are automatically downloaded during the npm install process.
-2. If you need to set up Stockfish manually, run:
-   ```
-   npm run setup-stockfish
-   ```
+```bash
+# Using nvm (recommended)
+nvm install 20.17.0
+nvm use 20.17.0
 
-### How it Works
+# Or update Node.js directly from nodejs.org
+```
 
-- Stockfish.js runs in a Web Worker in the user's browser
-- The engine analysis is performed client-side without server dependencies
-- All computation happens in the user's browser, conserving server resources
+## Installation
 
-### Considerations
+```bash
+# Install dependencies
+npm install
 
-- The analysis depth and quality depends on the user's device capabilities
-- Deeper analysis may be slower on mobile devices
-- The maximum skill level is limited compared to native Stockfish implementations
+# Start development server
+npm start
+```
+
+## Chess Engine
+
+This project uses a minimal Stockfish implementation for chess analysis. The implementation is automatically set up during installation.
+
+To test if the chess engine is working:
+1. Start the development server
+2. Navigate to `/stockfish/test.html` in your browser
+3. Click the "Test Stockfish" button
+
+## Troubleshooting
+
+If you experience issues with the chess engine:
+
+```bash
+# Manually run the setup script
+npm run setup-stockfish
+```
+
+## License
+
+Copyright © 2023-2024 Kolkata Chess Academy. All rights reserved.

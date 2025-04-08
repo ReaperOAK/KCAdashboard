@@ -49,7 +49,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "setup-stockfish": "node scripts/setup-stockfish.js",
-    "postinstall": "node -e \"try { require('fs').existsSync('./scripts/setup-stockfish.js') && process.exit(0); } catch(e) { process.exit(1); }\" && npm run setup-stockfish || echo 'Skipping Stockfish setup'"
+    "postinstall": "node -e \"try { require('fs').existsSync('./public/stockfish') || process.exit(1); } catch(e) { process.exit(1); }\" || npm run setup-stockfish",
+    "setup-chess": "node scripts/copy-chess-assets.js",
+    "prebuild": "npm run setup-chess",
+    "prestart": "npm run setup-chess",
+    "check-env": "node scripts/check-environment.js"
   },
   "eslintConfig": {
     "extends": [
@@ -69,6 +73,11 @@
       "last 1 safari version"
     ]
   },
+  "engines": {
+    "node": ">=20.15.0",
+    "npm": ">=10.0.0"
+  },
+  "engineStrict": false,
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "autoprefixer": "^10.4.20",

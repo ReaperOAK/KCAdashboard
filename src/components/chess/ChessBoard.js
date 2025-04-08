@@ -3,6 +3,7 @@ import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
+import ChessEngine from '../../utils/ChessEngine';
 import './ChessBoard.css';
 
 const ChessBoard = ({
@@ -18,6 +19,7 @@ const ChessBoard = ({
   timeControl = null,
   customSquareStyles = {},
   width = 560,
+  gameOverState = null,
 }) => {
   const [game, setGame] = useState(new Chess(position !== 'start' ? position : undefined));
   const [fen, setFen] = useState(game.fen());
@@ -34,72 +36,102 @@ const ChessBoard = ({
     result: '',
     reason: ''
   });
+  const [isThinking, setIsThinking] = useState(false);
+  const [engineLoadError, setEngineLoadError] = useState(false);
   
-  const stockfishWorker = useRef(null);
+  const engineRef = useRef(null);
+  const engineMoveTimeoutRef = useRef(null);
   
-  // Initialize Stockfish worker if analysis is enabled
-  useEffect(() => {
-    if (showAnalysis && stockfishWorker.current === null) {
-      stockfishWorker.current = new Worker('/stockfish.js');
+  // Analyze the current position
+  const analyzeCurrentPosition = useCallback(async () => {
+    if (!engineRef.current || isThinking) return;
+    
+    try {
+      setIsThinking(true);
+      const analysis = await engineRef.current.evaluatePosition(game.fen(), 15);
+      setEngineEvaluation(analysis);
+    } catch (error) {
+      console.error('Analysis error:', error);
+    } finally {
+      setIsThinking(false);
+    }
+  }, [game, isThinking]);
 
-      stockfishWorker.current.onmessage = (e) => {
-        const message = e.data;
+  // Make the AI move
+  const makeEngineMove = useCallback(async () => {
+    if (!engineRef.current || isThinking || gameOver.isOver) return;
+    
+    try {
+      setIsThinking(true);
+      
+      // Add a small delay to make it feel more natural
+      engineMoveTimeoutRef.current = setTimeout(async () => {
+        const bestMove = await engineRef.current.getBestMove(game.fen(), 1000);
         
-        if (message.startsWith('info depth') && message.includes('score')) {
-          const tokens = message.split(' ');
-          const depthIndex = tokens.indexOf('depth');
-          const scoreIndex = tokens.indexOf('score');
+        if (bestMove && bestMove.length >= 4) {
+          const from = bestMove.substring(0, 2);
+          const to = bestMove.substring(2, 4);
+          const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
           
-          if (depthIndex !== -1 && scoreIndex !== -1) {
-            const depth = parseInt(tokens[depthIndex + 1]);
-            const scoreType = tokens[scoreIndex + 1]; // cp (centipawns) or mate
-            const scoreValue = parseInt(tokens[scoreIndex + 2]);
+          const aiMove = { from, to, promotion };
+          const aiGameCopy = new Chess(game.fen());
+          
+          try {
+            aiGameCopy.move(aiMove);
+            setGame(aiGameCopy);
             
-            if (depth >= 12) { // Only use deeper analysis
-              let evaluation = 0;
-              if (scoreType === 'cp') {
-                evaluation = scoreValue / 100; // Convert centipawns to pawns
-              } else if (scoreType === 'mate') {
-                evaluation = scoreValue > 0 ? 100 : -100; // Arbitrary high value for mate
-              }
-              
-              // Extract best move if available
-              let bestMove = null;
-              if (message.includes(' pv ')) {
-                const pvIndex = tokens.indexOf('pv');
-                if (pvIndex !== -1 && tokens.length > pvIndex + 1) {
-                  bestMove = tokens[pvIndex + 1];
-                }
-              }
-              
-              setEngineEvaluation({
-                score: evaluation,
-                depth,
-                scoreType,
-                scoreValue,
-                bestMove
-              });
+            if (onMove) {
+              onMove(aiMove, aiGameCopy.fen());
             }
+          } catch (error) {
+            console.error('Invalid AI move:', error);
           }
         }
-      };
+        
+        setIsThinking(false);
+      }, 500);
+    } catch (error) {
+      console.error('AI move error:', error);
+      setIsThinking(false);
+    }
+  }, [game, isThinking, gameOver.isOver, onMove]);
 
-      // Set engine level
-      stockfishWorker.current.postMessage(`setoption name Skill Level value ${engineLevel}`);
+  // Initialize Chess Engine
+  useEffect(() => {
+    // Initialize engine once
+    if ((showAnalysis || playMode === 'vs-ai') && !engineRef.current) {
+      try {
+        engineRef.current = new ChessEngine(engineLevel);
+      } catch (error) {
+        console.error('Failed to initialize chess engine:', error);
+        setEngineLoadError(true);
+      }
     }
 
     return () => {
-      if (stockfishWorker.current) {
-        stockfishWorker.current.terminate();
-        stockfishWorker.current = null;
+      if (engineRef.current) {
+        engineRef.current.terminate();
+        engineRef.current = null;
+      }
+      
+      if (engineMoveTimeoutRef.current) {
+        clearTimeout(engineMoveTimeoutRef.current);
       }
     };
-  }, [showAnalysis, engineLevel]);
+  }, [engineLevel, playMode, showAnalysis]);
+
+  // Update engine level when it changes
+  useEffect(() => {
+    if (engineRef.current) {
+      engineRef.current.setSkillLevel(engineLevel);
+    }
+  }, [engineLevel]);
 
   // Update FEN and analyze position
   useEffect(() => {
     setFen(game.fen());
     setIsChecked(game.inCheck());
+    const currentTurn = game.turn();
     
     // Check for game over conditions
     if (game.isGameOver()) {
@@ -107,7 +139,7 @@ const ChessBoard = ({
       
       if (game.isCheckmate()) {
         result.reason = 'checkmate';
-        result.result = game.turn() === 'w' ? '0-1' : '1-0';
+        result.result = currentTurn === 'w' ? '0-1' : '1-0';
       } else if (game.isDraw()) {
         result.reason = game.isStalemate() ? 'stalemate' : 
                         game.isThreefoldRepetition() ? 'repetition' : 
@@ -116,14 +148,32 @@ const ChessBoard = ({
       }
       
       setGameOver(result);
+    } else {
+      // Reset game over state if we're continuing a game (e.g. when stepping through history)
+      if (gameOver.isOver) {
+        setGameOver({ isOver: false, result: '', reason: '' });
+      }
     }
 
-    // Analyze position with Stockfish
-    if (showAnalysis && stockfishWorker.current) {
-      stockfishWorker.current.postMessage(`position fen ${game.fen()}`);
-      stockfishWorker.current.postMessage('go depth 15');
+    // Analyze position with engine if analysis is shown
+    if (showAnalysis && engineRef.current && !isThinking) {
+      analyzeCurrentPosition();
     }
-  }, [game, showAnalysis]);
+    
+    // If it's AI's turn in vs-ai mode, make the AI move
+    if (playMode === 'vs-ai' && !gameOver.isOver && 
+        ((orientation_.charAt(0) === 'w' && currentTurn === 'b') || 
+         (orientation_.charAt(0) === 'b' && currentTurn === 'w'))) {
+      makeEngineMove();
+    }
+  }, [game, showAnalysis, playMode, orientation_, gameOver.isOver, analyzeCurrentPosition, makeEngineMove, isThinking]);
+
+  // Apply external game over state if provided
+  useEffect(() => {
+    if (gameOverState && gameOverState.isOver) {
+      setGameOver(gameOverState);
+    }
+  }, [gameOverState]);
 
   // Record move history
   useEffect(() => {
@@ -180,15 +230,14 @@ const ChessBoard = ({
 
   // Square click handler for making moves
   function onSquareClick(square) {
-    if (!allowMoves) return;
+    if (!allowMoves || isThinking) return;
     
-    const turnColor = game.turn() === 'w' ? 'white' : 'black';
-    const playerOrientation = orientation_.charAt(0).toLowerCase();
+    // Check if it's the player's turn
+    const playerColor = orientation_.charAt(0).toLowerCase();
+    const currentTurn = game.turn();
     
     // In vs-ai or vs-human mode, only allow moving pieces when it's your turn
-    if ((playMode === 'vs-ai' || playMode === 'vs-human') && 
-        ((playerOrientation === 'w' && turnColor !== 'white') || 
-         (playerOrientation === 'b' && turnColor !== 'black'))) {
+    if ((playMode === 'vs-ai' || playMode === 'vs-human') && playerColor !== currentTurn) {
       return;
     }
     
@@ -211,43 +260,6 @@ const ChessBoard = ({
         // Call onMove callback if provided
         if (onMove) {
           onMove(move, gameCopy.fen());
-        }
-        
-        // In vs-ai mode, make the AI move after player moves
-        if (playMode === 'vs-ai' && stockfishWorker.current) {
-          setTimeout(() => {
-            stockfishWorker.current.postMessage(`position fen ${gameCopy.fen()}`);
-            stockfishWorker.current.postMessage('go movetime 1000');
-            
-            // Listen for the best move
-            const originalOnMessage = stockfishWorker.current.onmessage;
-            stockfishWorker.current.onmessage = (e) => {
-              const message = e.data;
-              if (message.startsWith('bestmove')) {
-                const bestMove = message.split(' ')[1];
-                if (bestMove) {
-                  const from = bestMove.substring(0, 2);
-                  const to = bestMove.substring(2, 4);
-                  const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
-                  
-                  const aiMove = { from, to, promotion };
-                  const aiGameCopy = new Chess(gameCopy.fen());
-                  aiGameCopy.move(aiMove);
-                  setGame(aiGameCopy);
-                  
-                  if (onMove) {
-                    onMove(aiMove, aiGameCopy.fen());
-                  }
-                  
-                  // Restore original message handler
-                  stockfishWorker.current.onmessage = originalOnMessage;
-                }
-              } else {
-                // Pass other messages to the original handler
-                originalOnMessage(e);
-              }
-            };
-          }, 500);
         }
       } catch (error) {
         // Illegal move, reset selection
@@ -341,6 +353,13 @@ const ChessBoard = ({
   // Render the chess board with controls
   return (
     <div className="chess-board-container">
+      {engineLoadError && (
+        <div className="engine-error-message">
+          <p>Failed to load Stockfish chess engine. Some features may not work properly.</p>
+          <button onClick={() => window.location.reload()}>Try Again</button>
+        </div>
+      )}
+      
       <div className="board-and-controls">
         <div className="chess-board" style={{ width }}>
           <Chessboard
@@ -350,16 +369,22 @@ const ChessBoard = ({
             onSquareRightClick={onSquareRightClick}
             customSquareStyles={squareStyles}
             boardOrientation={orientation_}
-            arePiecesDraggable={allowMoves}
+            arePiecesDraggable={allowMoves && !isThinking}
             showBoardNotation={showNotation}
           />
+          {isThinking && (
+            <div className="thinking-indicator">
+              <div className="spinner"></div>
+              <span>Thinking...</span>
+            </div>
+          )}
         </div>
         
         <div className="board-controls">
           <button onClick={flipBoard} className="control-btn">
             Flip Board
           </button>
-          <button onClick={resetBoard} className="control-btn">
+          <button onClick={resetBoard} className="control-btn" disabled={isThinking}>
             Reset Board
           </button>
           

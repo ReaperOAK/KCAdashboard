@@ -39,6 +39,7 @@
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "snabbdom": "^3.6.2",
+    "stockfish": "^15.0.0",
     "web-vitals": "^2.1.4",
     "yup": "^1.6.1"
   },
@@ -46,7 +47,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "setup-stockfish": "node scripts/setup-stockfish.js",
+    "postinstall": "node -e \"try { require('fs').existsSync('./scripts/setup-stockfish.js') && process.exit(0); } catch(e) { process.exit(1); }\" && npm run setup-stockfish || echo 'Skipping Stockfish setup'"
   },
   "eslintConfig": {
     "extends": [

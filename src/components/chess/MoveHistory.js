@@ -2,11 +2,20 @@ import React from 'react';
 import './MoveHistory.css';
 
 const MoveHistory = ({ history, currentMove, goToMove }) => {
-  if (!history || history.length === 0) {
-    return (
-      <div className="move-history">
-        <h3>Move History</h3>
-        <div className="moves-container">
+  // Handle click on move
+  const handleMoveClick = (index) => {
+    if (typeof goToMove === 'function') {
+      goToMove(index);
+    }
+  };
+
+  return (
+    <div className="move-history">
+      <h3>Move History</h3>
+      <div className="moves-container">
+        {history.length === 0 ? (
+          <div className="no-moves">No moves yet</div>
+        ) : (
           <table className="moves-table">
             <thead>
               <tr>
@@ -16,48 +25,26 @@ const MoveHistory = ({ history, currentMove, goToMove }) => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colSpan="3" className="no-moves">No moves yet</td>
-              </tr>
+              {history.map((moveItem, index) => (
+                <tr key={index}>
+                  <td className="move-number">{moveItem.moveNumber}.</td>
+                  <td
+                    className={`move-cell ${moveItem.white && currentMove === index * 2 ? 'current-move' : ''}`}
+                    onClick={() => moveItem.white && handleMoveClick(index * 2)}
+                  >
+                    {moveItem.white ? moveItem.white.san : ''}
+                  </td>
+                  <td
+                    className={`move-cell ${moveItem.black && currentMove === index * 2 + 1 ? 'current-move' : ''}`}
+                    onClick={() => moveItem.black && handleMoveClick(index * 2 + 1)}
+                  >
+                    {moveItem.black ? moveItem.black.san : ''}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="move-history">
-      <h3>Move History</h3>
-      <div className="moves-container">
-        <table className="moves-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>White</th>
-              <th>Black</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map((move, index) => (
-              <tr key={index}>
-                <td>{move.moveNumber}</td>
-                <td 
-                  className={`move ${currentMove === 2 * index ? 'current-move' : ''}`}
-                  onClick={() => move.white && goToMove(2 * index)}
-                >
-                  {move.white?.san || ''}
-                </td>
-                <td 
-                  className={`move ${currentMove === 2 * index + 1 ? 'current-move' : ''}`}
-                  onClick={() => move.black && goToMove(2 * index + 1)}
-                >
-                  {move.black?.san || ''}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        )}
       </div>
     </div>
   );

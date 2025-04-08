@@ -156,6 +156,158 @@ try {
     )";
     $db->exec($sql);
 
+    log_progress("Creating chess related tables...");
+    
+    // Chess Studies
+    $sql = "CREATE TABLE IF NOT EXISTS chess_studies (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        position VARCHAR(255) NOT NULL DEFAULT 'start',
+        category ENUM('opening', 'middlegame', 'endgame', 'tactics', 'strategy') NOT NULL,
+        owner_id INT NOT NULL,
+        is_public BOOLEAN DEFAULT FALSE,
+        preview_url VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    // Chess Study Shares
+    $sql = "CREATE TABLE IF NOT EXISTS chess_study_shares (
+        study_id INT NOT NULL,
+        user_id INT NOT NULL,
+        shared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (study_id, user_id),
+        FOREIGN KEY (study_id) REFERENCES chess_studies(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    // Chess Games
+    $sql = "CREATE TABLE IF NOT EXISTS chess_games (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        white_player_id INT NOT NULL,
+        black_player_id INT NOT NULL,
+        position VARCHAR(255) NOT NULL DEFAULT 'start',
+        status ENUM('active', 'completed', 'abandoned') NOT NULL DEFAULT 'active',
+        result VARCHAR(10),
+        reason VARCHAR(50),
+        time_control VARCHAR(50),
+        type ENUM('correspondence', 'rapid', 'blitz', 'bullet') NOT NULL,
+        last_move_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        preview_url VARCHAR(255),
+        FOREIGN KEY (white_player_id) REFERENCES users(id),
+        FOREIGN KEY (black_player_id) REFERENCES users(id)
+    )";
+    $db->exec($sql);
+    
+    // Chess Game Moves
+    $sql = "CREATE TABLE IF NOT EXISTS chess_game_moves (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        game_id INT NOT NULL,
+        move_number INT NOT NULL,
+        move_san VARCHAR(10) NOT NULL,
+        position_after VARCHAR(255) NOT NULL,
+        made_by_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (game_id) REFERENCES chess_games(id) ON DELETE CASCADE,
+        FOREIGN KEY (made_by_id) REFERENCES users(id)
+    )";
+    $db->exec($sql);
+    
+    // Chess Challenges
+    $sql = "CREATE TABLE IF NOT EXISTS chess_challenges (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        challenger_id INT NOT NULL,
+        recipient_id INT NOT NULL,
+        time_control VARCHAR(50),
+        color VARCHAR(20) NOT NULL,
+        position VARCHAR(255) DEFAULT 'start',
+        status ENUM('pending', 'accepted', 'declined', 'expired') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP,
+        FOREIGN KEY (challenger_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    // Simul Games
+    $sql = "CREATE TABLE IF NOT EXISTS chess_simuls (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(255),
+        host_id INT NOT NULL,
+        description TEXT,
+        status ENUM('pending', 'active', 'completed') DEFAULT 'pending',
+        max_players INT NOT NULL DEFAULT 5,
+        time_control VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (host_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    // Simul Boards
+    $sql = "CREATE TABLE IF NOT EXISTS chess_simul_boards (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        simul_id INT NOT NULL,
+        player_id INT NOT NULL,
+        position VARCHAR(255) NOT NULL DEFAULT 'start',
+        status ENUM('active', 'completed') DEFAULT 'active',
+        result VARCHAR(10),
+        turn CHAR(1) DEFAULT 'w',
+        last_move_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (simul_id) REFERENCES chess_simuls(id) ON DELETE CASCADE,
+        FOREIGN KEY (player_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    // Simul Board Moves
+    $sql = "CREATE TABLE IF NOT EXISTS chess_simul_moves (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        board_id INT NOT NULL,
+        move_number INT NOT NULL,
+        move_san VARCHAR(10) NOT NULL,
+        position_after VARCHAR(255) NOT NULL,
+        made_by_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (board_id) REFERENCES chess_simul_boards(id) ON DELETE CASCADE,
+        FOREIGN KEY (made_by_id) REFERENCES users(id)
+    )";
+    $db->exec($sql);
+    
+    // Practice Positions
+    $sql = "CREATE TABLE IF NOT EXISTS chess_practice_positions (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        position VARCHAR(255) NOT NULL,
+        type ENUM('opening', 'tactics', 'endgame') NOT NULL,
+        difficulty ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
+        engine_level INT NOT NULL DEFAULT 5,
+        created_by INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        preview_url VARCHAR(255),
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    // Player Stats
+    $sql = "CREATE TABLE IF NOT EXISTS chess_player_stats (
+        user_id INT PRIMARY KEY,
+        games_played INT DEFAULT 0,
+        games_won INT DEFAULT 0,
+        games_lost INT DEFAULT 0,
+        games_drawn INT DEFAULT 0,
+        rating INT DEFAULT 1200,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    log_progress("Created chess related tables successfully!");
+
     // Create necessary directories for file uploads
     log_progress("Creating upload directories...");
     

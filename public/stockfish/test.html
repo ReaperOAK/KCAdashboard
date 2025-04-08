@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stockfish Test</title>
+  <script src="/stockfish/stockfish-loader.js"></script>
+</head>
+<body>
+  <h1>Stockfish Test</h1>
+  <button onclick="testStockfish()">Test Stockfish</button>
+  <div id="result"></div>
+  
+  <script>
+    function testStockfish() {
+      document.getElementById('result').textContent = 'Loading Stockfish...';
+      
+      window.stockfishLoader.load()
+        .then(function(engine) {
+          document.getElementById('result').textContent = 'Stockfish loaded successfully!';
+          
+          // Test with a simple position
+          engine.postMessage('position startpos');
+          engine.postMessage('go depth 10');
+          
+          engine.onmessage = function(e) {
+            if (e.data.startsWith('bestmove')) {
+              document.getElementById('result').textContent += '\nBest move: ' + e.data;
+            }
+          };
+        })
+        .catch(function(error) {
+          document.getElementById('result').textContent = 'Error: ' + error.message;
+        });
+    }
+  </script>
+</body>
+</html>

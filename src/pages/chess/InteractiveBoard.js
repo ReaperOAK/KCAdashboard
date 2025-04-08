@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ChessBoard from '../../components/chess/ChessBoard';
 import { useAuth } from '../../hooks/useAuth';
+import ApiService from '../../utils/api';
 import './InteractiveBoard.css';
 
 const InteractiveBoard = () => {
@@ -19,19 +20,38 @@ const InteractiveBoard = () => {
     timeControl: '10+0',
     color: 'random'
   });
+  const [loading, setLoading] = useState(false);
+  const [gameOver, setGameOver] = useState({
+    isOver: false,
+    result: '',
+    reason: ''
+  });
 
-  // Mock data for online users
+  // Wrap fetchOnlinePlayers in useCallback to prevent infinite loops
+  const fetchOnlinePlayers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await ApiService.getOnlinePlayers();
+      if (response.success) {
+        // Filter out current user
+        const filteredPlayers = response.players.filter(p => p.id !== user.id);
+        setOnlineOpponents(filteredPlayers);
+      }
+    } catch (error) {
+      console.error('Failed to fetch online players:', error);
+      // Fallback to empty array if API call fails
+      setOnlineOpponents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user.id]); // Add user.id as dependency
+
+  // Fetch online players
   useEffect(() => {
-    // This would normally be a websocket or polling connection
-    const mockOnlineUsers = [
-      { id: 1, name: 'Teacher John', role: 'teacher', online: true, rating: 1850 },
-      { id: 2, name: 'Coach Sarah', role: 'teacher', online: true, rating: 2100 },
-      { id: 3, name: 'Student Mike', role: 'student', online: true, rating: 1200 },
-      { id: 4, name: 'Student Emma', role: 'student', online: false, rating: 1350 }
-    ].filter(u => u.id !== user.id); // Don't show current user
-    
-    setOnlineOpponents(mockOnlineUsers);
-  }, [user.id]);
+    if (playMode === 'vs-player') {
+      fetchOnlinePlayers();
+    }
+  }, [playMode, fetchOnlinePlayers]); // Added missing dependency
 
   // Handle play mode change
   const handlePlayModeChange = (mode) => {
@@ -41,15 +61,25 @@ const InteractiveBoard = () => {
 
   // Handle start game against computer
   const handlePlayComputer = () => {
-    setCurrentGame({
-      id: 'comp-' + Date.now(),
-      opponent: { name: `Stockfish (Level ${engineLevel})`, id: 'computer' },
+    // Create a local game against the computer
+    const gameId = 'comp-' + Date.now();
+    
+    const newGame = {
+      id: gameId,
+      opponent: { name: `Computer (Level ${engineLevel})`, id: 'computer' },
       playerColor: orientation,
       fen: 'start',
       timeControl: timeControl,
       analysis: showAnalysis,
       engineLevel: engineLevel
-    });
+    };
+    
+    // Save this game to local storage to persist it
+    const savedGames = JSON.parse(localStorage.getItem('chessGames') || '[]');
+    savedGames.push(newGame);
+    localStorage.setItem('chessGames', JSON.stringify(savedGames));
+    
+    setCurrentGame(newGame);
   };
 
   // Handle engine level change
@@ -63,27 +93,38 @@ const InteractiveBoard = () => {
   };
 
   // Handle confirm sending invite
-  const handleConfirmInvite = () => {
-    // In a real app, this would send the invite via API
-    alert(`Invite sent to ${invitingUser.name}`);
-    setInvitingUser(null);
-    setWaitingForOpponent(true);
-    
-    // Mock accepting the invite after a delay
-    setTimeout(() => {
-      setWaitingForOpponent(false);
-      setCurrentGame({
-        id: 'game-' + Date.now(),
-        opponent: invitingUser,
-        playerColor: gameConfig.color === 'random' 
-          ? Math.random() > 0.5 ? 'white' : 'black'
-          : gameConfig.color,
-        fen: gameConfig.position,
+  const handleConfirmInvite = async () => {
+    try {
+      setWaitingForOpponent(true);
+      
+      // Send challenge through API
+      const response = await ApiService.challengePlayer(invitingUser.id, {
         timeControl: gameConfig.timeControl,
-        analysis: false,
-        engineLevel: 0
+        color: gameConfig.color,
+        position: gameConfig.position
       });
-    }, 3000);
+      
+      if (response.success) {
+        // Store the challenge ID for later reference
+        localStorage.setItem('pendingChallenge', JSON.stringify({
+          id: response.challenge.id,
+          opponent: invitingUser,
+          timestamp: Date.now()
+        }));
+        
+        // Wait for acceptance is handled by polling or websockets
+        // For now, we'll just show the waiting screen
+      } else {
+        alert(`Failed to send invitation: ${response.message}`);
+        setWaitingForOpponent(false);
+      }
+    } catch (error) {
+      console.error('Failed to send invitation:', error);
+      alert('Failed to send invitation. Please try again.');
+      setWaitingForOpponent(false);
+    }
+    
+    setInvitingUser(null);
   };
 
   // Handle game config change
@@ -95,15 +136,43 @@ const InteractiveBoard = () => {
   };
 
   // Handle game move
-  const handleGameMove = (move, fen) => {
-    // In a real app, this would send the move to the opponent via API
-    console.log('Move made:', move, 'New position:', fen);
+  const handleGameMove = async (move, fen) => {
+    if (!currentGame || !currentGame.id) return;
     
-    // Update current game
-    setCurrentGame({
-      ...currentGame,
-      fen: fen
-    });
+    try {
+      // For computer games, just update the local state
+      if (currentGame.id.startsWith('comp-')) {
+        // Update current game state
+        setCurrentGame({
+          ...currentGame,
+          fen: fen
+        });
+        
+        // Update in localStorage
+        const savedGames = JSON.parse(localStorage.getItem('chessGames') || '[]');
+        const updatedGames = savedGames.map(game => 
+          game.id === currentGame.id ? {...game, fen} : game
+        );
+        localStorage.setItem('chessGames', JSON.stringify(updatedGames));
+        return;
+      }
+      
+      // For real games against other players, send move to server
+      const response = await ApiService.makeGameMove(currentGame.id, move, fen);
+      
+      if (response.success) {
+        // Update game state with the latest info from server
+        setCurrentGame({
+          ...currentGame,
+          fen: fen
+        });
+      } else {
+        alert(`Failed to make move: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('Failed to record move:', error);
+      alert('Failed to make move. Please try again.');
+    }
   };
 
   // Render game setup UI
@@ -263,7 +332,10 @@ const InteractiveBoard = () => {
             
             <div className="online-players">
               <h4>Online Players</h4>
-              {onlineOpponents.length === 0 ? (
+              
+              {loading ? (
+                <div className="loading-indicator">Loading players...</div>
+              ) : onlineOpponents.length === 0 ? (
                 <div className="no-players">No players online at the moment</div>
               ) : (
                 <div className="players-list">
@@ -272,7 +344,7 @@ const InteractiveBoard = () => {
                       <div className="player-info">
                         <span className={`status-dot ${player.online ? 'online' : 'offline'}`}></span>
                         <span className="player-name">{player.name}</span>
-                        <span className="player-rating">{player.rating}</span>
+                        <span className="player-rating">{player.rating || 1200}</span>
                       </div>
                       <button 
                         className="invite-btn"
@@ -373,13 +445,24 @@ const InteractiveBoard = () => {
             onMove={handleGameMove}
             engineLevel={currentGame.engineLevel}
             width={650}
+            gameOverState={gameOver}
           />
         </div>
         
         <div className="game-controls">
           <button 
             className="resign-btn"
-            onClick={() => setCurrentGame(null)}
+            onClick={() => {
+              // If it's a real game, handle resignation through API
+              if (currentGame.id && !currentGame.id.startsWith('comp-') && !currentGame.id.startsWith('analysis-')) {
+                // Handle real game resignation here
+                ApiService.saveGameResult(currentGame.id, {
+                  result: currentGame.playerColor === 'white' ? '0-1' : '1-0',
+                  reason: 'resignation'
+                }).catch(console.error);
+              }
+              setCurrentGame(null);
+            }}
           >
             {playMode === 'analysis' ? 'Exit Analysis' : 'Resign Game'}
           </button>
@@ -399,7 +482,37 @@ const InteractiveBoard = () => {
           </button>
           
           {playMode !== 'analysis' && (
-            <button className="offer-draw-btn">
+            <button 
+              className="offer-draw-btn"
+              onClick={() => {
+                // Handle draw offer through API for real games
+                if (currentGame.id && !currentGame.id.startsWith('comp-')) {
+                  // For now, just log the action
+                  console.log('Draw offered for game:', currentGame.id);
+                  alert('Draw offers are not implemented yet for online games.');
+                } else if (currentGame.id && currentGame.id.startsWith('comp-')) {
+                  // For computer games, simulate accepting/declining based on position evaluation
+                  // For simplicity, let's say computer accepts 25% of the time
+                  if (Math.random() < 0.25) {
+                    alert('Computer accepts your draw offer.');
+                    setGameOver({
+                      isOver: true,
+                      result: '½-½',
+                      reason: 'agreement'
+                    });
+                    
+                    // Update current game state
+                    setCurrentGame({
+                      ...currentGame,
+                      result: 'draw',
+                      status: 'completed'
+                    });
+                  } else {
+                    alert('Computer declines your draw offer.');
+                  }
+                }
+              }}
+            >
               Offer Draw
             </button>
           )}
@@ -416,7 +529,7 @@ const InteractiveBoard = () => {
       <div className="modal-overlay">
         <div className="modal-content invite-dialog">
           <h3>Send Invite to {invitingUser.name}</h3>
-          <p>Challenge {invitingUser.name} ({invitingUser.rating}) to a game?</p>
+          <p>Challenge {invitingUser.name} ({invitingUser.rating || 1200}) to a game?</p>
           
           <div className="invite-config">
             <div>
@@ -452,8 +565,20 @@ const InteractiveBoard = () => {
         <div className="modal-content waiting-dialog">
           <div className="loading-spinner"></div>
           <h3>Waiting for response...</h3>
-          <p>Invite sent to {invitingUser.name}</p>
-          <button onClick={() => setWaitingForOpponent(false)} className="cancel-btn">
+          <p>Invite sent to {invitingUser ? invitingUser.name : 'opponent'}</p>
+          <button 
+            onClick={() => {
+              setWaitingForOpponent(false);
+              // Cancel the challenge through API
+              const pendingChallenge = JSON.parse(localStorage.getItem('pendingChallenge') || '{}');
+              if (pendingChallenge.id) {
+                ApiService.respondToChallenge(pendingChallenge.id, false)
+                  .catch(console.error);
+                localStorage.removeItem('pendingChallenge');
+              }
+            }} 
+            className="cancel-btn"
+          >
             Cancel
           </button>
         </div>

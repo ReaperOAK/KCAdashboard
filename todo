@@ -20,7 +20,7 @@ Create the batch management system
 Set up the student/teacher listing pages
 Implement the attendance system -->
 - **Notifications:** Alerts for upcoming classes, tournaments, assignments, and attendance.
-<!-- The mark-read endpoint
+<!-- DONE !!!!The mark-read endpoint
 Admin interface for sending notifications
 Additional notification types and templates
 Add the admin interface for sending notifications to users
@@ -55,7 +55,7 @@ Quiz results and history
 Quiz attempt tracking
 Quiz leaderboard -->
 8. **Tournaments Page:** View and register for upcoming chess tournaments.
-<!-- The PHP endpoints for tournaments
+<!--DONE!! The PHP endpoints for tournaments
 Tournament registration system
 Tournament results tracking
 Integration with Lichess.org tournaments
@@ -66,18 +66,18 @@ Tournament payment system -->
 
 ### **Teacher Features**
 1. **Batch Management:** Create, edit, and manage student batches.
-<!-- The PHP endpoints for batch management
+<!-- DONE!!! The PHP endpoints for batch management
 The batch detail view component
 The student management modal
 The create batch form component -->
 2. **Reports & Analytics:** View student performance, quiz scores, and attendance stats.
-<!-- The PHP endpoints for fetching analytics data
+<!-- DONE !!! The PHP endpoints for fetching analytics data
 Detailed student performance views
 Export functionality for reports
 Individual student progress tracking
 Comparative batch analytics -->
 3. **Grading and Feedback:** Provide performance feedback and assignments.
-<!-- The PHP endpoints for grading and feedback
+<!--DONE!!!  The PHP endpoints for grading and feedback
 Student feedback history view
 Progress tracking over time
 Performance analytics integration
@@ -86,13 +86,13 @@ The get-batch-students endpoint
 The submit-feedback endpoint
 Feedback history functionality -->
 4. **PGN Database:** Upload, manage, and share chess PGNs.
-<!-- The PHP endpoints for PGN management
+<!-- DONE !!! The PHP endpoints for PGN management
 PGN validation and sanitization
 Integration with chess.js for move validation
 PGN sharing functionality between teachers
 Student access controls for public PGNs -->
 5. **Classroom Management:** Organize study material and schedule online/offline classes.
-<!-- The PHP endpoints for class scheduling
+<!--DONE!!!  The PHP endpoints for class scheduling
 The materials upload functionality
 Student attendance tracking
 Calendar view for scheduled classes
@@ -102,7 +102,7 @@ Video conferencing integration -->
 
 ### **Admin Features**
 1. **User Management:** Assign roles and permissions.
-<!-- The PHP endpoints for user management
+<!-- DONE!!! The PHP endpoints for user management
 User detail editing modal
 Bulk user actions
 User activity logs
@@ -117,13 +117,12 @@ Attendance reports and exports
 Student attendance history view
 Integration with online class platforms -->
 3. **Platform Analytics:** Insights into user activity, game participation, and learning progress.
-<!-- More detailed analytics for specific features
+<!-- DONE!!! More detailed analytics for specific features
 Export functionality for reports
-Real-time analytics using WebSocket
 Custom date range selection
 PDF report generation -->
 4. **Support System:** Manage tickets, FAQs, and system-wide configurations.
-<!-- Ticket detail view with responses
+<!-- DONE!!! Ticket detail view with responses
 FAQ delete functionality
 Ticket assignment system
 Email notifications for ticket updates

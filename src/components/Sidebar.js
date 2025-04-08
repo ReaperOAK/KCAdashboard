@@ -31,7 +31,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           { label: 'Settings', path: '/admin/attendance-settings' }
         ]
       },
-      // Add Tournaments menu item
       { label: 'Tournaments', path: '/admin/tournaments', icon: '🏆' },
       { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
       { label: 'Support', path: '/admin/support', icon: '💬' },
@@ -54,19 +53,23 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     ]
   }), []); // Empty dependency array since this object is static
 
+  // Common chess links available to all roles
+  const chessLinks = [
+    { label: 'Simul Games', path: '/chess/simul', icon: '♟️' },
+    { label: 'Chess Studies', path: '/chess/studies', icon: '📚' },
+    { label: 'Interactive Board', path: '/chess/board', icon: '🎮' },
+    { label: 'Game Area', path: '/chess/games', icon: '🏆' }
+  ];
+
   // Add effect to update active menu item based on current path
   useEffect(() => {
-    // Find if current path matches any menu item and expand its parent if needed
     const currentPath = location.pathname;
-    
-    // Find all menu items with subitems
     const allLinks = roleBasedLinks[user?.role] || [];
     for (const link of allLinks) {
       if (link.subItems) {
         const matchingSubItem = link.subItems.find(
           subItem => currentPath === subItem.path || currentPath.startsWith(subItem.path + '/')
         );
-        
         if (matchingSubItem) {
           setExpandedItem(link.label);
           break;
@@ -78,25 +81,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const links = roleBasedLinks[user?.role] || [];
 
   const handleItemClick = (item, event) => {
-    // Prevent event bubbling
     if (event) {
       event.stopPropagation();
     }
-    
     if (item.subItems) {
       setExpandedItem(expandedItem === item.label ? null : item.label);
     } else {
-      // Navigate directly for items without subitems
       handleNavigation(item.path);
     }
   };
 
   const handleNavigation = (path) => {
-    // Navigate first
     navigate(path);
-    
-    // Use setTimeout to delay sidebar closing
-    // This ensures the click registers completely first
     if (window.innerWidth < 1024) {
       setTimeout(() => {
         toggleSidebar();
@@ -106,7 +102,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
@@ -114,7 +109,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         />
       )}
 
-      {/* Sidebar - improve positioning and z-index */}
       <div className={`
         fixed left-0 top-16 h-full bg-[#200e4a] text-white 
         transform transition-all duration-300 ease-in-out z-30
@@ -156,7 +150,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 )}
               </button>
 
-              {/* Submenu */}
               {link.subItems && expandedItem === link.label && (
                 <div className="ml-8 space-y-1">
                   {link.subItems.map((subItem) => (
@@ -177,6 +170,27 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               )}
             </div>
           ))}
+
+          <div className="mt-6">
+            <div className="px-4 py-2 text-xs uppercase text-gray-400 font-semibold">
+              Chess Platform
+            </div>
+            {chessLinks.map((link) => (
+              <div key={link.path} className="space-y-1">
+                <button
+                  onClick={() => handleNavigation(link.path)}
+                  className={`w-full flex items-center px-4 py-3 rounded-lg hover:bg-[#461fa3] transition-colors ${
+                    location.pathname === link.path ? 'bg-[#461fa3]' : ''
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-xl">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>

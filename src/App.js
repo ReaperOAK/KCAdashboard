@@ -14,6 +14,7 @@ import NotificationPreferences from './pages/notifications/NotificationPreferenc
 import adminRoutes from './routes/adminRoutes';
 import teacherRoutes from './routes/teacherRoutes';
 import studentRoutes from './routes/studentRoutes';
+import chessRoutes from './routes/chessRoutes'; // Add this import
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -129,6 +130,9 @@ const AppContent = () => {
               {renderRoutes(adminRoutes, ['admin'])}
               {renderRoutes(teacherRoutes, ['teacher'])}
               {renderRoutes(studentRoutes, ['student'])}
+              
+              {/* Chess Routes - available to all user roles */}
+              {renderRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
             </Routes>
           </div>
         </>

@@ -1,0 +1,383 @@
+.interactive-board-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.interactive-board-container h1 {
+  color: #200e4a;
+  margin-bottom: 1.5rem;
+}
+
+.board-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Game setup styles */
+.play-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.play-mode-btn {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px;
+  background-color: #f3f1f9;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #200e4a;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.play-mode-btn .icon {
+  font-size: 24px;
+}
+
+.play-mode-btn:hover {
+  background-color: #e6e1f7;
+}
+
+.play-mode-btn.active {
+  background-color: #461fa3;
+  color: white;
+  border-color: #200e4a;
+}
+
+.computer-options, .player-options, .analysis-options {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f3f1f9;
+  border-radius: 8px;
+}
+
+.computer-options h3, .player-options h3, .analysis-options h3 {
+  margin-top: 0;
+  color: #200e4a;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.option-group {
+  margin-bottom: 16px;
+}
+
+.option-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #200e4a;
+}
+
+.option-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #c2c1d3;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+}
+
+.radio-options {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.range-with-value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-with-value input {
+  flex: 1;
+}
+
+.range-value {
+  min-width: 30px;
+  text-align: center;
+  font-weight: bold;
+  color: #461fa3;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.start-game-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #461fa3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+.start-game-btn:hover {
+  background-color: #7646eb;
+}
+
+/* Player options specific styles */
+.game-config {
+  margin-bottom: 20px;
+}
+
+.online-players {
+  margin-top: 30px;
+}
+
+.online-players h4 {
+  color: #200e4a;
+  margin-bottom: 12px;
+}
+
+.players-list {
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #c2c1d3;
+}
+
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f3f1f9;
+}
+
+.player-item:last-child {
+  border-bottom: none;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background-color: #4caf50;
+}
+
+.status-dot.offline {
+  background-color: #ccc;
+}
+
+.player-rating {
+  font-weight: 500;
+  color: #200e4a;
+}
+
+.invite-btn {
+  padding: 6px 12px;
+  background-color: #461fa3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.invite-btn:hover:not(:disabled) {
+  background-color: #7646eb;
+}
+
+.invite-btn:disabled {
+  background-color: #c2c1d3;
+  cursor: not-allowed;
+}
+
+.no-players {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #c2c1d3;
+}
+
+/* Game interface styles */
+.game-interface {
+  width: 100%;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.game-header h3 {
+  margin-top: 0;
+  color: #200e4a;
+  margin-bottom: 8px;
+}
+
+.game-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  color: #666;
+}
+
+.game-board-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.game-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.resign-btn, .flip-board-btn, .offer-draw-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.resign-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.resign-btn:hover {
+  background-color: #d32f2f;
+}
+
+.flip-board-btn {
+  background-color: #2196f3;
+  color: white;
+}
+
+.flip-board-btn:hover {
+  background-color: #1976d2;
+}
+
+.offer-draw-btn {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.offer-draw-btn:hover {
+  background-color: #757575;
+}
+
+/* Invite dialog styles */
+.invite-dialog, .waiting-dialog {
+  max-width: 400px;
+}
+
+.invite-dialog h3, .waiting-dialog h3 {
+  margin-top: 0;
+  color: #200e4a;
+  margin-bottom: 12px;
+}
+
+.invite-config {
+  background-color: #f3f1f9;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.invite-config div {
+  margin-bottom: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-btn, .confirm-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-btn {
+  background-color: #f3f1f9;
+  color: #200e4a;
+}
+
+.confirm-btn {
+  background-color: #461fa3;
+  color: white;
+}
+
+/* Waiting dialog styles */
+.waiting-dialog {
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f1f9;
+  border-top: 4px solid #461fa3;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.waiting-dialog p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.waiting-dialog .cancel-btn {
+  margin: 0 auto;
+  display: block;
+}

@@ -1,0 +1,307 @@
+.simul-games-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.simul-games-container h1 {
+  color: #200e4a;
+  margin-bottom: 1rem;
+}
+
+.simul-description {
+  background-color: #f3f1f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.simul-description p {
+  margin: 0;
+  color: #461fa3;
+}
+
+.create-simul-section {
+  margin-bottom: 1.5rem;
+}
+
+.create-simul-btn {
+  background-color: #461fa3;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.create-simul-btn:hover {
+  background-color: #7646eb;
+}
+
+.simul-section {
+  margin-bottom: 2rem;
+}
+
+.simul-section h2 {
+  color: #200e4a;
+  border-bottom: 2px solid #f3f1f9;
+  padding-bottom: 8px;
+  margin-bottom: 1rem;
+}
+
+.simul-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.simul-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.simul-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.simul-card h3 {
+  margin-top: 0;
+  color: #461fa3;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.simul-card-info {
+  margin-bottom: 16px;
+}
+
+.simul-card-info div {
+  margin-bottom: 8px;
+}
+
+.join-simul-btn, .view-simul-btn, .host-simul-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.join-simul-btn {
+  background-color: #461fa3;
+  color: white;
+}
+
+.join-simul-btn:hover:not(:disabled) {
+  background-color: #7646eb;
+}
+
+.join-simul-btn:disabled {
+  background-color: #c2c1d3;
+  cursor: not-allowed;
+}
+
+.view-simul-btn {
+  background-color: #200e4a;
+  color: white;
+}
+
+.view-simul-btn:hover {
+  background-color: #461fa3;
+}
+
+.host-simul-btn {
+  background-color: #461fa3;
+  color: white;
+}
+
+.host-simul-btn:hover {
+  background-color: #7646eb;
+}
+
+.no-simuls {
+  padding: 20px;
+  background-color: #f3f1f9;
+  border-radius: 8px;
+  text-align: center;
+  color: #666;
+}
+
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: #461fa3;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #200e4a;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #200e4a;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #c2c1d3;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background-color: #f3f1f9;
+  color: #200e4a;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-btn {
+  padding: 8px 16px;
+  background-color: #461fa3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Simul detail view styles */
+.simul-details-container,
+.host-simul-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.simul-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.simul-header h2 {
+  margin: 0;
+  color: #200e4a;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #200e4a;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.simul-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  background-color: #f3f1f9;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.chess-board-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* Host simul specific styles */
+.host-simul-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .host-simul-content {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+.main-board-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.main-board-container h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #200e4a;
+}
+
+.small-boards-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.small-boards-container h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #200e4a;
+}
+
+.small-boards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+}

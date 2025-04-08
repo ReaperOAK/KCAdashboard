@@ -1,0 +1,103 @@
+.engine-analysis {
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.engine-analysis h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #200e4a;
+  font-size: 18px;
+  border-bottom: 1px solid #f3f1f9;
+  padding-bottom: 8px;
+}
+
+.evaluation-bar-container {
+  width: 24px;
+  height: 150px;
+  background-color: #000;
+  margin: 0 auto 16px;
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.evaluation-bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #fff;
+  transition: height 0.3s ease;
+}
+
+.evaluation-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.eval-score, .eval-depth, .best-move {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.eval-score span, .eval-depth span, .best-move span {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.best-move {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f3f1f9;
+  border-radius: 4px;
+}
+
+.analysis-controls {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.depth-control {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.depth-control label {
+  font-size: 14px;
+  color: #200e4a;
+}
+
+.depth-control input {
+  flex: 1;
+}
+
+.analyze-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #461fa3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.analyze-btn:hover:not(:disabled) {
+  background-color: #7646eb;
+}
+
+.analyze-btn:disabled {
+  background-color: #c2c1d3;
+  cursor: not-allowed;
+}

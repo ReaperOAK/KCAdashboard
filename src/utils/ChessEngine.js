@@ -12,8 +12,12 @@ class ChessEngine {
     try {
       console.log('Initializing chess engine directly...');
       
-      // Always use an absolute path that starts with /
-      const workerUrl = '/stockfish/stockfish.js';
+      // Use window.location.origin to ensure we load from the same origin
+      // This fixes the problem with external URLs in production
+      const origin = typeof window !== 'undefined' ? 
+        window.location.origin : '';
+      
+      const workerUrl = `${origin}/stockfish/stockfish.js`;
       console.log('Loading Stockfish from:', workerUrl);
       
       this.worker = new Worker(workerUrl);

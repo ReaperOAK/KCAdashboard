@@ -50,9 +50,9 @@
     "eject": "react-scripts eject",
     "setup-stockfish": "node scripts/setup-stockfish.js",
     "postinstall": "node -e \"try { require('fs').existsSync('./public/stockfish') || process.exit(1); } catch(e) { process.exit(1); }\" || npm run setup-stockfish",
-    "setup-chess": "node scripts/copy-chess-assets.js",
-    "prebuild": "npm run setup-chess",
-    "prestart": "npm run setup-chess",
+    "prepare-chess": "node scripts/prepare-chess-files.js",
+    "prebuild": "npm run prepare-chess",
+    "prestart": "npm run prepare-chess",
     "check-env": "node scripts/check-environment.js"
   },
   "eslintConfig": {

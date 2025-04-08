@@ -10,25 +10,37 @@ class ChessEngine {
 
   initializeEngine() {
     try {
-      console.log('Initializing chess engine directly...');
+      console.log('Initializing chess engine...');
       
-      // Use window.location.origin to ensure we load from the same origin
-      // This fixes the problem with external URLs in production
-      const origin = typeof window !== 'undefined' ? 
-        window.location.origin : '';
-      
-      const workerUrl = `${origin}/stockfish/stockfish.js`;
-      console.log('Loading Stockfish from:', workerUrl);
-      
-      this.worker = new Worker(workerUrl);
+      // Use base URL to ensure we load from the current domain
+      const baseUrl = window.location.origin;
+      this.tryEngineLoad(`${baseUrl}/stockfish/stockfish.min.js`);
+    } catch (error) {
+      console.error('Failed to initialize chess engine:', error);
+      this.simulateEngine();
+    }
+  }
+  
+  tryEngineLoad(url) {
+    try {
+      console.log(`Attempting to load engine from: ${url}`);
+      this.worker = new Worker(url);
       
       // Set up message handler
       this.worker.onmessage = (e) => this.handleMessage(e.data);
       
-      // Set up error handler for debugging purposes
+      // Set up error handler
       this.worker.onerror = (e) => {
         console.error('Stockfish worker error:', e);
         console.warn('Switching to simulated engine mode');
+        
+        // Terminate failed worker
+        if (this.worker) {
+          this.worker.terminate();
+          this.worker = null;
+        }
+        
+        // Use fallback
         this.simulateEngine();
       };
       
@@ -36,9 +48,8 @@ class ChessEngine {
       this.sendCommand('uci');
       this.sendCommand('setoption name Skill Level value ' + this.level);
       this.sendCommand('isready');
-      
     } catch (error) {
-      console.error('Failed to initialize chess engine:', error);
+      console.error('Engine load error:', error);
       this.simulateEngine();
     }
   }
@@ -66,7 +77,7 @@ class ChessEngine {
     }
   }
   
-  // Last resort - create a simulated engine for graceful degradation
+  // Simulate engine for graceful degradation
   simulateEngine() {
     console.warn('Using simulated chess engine - limited functionality');
     
@@ -127,122 +138,131 @@ class ChessEngine {
     }
   }
   
-  evaluatePosition(fen, depth = 12) {
-    return new Promise((resolve) => {
-      let timeoutId = setTimeout(() => {
-        // Resolve with a default evaluation if it takes too long
-        this.removeCallback('evaluation');
-        resolve({
-          score: 0,
-          depth: 1,
-          scoreType: 'cp',
-          scoreValue: 0,
-          bestMove: null
-        });
-      }, 5000); // 5 second timeout
-      
-      const resultHandler = (type, data) => {
-        if (type === 'evaluation') {
-          clearTimeout(timeoutId);
-          this.removeCallback('evaluation');
-          resolve(data);
-        }
-      };
-      
-      this.registerCallback('evaluation', resultHandler);
-      
-      this.sendCommand('position fen ' + fen);
-      this.sendCommand('go depth ' + depth);
-      
-      // Start tracking analysis info
-      this.onMessage = (message) => {
-        if (message.startsWith('info depth') && message.includes('score')) {
-          const tokens = message.split(' ');
-          const depthIndex = tokens.indexOf('depth');
-          const scoreIndex = tokens.indexOf('score');
-          
-          if (depthIndex !== -1 && scoreIndex !== -1) {
-            const depth = parseInt(tokens[depthIndex + 1]);
-            const scoreType = tokens[scoreIndex + 1]; // cp or mate
-            const scoreValue = parseInt(tokens[scoreIndex + 2]);
-            
-            if (depth >= Math.min(10, depth - 2)) { // Only use deeper analysis
-              let evaluation = 0;
-              if (scoreType === 'cp') {
-                evaluation = scoreValue / 100; // Convert centipawns to pawns
-              } else if (scoreType === 'mate') {
-                evaluation = scoreValue > 0 ? 100 : -100; // Arbitrary high value for mate
-              }
-              
-              // Extract best move if available
-              let bestMove = null;
-              if (message.includes(' pv ')) {
-                const pvIndex = tokens.indexOf('pv');
-                if (pvIndex !== -1 && tokens.length > pvIndex + 1) {
-                  bestMove = tokens[pvIndex + 1];
-                }
-              }
-              
-              resultHandler('evaluation', {
-                score: evaluation,
-                depth,
-                scoreType,
-                scoreValue,
-                bestMove
-              });
-            }
-          }
-        }
-      };
-    });
-  }
-  
-  getBestMove(fen, moveTime = 1000) {
-    return new Promise((resolve) => {
-      let timeoutId = setTimeout(() => {
-        // Resolve with e2e4 as a fallback if it takes too long
-        this.removeCallback('bestmove');
-        resolve('e2e4');
-      }, moveTime + 2000); // moveTime + 2 seconds
-      
-      const resultHandler = (type, data) => {
-        if (type === 'bestmove') {
-          clearTimeout(timeoutId);
-          this.removeCallback('bestmove');
-          resolve(data);
-        }
-      };
-      
-      this.registerCallback('bestmove', resultHandler);
-      
-      this.sendCommand('position fen ' + fen);
-      this.sendCommand('go movetime ' + moveTime);
-    });
-  }
-  
-  // Callback system for asynchronous responses
+  // Callbacks for engine responses
   callbacks = {
-    bestmove: [],
-    evaluation: []
+    'bestmove': []
   };
   
-  registerCallback(type, callback) {
-    if (!this.callbacks[type]) {
-      this.callbacks[type] = [];
-    }
-    this.callbacks[type].push(callback);
-  }
-  
-  removeCallback(type) {
-    this.callbacks[type] = [];
+  onBestMove(callback) {
+    this.callbacks['bestmove'].push(callback);
+    return this;
   }
   
   triggerCallbacks(type, data) {
     if (this.callbacks[type]) {
-      this.callbacks[type].forEach(callback => callback(type, data));
+      this.callbacks[type].forEach(callback => callback(data));
     }
   }
   
+  // Get best move from the engine
+  getBestMove(fen, timeLimit = 1000) {
+    return new Promise((resolve, reject) => {
+      // Set position
+      this.sendCommand('position fen ' + fen);
+      
+      // Clear previous callbacks
+      this.callbacks['bestmove'] = [];
+      
+      // Set up callback for best move
+      this.onBestMove(move => {
+        resolve(move);
+      });
+      
+      // Start analysis
+      this.sendCommand(`go movetime ${timeLimit}`);
+      
+      // Add timeout safeguard
+      setTimeout(() => {
+        if (this.callbacks['bestmove'].length > 0) {
+          reject(new Error('Engine response timeout'));
+        }
+      }, timeLimit + 1000);
+    });
+  }
+  
+  // Evaluate a position
+  evaluatePosition(fen, depth = 15) {
+    return new Promise((resolve, reject) => {
+      let evaluation = {
+        score: 0,
+        depth: 0,
+        bestMove: null,
+        pv: []
+      };
+      
+      // Handler for info messages
+      const originalHandler = this.onMessage;
+      this.onMessage = (message) => {
+        if (originalHandler) originalHandler(message);
+        
+        if (message.startsWith('info') && message.includes('score')) {
+          try {
+            // Parse score
+            const scoreMatch = message.match(/score\s+(cp|mate)\s+(-?\d+)/);
+            if (scoreMatch) {
+              const scoreType = scoreMatch[1];
+              const scoreValue = parseInt(scoreMatch[2]);
+              
+              if (scoreType === 'cp') {
+                evaluation.score = scoreValue / 100; // Convert centipawns to pawns
+              } else if (scoreType === 'mate') {
+                // Represent mate score as a very high value
+                evaluation.score = scoreValue > 0 ? 100 : -100;
+              }
+            }
+            
+            // Parse depth
+            const depthMatch = message.match(/depth\s+(\d+)/);
+            if (depthMatch) {
+              evaluation.depth = parseInt(depthMatch[1]);
+            }
+            
+            // Parse PV (principal variation)
+            const pvMatch = message.match(/pv\s+(.*)/);
+            if (pvMatch) {
+              evaluation.pv = pvMatch[1].split(' ');
+              if (evaluation.pv.length > 0) {
+                evaluation.bestMove = evaluation.pv[0];
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing engine output:', e);
+          }
+        }
+        
+        // On bestmove, resolve the promise
+        if (message.startsWith('bestmove')) {
+          const moveMatch = message.match(/bestmove\s+(\w+)/);
+          if (moveMatch && moveMatch[1]) {
+            evaluation.bestMove = moveMatch[1];
+            resolve(evaluation);
+            
+            // Restore original handler
+            this.onMessage = originalHandler;
+          }
+        }
+      };
+      
+      // Set position
+      this.sendCommand('position fen ' + fen);
+      
+      // Start analysis
+      this.sendCommand(`go depth ${depth}`);
+      
+      // Add timeout safeguard
+      setTimeout(() => {
+        if (!evaluation.bestMove) {
+          // Force stop and resolve with what we have
+          this.sendCommand('stop');
+          resolve(evaluation);
+          
+          // Restore original handler
+          this.onMessage = originalHandler;
+        }
+      }, 5000); // 5 second timeout
+    });
+  }
+
   terminate() {
     if (this.worker) {
       if (typeof this.worker.terminate === 'function') {

@@ -436,6 +436,109 @@ class ApiService {
   static getResourceDownloadUrl(resourceId) {
     return `${this.API_URL}/resources/download.php?id=${resourceId}`;
   }
+
+  // Chess API endpoints
+  static async getSimulGames() {
+    return this.get('/chess/simul-games.php');
+  }
+
+  static async createSimulGame(data) {
+    return this.post('/chess/create-simul.php', data);
+  }
+
+  static async joinSimulGame(id) {
+    return this.post('/chess/join-simul.php', { simul_id: id });
+  }
+
+  static async makeSimulMove(simulId, boardId, move, fen) {
+    return this.post('/chess/simul-move.php', {
+      simul_id: simulId,
+      board_id: boardId,
+      move,
+      fen
+    });
+  }
+
+  static async getChessStudies() {
+    return this.get('/chess/studies.php');
+  }
+
+  static async getSharedChessStudies() {
+    return this.get('/chess/shared-studies.php');
+  }
+
+  static async getStudyDetails(id) {
+    return this.get(`/chess/study.php?id=${id}`);
+  }
+
+  static async createChessStudy(studyData) {
+    return this.post('/chess/create-study.php', studyData);
+  }
+
+  static async updateChessStudy(id, studyData) {
+    return this.put(`/chess/update-study.php?id=${id}`, studyData);
+  }
+
+  static async shareChessStudy(id, userIds) {
+    return this.post('/chess/share-study.php', {
+      study_id: id,
+      user_ids: userIds
+    });
+  }
+
+  static async getChessGames(status = 'all') {
+    return this.get(`/chess/games.php?status=${status}`);
+  }
+
+  static async getGameDetails(id) {
+    return this.get(`/chess/game.php?id=${id}`);
+  }
+
+  static async makeGameMove(gameId, move, fen) {
+    return this.post('/chess/make-move.php', {
+      game_id: gameId,
+      move,
+      fen
+    });
+  }
+
+  static async challengePlayer(userId, gameSettings) {
+    return this.post('/chess/challenge.php', {
+      opponent_id: userId,
+      ...gameSettings
+    });
+  }
+
+  static async respondToChallenge(challengeId, accept) {
+    return this.post('/chess/respond-challenge.php', {
+      challenge_id: challengeId,
+      accept
+    });
+  }
+
+  static async getOnlinePlayers() {
+    return this.get('/chess/online-players.php');
+  }
+
+  static async getPracticePositions(type = 'all') {
+    return this.get(`/chess/practice-positions.php?type=${type}`);
+  }
+
+  static async createPracticePosition(positionData) {
+    return this.post('/chess/create-practice.php', positionData);
+  }
+
+  static async getEngineEvaluation(fen, depth = 15) {
+    return this.post('/chess/engine-analysis.php', { fen, depth });
+  }
+
+  static async saveGameResult(gameId, result) {
+    return this.post('/chess/save-result.php', { game_id: gameId, result });
+  }
+
+  static async getPlayerStats() {
+    return this.get('/chess/player-stats.php');
+  }
 }
 
 export default ApiService;

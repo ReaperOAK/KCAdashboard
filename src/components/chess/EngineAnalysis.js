@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './EngineAnalysis.css';
 
-const EngineAnalysis = ({ evaluation, fen, stockfishRef }) => {
-  const [bestMove, setBestMove] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [depth, setDepth] = useState(15);
-
+const EngineAnalysis = ({ engineEvaluation }) => {
   // Format evaluation score for display
   const formatEvaluation = (eval_) => {
     if (!eval_) return 'N/A';
@@ -32,38 +28,6 @@ const EngineAnalysis = ({ evaluation, fen, stockfishRef }) => {
     return Math.max(5, Math.min(95, percentage));
   };
 
-  // Request deeper analysis
-  const analyzePosition = () => {
-    if (stockfishRef.current && !isAnalyzing) {
-      setIsAnalyzing(true);
-      stockfishRef.current.postMessage(`position fen ${fen}`);
-      stockfishRef.current.postMessage(`go depth ${depth}`);
-      
-      // Set up one-time handler for best move
-      const originalOnMessage = stockfishRef.current.onmessage;
-      stockfishRef.current.onmessage = (e) => {
-        const message = e.data;
-        
-        if (message.startsWith('bestmove')) {
-          const tokens = message.split(' ');
-          setBestMove(tokens[1]);
-          setIsAnalyzing(false);
-          
-          // Restore original handler
-          stockfishRef.current.onmessage = originalOnMessage;
-        } else {
-          // Pass message to original handler
-          originalOnMessage(e);
-        }
-      };
-    }
-  };
-
-  useEffect(() => {
-    // Reset best move when position changes
-    setBestMove(null);
-  }, [fen]);
-
   return (
     <div className="engine-analysis">
       <h3>Engine Analysis</h3>
@@ -71,52 +35,30 @@ const EngineAnalysis = ({ evaluation, fen, stockfishRef }) => {
       <div className="evaluation-bar-container">
         <div 
           className="evaluation-bar"
-          style={{ height: `${getEvaluationPercent(evaluation)}%` }}
+          style={{ height: `${getEvaluationPercent(engineEvaluation)}%` }}
         ></div>
       </div>
       
       <div className="evaluation-info">
         <div className="eval-score">
           <span>Evaluation:</span>
-          <strong>{formatEvaluation(evaluation)}</strong>
+          <strong>{formatEvaluation(engineEvaluation)}</strong>
         </div>
-        {evaluation && (
+        {engineEvaluation && (
           <div className="eval-depth">
             <span>Depth:</span>
-            <strong>{evaluation.depth || 0}</strong>
+            <strong>{engineEvaluation.depth || 0}</strong>
           </div>
         )}
       </div>
-      
-      {bestMove && (
-        <div className="best-move">
-          <span>Best move:</span>
-          <strong>{bestMove}</strong>
-        </div>
-      )}
-      
-      <div className="analysis-controls">
-        <div className="depth-control">
-          <label htmlFor="depth-slider">Depth:</label>
-          <input 
-            id="depth-slider"
-            type="range" 
-            min="10" 
-            max="20" 
-            value={depth}
-            onChange={(e) => setDepth(parseInt(e.target.value))}
-            disabled={isAnalyzing}
-          />
-          <span>{depth}</span>
-        </div>
-        
-        <button 
-          className="analyze-btn"
-          onClick={analyzePosition}
-          disabled={isAnalyzing}
-        >
-          {isAnalyzing ? 'Analyzing...' : 'Analyze Position'}
-        </button>
+
+      <div className="engine-best-moves">
+        {engineEvaluation && engineEvaluation.bestMove && (
+          <div className="best-move">
+            <span>Best Move:</span>
+            <strong>{engineEvaluation.bestMove}</strong>
+          </div>
+        )}
       </div>
     </div>
   );

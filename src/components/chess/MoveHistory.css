@@ -1,25 +1,21 @@
 .move-history {
+  margin-bottom: 20px;
   background-color: white;
   border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
 }
 
 .move-history h3 {
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: #200e4a;
   font-size: 18px;
-  border-bottom: 1px solid #f3f1f9;
-  padding-bottom: 8px;
 }
 
 .moves-container {
+  max-height: 300px;
   overflow-y: auto;
-  flex-grow: 1;
 }
 
 .moves-table {
@@ -28,37 +24,41 @@
 }
 
 .moves-table th {
-  text-align: left;
-  padding: 8px;
-  font-weight: 600;
-  color: #461fa3;
   background-color: #f3f1f9;
+  color: #461fa3;
+  padding: 8px;
+  text-align: left;
+  font-weight: 600;
   position: sticky;
   top: 0;
 }
 
 .moves-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #f3f1f9;
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.move {
+.moves-table .move {
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  font-family: 'Courier New', monospace;
 }
 
-.move:hover {
+.moves-table .move:hover {
   background-color: #f3f1f9;
 }
 
-.current-move {
-  background-color: #461fa3 !important;
+.moves-table .current-move {
+  background-color: #461fa3;
   color: white;
 }
 
+.moves-table .current-move:hover {
+  background-color: #7646eb;
+}
+
 .no-moves {
+  color: #999;
   text-align: center;
-  color: #888;
-  padding: 20px 0;
+  font-style: italic;
+  padding: 15px 0;
 }

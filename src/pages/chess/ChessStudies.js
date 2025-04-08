@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import ChessBoard from '../../components/chess/ChessBoard';
+import ApiService from '../../utils/api';
 import './ChessStudies.css';
 
 const ChessStudies = () => {
@@ -10,8 +11,13 @@ const ChessStudies = () => {
   const [activeStudy, setActiveStudy] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+  const [isSaving, setIsSaving] = useState(false);
+  const [shareMode, setShareMode] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   
   const [newStudy, setNewStudy] = useState({
     title: '',
@@ -23,85 +29,32 @@ const ChessStudies = () => {
 
   // Fetch studies when component mounts
   useEffect(() => {
-    const fetchStudies = async () => {
-      try {
-        setLoading(true);
-        
-        // Mock data for now
-        const mockStudies = [
-          {
-            id: 1,
-            title: 'Sicilian Defense Main Line',
-            description: 'Analysis of the main line of the Sicilian Defense',
-            category: 'opening',
-            position: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
-            owner: {
-              id: user.id,
-              name: user.full_name
-            },
-            created_at: '2023-09-15T14:30:00Z',
-            updated_at: '2023-09-20T10:15:00Z',
-            is_public: true
-          },
-          {
-            id: 2,
-            title: 'Queen\'s Gambit Accepted',
-            description: 'Study of accepting the Queen\'s Gambit',
-            category: 'opening',
-            position: 'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2',
-            owner: {
-              id: user.id,
-              name: user.full_name
-            },
-            created_at: '2023-10-05T09:20:00Z',
-            updated_at: '2023-10-05T09:20:00Z',
-            is_public: false
-          },
-          {
-            id: 3,
-            title: 'Rook Endgame Principles',
-            description: 'Common principles in rook endgames',
-            category: 'endgame',
-            position: '8/8/8/8/8/4k3/4p3/4K2R w K - 0 1',
-            owner: {
-              id: user.id,
-              name: user.full_name
-            },
-            created_at: '2023-10-12T16:45:00Z',
-            updated_at: '2023-10-14T11:30:00Z',
-            is_public: true
-          }
-        ];
-        
-        const mockSharedStudies = [
-          {
-            id: 4,
-            title: 'Knight vs Bishop Endgame',
-            description: 'Analysis of knight versus bishop endgames',
-            category: 'endgame',
-            position: '8/8/8/2k5/8/2N5/8/2K5 w - - 0 1',
-            owner: {
-              id: 201,
-              name: 'Coach Michael'
-            },
-            created_at: '2023-09-30T08:15:00Z',
-            updated_at: '2023-10-01T14:20:00Z',
-            is_public: false,
-            shared_by: 'Coach Michael'
-          }
-        ];
-        
-        setStudies(mockStudies);
-        setSharedStudies(mockSharedStudies);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching studies:', error);
-        setLoading(false);
-      }
-    };
-    
     fetchStudies();
-  }, [user.id, user.full_name]);
+  }, []);
+
+  const fetchStudies = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch your studies
+      const myStudiesResponse = await ApiService.getChessStudies();
+      if (myStudiesResponse && myStudiesResponse.studies) {
+        setStudies(myStudiesResponse.studies);
+      }
+      
+      // Fetch studies shared with you
+      const sharedStudiesResponse = await ApiService.getSharedChessStudies();
+      if (sharedStudiesResponse && sharedStudiesResponse.studies) {
+        setSharedStudies(sharedStudiesResponse.studies);
+      }
+    } catch (err) {
+      console.error('Error fetching studies:', err);
+      setError('Failed to load studies: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter studies based on search and category filter
   const filteredStudies = studies.filter(study => {
@@ -121,55 +74,110 @@ const ChessStudies = () => {
   });
 
   // Handle creating a new study
-  const handleCreateStudy = (e) => {
+  const handleCreateStudy = async (e) => {
     e.preventDefault();
     
-    // In a real app, this would be an API call
-    const newStudyWithId = {
-      ...newStudy,
-      id: Date.now(), // Use timestamp as temporary ID
-      owner: {
-        id: user.id,
-        name: user.full_name
-      },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    setStudies([newStudyWithId, ...studies]);
-    setIsCreating(false);
-    setNewStudy({
-      title: '',
-      description: '',
-      category: 'opening',
-      isPublic: false,
-      position: 'start'
-    });
+    try {
+      setIsSaving(true);
+      const response = await ApiService.createChessStudy(newStudy);
+      
+      // Add the new study to the list
+      if (response && response.study) {
+        setStudies([response.study, ...studies]);
+        setIsCreating(false);
+        setNewStudy({
+          title: '',
+          description: '',
+          category: 'opening',
+          isPublic: false,
+          position: 'start'
+        });
+      }
+    } catch (err) {
+      setError('Failed to create study: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Handle opening a study
-  const handleOpenStudy = (study) => {
-    setActiveStudy(study);
+  const handleOpenStudy = async (study) => {
+    try {
+      setLoading(true);
+      const response = await ApiService.getStudyDetails(study.id);
+      
+      if (response && response.study) {
+        setActiveStudy(response.study);
+      } else {
+        throw new Error('Study not found');
+      }
+    } catch (err) {
+      setError('Failed to open study: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle saving changes to a study
-  const handleSaveStudy = (updatedPosition) => {
+  const handleSaveStudy = async (updatedPosition) => {
     if (!activeStudy) return;
     
-    const updatedStudy = {
-      ...activeStudy,
-      position: updatedPosition,
-      updated_at: new Date().toISOString()
-    };
+    try {
+      setIsSaving(true);
+      const updatedStudy = {
+        ...activeStudy,
+        position: updatedPosition
+      };
+      
+      await ApiService.updateChessStudy(activeStudy.id, updatedStudy);
+      
+      // Update the study in the list
+      setStudies(studies.map(study => 
+        study.id === activeStudy.id ? updatedStudy : study
+      ));
+      
+      setActiveStudy(updatedStudy);
+    } catch (err) {
+      setError('Failed to save study: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle sharing a study
+  const handleShareStudy = async () => {
+    if (!activeStudy || selectedUsers.length === 0) return;
     
-    // Update the study in the list
-    setStudies(studies.map(study => 
-      study.id === activeStudy.id ? updatedStudy : study
-    ));
-    
-    setActiveStudy(updatedStudy);
-    
-    // In a real app, this would include an API call to save changes
+    try {
+      setIsSaving(true);
+      await ApiService.shareChessStudy(activeStudy.id, selectedUsers);
+      setShareMode(false);
+      setSelectedUsers([]);
+    } catch (err) {
+      setError('Failed to share study: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Load available users for sharing
+  const loadUsersForSharing = async () => {
+    try {
+      // In a real app, this would call an API to get users you can share with
+      const response = await ApiService.get('/users/get-shareable-users.php');
+      setAvailableUsers(response.users || []);
+    } catch (err) {
+      setError('Failed to load users: ' + err.message);
+    }
+  };
+
+  // Toggle user selection for sharing
+  const toggleUserSelection = (userId) => {
+    if (selectedUsers.includes(userId)) {
+      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    } else {
+      setSelectedUsers([...selectedUsers, userId]);
+    }
   };
 
   // Format date for display
@@ -237,14 +245,73 @@ const ChessStudies = () => {
             </div>
             
             <div className="modal-actions">
-              <button type="button" onClick={() => setIsCreating(false)} className="cancel-btn">
+              <button 
+                type="button" 
+                onClick={() => setIsCreating(false)} 
+                className="cancel-btn"
+                disabled={isSaving}
+              >
                 Cancel
               </button>
-              <button type="submit" className="create-btn">
-                Create Study
+              <button 
+                type="submit" 
+                className="create-btn"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Creating...' : 'Create Study'}
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Render share dialog
+  const renderShareDialog = () => {
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <h2>Share Study</h2>
+          <p>Select users to share "{activeStudy.title}" with:</p>
+          
+          <div className="user-list">
+            {availableUsers.length === 0 ? (
+              <p>No users available for sharing.</p>
+            ) : (
+              availableUsers.map(user => (
+                <div key={user.id} className="user-item">
+                  <label className="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedUsers.includes(user.id)}
+                      onChange={() => toggleUserSelection(user.id)}
+                    />
+                    {user.name} ({user.role})
+                  </label>
+                </div>
+              ))
+            )}
+          </div>
+          
+          <div className="modal-actions">
+            <button 
+              type="button" 
+              onClick={() => setShareMode(false)} 
+              className="cancel-btn"
+              disabled={isSaving}
+            >
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              onClick={handleShareStudy} 
+              className="share-btn"
+              disabled={isSaving || selectedUsers.length === 0}
+            >
+              {isSaving ? 'Sharing...' : 'Share'}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -269,9 +336,22 @@ const ChessStudies = () => {
             </p>
             <p className="study-description">{activeStudy.description}</p>
           </div>
-          <button onClick={() => setActiveStudy(null)} className="close-btn">
-            &times;
-          </button>
+          <div className="study-actions">
+            <button onClick={() => setActiveStudy(null)} className="close-btn">
+              Back to Studies
+            </button>
+            {activeStudy.owner.id === user.id && (
+              <button 
+                onClick={() => {
+                  loadUsersForSharing();
+                  setShareMode(true);
+                }} 
+                className="share-btn"
+              >
+                Share Study
+              </button>
+            )}
+          </div>
         </div>
         
         <div className="study-board-container">
@@ -283,13 +363,24 @@ const ChessStudies = () => {
             onMove={(move, fen) => handleSaveStudy(fen)}
             width={600}
           />
+          
+          {isSaving && (
+            <div className="saving-indicator">
+              Saving changes...
+            </div>
+          )}
         </div>
       </div>
     );
   };
 
   // If viewing a study, show that view
-  if (activeStudy) return renderStudyDetail();
+  if (activeStudy) return (
+    <>
+      {renderStudyDetail()}
+      {shareMode && renderShareDialog()}
+    </>
+  );
   
   // Main studies listing view
   return (
@@ -332,6 +423,8 @@ const ChessStudies = () => {
       
       {loading ? (
         <div className="loading">Loading studies...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
       ) : (
         <>
           <section className="studies-section">
@@ -348,7 +441,13 @@ const ChessStudies = () => {
                 {filteredStudies.map(study => (
                   <div key={study.id} className="study-card" onClick={() => handleOpenStudy(study)}>
                     <div className="study-card-preview">
-                      <div className="mini-board" style={{ backgroundImage: `url(/img/mini-boards/${study.category}.png)` }}></div>
+                      <div className="mini-board" 
+                        style={{ 
+                          backgroundImage: study.preview_url 
+                            ? `url(${study.preview_url})` 
+                            : `url(/img/mini-boards/${study.category}.png)` 
+                        }}
+                      ></div>
                     </div>
                     <div className="study-card-content">
                       <h3>{study.title}</h3>
@@ -371,7 +470,13 @@ const ChessStudies = () => {
                 {filteredSharedStudies.map(study => (
                   <div key={study.id} className="study-card" onClick={() => handleOpenStudy(study)}>
                     <div className="study-card-preview">
-                      <div className="mini-board" style={{ backgroundImage: `url(/img/mini-boards/${study.category}.png)` }}></div>
+                      <div className="mini-board" 
+                        style={{ 
+                          backgroundImage: study.preview_url 
+                            ? `url(${study.preview_url})` 
+                            : `url(/img/mini-boards/${study.category}.png)` 
+                        }}
+                      ></div>
                     </div>
                     <div className="study-card-content">
                       <h3>{study.title}</h3>

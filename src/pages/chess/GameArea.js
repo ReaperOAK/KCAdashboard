@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ChessBoard from '../../components/chess/ChessBoard';
+import ApiService from '../../utils/api';
 import './GameArea.css';
 
 const GameArea = () => {
@@ -9,108 +10,34 @@ const GameArea = () => {
   const [activeGame, setActiveGame] = useState(null);
   const [activePractice, setActivePractice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filterType, setFilterType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Mock data
+  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      
-      // Mock games data
-      const mockGames = [
-        {
-          id: 1,
-          opponent: {
-            id: 201,
-            name: 'John Teacher',
-            rating: 1850
-          },
-          status: 'active',
-          lastMove: '2023-10-25T14:30:00Z',
-          yourTurn: true,
-          position: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2',
-          yourColor: 'black',
-          type: 'correspondence'
-        },
-        {
-          id: 2,
-          opponent: {
-            id: 202,
-            name: 'Sarah Coach',
-            rating: 2100
-          },
-          status: 'active',
-          lastMove: '2023-10-24T09:15:00Z',
-          yourTurn: false,
-          position: 'rnbqkb1r/pppp1ppp/5n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
-          yourColor: 'black',
-          type: 'correspondence'
-        },
-        {
-          id: 3,
-          opponent: {
-            id: 203,
-            name: 'Mike Student',
-            rating: 1200
-          },
-          status: 'completed',
-          lastMove: '2023-10-20T16:45:00Z',
-          yourTurn: false,
-          position: '8/5pk1/p1p2n2/2P4p/PP3P1P/5KP1/8/8 b - - 0 43',
-          yourColor: 'white',
-          result: 'win',
-          type: 'correspondence'
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch games
+        const gamesResponse = await ApiService.getChessGames();
+        if (gamesResponse && gamesResponse.games) {
+          setGames(gamesResponse.games);
         }
-      ];
-      
-      // Mock practice positions
-      const mockPracticePositions = [
-        {
-          id: 101,
-          title: 'Queen\'s Gambit Accepted',
-          description: 'Practice the QGA opening with common variations',
-          difficulty: 'intermediate',
-          position: 'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2',
-          type: 'opening',
-          engine_level: 5,
-          created_at: '2023-10-05'
-        },
-        {
-          id: 102,
-          title: 'Rook Endgame',
-          description: 'Practice rook endgame patterns',
-          difficulty: 'advanced',
-          position: '8/8/8/8/8/4k3/4p3/4K2R w K - 0 1',
-          type: 'endgame',
-          engine_level: 10,
-          created_at: '2023-10-10'
-        },
-        {
-          id: 103,
-          title: 'Knight Fork Tactics',
-          description: 'Find the winning knight fork',
-          difficulty: 'beginner',
-          position: 'r2qkb1r/pp2pppp/2p2n2/8/3P4/2NB4/PPP2PPP/R1BQK2R w KQkq - 0 9',
-          type: 'tactics',
-          engine_level: 3,
-          created_at: '2023-10-15'
-        },
-        {
-          id: 104,
-          title: 'Sicilian Defense',
-          description: 'Play against the Sicilian Najdorf',
-          difficulty: 'intermediate',
-          position: 'rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6',
-          type: 'opening',
-          engine_level: 7,
-          created_at: '2023-10-18'
+        
+        // Fetch practice positions
+        const practiceResponse = await ApiService.getPracticePositions();
+        if (practiceResponse && practiceResponse.positions) {
+          setPracticePositions(practiceResponse.positions);
         }
-      ];
-      
-      setGames(mockGames);
-      setPracticePositions(mockPracticePositions);
-      setLoading(false);
+      } catch (err) {
+        console.error('Error fetching game data:', err);
+        setError('Failed to load game data: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchData();
@@ -132,9 +59,20 @@ const GameArea = () => {
   });
   
   // Handle game selection
-  const handleSelectGame = (game) => {
-    setActiveGame(game);
-    setActivePractice(null);
+  const handleSelectGame = async (game) => {
+    try {
+      setLoading(true);
+      // Get detailed game data
+      const response = await ApiService.getGameDetails(game.id);
+      if (response && response.game) {
+        setActiveGame(response.game);
+        setActivePractice(null);
+      }
+    } catch (err) {
+      setError('Failed to load game details: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
   
   // Handle practice position selection
@@ -144,15 +82,57 @@ const GameArea = () => {
   };
   
   // Handle move in game
-  const handleGameMove = (move, fen) => {
-    // In a real app, this would send the move to the backend
-    if (activeGame) {
+  const handleGameMove = async (move, fen) => {
+    if (!activeGame) return;
+    
+    try {
+      // Send move to server
+      await ApiService.makeGameMove(activeGame.id, move, fen);
+      
+      // Update local state
       setActiveGame({
         ...activeGame,
         position: fen,
         yourTurn: false,
         lastMove: new Date().toISOString()
       });
+    } catch (err) {
+      console.error('Error making move:', err);
+      setError('Failed to make move: ' + err.message);
+    }
+  };
+  
+  // Handle offering a draw
+  const handleOfferDraw = async () => {
+    if (!activeGame) return;
+    
+    try {
+      await ApiService.saveGameResult(activeGame.id, 'draw-offer');
+      alert('Draw offer sent to your opponent');
+    } catch (err) {
+      setError('Failed to offer draw: ' + err.message);
+    }
+  };
+  
+  // Handle resigning a game
+  const handleResign = async () => {
+    if (!activeGame) return;
+    
+    if (window.confirm('Are you sure you want to resign this game?')) {
+      try {
+        await ApiService.saveGameResult(activeGame.id, 'resign');
+        alert('You have resigned the game');
+        
+        // Update local state
+        setActiveGame({
+          ...activeGame,
+          status: 'completed',
+          result: 'loss',
+          reason: 'resignation'
+        });
+      } catch (err) {
+        setError('Failed to resign game: ' + err.message);
+      }
     }
   };
   
@@ -166,6 +146,36 @@ const GameArea = () => {
   const formatTime = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  };
+  
+  // Reset practice position
+  const handleResetPosition = () => {
+    if (!activePractice) return;
+    
+    // Just reload the same practice position which effectively resets it
+    handleSelectPractice({...activePractice});
+  };
+  
+  // Flip practice board
+  const handleFlipBoard = () => {
+    if (!activePractice) return;
+    
+    setActivePractice({
+      ...activePractice,
+      orientation: activePractice.orientation === 'white' ? 'black' : 'white'
+    });
+  };
+  
+  // Start new game
+  const handleStartNewGame = () => {
+    // Navigate to interactive board with game creation
+    window.location.href = '/chess/board';
+  };
+  
+  // Create custom practice position
+  const handleCreatePracticePosition = () => {
+    // Navigate to interactive board with practice mode
+    window.location.href = '/chess/board?mode=analysis';
   };
   
   // Render game board
@@ -211,8 +221,18 @@ const GameArea = () => {
           
           {activeGame.status === 'active' && (
             <>
-              <button className="offer-draw-btn">Offer Draw</button>
-              <button className="resign-btn">Resign</button>
+              <button 
+                className="offer-draw-btn"
+                onClick={handleOfferDraw}
+              >
+                Offer Draw
+              </button>
+              <button 
+                className="resign-btn"
+                onClick={handleResign}
+              >
+                Resign
+              </button>
             </>
           )}
         </div>
@@ -239,7 +259,7 @@ const GameArea = () => {
         <div className="chess-board-wrapper">
           <ChessBoard 
             position={activePractice.position}
-            orientation="white"
+            orientation={activePractice.orientation || "white"}
             allowMoves={true}
             showHistory={true}
             showAnalysis={true}
@@ -257,8 +277,18 @@ const GameArea = () => {
             Back to Practice List
           </button>
           
-          <button className="reset-btn">Reset Position</button>
-          <button className="flip-btn">Flip Board</button>
+          <button 
+            className="reset-btn"
+            onClick={handleResetPosition}
+          >
+            Reset Position
+          </button>
+          <button 
+            className="flip-btn"
+            onClick={handleFlipBoard}
+          >
+            Flip Board
+          </button>
         </div>
       </div>
     );
@@ -319,7 +349,12 @@ const GameArea = () => {
                 </div>
                 
                 <div className="board-preview">
-                  <div className="mini-board" style={{ backgroundImage: `url(/images/mini-boards/${game.id}.png)` }}></div>
+                  <div className="mini-board" 
+                    style={{ backgroundImage: game.preview_url 
+                      ? `url(${game.preview_url})` 
+                      : `url(/images/mini-boards/default.png)` 
+                    }}
+                  ></div>
                 </div>
                 
                 <div className="game-card-footer">
@@ -335,7 +370,12 @@ const GameArea = () => {
         )}
         
         <div className="new-game-actions">
-          <button className="new-game-btn">Start New Game</button>
+          <button 
+            className="new-game-btn"
+            onClick={handleStartNewGame}
+          >
+            Start New Game
+          </button>
         </div>
       </div>
     );
@@ -391,7 +431,12 @@ const GameArea = () => {
                 </div>
                 
                 <div className="practice-preview">
-                  <div className="mini-board" style={{ backgroundImage: `url(/images/practice-positions/${position.id}.png)` }}></div>
+                  <div className="mini-board" 
+                    style={{ backgroundImage: position.preview_url 
+                      ? `url(${position.preview_url})` 
+                      : `url(/images/practice-positions/default.png)` 
+                    }}
+                  ></div>
                 </div>
                 
                 <div className="practice-card-content">
@@ -408,18 +453,33 @@ const GameArea = () => {
         )}
         
         <div className="new-practice-actions">
-          <button className="create-practice-btn">Create Custom Position</button>
+          <button 
+            className="create-practice-btn"
+            onClick={handleCreatePracticePosition}
+          >
+            Create Custom Position
+          </button>
         </div>
       </div>
     );
   };
   
   // Show loading state
-  if (loading) {
+  if (loading && !activeGame && !activePractice) {
     return (
       <div className="game-area-container">
         <h1>Chess Game Area</h1>
         <div className="loading">Loading chess content...</div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error && !activeGame && !activePractice) {
+    return (
+      <div className="game-area-container">
+        <h1>Chess Game Area</h1>
+        <div className="error-message">{error}</div>
       </div>
     );
   }

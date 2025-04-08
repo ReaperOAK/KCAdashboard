@@ -1,103 +1,77 @@
 .engine-analysis {
+  margin-bottom: 20px;
   background-color: white;
   border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
 }
 
 .engine-analysis h3 {
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
   color: #200e4a;
   font-size: 18px;
-  border-bottom: 1px solid #f3f1f9;
-  padding-bottom: 8px;
 }
 
 .evaluation-bar-container {
-  width: 24px;
-  height: 150px;
-  background-color: #000;
-  margin: 0 auto 16px;
+  width: 30px;
+  height: 120px;
+  border: 1px solid #ddd;
   position: relative;
-  border-radius: 3px;
-  overflow: hidden;
+  margin: 0 auto 15px;
 }
 
 .evaluation-bar {
   position: absolute;
   bottom: 0;
   width: 100%;
-  background-color: #fff;
+  background: linear-gradient(to top, #200e4a, #461fa3, #7646eb);
   transition: height 0.3s ease;
 }
 
 .evaluation-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.eval-score, .eval-depth, .best-move {
+.eval-score, .eval-depth {
   display: flex;
   flex-direction: column;
-  margin-bottom: 8px;
+  align-items: center;
 }
 
-.eval-score span, .eval-depth span, .best-move span {
+.eval-score span, .eval-depth span {
   font-size: 12px;
   color: #666;
   margin-bottom: 4px;
 }
 
-.best-move {
-  margin-top: 8px;
-  padding: 8px;
-  background-color: #f3f1f9;
-  border-radius: 4px;
-}
-
-.analysis-controls {
-  margin-top: auto;
-  padding-top: 12px;
-}
-
-.depth-control {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 8px;
-}
-
-.depth-control label {
-  font-size: 14px;
+.eval-score strong, .eval-depth strong {
+  font-size: 16px;
   color: #200e4a;
 }
 
-.depth-control input {
-  flex: 1;
+.engine-best-moves {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
 }
 
-.analyze-btn {
-  width: 100%;
-  padding: 8px 12px;
-  background-color: #461fa3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.best-move {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.best-move span {
   font-size: 14px;
-  transition: background-color 0.2s;
+  color: #666;
 }
 
-.analyze-btn:hover:not(:disabled) {
-  background-color: #7646eb;
-}
-
-.analyze-btn:disabled {
-  background-color: #c2c1d3;
-  cursor: not-allowed;
+.best-move strong {
+  font-family: 'Courier New', monospace;
+  color: #200e4a;
+  font-size: 16px;
 }

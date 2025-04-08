@@ -17,12 +17,24 @@ if (!fs.existsSync(stockfishDir)) {
   fs.mkdirSync(stockfishDir, { recursive: true });
 }
 
+// Add an important console message to the script
+console.log("\n========================================================");
+console.log("IMPORTANT: Make sure to run this app on a local development server");
+console.log("Don't try to open the HTML files directly from the filesystem");
+console.log("Run 'npm start' to start the proper development server");
+console.log("========================================================\n");
+
 // Contents for stockfish.js
 const stockfishContent = `
 /**
  * Minimal Stockfish.js standalone implementation for KCA Dashboard
  * This provides basic functionality without external dependencies
+ * 
+ * IMPORTANT: This file must be served from a web server, not loaded directly from filesystem
  */
+
+// Log initialization
+console.log('Initializing minimal Stockfish implementation...');
 
 // This self-executing function creates a scope for our worker
 (function() {

@@ -12,8 +12,10 @@ class ChessEngine {
     try {
       console.log('Initializing chess engine directly...');
       
-      // Use an absolute path that's guaranteed to be correct
+      // Always use an absolute path that starts with /
       const workerUrl = '/stockfish/stockfish.js';
+      console.log('Loading Stockfish from:', workerUrl);
+      
       this.worker = new Worker(workerUrl);
       
       // Set up message handler
@@ -22,8 +24,8 @@ class ChessEngine {
       // Set up error handler for debugging purposes
       this.worker.onerror = (e) => {
         console.error('Stockfish worker error:', e);
-        // Don't throw an error here, as we'll try to recover 
-        // with simulated engine if necessary
+        console.warn('Switching to simulated engine mode');
+        this.simulateEngine();
       };
       
       // Initialize engine
@@ -33,8 +35,6 @@ class ChessEngine {
       
     } catch (error) {
       console.error('Failed to initialize chess engine:', error);
-      
-      // Fallback to simulated engine
       this.simulateEngine();
     }
   }

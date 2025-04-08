@@ -66,33 +66,79 @@ const ChessBoard = ({
       
       // Add a small delay to make it feel more natural
       engineMoveTimeoutRef.current = setTimeout(async () => {
-        const bestMove = await engineRef.current.getBestMove(game.fen(), 1000);
-        
-        if (bestMove && bestMove.length >= 4) {
-          const from = bestMove.substring(0, 2);
-          const to = bestMove.substring(2, 4);
-          const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
+        try {
+          const bestMove = await engineRef.current.getBestMove(game.fen(), 1000);
           
-          const aiMove = { from, to, promotion };
-          const aiGameCopy = new Chess(game.fen());
-          
-          try {
-            aiGameCopy.move(aiMove);
-            setGame(aiGameCopy);
+          if (bestMove && bestMove.length >= 4) {
+            const from = bestMove.substring(0, 2);
+            const to = bestMove.substring(2, 4);
+            const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
             
-            if (onMove) {
-              onMove(aiMove, aiGameCopy.fen());
+            const aiMove = { from, to, promotion };
+            const aiGameCopy = new Chess(game.fen());
+            
+            try {
+              const moveResult = aiGameCopy.move(aiMove);
+              if (!moveResult) {
+                throw new Error(`Invalid move: ${JSON.stringify(aiMove)}`);
+              }
+              setGame(aiGameCopy);
+              
+              if (onMove) {
+                onMove(aiMove, aiGameCopy.fen());
+              }
+            } catch (error) {
+              console.error('Invalid AI move:', error);
+              
+              // Try a fallback random legal move
+              const legalMoves = game.moves({ verbose: true });
+              if (legalMoves.length > 0) {
+                const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+                const fallbackGameCopy = new Chess(game.fen());
+                fallbackGameCopy.move(randomMove);
+                setGame(fallbackGameCopy);
+                
+                if (onMove) {
+                  onMove({
+                    from: randomMove.from,
+                    to: randomMove.to,
+                    promotion: randomMove.promotion
+                  }, fallbackGameCopy.fen());
+                }
+                
+                console.log('Used fallback random move:', randomMove);
+              }
             }
-          } catch (error) {
-            console.error('Invalid AI move:', error);
+          } else {
+            console.warn('Engine returned invalid move format:', bestMove);
+            // Use fallback
+            const legalMoves = game.moves({ verbose: true });
+            if (legalMoves.length > 0) {
+              const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+              const fallbackGameCopy = new Chess(game.fen());
+              fallbackGameCopy.move(randomMove);
+              setGame(fallbackGameCopy);
+              
+              if (onMove) {
+                onMove({
+                  from: randomMove.from,
+                  to: randomMove.to,
+                  promotion: randomMove.promotion
+                }, fallbackGameCopy.fen());
+              }
+            }
           }
+        } catch (error) {
+          console.error('Engine move processing error:', error);
+          setEngineLoadError(true);
+        } finally {
+          setIsThinking(false);
         }
-        
-        setIsThinking(false);
       }, 500);
     } catch (error) {
       console.error('AI move error:', error);
       setIsThinking(false);
+      setEngineLoadError(true);
     }
   }, [game, isThinking, gameOver.isOver, onMove]);
 

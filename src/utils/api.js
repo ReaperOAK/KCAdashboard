@@ -1,5 +1,17 @@
 class ApiService {
-  static API_URL = 'https://dashboard.kolkatachessacademy.in/api/endpoints';
+  // Change this to be dynamic based on environment
+  static API_URL = process.env.NODE_ENV === 'production' 
+    ? 'https://dashboard.kolkatachessacademy.in/api/endpoints'
+    : '/api/endpoints';
+  
+  // Add method to get correct local asset URLs
+  static getAssetUrl(path) {
+    // Always use absolute paths for local assets
+    if (path.startsWith('/')) {
+      return path;
+    }
+    return `/${path}`;
+  }
 
   static async request(endpoint, method = 'GET', data = null, options = {}) {
     const token = localStorage.getItem('token');

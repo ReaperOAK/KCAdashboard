@@ -1,0 +1,19 @@
+# Ensure JavaScript files are served with the correct MIME type
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType application/javascript .mjs
+</IfModule>
+
+# Set proper CORS headers for Web Workers
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|mjs)$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Content-Type "application/javascript"
+  </FilesMatch>
+</IfModule>
+
+# Disable directory listings
+Options -Indexes
+
+# Handle errors
+ErrorDocument 404 /index.html

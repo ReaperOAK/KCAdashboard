@@ -47,7 +47,13 @@ class ChessEngine {
   
   // Resolve the correct path to stockfish.js based on environment
   resolveStockfishPath() {
-    // Always use a local path with absolute URL to prevent cross-origin issues
+    // Check if we have an injected URL from our protection script
+    if (window.stockfishWorkerUrl) {
+      console.log('Using protected Stockfish implementation');
+      return window.stockfishWorkerUrl;
+    }
+    
+    // Fallback to normal path
     return `/stockfish/stockfish.min.js`;
   }
   
@@ -207,6 +213,13 @@ class ChessEngine {
       try {
         // Parse FEN to check whose turn it is
         const fenParts = fen.split(' ');
+        if (fenParts.length < 2) {
+          console.error('Invalid FEN format:', fen);
+          const fallbackMove = this.generateSafeMoveForPosition(fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+          resolve(fallbackMove);
+          return;
+        }
+        
         const activeColor = fenParts[1]; // 'w' or 'b'
         
         console.log(`Getting best move for ${activeColor === 'w' ? 'WHITE' : 'BLACK'} from position: ${fen.substring(0, 40)}...`);
@@ -266,37 +279,13 @@ class ChessEngine {
     
     // More robust validation based on color and rank
     if (activeColor === 'w') {
-      // For white - typically pieces start on ranks 1-2
-      // But can also be elsewhere on the board in mid-game
-      if (rank === '1' || rank === '2') {
-        return true; // Likely a valid white move
-      }
-      
-      // For mid-game positions, we need a more sophisticated check
-      // This logic is too simplistic for real positions but better than before
-      if (rank >= '3' && rank <= '6') {
-        // Could be valid - white pieces can be anywhere in mid-game
-        return true;
-      }
-      
-      // White pieces are rarely on ranks 7-8 in standard chess
+      // For white - move is likely invalid if it's starting from ranks 7-8
       if (rank === '7' || rank === '8') {
         console.warn(`Suspicious white move from rank ${rank}: ${move}`);
         return false;
       }
     } else if (activeColor === 'b') {
-      // For black - typically pieces start on ranks 7-8
-      if (rank === '7' || rank === '8') {
-        return true; // Likely a valid black move
-      }
-      
-      // For mid-game positions, we need a more sophisticated check
-      if (rank >= '3' && rank <= '6') {
-        // Could be valid - black pieces can be anywhere in mid-game
-        return true;
-      }
-      
-      // Black pieces are rarely on ranks 1-2 in standard chess
+      // For black - move is likely invalid if it's starting from ranks 1-2
       if (rank === '1' || rank === '2') {
         console.warn(`Suspicious black move from rank ${rank}: ${move}`);
         return false;

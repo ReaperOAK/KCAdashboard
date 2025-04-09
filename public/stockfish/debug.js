@@ -1,303 +1,114 @@
 /**
  * Debug utility for Stockfish engine issues
- * This script will help diagnose issues with Stockfish loading and execution
  */
 (function() {
+  // Wait until document is fully loaded before attempting to create UI
+  function initDebug() {
+    console.log('Initializing Stockfish debug utility');
+    
+    // Only create UI if document.body exists
+    if (document.body) {
+      createDebugPanel();
+    } else {
+      // Wait for document.body to be available
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(createDebugPanel, 500);
+      });
+    }
+  }
+  
   // Create a debug panel in the UI
   function createDebugPanel() {
     try {
+      // Check if body exists
+      if (!document.body) {
+        console.warn('Document body not available yet, waiting...');
+        setTimeout(createDebugPanel, 500);
+        return;
+      }
+      
       // Check if panel already exists
       if (document.getElementById('stockfish-debug-panel')) {
         return;
       }
       
-      // Make sure document.body exists before proceeding
-      if (!document.body) {
-        console.warn("Document body not available yet, will retry later");
-        // Try again in a moment when the body might be available
-        setTimeout(createDebugPanel, 500);
-        return;
-      }
-      
-      // Create panel elements
+      // Create a simple debug panel
       const panel = document.createElement('div');
       panel.id = 'stockfish-debug-panel';
-      panel.style.cssText = `
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        width: 500px;
-        height: 300px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #00ff00;
-        font-family: monospace;
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        padding: 10px;
-        overflow: hidden;
-        border-top-left-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      `;
+      panel.style.cssText = 'position:fixed;bottom:10px;right:10px;width:300px;height:200px;background:rgba(0,0,0,0.8);color:#0f0;font-family:monospace;padding:10px;z-index:10000;overflow:auto;border-radius:5px;';
       
       const header = document.createElement('div');
-      header.style.cssText = `
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-        border-bottom: 1px solid #444;
-        padding-bottom: 5px;
-      `;
-      
-      const title = document.createElement('div');
-      title.textContent = 'Stockfish Debug Console';
-      title.style.fontWeight = 'bold';
-      
-      const closeBtn = document.createElement('button');
-      closeBtn.textContent = 'X';
-      closeBtn.style.cssText = `
-        background: #f44;
-        border: none;
-        color: white;
-        padding: 2px 5px;
-        cursor: pointer;
-      `;
-      closeBtn.onclick = () => {
-        document.body.removeChild(panel);
-      };
+      header.innerHTML = 'Stockfish Debug <span style="float:right;cursor:pointer;" onclick="document.body.removeChild(document.getElementById(\'stockfish-debug-panel\'))">×</span>';
       
       const content = document.createElement('div');
       content.id = 'stockfish-debug-content';
-      content.style.cssText = `
-        flex: 1;
-        overflow-y: auto;
-        padding: 5px;
-        font-size: 12px;
-        line-height: 1.4;
-      `;
-      
-      const actions = document.createElement('div');
-      actions.style.cssText = `
-        display: flex;
-        gap: 5px;
-        margin-top: 5px;
-        border-top: 1px solid #444;
-        padding-top: 5px;
-      `;
-      
-      const checkBtn = document.createElement('button');
-      checkBtn.textContent = 'Check Stockfish';
-      checkBtn.onclick = () => { window.debugStockfish.checkStockfish(); };
-      
-      const testBtn = document.createElement('button');
-      testBtn.textContent = 'Test Engine';
-      testBtn.onclick = () => { window.debugStockfish.testEngine(); };
-      
-      const clearBtn = document.createElement('button');
-      clearBtn.textContent = 'Clear';
-      clearBtn.onclick = () => { content.innerHTML = ''; };
-      
-      // Assemble the panel
-      header.appendChild(title);
-      header.appendChild(closeBtn);
-      actions.appendChild(checkBtn);
-      actions.appendChild(testBtn);
-      actions.appendChild(clearBtn);
+      content.style.marginTop = '10px';
       
       panel.appendChild(header);
       panel.appendChild(content);
-      panel.appendChild(actions);
-      
       document.body.appendChild(panel);
-      console.log("Debug panel created successfully");
+      
+      logMessage('Debug panel initialized');
     } catch (error) {
-      console.error("Error creating debug panel:", error);
+      console.error('Failed to create debug panel:', error);
     }
   }
   
-  // Log to debug panel
-  function logDebug(message, type = 'info') {
-    const content = document.getElementById('stockfish-debug-content');
-    if (!content) return;
-    
-    const logEntry = document.createElement('div');
-    logEntry.style.cssText = `
-      margin-bottom: 3px;
-      word-break: break-all;
-      white-space: pre-wrap;
-    `;
-    
-    switch (type) {
-      case 'error':
-        logEntry.style.color = '#f77';
-        break;
-      case 'warn':
-        logEntry.style.color = '#fc7';
-        break;
-      case 'success':
-        logEntry.style.color = '#7f7';
-        break;
-      default:
-        logEntry.style.color = '#ccc';
-    }
-    
-    const timestamp = new Date().toLocaleTimeString();
-    logEntry.textContent = `[${timestamp}] ${message}`;
-    
-    content.appendChild(logEntry);
-    content.scrollTop = content.scrollHeight;
-  }
-  
-  // Function to check Stockfish content
-  function checkStockfish() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/stockfish/stockfish.min.js?nocache=' + Date.now(), true);
-    
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        const content = xhr.responseText;
-        logDebug('-- Stockfish content length: ' + content.length + ' bytes', 'info');
-        
-        // Check for template literals 
-        const templateLiterals = content.match(/\${.+?}/g);
-        if (templateLiterals) {
-          logDebug('FOUND TEMPLATE LITERALS IN FILE:', 'error');
-          templateLiterals.forEach(literal => {
-            logDebug(`  - ${literal}`, 'error');
-          });
-        } else {
-          logDebug('No template literals found in file.', 'success');
-        }
-        
-        // Check for important signatures
-        const signatures = [
-          'Color-aware Stockfish initialized',
-          'self.postMessage("info depth "',
-          'self.postMessage("bestmove "'
-        ];
-        
-        signatures.forEach(sig => {
-          if (content.includes(sig)) {
-            logDebug(`Signature found: "${sig}"`, 'success');
-          } else {
-            logDebug(`Missing signature: "${sig}"`, 'error');
-          }
-        });
-        
-        // Check for blob storage
-        const blobUrl = window.stockfishWorkerUrl;
-        if (blobUrl) {
-          logDebug(`Blob URL found: ${blobUrl}`, 'info');
-          
-          // Try to create a temporary worker to test the blob
-          try {
-            const worker = new Worker(blobUrl);
-            logDebug('Successfully created worker from blob URL', 'success');
-            
-            worker.onmessage = function(e) {
-              logDebug(`Blob worker response: ${e.data}`, 'info');
-            };
-            
-            worker.onerror = function(e) {
-              logDebug(`Blob worker error: ${e.message}`, 'error');
-            };
-            
-            worker.postMessage('uci');
-            
-            setTimeout(() => {
-              worker.terminate();
-              logDebug('Terminated blob worker after test', 'info');
-            }, 1000);
-          } catch (error) {
-            logDebug(`Failed to create worker from blob: ${error.message}`, 'error');
-          }
-        } else {
-          logDebug('No blob URL found in window.stockfishWorkerUrl', 'warn');
-        }
-      } else {
-        logDebug(`Failed to fetch stockfish.min.js: ${xhr.status}`, 'error');
-      }
-    };
-    
-    xhr.onerror = function() {
-      logDebug('Network error while fetching stockfish.min.js', 'error');
-    };
-    
-    xhr.send();
-  }
-  
-  // Test the engine by creating a worker and running a simple command
-  function testEngine() {
-    logDebug('-- Testing Stockfish Engine --', 'info');
+  // Log a message to the debug panel
+  function logMessage(message, type = 'info') {
+    console.log('[Stockfish Debug] ' + message);
     
     try {
-      // Try using blob URL if available
-      const workerUrl = window.stockfishWorkerUrl || '/stockfish/stockfish.min.js';
-      logDebug(`Creating worker using: ${workerUrl}`, 'info');
-      
-      const worker = new Worker(workerUrl);
-      logDebug('Worker created successfully', 'success');
-      
-      worker.onmessage = function(e) {
-        logDebug(`Engine: ${e.data}`, 'info');
-        
-        // Look for bestmove responses to check template literal issues
-        if (e.data.startsWith('bestmove')) {
-          const movePart = e.data.split(' ')[1];
-          if (movePart.includes('${')) {
-            logDebug(`TEMPLATE LITERAL NOT EVALUATED: ${movePart}`, 'error');
-          } else if (movePart.length >= 4) {
-            logDebug(`Valid move format: ${movePart}`, 'success');
-          } else {
-            logDebug(`Unexpected move format: ${movePart}`, 'warn');
-          }
-        }
-      };
-      
-      worker.onerror = function(e) {
-        logDebug(`Worker error: ${e.message}`, 'error');
-      };
-      
-      // Send commands to test the engine
-      worker.postMessage('uci');
-      
-      setTimeout(() => {
-        worker.postMessage('isready');
-        
-        setTimeout(() => {
-          worker.postMessage('position startpos');
-          worker.postMessage('go depth 5');
-          
-          setTimeout(() => {
-            worker.terminate();
-            logDebug('Test completed, worker terminated', 'info');
-          }, 1500);
-        }, 200);
-      }, 200);
-      
+      const content = document.getElementById('stockfish-debug-content');
+      if (content) {
+        const entry = document.createElement('div');
+        entry.style.marginBottom = '3px';
+        entry.style.color = type === 'error' ? '#f77' : type === 'success' ? '#7f7' : '#aaa';
+        entry.textContent = message;
+        content.appendChild(entry);
+        content.scrollTop = content.scrollHeight;
+      }
     } catch (error) {
-      logDebug(`Failed to test engine: ${error.message}`, 'error');
+      console.error('Error logging to debug panel:', error);
     }
   }
   
-  // Expose debug functions globally
-  window.debugStockfish = {
-    showPanel: createDebugPanel,
-    checkStockfish: checkStockfish,
-    testEngine: testEngine,
-    log: logDebug
+  // Make debug functions globally available
+  window.stockfishDebug = {
+    log: logMessage,
+    testEngine: function() {
+      try {
+        logMessage('Testing Stockfish engine...');
+        
+        const url = window.stockfishWorkerUrl || '/stockfish/stockfish-reliable.js';
+        logMessage('Using engine at: ' + url);
+        
+        const worker = new Worker(url);
+        logMessage('Worker created successfully', 'success');
+        
+        worker.onmessage = function(e) {
+          logMessage('Engine response: ' + e.data);
+          
+          if (e.data.startsWith('bestmove')) {
+            logMessage('Test completed successfully', 'success');
+            worker.terminate();
+          }
+        };
+        
+        worker.onerror = function(e) {
+          logMessage('Engine error: ' + e.message, 'error');
+        };
+        
+        // Send commands to test
+        worker.postMessage('uci');
+        setTimeout(() => worker.postMessage('position startpos'), 100);
+        setTimeout(() => worker.postMessage('go depth 1'), 200);
+      } catch (error) {
+        logMessage('Test failed: ' + error.message, 'error');
+      }
+    }
   };
   
-  // Wait for document to be ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', createDebugPanel);
-  } else {
-    // DOM already loaded - check if body exists before creating panel
-    if (document.body) {
-      createDebugPanel();
-    } else {
-      // Body doesn't exist yet, wait a bit
-      setTimeout(createDebugPanel, 500);
-    }
-  }
+  // Initialize
+  initDebug();
 })();

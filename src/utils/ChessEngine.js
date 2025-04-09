@@ -112,12 +112,15 @@ export default class ChessEngine {
           }
         } else {
           console.warn('Invalid move format received:', moveStr);
-          // Use fallback move
+          // Use fallback move with e2e4 as default
+          const fallbackMove = 'e2e4';
+          console.log('Using fallback move:', fallbackMove);
+          
           const pendingKey = [...this.moveCallbacks.keys()].find(key => key.endsWith('_pending'));
           if (pendingKey) {
             const callback = this.moveCallbacks.get(pendingKey);
             this.moveCallbacks.delete(pendingKey);
-            callback(this.getFallbackMove(''));
+            callback(fallbackMove);
           }
         }
       }

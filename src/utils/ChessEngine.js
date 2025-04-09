@@ -1,395 +1,277 @@
-class ChessEngine {
-  constructor(level = 10) {
-    this.worker = null;
+import stockfishEngine from './stockfishEngine';
+
+export default class ChessEngine {
+  constructor(skillLevel = 10) {
+    console.log('Initializing chess engine...');
+    this.skillLevel = skillLevel;
+    this.engine = null;
     this.isReady = false;
-    this.onMessage = null;
-    this.callbackQueue = [];
-    this.level = level;
-    this.initializeEngine();
+    this.engineLoaded = false;
+    this.engineLoadError = false;
+    this.evaluationQueue = [];
+    this.moveCallbacks = new Map();
+    this.evaluationCallbacks = new Map();
+    this.initEngine();
   }
 
-  initializeEngine() {
+  async initEngine() {
     try {
       console.log('Initializing chess engine...');
       
-      // Try to load the local stockfish.min.js first
-      const workerUrl = this.resolveStockfishPath();
-      console.log('Attempting to load engine from:', workerUrl);
-      
-      this.worker = new Worker(workerUrl);
+      // Use our utility to get a properly initialized engine
+      this.engine = await stockfishEngine.initializeEngine();
       
       // Set up message handler
-      this.worker.onmessage = (e) => this.handleMessage(e.data);
+      this.engine.onmessage = (event) => this.handleEngineMessage(event.data);
       
-      // Set up error handler for debugging purposes
-      this.worker.onerror = (e) => {
-        console.error('Stockfish worker error:', e);
-        console.warn('Switching to simulated engine mode');
-        
-        // Clean up the failed worker
-        if (this.worker) {
-          this.worker.terminate();
-          this.worker = null;
-        }
-        
-        this.simulateEngine();
+      // Set up error handler
+      this.engine.onerror = (error) => {
+        console.error('Engine error:', error);
+        this.engineLoadError = true;
+        this.fallbackToBasicEngine();
       };
       
-      // Initialize engine
-      this.sendCommand('uci');
-      this.sendCommand('setoption name Skill Level value ' + this.level);
-      this.sendCommand('isready');
-    } catch (error) {
-      console.error('Failed to initialize chess engine:', error);
-      this.simulateEngine();
-    }
-  }
-  
-  // Resolve the correct path to stockfish.js based on environment
-  resolveStockfishPath() {
-    // Check if we have an injected URL from our protection script
-    if (window.stockfishWorkerUrl) {
-      console.log('Using protected Stockfish implementation');
-      return window.stockfishWorkerUrl;
-    }
-    
-    // Fallback to normal path
-    return `/stockfish/stockfish.min.js`;
-  }
-  
-  // Handle engine messages
-  handleMessage(message) {
-    // Call registered message callback if it exists
-    if (this.onMessage) {
-      this.onMessage(message);
-    }
-    
-    // Handle specific messages
-    if (message === 'readyok' || message === 'uciok') {
-      this.isReady = true;
+      // Set the skill level
+      this.setSkillLevel(this.skillLevel);
       
-      // Process queued commands once engine is ready
-      this.callbackQueue.forEach(cmd => this.sendCommand(cmd));
-      this.callbackQueue = [];
-    }
-    
-    // When engine responds with a bestmove
-    if (message.startsWith('bestmove')) {
-      const moveStr = message.split(' ')[1];
-      this.triggerCallbacks('bestmove', moveStr);
+      console.log('Engine initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize engine:', error);
+      this.engineLoadError = true;
+      this.fallbackToBasicEngine();
     }
   }
   
-  // Create a simulated engine for graceful degradation
-  simulateEngine() {
-    console.warn('Using simulated chess engine - limited functionality');
-    
-    // Create a fake worker-like interface using setTimeout
-    this.worker = {
-      postMessage: (cmd) => {
-        setTimeout(() => {
-          if (cmd === 'uci') {
-            this.handleMessage('id name Simulated Engine');
-            this.handleMessage('id author Fallback');
-            this.handleMessage('uciok');
-          } else if (cmd === 'isready') {
-            this.handleMessage('readyok');
-          } else if (cmd.startsWith('go')) {
-            // Extract the FEN position if available
-            let fenPosition = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'; // Default starting position
-            const positionCmd = this.lastPositionCommand;
-            
-            if (positionCmd && positionCmd.startsWith('position')) {
-              if (positionCmd.includes('fen')) {
-                const fenMatch = positionCmd.match(/position fen (.*?)(?:\s+moves\s+|$)/);
-                if (fenMatch && fenMatch[1]) {
-                  fenPosition = fenMatch[1];
-                }
-              }
-            }
-            
-            // Simulate analysis and move generation
-            setTimeout(() => {
-              this.handleMessage('info depth 1 score cp 0');
-              
-              // Use improved move generation (see function below)
-              const move = this.generateSafeMoveForPosition(fenPosition);
-              this.handleMessage('bestmove ' + move);
-            }, 300);
-          } else if (cmd.startsWith('position')) {
-            // Store the last position command for reference
-            this.lastPositionCommand = cmd;
-            this.handleMessage('info string Position set');
-          }
-        }, 10);
-      },
-      terminate: () => {
-        console.log('Simulated engine terminated');
-      }
-    };
-    
-    this.lastPositionCommand = null;
-    
-    // Initialize fake engine
-    this.sendCommand('uci');
-    this.sendCommand('isready');
-  }
-  
-  // Generate a safe move based on the color to play
-  generateSafeMoveForPosition(fen) {
+  // Fall back to a simpler engine implementation if the main one fails
+  fallbackToBasicEngine() {
     try {
-      // Extract active color from FEN
-      const fenParts = fen.split(' ');
-      if (fenParts.length < 2) {
-        console.error('Invalid FEN format:', fen);
-        return this.getRandomMove('w'); // Default to white
-      }
+      console.log('Falling back to basic engine implementation');
       
-      const activeColor = fenParts[1]; // 'w' or 'b'
-      console.log(`Generating move for ${activeColor === 'w' ? 'white' : 'black'}`);
+      // Try to load from the non-minified version as a fallback
+      this.engine = new Worker('/stockfish/stockfish.js');
       
-      return this.getRandomMove(activeColor);
+      // Set up message handler
+      this.engine.onmessage = (event) => this.handleEngineMessage(event.data);
+      
+      // Set up error handler
+      this.engine.onerror = (error) => {
+        console.error('Fallback engine error:', error);
+        this.engineLoadError = true;
+      };
+      
+      // Initialize the engine with UCI
+      this.engine.postMessage('uci');
+      
+      // Set the skill level
+      this.setSkillLevel(this.skillLevel);
     } catch (error) {
-      console.error('Error parsing FEN:', error);
-      return this.getRandomMove('w'); // Default to white as fallback
+      console.error('Failed to initialize fallback engine:', error);
+      this.engineLoadError = true;
     }
-  }
-  
-  // Get a random move for the specified color
-  getRandomMove(color) {
-    // More precise move generation for each color
-    const whiteStartingMoves = ['e2e4', 'd2d4', 'g1f3', 'c2c4', 'b1c3', 'e2e3', 'd2d3'];
-    const blackStartingMoves = ['e7e6', 'd7d5', 'g8f6', 'c7c5', 'b8c6', 'e7e5', 'd7d6'];
-    
-    const movesForColor = color === 'w' ? whiteStartingMoves : blackStartingMoves;
-    const move = movesForColor[Math.floor(Math.random() * movesForColor.length)];
-    console.log(`Generated random ${color === 'w' ? 'white' : 'black'} move: ${move}`);
-    return move;
   }
 
-  setSkillLevel(level) {
-    this.level = level;
-    this.sendCommand('setoption name Skill Level value ' + level);
-  }
-  
-  sendCommand(cmd) {
-    if (!this.worker) {
-      return false;
+  // Handle messages from the engine
+  handleEngineMessage(data) {
+    if (typeof data !== 'string') {
+      console.warn('Received non-string engine message:', data);
+      return;
     }
     
-    if (!this.isReady && cmd !== 'uci' && cmd !== 'isready') {
-      this.callbackQueue.push(cmd);
-      return false;
-    }
-    
-    try {
-      this.worker.postMessage(cmd);
-      return true;
-    } catch (error) {
-      console.error('Error sending command to engine:', error);
-      return false;
-    }
-  }
-  
-  // Callbacks for engine responses
-  callbacks = {
-    'bestmove': []
-  };
-  
-  onBestMove(callback) {
-    this.callbacks['bestmove'].push(callback);
-    return this;
-  }
-  
-  triggerCallbacks(type, data) {
-    if (this.callbacks[type]) {
-      this.callbacks[type].forEach(callback => callback(data));
-    }
-  }
-  
-  // Get best move from the engine
-  getBestMove(fen, timeLimit = 1000) {
-    return new Promise((resolve, reject) => {
-      try {
-        // Parse FEN to check whose turn it is
-        const fenParts = fen.split(' ');
-        if (fenParts.length < 2) {
-          console.error('Invalid FEN format:', fen);
-          const fallbackMove = this.generateSafeMoveForPosition(fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-          resolve(fallbackMove);
-          return;
+    // Handle different types of engine messages
+    if (data === 'uciok') {
+      this.engine.postMessage('isready');
+    } else if (data === 'readyok') {
+      this.isReady = true;
+      this.engineLoaded = true;
+      console.log('Engine is ready');
+      
+      // Process any queued evaluations
+      this.processEvaluationQueue();
+    } else if (data.startsWith('bestmove')) {
+      // Extract the move from the engine response
+      const parts = data.split(' ');
+      if (parts.length >= 2) {
+        const moveStr = parts[1];
+        console.log('Received engine bestmove:', moveStr);
+        
+        // Find and execute the corresponding callback
+        if (this.moveCallbacks.has(moveStr + '_pending')) {
+          const callback = this.moveCallbacks.get(moveStr + '_pending');
+          this.moveCallbacks.delete(moveStr + '_pending');
+          callback(moveStr);
+        } else {
+          // If we can't find the exact callback, find any pending callback
+          const pendingKey = [...this.moveCallbacks.keys()].find(key => key.endsWith('_pending'));
+          if (pendingKey) {
+            const callback = this.moveCallbacks.get(pendingKey);
+            this.moveCallbacks.delete(pendingKey);
+            callback(moveStr);
+          }
+        }
+      }
+    } else if (data.startsWith('info')) {
+      // Parse evaluation data
+      const scoreMatch = data.match(/score (cp|mate) ([-\d]+)/);
+      if (scoreMatch) {
+        const scoreType = scoreMatch[1];
+        const scoreValue = parseInt(scoreMatch[2]);
+        
+        const depthMatch = data.match(/depth (\d+)/);
+        const depth = depthMatch ? parseInt(depthMatch[1]) : 0;
+        
+        // Create evaluation object
+        const evaluation = {
+          score: scoreType === 'cp' ? scoreValue / 100 : null,
+          mate: scoreType === 'mate' ? scoreValue : null,
+          depth: depth,
+          scoreType: scoreType,
+          scoreValue: scoreValue
+        };
+        
+        // Extract PV (principal variation) if available
+        const pvMatch = data.match(/pv (.+)/);
+        if (pvMatch) {
+          evaluation.pv = pvMatch[1].split(' ');
+          evaluation.bestMove = evaluation.pv[0];
         }
         
-        const activeColor = fenParts[1]; // 'w' or 'b'
-        
-        console.log(`Getting best move for ${activeColor === 'w' ? 'WHITE' : 'BLACK'} from position: ${fen.substring(0, 40)}...`);
-        
-        // Set position
-        const posCmd = `position fen ${fen}`;
-        this.sendCommand(posCmd);
-        
-        // Clear previous callbacks
-        this.callbacks['bestmove'] = [];
-        
-        // Add safety timeout
-        const timeoutId = setTimeout(() => {
-          // If engine doesn't respond in time, generate a safe move for the active color
-          console.warn('Engine response timeout - using fallback move generation');
-          const fallbackMove = this.generateSafeMoveForPosition(fen);
-          resolve(fallbackMove);
-        }, timeLimit + 500);
-        
-        // Set up callback for best move
-        this.onBestMove(move => {
-          clearTimeout(timeoutId);
-          
-          // Verify the move works for the current color
-          console.log(`Received engine move: ${move} for ${activeColor === 'w' ? 'white' : 'black'}`);
-          
-          // Ensure the move is valid for the current position
-          if (!this.isLikelyValidMove(move, activeColor)) {
-            console.warn(`Move ${move} doesn't seem valid for ${activeColor}, using fallback`);
-            const fallbackMove = this.generateSafeMoveForPosition(fen);
-            resolve(fallbackMove);
-          } else {
-            resolve(move);
+        // Find and execute evaluation callbacks
+        for (const [key, callback] of this.evaluationCallbacks.entries()) {
+          if (!key.endsWith('_completed')) {
+            callback(evaluation);
+            
+            // Mark as completed if we've reached target depth
+            if (depth >= parseInt(key.split('_')[0])) {
+              this.evaluationCallbacks.set(key + '_completed', callback);
+              this.evaluationCallbacks.delete(key);
+            }
           }
-        });
-        
-        // Start analysis with the given time limit
-        this.sendCommand(`go movetime ${timeLimit}`);
-      } catch (error) {
-        console.error("Error getting best move:", error);
-        // Return a safe move as fallback
-        const fallbackMove = this.generateSafeMoveForPosition(fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-        resolve(fallbackMove);
-      }
-    });
-  }
-  
-  // Do a basic check to see if a move is likely valid for the current player
-  isLikelyValidMove(move, activeColor) {
-    if (!move || move.length < 4) return false;
-    
-    // Check if the move is starting from a square likely to have the active color's piece
-    const from = move.substring(0, 2);
-    
-    // Basic check: white pieces are typically on ranks 1-2, black on ranks 7-8
-    const rank = from.charAt(1);
-    
-    // More robust validation based on color and rank
-    if (activeColor === 'w') {
-      // For white - move is likely invalid if it's starting from ranks 7-8
-      if (rank === '7' || rank === '8') {
-        console.warn(`Suspicious white move from rank ${rank}: ${move}`);
-        return false;
-      }
-    } else if (activeColor === 'b') {
-      // For black - move is likely invalid if it's starting from ranks 1-2
-      if (rank === '1' || rank === '2') {
-        console.warn(`Suspicious black move from rank ${rank}: ${move}`);
-        return false;
+        }
       }
     }
+  }
+
+  // Set engine skill level
+  setSkillLevel(level) {
+    if (!this.engine) return;
     
-    // If we can't be sure, return true to avoid overly restrictive filtering
-    return true;
+    // Ensure skill level is within valid range
+    const skillLevel = Math.max(0, Math.min(20, level));
+    this.skillLevel = skillLevel;
+    
+    // Send configuration to engine
+    this.engine.postMessage(`setoption name Skill Level value ${skillLevel}`);
+  }
+
+  // Get the best move for a position
+  async getBestMove(fen, timeLimit = 1000) {
+    if (!this.engine || this.engineLoadError) {
+      console.warn('Engine not available, using fallback moves');
+      return this.getFallbackMove(fen);
+    }
+    
+    return new Promise((resolve) => {
+      const moveKey = fen.substring(0, 20) + '_pending';
+      
+      // Store the callback for later execution
+      this.moveCallbacks.set(moveKey, (move) => {
+        resolve(move);
+      });
+      
+      // Send position to engine
+      this.engine.postMessage(`position fen ${fen}`);
+      
+      // Start the search with a time limit
+      this.engine.postMessage(`go movetime ${timeLimit}`);
+      
+      // Set a timeout as a safety net
+      setTimeout(() => {
+        if (this.moveCallbacks.has(moveKey)) {
+          console.warn('Engine move timeout, using fallback');
+          this.moveCallbacks.delete(moveKey);
+          resolve(this.getFallbackMove(fen));
+        }
+      }, timeLimit + 500);
+    });
   }
 
   // Evaluate a position
-  evaluatePosition(fen, depth = 15) {
-    return new Promise((resolve, reject) => {
-      let evaluation = {
-        score: 0,
-        depth: 0,
-        bestMove: null,
-        pv: []
+  async evaluatePosition(fen, depth = 15) {
+    if (!this.engine || this.engineLoadError) {
+      console.warn('Engine not available for evaluation');
+      return { 
+        score: 0, 
+        depth: 1, 
+        scoreType: 'cp', 
+        scoreValue: 0 
       };
+    }
+    
+    // If engine is not ready, queue the evaluation
+    if (!this.isReady) {
+      return new Promise((resolve) => {
+        this.evaluationQueue.push({ fen, depth, resolve });
+      });
+    }
+    
+    return new Promise((resolve) => {
+      const evalKey = `${depth}_${fen.substring(0, 20)}`;
       
-      // Set position
-      this.sendCommand(`position fen ${fen}`);
-      
-      // Handler for info messages
-      const originalHandler = this.onMessage;
-      this.onMessage = (message) => {
-        if (originalHandler) originalHandler(message);
-        
-        if (message.startsWith('info') && message.includes('score')) {
-          try {
-            // Parse score
-            const scoreMatch = message.match(/score\s+(cp|mate)\s+(-?\d+)/);
-            if (scoreMatch) {
-              const scoreType = scoreMatch[1];
-              const scoreValue = parseInt(scoreMatch[2]);
-              
-              if (scoreType === 'cp') {
-                evaluation.score = scoreValue / 100; // Convert centipawns to pawns
-              } else if (scoreType === 'mate') {
-                // Represent mate score as a very high value
-                evaluation.score = scoreValue > 0 ? 100 : -100;
-              }
-            }
-            
-            // Parse depth
-            const depthMatch = message.match(/depth\s+(\d+)/);
-            if (depthMatch) {
-              evaluation.depth = parseInt(depthMatch[1]);
-            }
-            
-            // Parse PV (principal variation)
-            const pvMatch = message.match(/pv\s+(.*)/);
-            if (pvMatch) {
-              evaluation.pv = pvMatch[1].split(' ');
-              if (evaluation.pv.length > 0) {
-                evaluation.bestMove = evaluation.pv[0];
-              }
-            }
-          } catch (e) {
-            console.error('Error parsing engine output:', e);
-          }
-        }
-        
-        // On bestmove, resolve the promise
-        if (message.startsWith('bestmove')) {
-          const moveMatch = message.match(/bestmove\s+(\w+)/);
-          if (moveMatch && moveMatch[1]) {
-            evaluation.bestMove = moveMatch[1];
-            resolve(evaluation);
-            
-            // Clear the timeout if we get a valid response
-            if (timeoutId) clearTimeout(timeoutId);
-            
-            // Restore original handler
-            this.onMessage = originalHandler;
-          }
-        }
-      };
-      
-      // Set up a timeout for engine response
-      const timeoutId = setTimeout(() => {
-        // If engine doesn't respond in time, return whatever we have
-        console.warn('Engine evaluation timeout - returning partial results');
-        evaluation.bestMove = this.generateSafeMoveForPosition(fen);
+      // Store the callback
+      this.evaluationCallbacks.set(evalKey, (evaluation) => {
         resolve(evaluation);
-        
-        // Restore original handler
-        this.onMessage = originalHandler;
-      }, 5000);
+      });
       
-      // Start analysis
-      this.sendCommand(`go depth ${depth}`);
+      // Send position to engine
+      this.engine.postMessage(`position fen ${fen}`);
+      
+      // Start the analysis to the specified depth
+      this.engine.postMessage(`go depth ${depth}`);
+      
+      // Set a timeout as a safety net
+      setTimeout(() => {
+        if (this.evaluationCallbacks.has(evalKey)) {
+          console.warn('Evaluation timeout');
+          this.evaluationCallbacks.delete(evalKey);
+          resolve({ 
+            score: 0, 
+            depth: 1, 
+            scoreType: 'cp', 
+            scoreValue: 0 
+          });
+        }
+      }, depth * 1000);
     });
   }
 
-  terminate() {
-    if (this.worker) {
-      if (typeof this.worker.terminate === 'function') {
-        this.worker.terminate();
-      }
-      this.worker = null;
-      this.isReady = false;
+  // Process queued evaluations
+  processEvaluationQueue() {
+    while (this.evaluationQueue.length > 0) {
+      const { fen, depth, resolve } = this.evaluationQueue.shift();
+      this.evaluatePosition(fen, depth).then(resolve);
     }
   }
-}
 
-export default ChessEngine;
+  // Get a fallback move if engine fails
+  getFallbackMove(fen) {
+    // Determine side to move
+    const sideToMove = fen.split(' ')[1];
+    
+    // Simple set of fallback moves for each side
+    const whiteMoves = ['e2e4', 'd2d4', 'g1f3', 'c2c4', 'b1c3'];
+    const blackMoves = ['e7e5', 'd7d5', 'g8f6', 'c7c5', 'b8c6'];
+    
+    const moves = sideToMove === 'w' ? whiteMoves : blackMoves;
+    return moves[Math.floor(Math.random() * moves.length)];
+  }
+
+  // Clean up resources
+  terminate() {
+    if (this.engine) {
+      this.engine.terminate();
+      this.engine = null;
+    }
+    this.isReady = false;
+    this.engineLoaded = false;
+  }
+}

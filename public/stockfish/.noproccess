@@ -1,1 +1,1 @@
-This directory should not be processed by webpack or other bundlers during build.
+This directory should not be processed by bundlers or minification tools.

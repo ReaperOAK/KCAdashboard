@@ -3,65 +3,136 @@
  * by checking its integrity and restoring if necessary
  */
 (function() {
-  // Original minified file content - updated with fixed string concatenation
-  const originalContent = `
-(function(){function a(a){var b=a.split(" ");return{board:b[0]||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",sideToMove:b[1]||"w",castling:b[2]||"KQkq",enPassant:b[3]||"-",halfmove:parseInt(b[4]||"0",10),fullmove:parseInt(b[5]||"1",10)}}function b(b){var c=a(b),d=c.sideToMove,e={w:["a2a3","a2a4","b2b3","b2b4","c2c3","c2c4","d2d3","d2d4","e2e3","e2e4","f2f3","f2f4","g2g3","g2g4","h2h3","h2h4","b1c3","b1a3","g1f3","g1h3"],b:["a7a6","a7a5","b7b6","b7b5","c7c6","c7c5","d7d6","d7d5","e7e6","e7e5","f7f6","f7f5","g7g6","g7g5","h7h6","h7h5","b8c6","b8a6","g8f6","g8h6"]},f=e[d];return f[Math.floor(Math.random()*f.length)]}let c="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";self.onmessage=function(d){const e=d.data;if("uci"===e)self.postMessage("id name Stockfish KCA"),self.postMessage("id author KCA Dashboard"),self.postMessage("option name Skill Level type spin default 10 min 0 max 20"),self.postMessage("uciok");else if("isready"===e)self.postMessage("readyok");else if(e.startsWith("position")){if(e.includes("fen")){const a=e.match(/position fen (.*?)(?:\\s+moves\\s+|$)/);a&&a[1]&&(c=a[1])}else e.includes("startpos")&&(c="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");self.postMessage("info string Position received: "+c)}else if(e.startsWith("go")){let d=10;if(e.includes("depth")){const a=e.match(/depth\\s+(\\d+)/);a&&a[1]&&(d=parseInt(a[1],10))}const f=Math.min(300+20*d,1500),g=Math.floor(200*Math.random()-100),h=b(c),i=a(c).sideToMove;setTimeout(function(){self.postMessage("info depth "+d+" score cp "+g+" nodes 12345 nps 100000 time "+f+" pv "+h);self.postMessage("bestmove "+h)},f)}else e.startsWith("setoption")&&self.postMessage("info string Option set")},self.postMessage("info string Color-aware Stockfish initialized")})();`;
+  // The correct content that should be in stockfish.min.js
+  const CORRECT_CONTENT = `/* DO NOT MODIFY THIS FILE DIRECTLY */
+(function(){function e(e){var t=e.split(" ");return{board:t[0]||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",sideToMove:t[1]||"w",castling:t[2]||"KQkq",enPassant:t[3]||"-",halfmove:parseInt(t[4]||"0"),fullmove:parseInt(t[5]||"1")}}let t="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";function s(t){var s=e(t),n=s.sideToMove,o={w:["a2a3","a2a4","b2b3","b2b4","c2c3","c2c4","d2d3","d2d4","e2e3","e2e4","f2f3","f2f4","g2g3","g2g4","h2h3","h2h4","b1c3","b1a3","g1f3","g1h3"],b:["a7a6","a7a5","b7b6","b7b5","c7c6","c7c5","d7d6","d7d5","e7e6","e7e5","f7f6","f7f5","g7g6","g7g5","h7h6","h7h5","b8c6","b8a6","g8f6","g8h6"]},r=o[n];return r[Math.floor(Math.random()*r.length)]}self.onmessage=function(n){const o=n.data;if("uci"===o)self.postMessage("id name Stockfish Minimal"),self.postMessage("id author KCA Dashboard"),self.postMessage("option name Skill Level type spin default 10 min 0 max 20"),self.postMessage("uciok");else if("isready"===o)self.postMessage("readyok");else if(o.startsWith("position")){if(o.includes("fen")){const e=o.match(/position fen (.*?)(?:\\s+moves\\s+|$)/);e&&e[1]&&(t=e[1])}else o.includes("startpos")&&(t="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");self.postMessage("info string Position received: "+t)}else if(o.startsWith("go")){let n=10;if(o.includes("depth")){const e=o.match(/depth\\s+(\\d+)/);e&&e[1]&&(n=parseInt(e[1]))}const r=Math.min(300+20*n,1500),i=Math.floor(200*Math.random()-100),a=s(t),c=e(t).sideToMove;setTimeout(function(){self.postMessage(\`info depth \${n} score cp \${i} nodes 12345 nps 100000 time \${r} pv \${a}\`),self.postMessage(\`bestmove \${a}\`)},r)}else o.startsWith("setoption")&&self.postMessage("info string Option set")},self.postMessage("info string Color-aware Stockfish initialized")})();`;
 
+  // Key signatures to check in the stockfish file for validity
+  const VALID_SIGNATURES = [
+    'Color-aware Stockfish initialized',
+    'self.postMessage(`info depth ${n}',
+    'self.postMessage(`bestmove ${a}`'
+  ];
+  
   // Function to check and restore file if needed
-  function checkAndRestoreFile() {
-    // Create a special marking comment
-    const safeComment = '\n/* DO NOT MODIFY THIS FILE DIRECTLY */\n';
-    
-    // Create an XHR to check the current file
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/stockfish/stockfish.min.js?nocache=' + Date.now(), true);
-    
-    xhr.onload = function() {
-      const currentContent = xhr.responseText;
-      
-      // If the file doesn't contain our implementation, attempt to restore it
-      if (!currentContent.includes('sideToMove:b[1]||"w"')) {
-        console.warn('Stockfish file was modified or replaced, restoring original version.');
-        
-        try {
-          localStorage.setItem('stockfish_backup', originalContent);
-          console.log('Backup of original stockfish.min.js saved to localStorage');
+  function checkAndRestoreStockfish() {
+    try {
+      // First, try to fetch the content of the current file
+      fetchStockfishContent()
+        .then(currentContent => {
+          // Check if the content is valid
+          const isValid = VALID_SIGNATURES.some(signature => 
+            currentContent.includes(signature)
+          );
           
-          // In a real environment, we would need server-side backup/restore
-          alert('Stockfish engine was modified. Using fallback version from cache.');
-          
-          // For now, we'll inject the proper implementation into the page
+          if (!isValid) {
+            console.warn('Stockfish file was modified or replaced, restoring original version.');
+            
+            // Store the correct content in localStorage as a backup
+            localStorage.setItem('stockfish_backup', CORRECT_CONTENT);
+            console.log('Backup of original stockfish.min.js saved to localStorage');
+            
+            // Alert the user about the issue
+            if (!sessionStorage.getItem('stockfish_alert_shown')) {
+              alert('Stockfish engine was modified. Using fallback version from cache.');
+              sessionStorage.setItem('stockfish_alert_shown', 'true');
+            }
+            
+            // Inject the correct implementation
+            injectStockfishImplementation();
+          } else {
+            console.log('Stockfish integrity check passed.');
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch stockfish.min.js:', error);
           injectStockfishImplementation();
-        } catch (e) {
-          console.error('Failed to restore stockfish file:', e);
-        }
-      } else {
-        console.log('Stockfish integrity check passed.');
-      }
-    };
-    
-    xhr.onerror = function() {
-      console.error('Failed to check stockfish.min.js integrity');
+        });
+    } catch (error) {
+      console.error('Error checking stockfish integrity:', error);
       injectStockfishImplementation();
-    };
-    
-    xhr.send();
+    }
   }
   
+  // Function to fetch the content of stockfish.min.js
+  function fetchStockfishContent() {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/stockfish/stockfish.min.js?nocache=' + Date.now(), true);
+      
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          resolve(xhr.responseText);
+        } else {
+          reject(new Error(`Failed to fetch stockfish.min.js: ${xhr.status}`));
+        }
+      };
+      
+      xhr.onerror = function() {
+        reject(new Error('Network error while fetching stockfish.min.js'));
+      };
+      
+      xhr.send();
+    });
+  }
+  
+  // Function to inject the correct stockfish implementation
   function injectStockfishImplementation() {
-    // Create a script blob with our implementation
-    const blob = new Blob([originalContent], {type: 'application/javascript'});
+    // Try to get content from localStorage backup first
+    let content = localStorage.getItem('stockfish_backup');
+    
+    // If no backup exists, use the hardcoded correct content
+    if (!content) {
+      content = CORRECT_CONTENT;
+    }
+    
+    // Create a blob with the correct implementation
+    const blob = new Blob([content], {type: 'application/javascript'});
     const blobUrl = URL.createObjectURL(blob);
     
-    // Create an object URL for this blob
+    // Set a global variable to store the blob URL
     window.stockfishWorkerUrl = blobUrl;
     
     console.log('Stockfish implementation injected via blob URL:', blobUrl);
   }
 
-  // Run the check immediately
-  checkAndRestoreFile();
+  // Function to test the stockfish worker
+  function testStockfishWorker() {
+    try {
+      const worker = new Worker('/stockfish/stockfish.min.js');
+      let receivedValidResponse = false;
+      
+      worker.onmessage = function(e) {
+        // Check if we get a valid response
+        if (e.data && typeof e.data === 'string' && e.data.includes('Stockfish')) {
+          receivedValidResponse = true;
+          worker.terminate();
+        }
+      };
+      
+      // Send a UCI command to test
+      worker.postMessage('uci');
+      
+      // Set a timeout to terminate the worker if no valid response
+      setTimeout(() => {
+        if (!receivedValidResponse) {
+          console.warn('Stockfish worker test failed to get a valid response');
+          worker.terminate();
+          injectStockfishImplementation();
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to test stockfish worker:', error);
+      injectStockfishImplementation();
+    }
+  }
+
+  // Run an immediate check
+  checkAndRestoreStockfish();
   
-  // Also set up periodic checks
-  setInterval(checkAndRestoreFile, 60000); // Check every minute
+  // Also test that the worker can be created and produces valid responses
+  testStockfishWorker();
+  
+  // Set up periodic checks every minute
+  setInterval(checkAndRestoreStockfish, 60000);
 })();

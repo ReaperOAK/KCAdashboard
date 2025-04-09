@@ -38,83 +38,19 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
     }
   };
 
-  // Add custom CSS to fix layout issues
+  // Effect for cleaning up on unmount
   useEffect(() => {
-    // Add custom CSS to ensure proper layout
-    const styleEl = document.createElement('style');
-    styleEl.innerHTML = `
-      /* Base styles that apply to all device sizes */
-      .lichess-pgn-viewer-wrapper .lpv {
-        display: flex !important;
-        height: 100% !important;
-        overflow: hidden !important;
-      }
-      
-      /* Mobile-specific layout (column direction) */
-      @media (max-width: 639px) {
-        .lichess-pgn-viewer-wrapper .lpv {
-          flex-direction: column !important;
-        }
-        
-        .lichess-pgn-viewer-wrapper .lpv__board {
-          width: 100% !important;
-          max-height: 50vh !important;
-        }
-        
-        .lichess-pgn-viewer-wrapper .lpv__side {
-          width: 100% !important;
-          max-height: 50vh !important;
-        }
-      }
-      
-      /* Desktop-specific layout (row direction) */
-      @media (min-width: 640px) {
-        .lichess-pgn-viewer-wrapper .lpv {
-          flex-direction: row !important;
-        }
-        
-        .lichess-pgn-viewer-wrapper .lpv__board {
-          min-width: 300px !important;
-          height: 100% !important;
-          max-height: none !important;
-        }
-        
-        .lichess-pgn-viewer-wrapper .lpv__side {
-          max-height: 100% !important;
-        }
-      }
-      
-      /* Common styles for both layouts */
-      .lichess-pgn-viewer-wrapper .lpv__board {
-        flex: 0 0 auto !important;
-        aspect-ratio: 1 / 1 !important;
-      }
-      
-      .lichess-pgn-viewer-wrapper .lpv__side {
-        flex: 1 1 auto !important;
-        overflow: auto !important;
-      }
-      
-      .lichess-pgn-viewer-wrapper .cg-wrap {
-        width: 100% !important;
-        height: 100% !important;
-      }
-      
-      /* Improve control buttons for touch */
-      .lichess-pgn-viewer-wrapper .lpv__controls {
-        padding: 8px 4px !important;
-      }
-      
-      .lichess-pgn-viewer-wrapper .lpv__controls button {
-        min-width: 32px !important;
-        min-height: 32px !important;
-        padding: 6px !important;
-      }
-    `;
-    document.head.appendChild(styleEl);
-    
     return () => {
-      document.head.removeChild(styleEl);
+      // Clean up on unmount
+      if (viewerRef.current && typeof viewerRef.current.destroy === 'function') {
+        viewerRef.current.destroy();
+      }
+      
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+      
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -130,13 +66,6 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
         viewerRef.current.destroy();
       }
       currentContainer.innerHTML = '';
-      
-      // Set key dimensions for proper sizing - make this a square container
-      currentContainer.style.display = 'flex';
-      currentContainer.style.flexDirection = 'column';
-      currentContainer.style.width = '100%';
-      currentContainer.style.height = '100%';
-      currentContainer.style.minHeight = '400px'; // Add minimum height
       
       // Clean up any existing observer
       if (resizeObserverRef.current) {
@@ -155,6 +84,7 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
           keyboardToMove: true, 
           orientation: undefined,
           initialPly: 0,
+          classes: 'kca-themed-viewer',
           chessground: {
             animation: { duration: 250 },
             highlight: { lastMove: true, check: true },
@@ -185,21 +115,6 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       });
       
       setError(null);
-      
-      return () => {
-        // Clean up on unmount
-        if (viewerRef.current && typeof viewerRef.current.destroy === 'function') {
-          viewerRef.current.destroy();
-        }
-        viewerRef.current = null;
-        
-        if (resizeObserverRef.current) {
-          resizeObserverRef.current.disconnect();
-          resizeObserverRef.current = null;
-        }
-        
-        window.removeEventListener('resize', handleResize);
-      };
     } catch (error) {
       console.error('Error initializing Lichess PGN Viewer:', error);
       setError(error.message || "Failed to initialize PGN viewer");

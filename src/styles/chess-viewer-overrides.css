@@ -12,13 +12,27 @@
   box-shadow: 0 4px 6px rgba(20, 9, 46, 0.05);
 }
 
-/* Use proper grid layout based on the official Lichess structure */
-.chess-viewer-container .lpv--moves-right {
+/* Use a mobile-first approach for layout - start with stacked layout */
+.chess-viewer-container .lpv--moves-right,
+.chess-viewer-container .lpv--moves-auto {
   grid-template-areas:
-    "board      side"
-    "controls   side" !important;
-  grid-template-columns: auto 270px !important;
-  grid-template-rows: auto var(--controls-height) !important;
+    "board"
+    "controls"
+    "side" !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: minmax(auto, 50vh) auto auto !important;
+}
+
+/* Then adjust for desktop - side panel on right */
+@media (min-width: 768px) {
+  .chess-viewer-container .lpv--moves-right,
+  .chess-viewer-container .lpv--moves-auto {
+    grid-template-areas:
+      "board      side"
+      "controls   side" !important;
+    grid-template-columns: auto 270px !important;
+    grid-template-rows: auto var(--controls-height) !important;
+  }
 }
 
 .chess-viewer-container .lpv__board {
@@ -31,7 +45,14 @@
   height: auto !important;
 }
 
-/* Make the board container properly adapt to available space */
+/* Make sure the board is square using aspect ratio */
+.chess-viewer-container .lpv__board::before {
+  content: "";
+  display: block;
+  padding-bottom: 100%; /* Creates a square aspect ratio */
+}
+
+/* Position the chessground appropriately */
 .chess-viewer-container .cg-wrap {
   position: absolute !important;
   width: 100% !important;
@@ -53,102 +74,68 @@
   height: 100%;
 }
 
-/* Make moves panel more readable */
+/* Make moves panel more readable on mobile */
 .chess-viewer-container .lpv__side {
   grid-area: side !important;
   overflow-y: auto;
   background-color: var(--kca-white);
-  border-left: 1px solid var(--kca-gray-light);
-  width: 270px !important;
-  height: 100% !important;
+  width: 100% !important; /* Full width on mobile */
+  height: auto !important;
+  min-height: 200px !important; /* Minimum height on mobile */
+  max-height: 300px !important; /* Maximum height on mobile */
   display: flex;
   flex-direction: column;
+  border-top: 1px solid var(--kca-gray-light);
+  border-left: none;
+}
+
+@media (min-width: 768px) {
+  .chess-viewer-container .lpv__side {
+    width: 270px !important; /* Fixed width on desktop */
+    height: 100% !important;
+    max-height: none !important;
+    border-left: 1px solid var(--kca-gray-light);
+    border-top: none;
+  }
 }
 
 .chess-viewer-container .lpv__controls {
   grid-area: controls !important;
   background-color: var(--kca-primary);
   border-top: 1px solid var(--kca-gray-dark);
-  height: 40px;
-  min-height: 40px;
+  height: 48px; /* Larger control height for mobile */
+  min-height: 48px;
   display: flex;
 }
 
-/* Chess Viewer Overrides */
-.chess-viewer-container .lpv {
-  width: 100% !important;
-  height: 100% !important;
-  max-height: none !important;
+/* Make buttons more touch-friendly */
+.chess-viewer-container .lpv__controls .lpv__fbt {
+  color: var(--kca-white);
+  transition: background-color 0.2s;
+  padding: 0 12px; /* Increased padding for touch targets */
   display: flex;
-  flex-direction: column;
-  background-color: var(--kca-white);
-  color: var(--kca-dark-text);
-  border: none;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(20, 9, 46, 0.05);
-  position: relative;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px; /* Minimum recommended touch target size */
+  min-height: 44px;
 }
 
-.chess-viewer-container .lpv__board {
-  flex: 1; /* Let board take maximum available space */
-  min-height: 300px;
-  position: relative !important;
-  background-color: var(--kca-light-bg);
-  overflow: hidden;
-}
-
-/* Make board container square using aspect ratio */
-.chess-viewer-container .cg-wrap {
-  width: 100% !important;
-  height: 100% !important;
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  aspect-ratio: 1 / 1; /* Force square aspect ratio */
-  margin: 0 auto;
-  --cg-coord-color-white: var(--kca-dark-text);
-  --cg-coord-color-black: var(--kca-white);
-  --cg-coord-shadow: none;
-}
-
-/* Ensure board and pieces stay properly sized */
-.chess-viewer-container cg-board {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Make moves panel more readable */
-.chess-viewer-container .lpv__side {
-  max-height: 40%;
-  overflow-y: auto;
-  background-color: var(--kca-white);
-  border-left: 1px solid var(--kca-gray-light);
-  width: 270px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
+/* Improve move list on mobile */
 .chess-viewer-container .lpv__moves {
   font-size: 14px;
-  background-color: var(--kca-white);
-  padding: 0.5rem;
+  padding: 0.75rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   flex: 1;
   overflow-y: auto;
-  font-size: 0.875rem;
 }
 
 .chess-viewer-container .lpv__moves > move {
-  padding-left: 3%;
-  max-width: 95%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 6px 8px;
+  margin: 2px 0;
+  border-radius: 3px;
+  display: inline-block;
+  min-width: 44px; /* Better touch target */
+  text-align: center;
 }
 
 .chess-viewer-container .lpv__moves move:not(.empty):hover {

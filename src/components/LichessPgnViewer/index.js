@@ -23,11 +23,27 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       // Get the board container element
       const lpvElement = containerRef.current.querySelector('.lpv');
       if (lpvElement) {
+        // Force layout recalculation by accessing offsetHeight
+        // This helps ensure elements are properly sized before redraw
+        lpvElement.offsetHeight;
+        
         // Ensure proper layout adjustment
         const boardElement = lpvElement.querySelector('.lpv__board');
         const cgWrap = boardElement?.querySelector('.cg-wrap');
         
         if (boardElement && cgWrap) {
+          // For mobile devices, make sure we're not causing scroll issues
+          if (window.innerWidth < 768) {
+            // Adjust container heights if needed
+            const containerHeight = containerRef.current.offsetHeight;
+            const windowHeight = window.innerHeight;
+            
+            if (containerHeight > windowHeight * 0.8) {
+              // Limit container height on small devices to avoid overflow
+              containerRef.current.style.maxHeight = `${windowHeight * 0.8}px`;
+            }
+          }
+          
           // Let the layout adjust naturally
           setTimeout(() => {
             // Redraw with proper dimensions
@@ -148,7 +164,8 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
           flex: '1 1 auto',
           minHeight: '300px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          overflow: 'hidden' // Prevent scrolling issues
         }}
       ></div>
       

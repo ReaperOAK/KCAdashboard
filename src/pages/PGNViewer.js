@@ -102,8 +102,8 @@ const PGNViewer = () => {
           </div>
         </div>
 
-        {/* Fixed height container with proper aspect ratio */}
-        <div className="h-[500px] sm:h-[600px] md:h-[700px] lg:h-[800px] border-t border-[#c2c1d3]">
+        {/* Responsive height container - shorter on mobile, taller on larger screens */}
+        <div className="h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] border-t border-[#c2c1d3]">
           <LichessPgnViewer
             pgn={pgn.pgn_content}
             containerClassName="chess-viewer-container"

@@ -6,6 +6,7 @@ import EngineAnalysis from './EngineAnalysis';
 import ChessEngineFactory from '../../utils/ChessEngineFactory';
 import './ChessBoard.css';
 
+
 const ChessBoard = ({
   position = 'start',
   orientation = 'white',

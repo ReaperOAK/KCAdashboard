@@ -26,6 +26,7 @@ const InteractiveBoard = () => {
     result: '',
     reason: ''
   });
+  const [useOnlineAPI, setUseOnlineAPI] = useState(false);
 
   // Wrap fetchOnlinePlayers in useCallback to prevent infinite loops
   const fetchOnlinePlayers = useCallback(async () => {
@@ -275,6 +276,22 @@ const InteractiveBoard = () => {
               </label>
             </div>
             
+            <div className="option-group">
+              <label className="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  checked={useOnlineAPI} 
+                  onChange={(e) => setUseOnlineAPI(e.target.checked)} 
+                />
+                Use Stockfish Online API (requires internet)
+              </label>
+              {useOnlineAPI && (
+                <div className="api-info">
+                  <small>Uses cloud-based Stockfish for stronger analysis</small>
+                </div>
+              )}
+            </div>
+            
             <button 
               className="start-game-btn" 
               onClick={handlePlayComputer}
@@ -446,6 +463,7 @@ const InteractiveBoard = () => {
             engineLevel={currentGame.engineLevel}
             width={650}
             gameOverState={gameOver}
+            useOnlineAPI={useOnlineAPI} // Pass the option to use online API
           />
         </div>
         

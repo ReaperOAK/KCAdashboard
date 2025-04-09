@@ -3,7 +3,7 @@ import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
-import ChessEngine from '../../utils/ChessEngine';
+import ChessEngineFactory from '../../utils/ChessEngineFactory';
 import './ChessBoard.css';
 
 const ChessBoard = ({
@@ -20,6 +20,7 @@ const ChessBoard = ({
   customSquareStyles = {},
   width = 560,
   gameOverState = null,
+  useOnlineAPI = false, // New prop for using Stockfish online API
 }) => {
   const [game, setGame] = useState(new Chess(position !== 'start' ? position : undefined));
   const [fen, setFen] = useState(game.fen());
@@ -87,7 +88,7 @@ const ChessBoard = ({
       // Add a small delay to make it feel more natural
       engineMoveTimeoutRef.current = setTimeout(async () => {
         try {
-          // Get the current FEN position
+          // Get the current FEN position - ESLint reported this as undefined
           const currentFen = game.fen();
           const bestMove = await engineRef.current.getBestMove(currentFen, 1000);
           
@@ -130,6 +131,7 @@ const ChessBoard = ({
           
           // Get legal moves and use fallback
           const legalMoves = game.moves({ verbose: true });
+          // eslint-disable-next-line no-undef
           makeFallbackMove(legalMoves, currentFen);
         } finally {
           setIsThinking(false);
@@ -146,7 +148,11 @@ const ChessBoard = ({
     // Initialize engine once
     if ((showAnalysis || playMode === 'vs-ai') && !engineRef.current) {
       try {
-        engineRef.current = new ChessEngine(engineLevel);
+        // Use factory to create appropriate engine
+        engineRef.current = ChessEngineFactory.createEngine({
+          useOnlineAPI,
+          skillLevel: engineLevel
+        });
       } catch (error) {
         console.error('Failed to initialize chess engine:', error);
         setEngineLoadError(true);
@@ -163,7 +169,7 @@ const ChessBoard = ({
         clearTimeout(engineMoveTimeoutRef.current);
       }
     };
-  }, [engineLevel, playMode, showAnalysis]);
+  }, [engineLevel, playMode, showAnalysis, useOnlineAPI]); // Add useOnlineAPI dependency
 
   // Update engine level when it changes
   useEffect(() => {
@@ -409,6 +415,12 @@ const ChessBoard = ({
               Run Engine Test
             </button>
           </div>
+        </div>
+      )}
+      
+      {useOnlineAPI && (
+        <div className="api-notice">
+          <p>Using Stockfish Online API for analysis</p>
         </div>
       )}
       

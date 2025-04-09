@@ -279,3 +279,17 @@
 .engine-error-message .alternative-button:hover {
   background-color: #200e4a;
 }
+
+/* API notice styles */
+.api-notice {
+  padding: 5px 10px;
+  background-color: #e6f2ff;
+  border-left: 3px solid #0066cc;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.api-notice p {
+  margin: 0;
+  color: #0052a5;
+}

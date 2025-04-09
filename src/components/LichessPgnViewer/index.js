@@ -25,6 +25,7 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       if (lpvElement) {
         // Force layout recalculation by accessing offsetHeight
         // This helps ensure elements are properly sized before redraw
+        // eslint-disable-next-line no-unused-expressions
         lpvElement.offsetHeight;
         
         // Ensure proper layout adjustment

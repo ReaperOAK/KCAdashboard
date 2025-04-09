@@ -5,101 +5,114 @@
 (function() {
   // Create a debug panel in the UI
   function createDebugPanel() {
-    // Check if panel already exists
-    if (document.getElementById('stockfish-debug-panel')) {
-      return;
+    try {
+      // Check if panel already exists
+      if (document.getElementById('stockfish-debug-panel')) {
+        return;
+      }
+      
+      // Make sure document.body exists before proceeding
+      if (!document.body) {
+        console.warn("Document body not available yet, will retry later");
+        // Try again in a moment when the body might be available
+        setTimeout(createDebugPanel, 200);
+        return;
+      }
+      
+      // Create panel elements
+      const panel = document.createElement('div');
+      panel.id = 'stockfish-debug-panel';
+      panel.style.cssText = `
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 500px;
+        height: 300px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        font-family: monospace;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        overflow: hidden;
+        border-top-left-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      `;
+      
+      const header = document.createElement('div');
+      header.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        border-bottom: 1px solid #444;
+        padding-bottom: 5px;
+      `;
+      
+      const title = document.createElement('div');
+      title.textContent = 'Stockfish Debug Console';
+      title.style.fontWeight = 'bold';
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = 'X';
+      closeBtn.style.cssText = `
+        background: #f44;
+        border: none;
+        color: white;
+        padding: 2px 5px;
+        cursor: pointer;
+      `;
+      closeBtn.onclick = () => {
+        document.body.removeChild(panel);
+      };
+      
+      const content = document.createElement('div');
+      content.id = 'stockfish-debug-content';
+      content.style.cssText = `
+        flex: 1;
+        overflow-y: auto;
+        padding: 5px;
+        font-size: 12px;
+        line-height: 1.4;
+      `;
+      
+      const actions = document.createElement('div');
+      actions.style.cssText = `
+        display: flex;
+        gap: 5px;
+        margin-top: 5px;
+        border-top: 1px solid #444;
+        padding-top: 5px;
+      `;
+      
+      const checkBtn = document.createElement('button');
+      checkBtn.textContent = 'Check Stockfish';
+      checkBtn.onclick = () => { window.debugStockfish.checkStockfish(); };
+      
+      const testBtn = document.createElement('button');
+      testBtn.textContent = 'Test Engine';
+      testBtn.onclick = () => { window.debugStockfish.testEngine(); };
+      
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Clear';
+      clearBtn.onclick = () => { content.innerHTML = ''; };
+      
+      // Assemble the panel
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      actions.appendChild(checkBtn);
+      actions.appendChild(testBtn);
+      actions.appendChild(clearBtn);
+      
+      panel.appendChild(header);
+      panel.appendChild(content);
+      panel.appendChild(actions);
+      
+      document.body.appendChild(panel);
+      console.log("Debug panel created successfully");
+    } catch (error) {
+      console.error("Error creating debug panel:", error);
     }
-    
-    // Create panel elements
-    const panel = document.createElement('div');
-    panel.id = 'stockfish-debug-panel';
-    panel.style.cssText = `
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      width: 500px;
-      height: 300px;
-      background: rgba(0, 0, 0, 0.8);
-      color: #00ff00;
-      font-family: monospace;
-      z-index: 10000;
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      overflow: hidden;
-      border-top-left-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    `;
-    
-    const header = document.createElement('div');
-    header.style.cssText = `
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 5px;
-    `;
-    
-    const title = document.createElement('div');
-    title.textContent = 'Stockfish Debug Console';
-    title.style.fontWeight = 'bold';
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'X';
-    closeBtn.style.cssText = `
-      background: #f44;
-      border: none;
-      color: white;
-      padding: 2px 5px;
-      cursor: pointer;
-    `;
-    closeBtn.onclick = () => {
-      document.body.removeChild(panel);
-    };
-    
-    const content = document.createElement('div');
-    content.id = 'stockfish-debug-content';
-    content.style.cssText = `
-      flex: 1;
-      overflow-y: auto;
-      padding: 5px;
-      font-size: 12px;
-      line-height: 1.4;
-    `;
-    
-    const actions = document.createElement('div');
-    actions.style.cssText = `
-      display: flex;
-      gap: 5px;
-      margin-top: 5px;
-      border-top: 1px solid #444;
-      padding-top: 5px;
-    `;
-    
-    const checkBtn = document.createElement('button');
-    checkBtn.textContent = 'Check Stockfish';
-    checkBtn.onclick = () => { window.debugStockfish.checkStockfish(); };
-    
-    const testBtn = document.createElement('button');
-    testBtn.textContent = 'Test Engine';
-    testBtn.onclick = () => { window.debugStockfish.testEngine(); };
-    
-    const clearBtn = document.createElement('button');
-    clearBtn.textContent = 'Clear';
-    clearBtn.onclick = () => { content.innerHTML = ''; };
-    
-    // Assemble the panel
-    header.appendChild(title);
-    header.appendChild(closeBtn);
-    actions.appendChild(checkBtn);
-    actions.appendChild(testBtn);
-    actions.appendChild(clearBtn);
-    
-    panel.appendChild(header);
-    panel.appendChild(content);
-    panel.appendChild(actions);
-    
-    document.body.appendChild(panel);
   }
   
   // Log to debug panel
@@ -275,8 +288,11 @@
     log: logDebug
   };
   
-  // Create the panel when script loads
-  createDebugPanel();
-  logDebug('Stockfish debug utility initialized', 'success');
-  logDebug('Click "Check Stockfish" to examine the engine file', 'info');
+  // Wait for DOM to be ready before creating panel
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createDebugPanel);
+  } else {
+    // DOM already loaded, try to create panel now
+    createDebugPanel();
+  }
 })();

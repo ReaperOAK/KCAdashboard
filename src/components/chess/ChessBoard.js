@@ -96,18 +96,27 @@ const ChessBoard = ({
             const to = bestMove.substring(2, 4);
             const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
             
-            // Make the move
-            const aiGameCopy = new Chess(currentFen);
-            const moveResult = aiGameCopy.move({ from, to, promotion });
-            
-            if (moveResult) {
-              setGame(aiGameCopy);
+            // Try to make the move with validation
+            try {
+              // Make the move
+              const aiGameCopy = new Chess(currentFen);
+              const moveResult = aiGameCopy.move({ from, to, promotion });
               
-              if (onMove) {
-                onMove({ from, to, promotion }, aiGameCopy.fen());
+              if (moveResult) {
+                setGame(aiGameCopy);
+                
+                if (onMove) {
+                  onMove({ from, to, promotion }, aiGameCopy.fen());
+                }
+              } else {
+                console.warn('Invalid move received but not caught by chess.js:', bestMove);
+                // Get legal moves for fallback
+                const legalMoves = game.moves({ verbose: true });
+                makeFallbackMove(legalMoves, currentFen);
               }
-            } else {
-              // If move is invalid, use fallback
+            } catch (moveError) {
+              console.error('Engine move error:', moveError, 'for move:', bestMove);
+              // Get legal moves for fallback
               const legalMoves = game.moves({ verbose: true });
               makeFallbackMove(legalMoves, currentFen);
             }
@@ -121,7 +130,7 @@ const ChessBoard = ({
           
           // Get legal moves and use fallback
           const legalMoves = game.moves({ verbose: true });
-          makeFallbackMove(legalMoves, game.fen());
+          makeFallbackMove(legalMoves, currentFen);
         } finally {
           setIsThinking(false);
         }

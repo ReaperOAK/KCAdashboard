@@ -95,7 +95,7 @@ export default class ChessEngine {
         console.log('Received engine bestmove:', moveStr);
         
         // Check if the move is valid (not a template literal)
-        if (moveStr && moveStr.indexOf('$') === -1 && moveStr.length >= 4) {
+        if (moveStr && !moveStr.includes('${') && moveStr.length >= 4) {
           // Find and execute the corresponding callback
           if (this.moveCallbacks.has(moveStr + '_pending')) {
             const callback = this.moveCallbacks.get(moveStr + '_pending');

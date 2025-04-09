@@ -15,7 +15,7 @@
       if (!document.body) {
         console.warn("Document body not available yet, will retry later");
         // Try again in a moment when the body might be available
-        setTimeout(createDebugPanel, 200);
+        setTimeout(createDebugPanel, 500);
         return;
       }
       
@@ -288,11 +288,16 @@
     log: logDebug
   };
   
-  // Wait for DOM to be ready before creating panel
+  // Wait for document to be ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', createDebugPanel);
   } else {
-    // DOM already loaded, try to create panel now
-    createDebugPanel();
+    // DOM already loaded - check if body exists before creating panel
+    if (document.body) {
+      createDebugPanel();
+    } else {
+      // Body doesn't exist yet, wait a bit
+      setTimeout(createDebugPanel, 500);
+    }
   }
 })();

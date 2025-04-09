@@ -1,4 +1,4 @@
-import stockfishEngine from './stockfishEngine';
+import KCAEngine from './KCAEngine';
 
 export default class ChessEngine {
   constructor(skillLevel = 10) {
@@ -16,166 +16,23 @@ export default class ChessEngine {
 
   async initEngine() {
     try {
-      console.log('Initializing chess engine...');
+      console.log('Initializing KCA chess engine...');
       
-      // Use our utility to get a properly initialized engine
-      this.engine = await stockfishEngine.initializeEngine();
+      // Create a new KCA Engine instance directly
+      this.engine = new KCAEngine(this.skillLevel);
       
-      // Set up message handler
-      this.engine.onmessage = (event) => this.handleEngineMessage(event.data);
+      // Engine is immediately ready since we're not using Web Workers
+      this.isReady = true;
+      this.engineLoaded = true;
       
-      // Set up error handler
-      this.engine.onerror = (error) => {
-        console.error('Engine error:', error);
-        this.engineLoadError = true;
-        this.fallbackToBasicEngine();
-      };
-      
-      // Set the skill level
-      this.setSkillLevel(this.skillLevel);
+      // Process any queued evaluations
+      this.processEvaluationQueue();
       
       console.log('Engine initialized successfully');
     } catch (error) {
       console.error('Failed to initialize engine:', error);
       this.engineLoadError = true;
-      this.fallbackToBasicEngine();
     }
-  }
-  
-  // Fall back to a simpler engine implementation if the main one fails
-  fallbackToBasicEngine() {
-    try {
-      console.log('Falling back to basic engine implementation');
-      
-      // Try to load from the non-minified version as a fallback
-      this.engine = new Worker('/stockfish/stockfish.js');
-      
-      // Set up message handler
-      this.engine.onmessage = (event) => this.handleEngineMessage(event.data);
-      
-      // Set up error handler
-      this.engine.onerror = (error) => {
-        console.error('Fallback engine error:', error);
-        this.engineLoadError = true;
-      };
-      
-      // Initialize the engine with UCI
-      this.engine.postMessage('uci');
-      
-      // Set the skill level
-      this.setSkillLevel(this.skillLevel);
-    } catch (error) {
-      console.error('Failed to initialize fallback engine:', error);
-      this.engineLoadError = true;
-    }
-  }
-
-  // Handle messages from the engine
-  handleEngineMessage(data) {
-    if (typeof data !== 'string') {
-      console.warn('Received non-string engine message:', data);
-      return;
-    }
-    
-    // Handle different types of engine messages
-    if (data === 'uciok') {
-      this.engine.postMessage('isready');
-    } else if (data === 'readyok') {
-      this.isReady = true;
-      this.engineLoaded = true;
-      console.log('Engine is ready');
-      
-      // Process any queued evaluations
-      this.processEvaluationQueue();
-    } else if (data.startsWith('bestmove')) {
-      // Extract the move from the engine response
-      const parts = data.split(' ');
-      if (parts.length >= 2) {
-        const moveStr = parts[1];
-        console.log('Received engine bestmove:', moveStr);
-        
-        // Check if the move is valid (not a template literal)
-        if (moveStr && !moveStr.includes('${') && moveStr.length >= 4) {
-          // Find and execute the corresponding callback
-          if (this.moveCallbacks.has(moveStr + '_pending')) {
-            const callback = this.moveCallbacks.get(moveStr + '_pending');
-            this.moveCallbacks.delete(moveStr + '_pending');
-            callback(moveStr);
-          } else {
-            // If we can't find the exact callback, find any pending callback
-            const pendingKey = [...this.moveCallbacks.keys()].find(key => key.endsWith('_pending'));
-            if (pendingKey) {
-              const callback = this.moveCallbacks.get(pendingKey);
-              this.moveCallbacks.delete(pendingKey);
-              callback(moveStr);
-            }
-          }
-        } else {
-          console.warn('Invalid move format received:', moveStr);
-          // Use fallback move with e2e4 as default
-          const fallbackMove = 'e2e4';
-          console.log('Using fallback move:', fallbackMove);
-          
-          const pendingKey = [...this.moveCallbacks.keys()].find(key => key.endsWith('_pending'));
-          if (pendingKey) {
-            const callback = this.moveCallbacks.get(pendingKey);
-            this.moveCallbacks.delete(pendingKey);
-            callback(fallbackMove);
-          }
-        }
-      }
-    } else if (data.startsWith('info')) {
-      // Parse evaluation data
-      const scoreMatch = data.match(/score (cp|mate) ([-\d]+)/);
-      if (scoreMatch) {
-        const scoreType = scoreMatch[1];
-        const scoreValue = parseInt(scoreMatch[2]);
-        
-        const depthMatch = data.match(/depth (\d+)/);
-        const depth = depthMatch ? parseInt(depthMatch[1]) : 0;
-        
-        // Create evaluation object
-        const evaluation = {
-          score: scoreType === 'cp' ? scoreValue / 100 : null,
-          mate: scoreType === 'mate' ? scoreValue : null,
-          depth: depth,
-          scoreType: scoreType,
-          scoreValue: scoreValue
-        };
-        
-        // Extract PV (principal variation) if available
-        const pvMatch = data.match(/pv (.+)/);
-        if (pvMatch) {
-          evaluation.pv = pvMatch[1].split(' ');
-          evaluation.bestMove = evaluation.pv[0];
-        }
-        
-        // Find and execute evaluation callbacks
-        for (const [key, callback] of this.evaluationCallbacks.entries()) {
-          if (!key.endsWith('_completed')) {
-            callback(evaluation);
-            
-            // Mark as completed if we've reached target depth
-            if (depth >= parseInt(key.split('_')[0])) {
-              this.evaluationCallbacks.set(key + '_completed', callback);
-              this.evaluationCallbacks.delete(key);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Set engine skill level
-  setSkillLevel(level) {
-    if (!this.engine) return;
-    
-    // Ensure skill level is within valid range
-    const skillLevel = Math.max(0, Math.min(20, level));
-    this.skillLevel = skillLevel;
-    
-    // Send configuration to engine
-    this.engine.postMessage(`setoption name Skill Level value ${skillLevel}`);
   }
 
   // Get the best move for a position
@@ -193,11 +50,23 @@ export default class ChessEngine {
         resolve(move);
       });
       
-      // Send position to engine
-      this.engine.postMessage(`position fen ${fen}`);
-      
-      // Start the search with a time limit
-      this.engine.postMessage(`go movetime ${timeLimit}`);
+      // Get the best move from the engine
+      this.engine.getBestMove(fen, timeLimit)
+        .then(move => {
+          // Handle the move
+          if (this.moveCallbacks.has(moveKey)) {
+            const callback = this.moveCallbacks.get(moveKey);
+            this.moveCallbacks.delete(moveKey);
+            callback(move);
+          }
+        })
+        .catch(error => {
+          console.error('Engine move error:', error);
+          if (this.moveCallbacks.has(moveKey)) {
+            this.moveCallbacks.delete(moveKey);
+            resolve(this.getFallbackMove(fen));
+          }
+        });
       
       // Set a timeout as a safety net
       setTimeout(() => {
@@ -237,26 +106,38 @@ export default class ChessEngine {
         resolve(evaluation);
       });
       
-      // Send position to engine
-      this.engine.postMessage(`position fen ${fen}`);
+      // Get evaluation from the engine
+      const result = this.engine.evaluatePosition(fen, depth);
       
-      // Start the analysis to the specified depth
-      this.engine.postMessage(`go depth ${depth}`);
+      // Convert to expected format
+      const evaluation = {
+        score: result.score,
+        depth: result.depth,
+        scoreType: result.mate ? 'mate' : 'cp',
+        scoreValue: result.mate ? result.mate : Math.round(result.score * 100),
+        bestMove: result.bestMove,
+        pv: [result.bestMove]
+      };
       
-      // Set a timeout as a safety net
-      setTimeout(() => {
-        if (this.evaluationCallbacks.has(evalKey)) {
-          console.warn('Evaluation timeout');
-          this.evaluationCallbacks.delete(evalKey);
-          resolve({ 
-            score: 0, 
-            depth: 1, 
-            scoreType: 'cp', 
-            scoreValue: 0 
-          });
-        }
-      }, depth * 1000);
+      // Execute callback
+      if (this.evaluationCallbacks.has(evalKey)) {
+        const callback = this.evaluationCallbacks.get(evalKey);
+        this.evaluationCallbacks.delete(evalKey);
+        callback(evaluation);
+      }
     });
+  }
+
+  // Set engine skill level
+  setSkillLevel(level) {
+    if (!this.engine) return;
+    
+    // Ensure skill level is within valid range
+    const skillLevel = Math.max(0, Math.min(20, level));
+    this.skillLevel = skillLevel;
+    
+    // Set level in the engine
+    this.engine.setSkillLevel(skillLevel);
   }
 
   // Process queued evaluations

@@ -96,33 +96,23 @@ const ChessBoard = ({
             const to = bestMove.substring(2, 4);
             const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
             
-            // Check if the proposed move is legal
-            const legalMoves = game.moves({ verbose: true });
-            const isLegalMove = legalMoves.some(move => 
-              move.from === from && move.to === to
-            );
+            // Make the move
+            const aiGameCopy = new Chess(currentFen);
+            const moveResult = aiGameCopy.move({ from, to, promotion });
             
-            if (isLegalMove) {
-              // This is a legal move, so make it
-              const aiGameCopy = new Chess(currentFen);
-              const moveResult = aiGameCopy.move({ from, to, promotion });
+            if (moveResult) {
+              setGame(aiGameCopy);
               
-              if (moveResult) {
-                setGame(aiGameCopy);
-                
-                if (onMove) {
-                  onMove({ from, to, promotion }, aiGameCopy.fen());
-                }
-              } else {
-                // Should not happen if isLegalMove is true, but just in case
-                throw new Error(`Move validation failed for ${from}${to}`);
+              if (onMove) {
+                onMove({ from, to, promotion }, aiGameCopy.fen());
               }
             } else {
-              // Use fallback random legal move
+              // If move is invalid, use fallback
+              const legalMoves = game.moves({ verbose: true });
               makeFallbackMove(legalMoves, currentFen);
             }
           } else {
-            // If we get an invalid move format, use fallback
+            // If we get an invalid format, use fallback
             const legalMoves = game.moves({ verbose: true });
             makeFallbackMove(legalMoves, currentFen);
           }

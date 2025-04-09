@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Add this at the very top of your head section, before any other scripts -->
-    <script src="/stockfish/interceptor.js"></script>
-    <!-- Add this at the very beginning of the head section -->
-    <script src="/stockfish/direct-bootstrap.js"></script>
+    <!-- Remove problematic scripts -->
+    <!-- <script src="/stockfish/direct-bootstrap.js"></script> -->
+    <!-- <script src="/stockfish/validate.js"></script> -->
+    <!-- <script src="/stockfish/debug.js"></script> -->
+    <!-- <script src="/stockfish/bootstrap.js"></script> -->
+    <!-- <script src="/stockfish/interceptor.js"></script> -->
+    
+    <!-- Add a note about the custom engine -->
+    <script>
+      console.log('KCA Dashboard is using a custom chess engine instead of Stockfish');
+    </script>
+    
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,15 +38,6 @@
     -->
     <title>KCA Dashboard</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Add this before any other scripts -->
-    <script src="/stockfish/bootstrap.js"></script>
-    <!-- Add Stockfish protection script -->
-    <script src="%PUBLIC_URL%/stockfish/protect.js"></script>
-    <!-- Add this before your main scripts -->
-    <script src="/stockfish/bootstrap.js"></script>
-    <!-- Add this right after the bootstrap.js script -->
-    <script src="/stockfish/validate.js"></script>
-    <script src="/stockfish/debug.js"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

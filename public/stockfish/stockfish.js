@@ -84,11 +84,11 @@
       const thinkingTime = Math.min(300 + (depth * 20), 1500);
       
       setTimeout(function() {
-        // Send analysis info
-        self.postMessage(`info depth ${depth} score cp ${evalScore} nodes 12345 nps 100000 time ${thinkingTime} pv ${bestMove}`);
+        // Send analysis info - using string concatenation instead of template literals
+        self.postMessage("info depth " + depth + " score cp " + evalScore + " nodes 12345 nps 100000 time " + thinkingTime + " pv " + bestMove);
         
-        // Send the best move
-        self.postMessage(`bestmove ${bestMove}`);
+        // Send the best move - using string concatenation instead of template literals
+        self.postMessage("bestmove " + bestMove);
       }, thinkingTime);
     }
     else if (command.startsWith('setoption')) {

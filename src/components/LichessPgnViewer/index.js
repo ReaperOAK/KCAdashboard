@@ -20,18 +20,22 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
     if (!containerRef.current || !viewerRef.current) return;
 
     try {
-      // Trigger global resize event
-      window.dispatchEvent(new Event('resize'));
-      
+      // Get the board container element
       const lpvElement = containerRef.current.querySelector('.lpv');
       if (lpvElement) {
-        // Apply a slight delay to ensure layout is complete
-        setTimeout(() => {
-          // Force redraw if needed
-          if (viewerRef.current && typeof viewerRef.current.redraw === 'function') {
-            viewerRef.current.redraw();
-          }
-        }, 50);
+        // Ensure proper layout adjustment
+        const boardElement = lpvElement.querySelector('.lpv__board');
+        const cgWrap = boardElement?.querySelector('.cg-wrap');
+        
+        if (boardElement && cgWrap) {
+          // Let the layout adjust naturally
+          setTimeout(() => {
+            // Redraw with proper dimensions
+            if (viewerRef.current && typeof viewerRef.current.redraw === 'function') {
+              viewerRef.current.redraw();
+            }
+          }, 50);
+        }
       }
     } catch (e) {
       console.error('Error adjusting board size:', e);
@@ -104,10 +108,17 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
         
         // Create new ResizeObserver with ref
         resizeObserverRef.current = new ResizeObserver(() => {
-          handleResize();
+          // Don't call immediately, let the layout stabilize first
+          window.requestAnimationFrame(handleResize);
         });
         
+        // Observe the container and the internal lpv element if it exists
         resizeObserverRef.current.observe(currentContainer);
+        const lpvEl = currentContainer.querySelector('.lpv');
+        if (lpvEl) {
+          resizeObserverRef.current.observe(lpvEl);
+        }
+        
         window.addEventListener('resize', handleResize);
         
         // Initial adjustment after a delay to ensure full rendering
@@ -128,14 +139,16 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
 
   return (
     <div className={`lichess-pgn-viewer-wrapper w-full h-full ${containerClassName}`} 
-         style={{ minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
+         style={{ display: 'flex', flexDirection: 'column', minHeight: '300px' }}>
       <div 
         ref={containerRef} 
         className="w-full h-full"
         style={{ 
           position: 'relative',
           flex: '1 1 auto',
-          minHeight: '300px'
+          minHeight: '300px',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       ></div>
       

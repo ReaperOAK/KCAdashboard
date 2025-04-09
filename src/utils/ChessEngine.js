@@ -131,20 +131,30 @@ class ChessEngine {
   
   // Generate a safe move based on the color to play
   generateSafeMoveForPosition(fen) {
-    // Basic FEN parsing to determine whose turn it is
-    const isWhiteTurn = !fen.includes(' b ');
+    try {
+      // Extract active color from FEN
+      const fenParts = fen.split(' ');
+      if (fenParts.length < 2) {
+        console.error('Invalid FEN format:', fen);
+        return this.getRandomMove('w'); // Default to white
+      }
+      
+      const activeColor = fenParts[1]; // 'w' or 'b'
+      console.log(`Generating move for ${activeColor === 'w' ? 'white' : 'black'}`);
+      
+      return this.getRandomMove(activeColor);
+    } catch (error) {
+      console.error('Error parsing FEN:', error);
+      return this.getRandomMove('w'); // Default to white as fallback
+    }
+  }
+  
+  // Get a random move for the specified color
+  getRandomMove(color) {
+    const whiteStartingMoves = ['e2e4', 'd2d4', 'g1f3', 'c2c4', 'b1c3', 'e2e3', 'd2d3'];
+    const blackStartingMoves = ['e7e5', 'd7d5', 'g8f6', 'c7c5', 'b8c6', 'e7e6', 'd7d6'];
     
-    // Common safe first moves for each color
-    // These are generally valid in many positions
-    const safeMoves = {
-      white: ['e2e4', 'd2d4', 'g1f3', 'c2c4'],
-      black: ['e7e5', 'd7d5', 'g8f6', 'c7c5']
-    };
-    
-    // Pick a move for the appropriate side
-    const movesForColor = isWhiteTurn ? safeMoves.white : safeMoves.black;
-    
-    // Return a random move from the safe moves list
+    const movesForColor = color === 'w' ? whiteStartingMoves : blackStartingMoves;
     return movesForColor[Math.floor(Math.random() * movesForColor.length)];
   }
 
@@ -191,32 +201,75 @@ class ChessEngine {
   // Get best move from the engine
   getBestMove(fen, timeLimit = 1000) {
     return new Promise((resolve, reject) => {
-      // Set position
-      const posCmd = `position fen ${fen}`;
-      this.sendCommand(posCmd);
-      
-      // Clear previous callbacks
-      this.callbacks['bestmove'] = [];
-      
-      // Add safety timeout
-      const timeoutId = setTimeout(() => {
-        // If engine doesn't respond in time, generate a safe move
-        console.warn('Engine response timeout - using fallback move generation');
-        const fallbackMove = this.generateSafeMoveForPosition(fen);
+      try {
+        // Parse FEN to check whose turn it is
+        const fenParts = fen.split(' ');
+        const activeColor = fenParts[1]; // 'w' or 'b'
+        
+        // Set position
+        const posCmd = `position fen ${fen}`;
+        this.sendCommand(posCmd);
+        
+        // Clear previous callbacks
+        this.callbacks['bestmove'] = [];
+        
+        // Add safety timeout
+        const timeoutId = setTimeout(() => {
+          // If engine doesn't respond in time, generate a safe move for the active color
+          console.warn('Engine response timeout - using fallback move generation');
+          const fallbackMove = this.generateSafeMoveForPosition(fen);
+          resolve(fallbackMove);
+        }, timeLimit + 500);
+        
+        // Set up callback for best move
+        this.onBestMove(move => {
+          clearTimeout(timeoutId);
+          
+          // Verify the move works for the current color
+          console.log(`Received engine move: ${move} for ${activeColor === 'w' ? 'white' : 'black'}`);
+          
+          // Ensure the move is valid for the current position
+          if (!this.isLikelyValidMove(move, activeColor)) {
+            console.warn(`Move ${move} doesn't seem valid for ${activeColor}, using fallback`);
+            const fallbackMove = this.generateSafeMoveForPosition(fen);
+            resolve(fallbackMove);
+          } else {
+            resolve(move);
+          }
+        });
+        
+        // Start analysis with the given time limit
+        this.sendCommand(`go movetime ${timeLimit}`);
+      } catch (error) {
+        console.error("Error getting best move:", error);
+        // Return a safe move as fallback
+        const fallbackMove = this.generateSafeMoveForPosition(fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
         resolve(fallbackMove);
-      }, timeLimit + 500);
-      
-      // Set up callback for best move
-      this.onBestMove(move => {
-        clearTimeout(timeoutId);
-        resolve(move);
-      });
-      
-      // Start analysis with the given time limit
-      this.sendCommand(`go movetime ${timeLimit}`);
+      }
     });
   }
   
+  // Do a basic check to see if a move is likely valid for the current player
+  isLikelyValidMove(move, activeColor) {
+    if (!move || move.length < 4) return false;
+    
+    // Check if the move is starting from a square likely to have the active color's piece
+    const from = move.substring(0, 2);
+    
+    // Basic check: white pieces are typically on ranks 1-2, black on ranks 7-8
+    const rank = from.charAt(1);
+    if (activeColor === 'w' && (rank === '1' || rank === '2')) {
+      return true;
+    }
+    if (activeColor === 'b' && (rank === '7' || '8')) {
+      return true;
+    }
+    
+    // For moves from middle ranks, we can't easily determine validity
+    // without more complex board state analysis
+    return true;
+  }
+
   // Evaluate a position
   evaluatePosition(fen, depth = 15) {
     return new Promise((resolve, reject) => {
@@ -276,6 +329,9 @@ class ChessEngine {
           if (moveMatch && moveMatch[1]) {
             evaluation.bestMove = moveMatch[1];
             resolve(evaluation);
+            
+            // Clear the timeout if we get a valid response
+            if (timeoutId) clearTimeout(timeoutId);
             
             // Restore original handler
             this.onMessage = originalHandler;

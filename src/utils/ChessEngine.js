@@ -151,11 +151,14 @@ class ChessEngine {
   
   // Get a random move for the specified color
   getRandomMove(color) {
+    // More precise move generation for each color
     const whiteStartingMoves = ['e2e4', 'd2d4', 'g1f3', 'c2c4', 'b1c3', 'e2e3', 'd2d3'];
-    const blackStartingMoves = ['e7e5', 'd7d5', 'g8f6', 'c7c5', 'b8c6', 'e7e6', 'd7d6'];
+    const blackStartingMoves = ['e7e6', 'd7d5', 'g8f6', 'c7c5', 'b8c6', 'e7e5', 'd7d6'];
     
     const movesForColor = color === 'w' ? whiteStartingMoves : blackStartingMoves;
-    return movesForColor[Math.floor(Math.random() * movesForColor.length)];
+    const move = movesForColor[Math.floor(Math.random() * movesForColor.length)];
+    console.log(`Generated random ${color === 'w' ? 'white' : 'black'} move: ${move}`);
+    return move;
   }
 
   setSkillLevel(level) {
@@ -205,6 +208,8 @@ class ChessEngine {
         // Parse FEN to check whose turn it is
         const fenParts = fen.split(' ');
         const activeColor = fenParts[1]; // 'w' or 'b'
+        
+        console.log(`Getting best move for ${activeColor === 'w' ? 'WHITE' : 'BLACK'} from position: ${fen.substring(0, 40)}...`);
         
         // Set position
         const posCmd = `position fen ${fen}`;
@@ -258,15 +263,47 @@ class ChessEngine {
     
     // Basic check: white pieces are typically on ranks 1-2, black on ranks 7-8
     const rank = from.charAt(1);
-    if (activeColor === 'w' && (rank === '1' || rank === '2')) {
-      return true;
-    }
-    if (activeColor === 'b' && (rank === '7' || '8')) {
-      return true;
+    
+    // More robust validation based on color and rank
+    if (activeColor === 'w') {
+      // For white - typically pieces start on ranks 1-2
+      // But can also be elsewhere on the board in mid-game
+      if (rank === '1' || rank === '2') {
+        return true; // Likely a valid white move
+      }
+      
+      // For mid-game positions, we need a more sophisticated check
+      // This logic is too simplistic for real positions but better than before
+      if (rank >= '3' && rank <= '6') {
+        // Could be valid - white pieces can be anywhere in mid-game
+        return true;
+      }
+      
+      // White pieces are rarely on ranks 7-8 in standard chess
+      if (rank === '7' || rank === '8') {
+        console.warn(`Suspicious white move from rank ${rank}: ${move}`);
+        return false;
+      }
+    } else if (activeColor === 'b') {
+      // For black - typically pieces start on ranks 7-8
+      if (rank === '7' || rank === '8') {
+        return true; // Likely a valid black move
+      }
+      
+      // For mid-game positions, we need a more sophisticated check
+      if (rank >= '3' && rank <= '6') {
+        // Could be valid - black pieces can be anywhere in mid-game
+        return true;
+      }
+      
+      // Black pieces are rarely on ranks 1-2 in standard chess
+      if (rank === '1' || rank === '2') {
+        console.warn(`Suspicious black move from rank ${rank}: ${move}`);
+        return false;
+      }
     }
     
-    // For moves from middle ranks, we can't easily determine validity
-    // without more complex board state analysis
+    // If we can't be sure, return true to avoid overly restrictive filtering
     return true;
   }
 

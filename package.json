@@ -51,10 +51,12 @@
     "setup-stockfish": "node scripts/setup-stockfish.js",
     "postinstall": "node -e \"try { require('fs').existsSync('./public/stockfish') || process.exit(1); } catch(e) { process.exit(1); }\" || npm run setup-stockfish",
     "prepare-chess": "node scripts/prepare-chess-files.js",
-    "prebuild": "npm run copy-chess-files",
+    "prebuild": "npm run preserve-stockfish",
     "prestart": "npm run copy-chess-files",
     "check-env": "node scripts/check-environment.js",
-    "copy-chess-files": "node -e \"require('fs').existsSync('./public/stockfish') || require('fs').mkdirSync('./public/stockfish', { recursive: true }); require('fs').copyFileSync('./src/utils/stockfish.min.js', './public/stockfish/stockfish.min.js'); require('fs').copyFileSync('./src/utils/test.html', './public/stockfish/test.html');\""
+    "copy-chess-files": "node -e \"require('fs').existsSync('./public/stockfish') || require('fs').mkdirSync('./public/stockfish', { recursive: true }); require('fs').copyFileSync('./src/utils/stockfish.min.js', './public/stockfish/stockfish.min.js'); require('fs').copyFileSync('./src/utils/test.html', './public/stockfish/test.html');\"",
+    "preserve-stockfish": "node scripts/preserve-stockfish.js",
+    "postbuild": "npm run preserve-stockfish"
   },
   "eslintConfig": {
     "extends": [

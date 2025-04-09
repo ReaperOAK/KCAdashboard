@@ -94,18 +94,30 @@ export default class ChessEngine {
         const moveStr = parts[1];
         console.log('Received engine bestmove:', moveStr);
         
-        // Find and execute the corresponding callback
-        if (this.moveCallbacks.has(moveStr + '_pending')) {
-          const callback = this.moveCallbacks.get(moveStr + '_pending');
-          this.moveCallbacks.delete(moveStr + '_pending');
-          callback(moveStr);
+        // Check if the move is valid (not a template literal)
+        if (moveStr && moveStr.indexOf('$') === -1 && moveStr.length >= 4) {
+          // Find and execute the corresponding callback
+          if (this.moveCallbacks.has(moveStr + '_pending')) {
+            const callback = this.moveCallbacks.get(moveStr + '_pending');
+            this.moveCallbacks.delete(moveStr + '_pending');
+            callback(moveStr);
+          } else {
+            // If we can't find the exact callback, find any pending callback
+            const pendingKey = [...this.moveCallbacks.keys()].find(key => key.endsWith('_pending'));
+            if (pendingKey) {
+              const callback = this.moveCallbacks.get(pendingKey);
+              this.moveCallbacks.delete(pendingKey);
+              callback(moveStr);
+            }
+          }
         } else {
-          // If we can't find the exact callback, find any pending callback
+          console.warn('Invalid move format received:', moveStr);
+          // Use fallback move
           const pendingKey = [...this.moveCallbacks.keys()].find(key => key.endsWith('_pending'));
           if (pendingKey) {
             const callback = this.moveCallbacks.get(pendingKey);
             this.moveCallbacks.delete(pendingKey);
-            callback(moveStr);
+            callback(this.getFallbackMove(''));
           }
         }
       }

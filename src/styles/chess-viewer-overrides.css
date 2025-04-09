@@ -11,6 +11,7 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(20, 9, 46, 0.05);
+  position: relative;
 }
 
 .chess-viewer-container .lpv__board {
@@ -18,13 +19,18 @@
   min-height: 300px;
   position: relative !important;
   background-color: var(--kca-light-bg);
+  overflow: hidden;
 }
 
 /* Make board container square using aspect ratio */
 .chess-viewer-container .cg-wrap {
   width: 100% !important;
   height: 100% !important;
-  position: relative !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   aspect-ratio: 1 / 1; /* Force square aspect ratio */
   margin: 0 auto;
   --cg-coord-color-white: var(--kca-dark-text);
@@ -46,6 +52,10 @@
   overflow-y: auto;
   background-color: var(--kca-white);
   border-left: 1px solid var(--kca-gray-light);
+  width: 270px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .chess-viewer-container .lpv__moves {
@@ -53,6 +63,16 @@
   background-color: var(--kca-white);
   padding: 0.5rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 0.875rem;
+}
+
+.chess-viewer-container .lpv__moves > move {
+  padding-left: 3%;
+  max-width: 95%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chess-viewer-container .lpv__moves move:not(.empty):hover {
@@ -78,17 +98,28 @@
   border-radius: 4px;
   padding: 0.5rem 0.75rem;
   color: var(--kca-dark-text);
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Controls */
 .chess-viewer-container .lpv__controls {
   background-color: var(--kca-primary);
   border-top: 1px solid var(--kca-gray-dark);
+  height: 40px;
+  min-height: 40px;
+  display: flex;
 }
 
 .chess-viewer-container .lpv__controls .lpv__fbt {
   color: var(--kca-white);
   transition: background-color 0.2s;
+  padding: 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chess-viewer-container .lpv__controls .lpv__fbt:hover:not(.disabled) {
@@ -103,11 +134,19 @@
 .chess-viewer-container .lpv__pane {
   background-color: var(--kca-dark-bg);
   border-bottom: 2px solid var(--kca-accent);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 80%;
+  overflow-y: auto;
 }
 
 .chess-viewer-container .lpv__menu .lpv__fbt {
   color: var(--kca-light-text);
   transition: background-color 0.2s;
+  padding: 0.75rem 1rem;
 }
 
 .chess-viewer-container .lpv__menu .lpv__fbt:hover {
@@ -126,6 +165,11 @@
   border: 1px solid var(--kca-gray-light);
   border-radius: 4px;
   font-family: monospace;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  max-height: 50vh;
+  overflow: auto;
 }
 
 .chess-viewer-container .lpv__pgn__download {
@@ -142,10 +186,18 @@
   background-color: var(--kca-primary);
   color: var(--kca-white);
   padding: 0.5rem 1rem;
+  height: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
 }
 
 .chess-viewer-container .lpv__player__person {
   color: var(--kca-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
 }
 
 .chess-viewer-container .lpv__player__clock {
@@ -189,6 +241,33 @@
   .chess-viewer-container .lpv__board {
     min-height: 250px;
   }
+  
+  .chess-viewer-container .lpv--moves-auto {
+    grid-template-areas:
+      "board"
+      "controls"
+      "side";
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(200px, 50vh) 40px auto;
+  }
+  
+  .chess-viewer-container .lpv--players {
+    grid-template-areas:
+      "player-top"
+      "board"
+      "player-bot"
+      "controls"
+      "side";
+    grid-template-columns: 1fr;
+    grid-template-rows: 36px minmax(200px, calc(50vh - 72px)) 36px 40px auto;
+  }
+  
+  .chess-viewer-container .lpv__side {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--kca-gray-light);
+    max-height: 250px;
+  }
 }
 
 /* Responsive adjustments */
@@ -203,12 +282,29 @@
   }
 }
 
+/* Small screen adjustments */
+@media (max-width: 480px) {
+  .chess-viewer-container .lpv__controls .lpv__fbt {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .chess-viewer-container .lpv__player {
+    font-size: 0.75rem;
+  }
+  
+  .chess-viewer-container .lpv__moves {
+    font-size: 0.75rem;
+  }
+}
+
 /* Ensure the container adapts to available space */
 .lichess-pgn-viewer-wrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  min-height: 300px;
 }
 
 /* Root variables for consistent coloring */
@@ -224,4 +320,43 @@
   --kca-white: #ffffff;
   --kca-gray-light: #c2c1d3;
   --kca-gray-dark: #3b3a52;
+}
+
+/* Chess Viewer Overrides - Fixed Scaling */
+.chess-viewer-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Fix grid layout to prevent overflow */
+.chess-viewer-container .lpv--moves-auto {
+  grid-template-columns: minmax(0, 1fr) 270px; /* Fixed side panel width */
+  grid-template-rows: 1fr auto;
+  max-height: 100%;
+}
+
+.chess-viewer-container .lpv--moves-right {
+  grid-template-columns: minmax(0, 1fr) 270px; /* Fixed side panel width */
+  grid-template-rows: 1fr auto;
+}
+
+/* Fix for scrollbars to match theme */
+.chess-viewer-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.chess-viewer-container ::-webkit-scrollbar-track {
+  background: var(--kca-light-bg);
+}
+
+.chess-viewer-container ::-webkit-scrollbar-thumb {
+  background-color: var(--kca-secondary);
+  border-radius: 4px;
+}
+
+.chess-viewer-container ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--kca-accent);
 }

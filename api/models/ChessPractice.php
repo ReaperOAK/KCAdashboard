@@ -1,9 +1,10 @@
 <?php
 class ChessPractice {
+    // Database connection and table name
     private $conn;
     private $table_name = "chess_practice_positions";
     
-    // Properties
+    // Object properties
     public $id;
     public $title;
     public $description;
@@ -15,36 +16,37 @@ class ChessPractice {
     public $created_at;
     public $preview_url;
     
+    // Constructor with database connection
     public function __construct($db) {
         $this->conn = $db;
     }
     
-    // Create new practice position
+    // Create a new practice position
     public function create() {
-        $query = "INSERT INTO " . $this->table_name . "
-                (title, description, position, type, difficulty, engine_level, created_by)
-                VALUES
-                (:title, :description, :position, :type, :difficulty, :engine_level, :created_by)";
+        $query = "INSERT INTO " . $this->table_name . " 
+                  (title, description, position, type, difficulty, engine_level, created_by, created_at, preview_url) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
         
         $stmt = $this->conn->prepare($query);
         
-        // Sanitize inputs
+        // Clean and bind data
         $this->title = htmlspecialchars(strip_tags($this->title));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->position = htmlspecialchars(strip_tags($this->position));
         $this->type = htmlspecialchars(strip_tags($this->type));
         $this->difficulty = htmlspecialchars(strip_tags($this->difficulty));
+        $this->engine_level = (int)$this->engine_level;
         
-        // Bind values
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":position", $this->position);
-        $stmt->bindParam(":type", $this->type);
-        $stmt->bindParam(":difficulty", $this->difficulty);
-        $stmt->bindParam(":engine_level", $this->engine_level);
-        $stmt->bindParam(":created_by", $this->created_by);
+        $stmt->bindParam(1, $this->title);
+        $stmt->bindParam(2, $this->description);
+        $stmt->bindParam(3, $this->position);
+        $stmt->bindParam(4, $this->type);
+        $stmt->bindParam(5, $this->difficulty);
+        $stmt->bindParam(6, $this->engine_level);
+        $stmt->bindParam(7, $this->created_by);
+        $stmt->bindParam(8, $this->preview_url);
         
-        if($stmt->execute()) {
+        if ($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
             return true;
         }
@@ -52,81 +54,128 @@ class ChessPractice {
         return false;
     }
     
-    // Get practice positions
-    public function getPositions($type = 'all', $limit = 20) {
-        $query = "SELECT p.*, u.full_name as creator_name
-                 FROM " . $this->table_name . " p
-                 JOIN users u ON p.created_by = u.id";
+    // Read a single practice position by ID
+    public function readOne() {
+        $query = "SELECT p.*, u.full_name as creator_name 
+                  FROM " . $this->table_name . " p
+                  JOIN users u ON p.created_by = u.id
+                  WHERE p.id = ?";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $this->id);
+        $stmt->execute();
         
-        if($type !== 'all') {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($row) {
+            $this->title = $row['title'];
+            $this->description = $row['description'];
+            $this->position = $row['position'];
+            $this->type = $row['type'];
+            $this->difficulty = $row['difficulty'];
+            $this->engine_level = $row['engine_level'];
+            $this->created_by = $row['created_by'];
+            $this->created_at = $row['created_at'];
+            $this->preview_url = $row['preview_url'];
+            
+            return [
+                'id' => $this->id,
+                'title' => $this->title,
+                'description' => $this->description,
+                'position' => $this->position,
+                'type' => $this->type,
+                'difficulty' => $this->difficulty,
+                'engine_level' => (int)$this->engine_level,
+                'creator' => [
+                    'id' => $row['created_by'],
+                    'name' => $row['creator_name']
+                ],
+                'created_at' => $this->created_at,
+                'preview_url' => $this->preview_url
+            ];
+        }
+        
+        return null;
+    }
+    
+    // Get practice positions by type
+    public function getPositionsByType($type = 'all') {
+        $query = "SELECT p.*, u.full_name as creator_name 
+                  FROM " . $this->table_name . " p
+                  JOIN users u ON p.created_by = u.id";
+                  
+        if ($type !== 'all') {
             $query .= " WHERE p.type = ?";
         }
         
-        $query .= " ORDER BY p.created_at DESC LIMIT ?";
+        $query .= " ORDER BY p.created_at DESC";
         
         $stmt = $this->conn->prepare($query);
         
-        if($type !== 'all') {
+        if ($type !== 'all') {
             $stmt->bindParam(1, $type);
-            $stmt->bindParam(2, $limit, PDO::PARAM_INT);
-        } else {
-            $stmt->bindParam(1, $limit, PDO::PARAM_INT);
         }
         
         $stmt->execute();
         
-        return $stmt;
+        $positions = [];
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $positions[] = [
+                'id' => $row['id'],
+                'title' => $row['title'],
+                'description' => $row['description'],
+                'position' => $row['position'],
+                'type' => $row['type'],
+                'difficulty' => $row['difficulty'],
+                'engine_level' => (int)$row['engine_level'],
+                'creator' => [
+                    'id' => $row['created_by'],
+                    'name' => $row['creator_name']
+                ],
+                'created_at' => $row['created_at'],
+                'preview_url' => $row['preview_url']
+            ];
+        }
+        
+        return $positions;
     }
     
-    // Get single position
-    public function getById($id) {
-        $query = "SELECT p.*, u.full_name as creator_name
-                 FROM " . $this->table_name . " p
-                 JOIN users u ON p.created_by = u.id
-                 WHERE p.id = ?";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id);
-        $stmt->execute();
-        
-        return $stmt;
-    }
-    
-    // Update position
+    // Update practice position
     public function update() {
         $query = "UPDATE " . $this->table_name . "
-                SET title = :title, description = :description, 
-                    position = :position, type = :type, 
-                    difficulty = :difficulty, engine_level = :engine_level
-                WHERE id = :id AND created_by = :created_by";
-        
+                  SET title = ?, description = ?, position = ?, 
+                      type = ?, difficulty = ?, engine_level = ?, preview_url = ?
+                  WHERE id = ? AND created_by = ?";
+                  
         $stmt = $this->conn->prepare($query);
         
-        // Sanitize inputs
+        // Clean and bind data
         $this->title = htmlspecialchars(strip_tags($this->title));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->position = htmlspecialchars(strip_tags($this->position));
         $this->type = htmlspecialchars(strip_tags($this->type));
         $this->difficulty = htmlspecialchars(strip_tags($this->difficulty));
+        $this->engine_level = (int)$this->engine_level;
         
-        // Bind values
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":position", $this->position);
-        $stmt->bindParam(":type", $this->type);
-        $stmt->bindParam(":difficulty", $this->difficulty);
-        $stmt->bindParam(":engine_level", $this->engine_level);
-        $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":created_by", $this->created_by);
+        $stmt->bindParam(1, $this->title);
+        $stmt->bindParam(2, $this->description);
+        $stmt->bindParam(3, $this->position);
+        $stmt->bindParam(4, $this->type);
+        $stmt->bindParam(5, $this->difficulty);
+        $stmt->bindParam(6, $this->engine_level);
+        $stmt->bindParam(7, $this->preview_url);
+        $stmt->bindParam(8, $this->id);
+        $stmt->bindParam(9, $this->created_by);
         
         return $stmt->execute();
     }
     
-    // Delete position
+    // Delete a practice position
     public function delete() {
         $query = "DELETE FROM " . $this->table_name . " 
-                 WHERE id = ? AND created_by = ?";
-        
+                  WHERE id = ? AND created_by = ?";
+                  
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
         $stmt->bindParam(2, $this->created_by);

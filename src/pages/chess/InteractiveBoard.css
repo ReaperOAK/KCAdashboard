@@ -401,3 +401,60 @@
     flex-wrap: wrap;
   }
 }
+
+/* New styles */
+.interactive-board-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.interactive-board-page h1 {
+  color: #200e4a;
+  margin-bottom: 20px;
+}
+
+.board-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 18px;
+  color: #461fa3;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 18px;
+  color: #af0505;
+  background-color: #f8e4e4;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.game-info {
+  background-color: #f3f1f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.game-info h2 {
+  color: #461fa3;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.game-info p {
+  margin: 8px 0;
+}

@@ -65,6 +65,36 @@ try {
     )";
     $db->exec($sql);
     
+    log_progress("Creating notifications table...");
+    $sql = "CREATE TABLE IF NOT EXISTS notifications (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        type VARCHAR(50) DEFAULT 'info',
+        category VARCHAR(50) DEFAULT 'general',
+        link VARCHAR(255),
+        is_read BOOLEAN DEFAULT FALSE,
+        email_sent BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
+    log_progress("Creating notification_preferences table...");
+    $sql = "CREATE TABLE IF NOT EXISTS notification_preferences (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        in_app BOOLEAN DEFAULT TRUE,
+        email BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY user_category (user_id, category),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $db->exec($sql);
+    
     log_progress("Creating password_resets table...");
     $sql = "CREATE TABLE IF NOT EXISTS password_resets (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -294,6 +324,7 @@ try {
     $db->exec($sql);
     
     // Player Stats
+    log_progress("Creating or updating chess_player_stats table...");
     $sql = "CREATE TABLE IF NOT EXISTS chess_player_stats (
         user_id INT PRIMARY KEY,
         games_played INT DEFAULT 0,
@@ -301,10 +332,64 @@ try {
         games_lost INT DEFAULT 0,
         games_drawn INT DEFAULT 0,
         rating INT DEFAULT 1200,
+        highest_rating INT DEFAULT 1200,
         last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )";
     $db->exec($sql);
+
+    log_progress("Adding foreign keys for chess_game_moves if needed...");
+    try {
+        $sql = "ALTER TABLE chess_game_moves
+                ADD CONSTRAINT fk_game_moves_game
+                FOREIGN KEY (game_id) REFERENCES chess_games(id)
+                ON DELETE CASCADE";
+        $db->exec($sql);
+        
+        $sql = "ALTER TABLE chess_game_moves
+                ADD CONSTRAINT fk_game_moves_user
+                FOREIGN KEY (made_by_id) REFERENCES users(id)
+                ON DELETE SET NULL";
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        log_progress("Note: Foreign keys may already exist: " . $e->getMessage());
+    }
+
+    log_progress("Adding foreign keys for chess_challenges if needed...");
+    try {
+        $sql = "ALTER TABLE chess_challenges
+                ADD CONSTRAINT fk_challenge_challenger
+                FOREIGN KEY (challenger_id) REFERENCES users(id)
+                ON DELETE CASCADE";
+        $db->exec($sql);
+        
+        $sql = "ALTER TABLE chess_challenges
+                ADD CONSTRAINT fk_challenge_recipient
+                FOREIGN KEY (recipient_id) REFERENCES users(id)
+                ON DELETE CASCADE";
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        log_progress("Note: Foreign keys may already exist: " . $e->getMessage());
+    }
+
+    log_progress("Creating upload directories for chess thumbnails...");
+    $chess_upload_dirs = [
+        'api/uploads/chess',
+        'api/uploads/chess/thumbnails'
+    ];
+
+    foreach ($chess_upload_dirs as $dir) {
+        $full_path = $base_path . $dir;
+        if (!file_exists($full_path)) {
+            if (@mkdir($full_path, 0755, true)) {
+                log_progress("Created directory: $dir");
+            } else {
+                log_progress("Warning: Failed to create directory: $dir (may require manual creation)");
+            }
+        } else {
+            log_progress("Directory already exists: $dir");
+        }
+    }
     
     log_progress("Created chess related tables successfully!");
 

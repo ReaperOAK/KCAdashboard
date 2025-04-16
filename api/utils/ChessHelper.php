@@ -160,13 +160,157 @@ class ChessHelper {
     /**
      * Check if a move is valid
      * 
-     * @param string $move The move to check
-     * @param string $fen The current position
-     * @return bool Whether the move is valid
+     * @param array $move Move data with from, to and optional promotion
+     * @param string $fen Current position in FEN notation
+     * @return bool True if move is valid
      */
     public static function isValidMove($move, $fen) {
-        // This would require a full chess rules implementation
-        // For simplicity, always return true in this example
+        // Basic validation
+        if (!isset($move['from']) || !isset($move['to'])) {
+            return false;
+        }
+        
+        // Simple validation of square coordinates
+        if (!self::isValidSquare($move['from']) || !self::isValidSquare($move['to'])) {
+            return false;
+        }
+
+        // For more complex validation, we would need to implement chess rules
+        // or use a chess library like php-chess
+        
+        // For now, we'll assume the frontend chess.js library handles validation
+        return true;
+    }
+    
+    /**
+     * Check if a square coordinate is valid
+     * 
+     * @param string $square Chess square (e.g., "e2")
+     * @return bool True if valid
+     */
+    private static function isValidSquare($square) {
+        if (strlen($square) !== 2) {
+            return false;
+        }
+        
+        $file = $square[0];
+        $rank = $square[1];
+        
+        return preg_match('/^[a-h]$/', $file) && preg_match('/^[1-8]$/', $rank);
+    }
+    
+    /**
+     * Convert a move to SAN (Standard Algebraic Notation)
+     * 
+     * @param array $move Move data with from, to and optional promotion
+     * @param string $fen Current position
+     * @return string Move in SAN format
+     */
+    public static function moveToSan($move, $fen) {
+        // This is a simplified version - a full implementation would require
+        // tracking the full position and piece movements
+        $from = $move['from'];
+        $to = $move['to'];
+        $promotion = isset($move['promotion']) ? $move['promotion'] : '';
+        
+        // Basic SAN format (simplified)
+        return $from . $to . $promotion;
+    }
+    
+    /**
+     * Calculate new Elo rating after a game
+     * 
+     * @param int $playerRating Current rating of player
+     * @param int $opponentRating Current rating of opponent
+     * @param float $score Game result (1.0 for win, 0.5 for draw, 0.0 for loss)
+     * @param int $kFactor K-factor (40 for new players, 20 for established players, 10 for masters)
+     * @return int New rating
+     */
+    public static function calculateNewRating($playerRating, $opponentRating, $score, $kFactor = 20) {
+        // Expected score based on Elo formula
+        $expectedScore = 1 / (1 + pow(10, ($opponentRating - $playerRating) / 400));
+        
+        // Calculate new rating
+        $newRating = round($playerRating + $kFactor * ($score - $expectedScore));
+        
+        return $newRating;
+    }
+    
+    /**
+     * Determine the default K-factor based on player's rating and games played
+     * 
+     * @param int $rating Player's current rating
+     * @param int $gamesPlayed Number of games played
+     * @return int K-factor value
+     */
+    public static function getKFactor($rating, $gamesPlayed) {
+        if ($gamesPlayed < 30) {
+            return 40; // New player
+        } elseif ($rating >= 2400) {
+            return 10; // Master-level player
+        } else {
+            return 20; // Established player
+        }
+    }
+    
+    /**
+     * Validate FEN (Forsyth-Edwards Notation) string
+     * 
+     * @param string $fen FEN string to validate
+     * @return bool True if valid
+     */
+    public static function validateFen($fen) {
+        // Basic validation - check format
+        $parts = explode(' ', $fen);
+        if (count($parts) !== 6) {
+            return false;
+        }
+        
+        // Validate board part (ranks must add up to 8 squares)
+        $ranks = explode('/', $parts[0]);
+        if (count($ranks) !== 8) {
+            return false;
+        }
+        
+        foreach ($ranks as $rank) {
+            $squares = 0;
+            for ($i = 0; $i < strlen($rank); $i++) {
+                $char = $rank[$i];
+                if (is_numeric($char)) {
+                    $squares += intval($char);
+                } else if (preg_match('/^[prnbqkPRNBQK]$/', $char)) {
+                    $squares++;
+                } else {
+                    return false; // Invalid character
+                }
+            }
+            
+            if ($squares !== 8) {
+                return false; // Each rank must have 8 squares
+            }
+        }
+        
+        // Active color validation
+        if ($parts[1] !== 'w' && $parts[1] !== 'b') {
+            return false;
+        }
+        
+        // Castling validation
+        if (!preg_match('/^(-|[KQkq]+)$/', $parts[2])) {
+            return false;
+        }
+        
+        // En passant validation
+        if ($parts[3] !== '-' && !preg_match('/^[a-h][36]$/', $parts[3])) {
+            return false;
+        }
+        
+        // Halfmove and fullmove counters must be non-negative integers
+        if (!is_numeric($parts[4]) || intval($parts[4]) < 0 || 
+            !is_numeric($parts[5]) || intval($parts[5]) < 1) {
+            return false;
+        }
+        
         return true;
     }
 }

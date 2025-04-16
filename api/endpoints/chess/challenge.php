@@ -26,100 +26,108 @@ try {
     // Validate data
     if(!isset($data->opponent_id) || !isset($data->timeControl) || !isset($data->color)) {
         http_response_code(400);
-        echo json_encode(["message" => "Missing required fields (opponent_id, timeControl, color)"]);
+        echo json_encode([
+            "message" => "Missing required fields: opponent_id, timeControl, color"
+        ]);
         exit;
     }
-    
+
     // Get database connection
     $database = new Database();
     $db = $database->getConnection();
-    
-    // Check if opponent exists and is active
-    $check_query = "SELECT id FROM users WHERE id = ? AND is_active = 1";
-    $check_stmt = $db->prepare($check_query);
-    $check_stmt->bindParam(1, $data->opponent_id);
-    $check_stmt->execute();
-    
-    if($check_stmt->rowCount() == 0) {
-        http_response_code(404);
-        echo json_encode(["message" => "Opponent not found or inactive"]);
-        exit;
-    }
-    
-    // Check for existing pending challenges between these users
-    $existing_query = "SELECT id FROM chess_challenges 
-                     WHERE ((challenger_id = ? AND recipient_id = ?) 
-                     OR (challenger_id = ? AND recipient_id = ?))
-                     AND status = 'pending' AND expires_at > NOW()";
-    
-    $existing_stmt = $db->prepare($existing_query);
-    $existing_stmt->bindParam(1, $user['id']);
-    $existing_stmt->bindParam(2, $data->opponent_id);
-    $existing_stmt->bindParam(3, $data->opponent_id);
-    $existing_stmt->bindParam(4, $user['id']);
-    $existing_stmt->execute();
-    
-    if($existing_stmt->rowCount() > 0) {
-        http_response_code(400);
-        echo json_encode(["message" => "A challenge is already pending between you and this player"]);
-        exit;
-    }
-    
-    // Determine color assignment
-    $color = strtolower($data->color);
-    if($color === 'random') {
-        $color = (rand(0, 1) == 0) ? 'white' : 'black';
-    }
-    
-    // Expiration time (30 minutes from now)
-    $expires_at = date('Y-m-d H:i:s', strtotime('+30 minutes'));
-    
-    // Create challenge
-    $query = "INSERT INTO chess_challenges 
-            (challenger_id, recipient_id, time_control, color, position, expires_at)
-            VALUES (?, ?, ?, ?, ?, ?)";
-    
+
+    // Validate opponent_id refers to a real user
+    $query = "SELECT id, role, is_active FROM users WHERE id = :opponent_id";
     $stmt = $db->prepare($query);
-    
-    // Position defaults to 'start' if not specified
+    $stmt->bindParam(':opponent_id', $data->opponent_id);
+    $stmt->execute();
+
+    if($stmt->rowCount() == 0) {
+        http_response_code(400);
+        echo json_encode(["message" => "Opponent not found"]);
+        exit;
+    }
+
+    $opponent = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Check if opponent is active
+    if(!$opponent['is_active']) {
+        http_response_code(400);
+        echo json_encode(["message" => "Cannot challenge inactive user"]);
+        exit;
+    }
+
+    // Check if user is challenging themselves
+    if($user['id'] == $data->opponent_id) {
+        http_response_code(400);
+        echo json_encode(["message" => "Cannot challenge yourself"]);
+        exit;
+    }
+
+    // Set expiration time (24 hours from now)
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+    // Set default position to starting position if not provided
     $position = isset($data->position) ? $data->position : 'start';
-    
-    $stmt->bindParam(1, $user['id']);
-    $stmt->bindParam(2, $data->opponent_id);
-    $stmt->bindParam(3, $data->timeControl);
-    $stmt->bindParam(4, $color);
-    $stmt->bindParam(5, $position);
-    $stmt->bindParam(6, $expires_at);
-    
+
+    // Insert challenge into database
+    $query = "INSERT INTO chess_challenges 
+              (challenger_id, recipient_id, time_control, color, position, status, created_at, expires_at) 
+              VALUES (:challenger_id, :recipient_id, :time_control, :color, :position, 'pending', NOW(), :expires_at)";
+
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':challenger_id', $user['id']);
+    $stmt->bindParam(':recipient_id', $data->opponent_id);
+    $stmt->bindParam(':time_control', $data->timeControl);
+    $stmt->bindParam(':color', $data->color);
+    $stmt->bindParam(':position', $position);
+    $stmt->bindParam(':expires_at', $expiresAt);
+
     if($stmt->execute()) {
-        $challenge_id = $db->lastInsertId();
+        $challengeId = $db->lastInsertId();
+
+        // Create a notification for the recipient
+        $notifyQuery = "INSERT INTO notifications 
+                        (user_id, title, message, type, is_read, created_at) 
+                        VALUES (:user_id, 'New Chess Challenge', :message, 'challenge', 0, NOW())";
         
-        // TODO: Notification to recipient should be sent here
-        // For example, email, push notification, or in-app notification
+        $message = $user['full_name'] . ' has challenged you to a chess game.';
         
+        $notifyStmt = $db->prepare($notifyQuery);
+        $notifyStmt->bindParam(':user_id', $data->opponent_id);
+        $notifyStmt->bindParam(':message', $message);
+        $notifyStmt->execute();
+
         http_response_code(201);
         echo json_encode([
             "success" => true,
             "message" => "Challenge sent successfully",
             "challenge" => [
-                "id" => $challenge_id,
-                "opponent_id" => $data->opponent_id,
-                "color" => $color,
+                "id" => $challengeId,
+                "opponent" => [
+                    "id" => $opponent['id'],
+                    "role" => $opponent['role']
+                ],
                 "timeControl" => $data->timeControl,
-                "position" => $position,
-                "expires_at" => $expires_at
+                "color" => $data->color,
+                "status" => "pending",
+                "created_at" => date('Y-m-d H:i:s'),
+                "expires_at" => $expiresAt
             ]
         ]);
     } else {
         http_response_code(500);
-        echo json_encode(["message" => "Unable to create challenge"]);
+        echo json_encode([
+            "success" => false,
+            "message" => "Could not create challenge"
+        ]);
     }
-    
+
 } catch(Exception $e) {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" => "Unable to create challenge",
+        "message" => "Failed to process challenge request",
         "error" => $e->getMessage()
     ]);
 }

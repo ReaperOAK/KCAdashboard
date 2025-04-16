@@ -8,8 +8,8 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 // Include database and object files
 require_once '../../config/Database.php';
-require_once '../../models/ChessGame.php';
 require_once '../../middleware/auth.php';
+require_once '../../utils/ChessHelper.php';
 
 try {
     // Get authenticated user
@@ -27,75 +27,145 @@ try {
     // Validate data
     if(!isset($data->game_id) || !isset($data->move) || !isset($data->fen)) {
         http_response_code(400);
-        echo json_encode(["message" => "Missing required fields (game_id, move, fen)"]);
+        echo json_encode([
+            "message" => "Missing required fields: game_id, move, fen"
+        ]);
         exit;
     }
-    
+
     // Get database connection
     $database = new Database();
     $db = $database->getConnection();
+
+    // Get the game details
+    $query = "SELECT g.*, 
+              w.full_name as white_player_name, 
+              b.full_name as black_player_name
+              FROM chess_games g
+              JOIN users w ON g.white_player_id = w.id
+              JOIN users b ON g.black_player_id = b.id
+              WHERE g.id = :game_id AND (g.white_player_id = :user_id OR g.black_player_id = :user_id)
+              AND g.status = 'active'";
     
-    // Initialize game object
-    $game = new ChessGame($db);
-    
-    // Check if user is part of the game
-    $stmt = $game->getById($data->game_id, $user['id']);
-    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':game_id', $data->game_id);
+    $stmt->bindParam(':user_id', $user['id']);
+    $stmt->execute();
+
     if($stmt->rowCount() == 0) {
         http_response_code(404);
-        echo json_encode(["message" => "Game not found or you don't have access"]);
+        echo json_encode([
+            "success" => false,
+            "message" => "Game not found, not active, or you are not a player"
+        ]);
         exit;
     }
-    
-    $game_data = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // Check if game is active
-    if($game_data['status'] != 'active') {
+
+    $game = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Determine player color and check if it's their turn
+    $isWhite = ($game['white_player_id'] == $user['id']);
+    $currentTurn = strpos($game['position'], ' w ') !== false ? 'white' : 'black';
+
+    if(($isWhite && $currentTurn !== 'white') || (!$isWhite && $currentTurn !== 'black')) {
         http_response_code(400);
-        echo json_encode(["message" => "Game is not active"]);
+        echo json_encode([
+            "success" => false,
+            "message" => "Not your turn"
+        ]);
         exit;
     }
-    
-    // Check if it's user's turn
-    $is_white = ($game_data['white_id'] == $user['id']);
-    $is_white_turn = (strpos($game_data['position'], ' w ') !== false);
-    
-    if(($is_white && !$is_white_turn) || (!$is_white && $is_white_turn)) {
-        http_response_code(400);
-        echo json_encode(["message" => "It's not your turn"]);
-        exit;
+
+    // Validate the move is legal 
+    // (In a real implementation, you would validate the move using a chess library)
+    // Using ChessHelper::isValidMove if available
+    if(method_exists('ChessHelper', 'isValidMove')) {
+        if(!ChessHelper::isValidMove($data->move, $game['position'])) {
+            http_response_code(400);
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid move"
+            ]);
+            exit;
+        }
     }
-    
-    // Update game with new position
-    $game->id = $data->game_id;
-    $game->position = $data->fen;
-    
-    if($game->updatePosition()) {
-        // Record move in history
-        $move_number = floor(count(explode(' ', $game_data['position'])) / 2) + 1;
-        $move_san = $data->move->san ?? "{$data->move->from}-{$data->move->to}";
-        $made_by_id = $user['id'];
+
+    // Begin transaction
+    $db->beginTransaction();
+
+    try {
+        // Update game with new position
+        $updateQuery = "UPDATE chess_games 
+                       SET position = :position, last_move_at = NOW()
+                       WHERE id = :game_id";
         
-        $game->recordMove($move_number, $move_san, $data->fen, $made_by_id);
+        $updateStmt = $db->prepare($updateQuery);
+        $updateStmt->bindParam(':position', $data->fen);
+        $updateStmt->bindParam(':game_id', $data->game_id);
+        $updateStmt->execute();
+
+        // Record the move
+        $moveQuery = "INSERT INTO chess_game_moves 
+                     (game_id, move_number, move_san, position_after, made_by_id, created_at)
+                     VALUES (:game_id, 
+                            (SELECT COUNT(*) FROM chess_game_moves WHERE game_id = :game_id) + 1, 
+                            :move_san, :position_after, :made_by_id, NOW())";
+        
+        // Extract move in SAN format from the move data
+        // For simplicity, we'll just use the raw move data
+        $moveSan = $data->move['from'] . $data->move['to'] . 
+                  (isset($data->move['promotion']) ? $data->move['promotion'] : '');
+        
+        $moveStmt = $db->prepare($moveQuery);
+        $moveStmt->bindParam(':game_id', $data->game_id);
+        $moveStmt->bindParam(':move_san', $moveSan);
+        $moveStmt->bindParam(':position_after', $data->fen);
+        $moveStmt->bindParam(':made_by_id', $user['id']);
+        $moveStmt->execute();
+
+        // Check for checkmate/stalemate and update game status if needed
+        // This would require more complex chess logic
+
+        // For demonstration, we'll assume the game continues
+        // In a real implementation, you would check for game end conditions
+
+        // Create a notification for the opponent
+        $opponentId = $isWhite ? $game['black_player_id'] : $game['white_player_id'];
+        $opponentName = $isWhite ? $game['black_player_name'] : $game['white_player_name'];
+        
+        $notifyQuery = "INSERT INTO notifications 
+                       (user_id, title, message, type, is_read, created_at) 
+                       VALUES (:user_id, 'Your Move', :message, 'game', 0, NOW())";
+        
+        $message = $user['full_name'] . ' has made a move in your chess game.';
+        
+        $notifyStmt = $db->prepare($notifyQuery);
+        $notifyStmt->bindParam(':user_id', $opponentId);
+        $notifyStmt->bindParam(':message', $message);
+        $notifyStmt->execute();
+
+        // Commit transaction
+        $db->commit();
         
         http_response_code(200);
         echo json_encode([
             "success" => true,
-            "message" => "Move recorded successfully"
+            "message" => "Move made successfully",
+            "gameId" => $data->game_id,
+            "position" => $data->fen,
+            "moveNumber" => $moveStmt->rowCount(),
+            "lastMoveAt" => date('Y-m-d H:i:s')
         ]);
-    } else {
-        http_response_code(500);
-        echo json_encode([
-            "success" => false,
-            "message" => "Unable to make move"
-        ]);
+    } catch(Exception $e) {
+        // Rollback transaction on error
+        $db->rollBack();
+        throw $e;
     }
-    
 } catch(Exception $e) {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" => "Unable to make move",
+        "message" => "Failed to process move",
         "error" => $e->getMessage()
     ]);
 }

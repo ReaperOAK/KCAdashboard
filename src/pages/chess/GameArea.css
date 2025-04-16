@@ -9,10 +9,21 @@
   margin-bottom: 1.5rem;
 }
 
+.game-area-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.game-area-page h1 {
+  color: #200e4a;
+  margin-bottom: 20px;
+}
+
 .game-area-tabs {
   display: flex;
-  border-bottom: 2px solid #f3f1f9;
-  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0f0;
+  margin-bottom: 24px;
 }
 
 .tab-btn {
@@ -36,6 +47,36 @@
   border-bottom-color: #461fa3;
 }
 
+.tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #666;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.tab.active {
+  color: #461fa3;
+  font-weight: bold;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #461fa3;
+}
+
+.tab:hover {
+  background-color: #f3f1f9;
+}
+
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -54,6 +95,12 @@
   gap: 12px;
 }
 
+.filter-controls {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .search-box input {
   padding: 8px 12px;
   border: 1px solid #c2c1d3;
@@ -68,6 +115,13 @@
   background-color: white;
 }
 
+.status-filter {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #461fa3;
+}
+
 /* Games list styles */
 .games-grid, .practice-grid {
   display: grid;
@@ -80,14 +134,14 @@
   background-color: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .game-card:hover, .practice-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .game-card.your-turn {
@@ -169,13 +223,21 @@
   background-color: #f3f1f9;
 }
 
+.game-card-preview, .practice-card-preview {
+  height: 150px;
+  background-color: #f3f1f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .mini-board {
-  width: 160px;
-  height: 160px;
-  background-color: #e6e6e6;
-  background-size: cover;
+  width: 80%;
+  height: 80%;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
-  border: 1px solid #ddd;
+  background-color: #e6e6e6; /* Fallback background color */
 }
 
 .game-card-footer, .practice-card-footer {
@@ -190,6 +252,10 @@
   padding: 0 16px;
 }
 
+.game-card-content, .practice-card-content {
+  padding: 16px;
+}
+
 .practice-description {
   font-size: 14px;
   color: #666;
@@ -198,6 +264,31 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.practice-description {
+  color: #666;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.practice-type, .practice-difficulty {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background-color: #f3f1f9;
+  color: #461fa3;
+}
+
+.practice-creator {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: right;
 }
 
 .new-game-actions, .new-practice-actions {
@@ -221,12 +312,41 @@
   background-color: #7646eb;
 }
 
+.challenge-btn {
+  margin-top: 16px;
+  background-color: #461fa3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.challenge-btn:hover {
+  background-color: #341680;
+}
+
 .no-games, .no-practice {
-  padding: 40px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
   background-color: #f3f1f9;
   border-radius: 8px;
-  color: #666;
+  padding: 32px;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #f8e4e4;
+  color: #af0505;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 /* Game board view styles */
@@ -258,6 +378,59 @@
   border-radius: 4px;
   font-size: 14px;
   color: #461fa3;
+}
+
+.game-players {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.white-player, .black-player {
+  font-weight: 500;
+  color: #200e4a;
+}
+
+.vs {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.game-meta, .practice-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.game-status {
+  display: flex;
+  justify-content: space-between;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background-color: #e7f0f7;
+  color: #2b6cb0;
+}
+
+.status-badge.completed {
+  background-color: #e9f5e9;
+  color: #38a169;
+}
+
+.result-badge {
+  color: #461fa3;
+  font-weight: 600;
 }
 
 .chess-board-wrapper {
@@ -328,8 +501,10 @@
 }
 
 .loading {
-  padding: 40px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
   color: #461fa3;
 }
 
@@ -356,5 +531,14 @@
   
   .games-grid, .practice-grid {
     grid-template-columns: 1fr;
+  }
+
+  .game-area-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .tab {
+    padding: 12px 16px;
   }
 }

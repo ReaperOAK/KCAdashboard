@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import ChessBoard from '../../components/chess/ChessBoard';
+import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
 import './ChessStudies.css';
 
@@ -391,6 +392,8 @@ const ChessStudies = () => {
           Create New Study
         </button>
       </header>
+      
+      <ChessNavigation />
       
       <div className="studies-description">
         <p>Create and analyze chess positions, store your opening repertoire, or study endgame principles.</p>

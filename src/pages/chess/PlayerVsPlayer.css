@@ -238,6 +238,73 @@
   color: #f44336;
 }
 
+/* Computer play styles */
+.computer-play-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.computer-options {
+  background-color: #f3f1f9;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.option-group label {
+  font-weight: 500;
+  color: #200e4a;
+}
+
+.level-slider {
+  width: 100%;
+  accent-color: #461fa3;
+}
+
+.level-display {
+  font-weight: bold;
+  color: #461fa3;
+  text-align: center;
+}
+
+.radio-options {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-label, .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.option-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.computer-board-container {
+  margin: 0 auto;
+  max-width: 600px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .chess-header {
     flex-direction: column;
@@ -262,6 +329,14 @@
   
   .games-table {
     font-size: 0.9rem;
+  }
+  
+  .computer-options {
+    flex-direction: column;
+  }
+  
+  .computer-board-container {
+    padding: 10px;
   }
 }
 

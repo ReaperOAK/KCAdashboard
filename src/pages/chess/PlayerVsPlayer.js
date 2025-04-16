@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ChallengeList from '../../components/chess/ChallengeList';
 import PlayerList from '../../components/chess/PlayerList';
 import ChessNavigation from '../../components/chess/ChessNavigation';
+import ChessBoard from '../../components/chess/ChessBoard';
 import ApiService from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
 import './PlayerVsPlayer.css';
@@ -17,6 +18,9 @@ const PlayerVsPlayer = () => {
   const [playerStats, setPlayerStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [engineLevel, setEngineLevel] = useState(10);
+  const [engineColor, setEngineColor] = useState('black');
+  const [useOnlineAPI, setUseOnlineAPI] = useState(false);
   
   // Get online players
   const fetchOnlinePlayers = async () => {
@@ -178,6 +182,12 @@ const PlayerVsPlayer = () => {
           )}
         </button>
         <button 
+          className={`tab ${activeTab === 'computer' ? 'active' : ''}`}
+          onClick={() => setActiveTab('computer')}
+        >
+          Play Computer
+        </button>
+        <button 
           className={`tab ${activeTab === 'stats' ? 'active' : ''}`}
           onClick={() => setActiveTab('stats')}
         >
@@ -201,6 +211,79 @@ const PlayerVsPlayer = () => {
             onAccept={handleAcceptChallenge}
             onRefresh={handleRefresh}
           />
+        )}
+        
+        {activeTab === 'computer' && (
+          <div className="computer-play-container">
+            <div className="computer-options">
+              <div className="option-group">
+                <label>Engine Level</label>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="20" 
+                  value={engineLevel} 
+                  onChange={(e) => setEngineLevel(parseInt(e.target.value))} 
+                  className="level-slider"
+                />
+                <span className="level-display">{engineLevel}</span>
+              </div>
+              
+              <div className="option-group">
+                <label>Play as</label>
+                <div className="radio-options">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name="color"
+                      value="white"
+                      checked={engineColor === 'black'}
+                      onChange={() => setEngineColor('black')}
+                    />
+                    White
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name="color"
+                      value="black"
+                      checked={engineColor === 'white'}
+                      onChange={() => setEngineColor('white')}
+                    />
+                    Black
+                  </label>
+                </div>
+              </div>
+              
+              <div className="option-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={useOnlineAPI}
+                    onChange={(e) => setUseOnlineAPI(e.target.checked)}
+                  />
+                  Use Online API (more powerful analysis)
+                </label>
+                <p className="option-hint">
+                  The online API provides stronger analysis but requires an internet connection.
+                </p>
+              </div>
+            </div>
+            
+            <div className="computer-board-container">
+              <ChessBoard 
+                position="start"
+                orientation={engineColor === 'black' ? 'white' : 'black'}
+                allowMoves={true}
+                showHistory={true}
+                showAnalysis={false}
+                engineLevel={engineLevel}
+                playMode="vs-ai"
+                width={560}
+                useOnlineAPI={useOnlineAPI}
+              />
+            </div>
+          </div>
         )}
         
         {activeTab === 'stats' && playerStats && (

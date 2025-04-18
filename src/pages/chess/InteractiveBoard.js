@@ -124,54 +124,36 @@ const InteractiveBoard = () => {
     let challengeInterval = null;
     
     if (!id) {
+      // Track whether we've already found and processed a challenge
+      const foundChallengesRef = useRef(new Set());
+      
       const pollChallenges = async () => {
         try {
           const response = await ApiService.getChallenges();
           
           if (response.success && response.challenges) {
-            // First check for challenges with gameId directly
+            // First check for challenges with gameId directly - but only process each once
             const acceptedChallengeWithGameId = response.challenges.find(
-              c => c.direction === 'outgoing' && c.gameId
+              c => c.direction === 'outgoing' && c.gameId && 
+                  c.status === 'accepted' && 
+                  !foundChallengesRef.current.has(`${c.id}-${c.gameId}`)
             );
             
             if (acceptedChallengeWithGameId) {
-              console.log("Found accepted challenge with gameId:", acceptedChallengeWithGameId);
-              // Navigate to the game board
-              navigate(`/chess/game/${acceptedChallengeWithGameId.gameId}`);
-              return;
-            }
-            
-            // Also check for challenges marked as accepted
-            const acceptedChallenge = response.challenges.find(
-              c => c.direction === 'outgoing' && c.status === 'accepted'
-            );
-            
-            if (acceptedChallenge) {
-              console.log("Found accepted challenge without gameId:", acceptedChallenge);
+              console.log("Found new accepted challenge with gameId:", acceptedChallengeWithGameId);
               
-              // If we have a recently created game between these players, try to find it
-              if (acceptedChallenge.challenger && acceptedChallenge.recipient) {
-                try {
-                  const gamesResponse = await ApiService.getChessGames();
-                  
-                  if (gamesResponse.success && gamesResponse.games) {
-                    // Find the most recent game between these players
-                    const matchingGame = gamesResponse.games.find(g => 
-                      (g.white_player.id === acceptedChallenge.challenger.id && 
-                       g.black_player.id === acceptedChallenge.recipient.id) ||
-                      (g.white_player.id === acceptedChallenge.recipient.id && 
-                       g.black_player.id === acceptedChallenge.challenger.id)
-                    );
-                    
-                    if (matchingGame) {
-                      console.log("Found matching game:", matchingGame);
-                      navigate(`/chess/game/${matchingGame.id}`);
-                      return;
-                    }
-                  }
-                } catch (err) {
-                  console.error("Error fetching games to match with challenge:", err);
-                }
+              // Mark this challenge as processed
+              foundChallengesRef.current.add(`${acceptedChallengeWithGameId.id}-${acceptedChallengeWithGameId.gameId}`);
+              
+              // Check if the game was created in the last 5 minutes (300 seconds)
+              const challengeTime = new Date(acceptedChallengeWithGameId.created_at).getTime();
+              const currentTime = new Date().getTime();
+              const fiveMinutesInMs = 5 * 60 * 1000;
+              
+              if (currentTime - challengeTime < fiveMinutesInMs) {
+                // Navigate to the game board for recently created games only
+                navigate(`/chess/game/${acceptedChallengeWithGameId.gameId}`);
+                return;
               }
             }
           }
@@ -183,8 +165,8 @@ const InteractiveBoard = () => {
       // Run once immediately
       pollChallenges();
       
-      // Then set up polling every 3 seconds
-      challengeInterval = setInterval(pollChallenges, 3000);
+      // Then set up polling every 5 seconds
+      challengeInterval = setInterval(pollChallenges, 5000);
     }
     
     return () => {

@@ -112,9 +112,29 @@ try {
                             :move_san, :position_after, :made_by_id, NOW())";
         
         // Extract move in SAN format from the move data
-        // For simplicity, we'll just use the raw move data
-        $moveSan = $data->move['from'] . $data->move['to'] . 
-                  (isset($data->move['promotion']) ? $data->move['promotion'] : '');
+        // Handle different possible move data formats
+        $moveSan = '';
+        if (is_object($data->move)) {
+            // If move is sent as an object with from/to properties
+            $from = isset($data->move->from) ? $data->move->from : '';
+            $to = isset($data->move->to) ? $data->move->to : '';
+            $promotion = isset($data->move->promotion) ? $data->move->promotion : '';
+            $moveSan = $from . $to . $promotion;
+        } elseif (is_array($data->move)) {
+            // If move is sent as an array (decoded JSON array)
+            $from = isset($data->move['from']) ? $data->move['from'] : '';
+            $to = isset($data->move['to']) ? $data->move['to'] : '';
+            $promotion = isset($data->move['promotion']) ? $data->move['promotion'] : '';
+            $moveSan = $from . $to . $promotion;
+        } elseif (is_string($data->move)) {
+            // If move is sent as a string
+            $moveSan = $data->move;
+        }
+        
+        // If we couldn't determine the move, use a placeholder to prevent DB errors
+        if (empty($moveSan)) {
+            $moveSan = 'unknown';
+        }
         
         $moveStmt = $db->prepare($moveQuery);
         $moveStmt->bindParam(':game_id', $data->game_id);
@@ -122,12 +142,6 @@ try {
         $moveStmt->bindParam(':position_after', $data->fen);
         $moveStmt->bindParam(':made_by_id', $user['id']);
         $moveStmt->execute();
-
-        // Check for checkmate/stalemate and update game status if needed
-        // This would require more complex chess logic
-
-        // For demonstration, we'll assume the game continues
-        // In a real implementation, you would check for game end conditions
 
         // Create a notification for the opponent
         $opponentId = $isWhite ? $game['black_player_id'] : $game['white_player_id'];
@@ -153,7 +167,7 @@ try {
             "message" => "Move made successfully",
             "gameId" => $data->game_id,
             "position" => $data->fen,
-            "moveNumber" => $moveStmt->rowCount(),
+            "moveNumber" => $moveStmt->rowCount() > 0 ? 1 : 0,
             "lastMoveAt" => date('Y-m-d H:i:s')
         ]);
     } catch(Exception $e) {
@@ -165,7 +179,7 @@ try {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" => "Failed to process move",
+        "message" => "Failed to process move: " . $e->getMessage(),
         "error" => $e->getMessage()
     ]);
 }

@@ -82,15 +82,54 @@ const InteractiveBoard = () => {
         try {
           const response = await ApiService.getChallenges();
           
+          console.log("Polling for accepted challenges:", response);
+          
           if (response.success && response.challenges) {
-            // Look for any accepted challenges
+            // First check for challenges with gameId directly
+            const acceptedChallengeWithGameId = response.challenges.find(
+              c => c.direction === 'outgoing' && c.gameId
+            );
+            
+            if (acceptedChallengeWithGameId) {
+              console.log("Found accepted challenge with gameId:", acceptedChallengeWithGameId);
+              // Navigate to the game board
+              navigate(`/chess/game/${acceptedChallengeWithGameId.gameId}`);
+              return;
+            }
+            
+            // Also check for challenges marked as accepted
             const acceptedChallenge = response.challenges.find(
               c => c.direction === 'outgoing' && c.status === 'accepted'
             );
             
-            if (acceptedChallenge && acceptedChallenge.gameId) {
-              // Navigate to the game board
-              navigate(`/chess/game/${acceptedChallenge.gameId}`);
+            if (acceptedChallenge) {
+              console.log("Found accepted challenge without gameId:", acceptedChallenge);
+              
+              // If we have a recently created game between these players, try to find it
+              if (acceptedChallenge.challenger && acceptedChallenge.recipient) {
+                try {
+                  const gamesResponse = await ApiService.getChessGames();
+                  console.log("Checking games for match:", gamesResponse);
+                  
+                  if (gamesResponse.success && gamesResponse.games) {
+                    // Find the most recent game between these players
+                    const matchingGame = gamesResponse.games.find(g => 
+                      (g.white_player.id === acceptedChallenge.challenger.id && 
+                       g.black_player.id === acceptedChallenge.recipient.id) ||
+                      (g.white_player.id === acceptedChallenge.recipient.id && 
+                       g.black_player.id === acceptedChallenge.challenger.id)
+                    );
+                    
+                    if (matchingGame) {
+                      console.log("Found matching game:", matchingGame);
+                      navigate(`/chess/game/${matchingGame.id}`);
+                      return;
+                    }
+                  }
+                } catch (err) {
+                  console.error("Error fetching games to match with challenge:", err);
+                }
+              }
             }
           }
         } catch (err) {
@@ -98,8 +137,11 @@ const InteractiveBoard = () => {
         }
       };
       
-      // Set up polling every 5 seconds
-      const challengeInterval = setInterval(pollChallenges, 5000);
+      // Run once immediately
+      pollChallenges();
+      
+      // Then set up polling every 3 seconds (reduced from 5 for faster response)
+      const challengeInterval = setInterval(pollChallenges, 3000);
       
       return () => clearInterval(challengeInterval);
     }

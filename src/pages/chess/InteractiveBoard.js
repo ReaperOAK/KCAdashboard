@@ -19,6 +19,9 @@ const InteractiveBoard = () => {
   // Use ref to track consecutive error count for polling
   const errorCountRef = useRef(0);
   const maxConsecutiveErrors = 5;
+  
+  // Use ref to track processed challenges
+  const foundChallengesRef = useRef(new Set());
 
   // Function to poll for game updates - defined before being used in useEffect
   const pollGameUpdates = useCallback(async () => {
@@ -124,9 +127,6 @@ const InteractiveBoard = () => {
     let challengeInterval = null;
     
     if (!id) {
-      // Track whether we've already found and processed a challenge
-      const foundChallengesRef = useRef(new Set());
-      
       const pollChallenges = async () => {
         try {
           const response = await ApiService.getChallenges();

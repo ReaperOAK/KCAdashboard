@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
@@ -14,11 +14,21 @@ const InteractiveBoard = () => {
   const [gameData, setGameData] = useState(null);
   const [orientation, setOrientation] = useState('white');
   const [lastMoveAt, setLastMoveAt] = useState(null);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  
+  // Use ref to track consecutive error count for polling
+  const errorCountRef = useRef(0);
+  const maxConsecutiveErrors = 5;
 
   // Function to poll for game updates - defined before being used in useEffect
   const pollGameUpdates = useCallback(async () => {
+    if (!id) return;
+    
     try {
       const response = await ApiService.getGameDetails(id);
+      
+      // Reset error count on successful request
+      errorCountRef.current = 0;
       
       if (response.success && response.game) {
         // Check if there's new data to update - use multiple conditions to detect changes
@@ -45,12 +55,21 @@ const InteractiveBoard = () => {
         }
       }
     } catch (err) {
-      console.error("Error polling for game updates:", err);
+      // Increment error counter
+      errorCountRef.current += 1;
+      console.error(`Error polling for game updates (${errorCountRef.current}/${maxConsecutiveErrors}):`, err);
+      
+      // If too many consecutive errors, stop polling and show error
+      if (errorCountRef.current >= maxConsecutiveErrors) {
+        setError(`Connection issues detected. Please reload the page. (${err.message})`);
+      }
     }
   }, [id, position, gameData, lastMoveAt]);
 
   // Load game data if ID is provided
   useEffect(() => {
+    let pollInterval = null;
+    
     if (id) {
       const loadGame = async () => {
         try {
@@ -66,38 +85,48 @@ const InteractiveBoard = () => {
             if (response.game.yourColor === 'black') {
               setOrientation('black');
             }
+            
+            // Mark initial load as complete
+            setInitialLoadComplete(true);
           } else {
             setError('Failed to load game data');
           }
         } catch (err) {
+          console.error('Error loading game:', err);
           setError(err.message || 'Failed to load game');
         } finally {
           setLoading(false);
         }
       };
       
+      // Load the game data
       loadGame();
       
-      // Set up polling for game updates every 1.5 seconds (reduced from 3 for more responsive updates)
-      const pollInterval = setInterval(() => {
-        if (id) {
+      // Set up polling only after the initial load is complete
+      pollInterval = setInterval(() => {
+        if (id && !loading) {
           pollGameUpdates();
         }
       }, 1500);
-      
-      return () => clearInterval(pollInterval);
     }
-  }, [id, pollGameUpdates]);
+    
+    // Clean up interval on unmount
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [id, pollGameUpdates, loading]);
   
   // Poll for outgoing challenges that might have been accepted
   useEffect(() => {
     // Only run this effect if we're not already viewing a game
+    let challengeInterval = null;
+    
     if (!id) {
       const pollChallenges = async () => {
         try {
           const response = await ApiService.getChallenges();
-          
-          console.log("Polling for accepted challenges:", response);
           
           if (response.success && response.challenges) {
             // First check for challenges with gameId directly
@@ -124,7 +153,6 @@ const InteractiveBoard = () => {
               if (acceptedChallenge.challenger && acceptedChallenge.recipient) {
                 try {
                   const gamesResponse = await ApiService.getChessGames();
-                  console.log("Checking games for match:", gamesResponse);
                   
                   if (gamesResponse.success && gamesResponse.games) {
                     // Find the most recent game between these players
@@ -155,11 +183,15 @@ const InteractiveBoard = () => {
       // Run once immediately
       pollChallenges();
       
-      // Then set up polling every 3 seconds (reduced from 5 for faster response)
-      const challengeInterval = setInterval(pollChallenges, 3000);
-      
-      return () => clearInterval(challengeInterval);
+      // Then set up polling every 3 seconds
+      challengeInterval = setInterval(pollChallenges, 3000);
     }
+    
+    return () => {
+      if (challengeInterval) {
+        clearInterval(challengeInterval);
+      }
+    };
   }, [id, navigate]);
   
   // Handle move submission
@@ -209,12 +241,22 @@ const InteractiveBoard = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !initialLoadComplete) {
     return <div className="loading">Loading chess board...</div>;
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div className="error-container">
+        <div className="error">{error}</div>
+        <button 
+          className="reload-button" 
+          onClick={() => window.location.reload()}
+        >
+          Reload Page
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -239,12 +281,12 @@ const InteractiveBoard = () => {
       {gameData && (
         <div className="game-info">
           <h2>Game Information</h2>
-          <p><strong>Opponent:</strong> {gameData.opponent.name}</p>
+          <p><strong>Opponent:</strong> {gameData.opponent && gameData.opponent.name}</p>
           <p><strong>Your Color:</strong> {gameData.yourColor}</p>
           <p><strong>Time Control:</strong> {gameData.timeControl || 'Standard'}</p>
           <p><strong>Status:</strong> {gameData.status}</p>
           <p><strong>Turn:</strong> {gameData.yourTurn ? 'Your move' : "Opponent's move"}</p>
-          <p><strong>Last Move At:</strong> {new Date(lastMoveAt).toLocaleString()}</p>
+          {lastMoveAt && <p><strong>Last Move At:</strong> {new Date(lastMoveAt).toLocaleString()}</p>}
         </div>
       )}
     </div>

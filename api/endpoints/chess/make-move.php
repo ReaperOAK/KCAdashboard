@@ -128,15 +128,22 @@ try {
             }
         }
         
-        // Record the move
+        // First get the current max move number to avoid self-referencing the table
+        $moveNumberQuery = "SELECT COALESCE(MAX(move_number), 0) as max_move FROM chess_game_moves WHERE game_id = :game_id";
+        $moveNumberStmt = $db->prepare($moveNumberQuery);
+        $moveNumberStmt->bindParam(':game_id', $data->game_id);
+        $moveNumberStmt->execute();
+        $maxMoveRow = $moveNumberStmt->fetch(PDO::FETCH_ASSOC);
+        $nextMoveNumber = (int)$maxMoveRow['max_move'] + 1;
+        
+        // Now insert the move with the calculated move number
         $moveQuery = "INSERT INTO chess_game_moves 
                      (game_id, move_number, move_san, position_after, made_by_id, created_at)
-                     VALUES (:game_id, 
-                            (SELECT COALESCE(MAX(move_number), 0) FROM chess_game_moves WHERE game_id = :game_id) + 1, 
-                            :move_san, :position_after, :made_by_id, NOW())";
+                     VALUES (:game_id, :move_number, :move_san, :position_after, :made_by_id, NOW())";
                      
         $moveStmt = $db->prepare($moveQuery);
         $moveStmt->bindParam(':game_id', $data->game_id);
+        $moveStmt->bindParam(':move_number', $nextMoveNumber);
         $moveStmt->bindParam(':move_san', $moveSan);
         $moveStmt->bindParam(':position_after', $data->fen);
         $moveStmt->bindParam(':made_by_id', $user['id']);
@@ -165,7 +172,7 @@ try {
             "message" => "Move made successfully",
             "gameId" => $data->game_id,
             "position" => $data->fen,
-            "moveNumber" => 1, // Hardcoded to 1 for now to avoid potential issues
+            "moveNumber" => $nextMoveNumber,
             "lastMoveAt" => date('Y-m-d H:i:s')
         ]);
     } catch(Exception $e) {

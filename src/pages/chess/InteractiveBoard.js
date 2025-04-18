@@ -21,18 +21,33 @@ const InteractiveBoard = () => {
       const response = await ApiService.getGameDetails(id);
       
       if (response.success && response.game) {
-        // Only update if there's a new move (position changed)
-        if (response.game.position !== position) {
+        // Check if there's new data to update - use multiple conditions to detect changes
+        const shouldUpdate = (
+          // Position has changed
+          response.game.position !== position ||
+          // Turn has changed
+          (gameData && response.game.yourTurn !== gameData.yourTurn) ||
+          // Last move timestamp is different
+          (response.game.lastMove && lastMoveAt !== response.game.lastMove)
+        );
+        
+        if (shouldUpdate) {
+          console.log("Game updated with opponent's move:", {
+            oldPosition: position,
+            newPosition: response.game.position,
+            lastMoveAt: response.game.lastMove
+          });
+          
+          // Update all game data
           setGameData(response.game);
           setPosition(response.game.position);
           setLastMoveAt(response.game.lastMove);
-          console.log("Game updated with opponent's move");
         }
       }
     } catch (err) {
       console.error("Error polling for game updates:", err);
     }
-  }, [id, position]);
+  }, [id, position, gameData, lastMoveAt]);
 
   // Load game data if ID is provided
   useEffect(() => {
@@ -63,12 +78,12 @@ const InteractiveBoard = () => {
       
       loadGame();
       
-      // Set up polling for game updates every 3 seconds
+      // Set up polling for game updates every 1.5 seconds (reduced from 3 for more responsive updates)
       const pollInterval = setInterval(() => {
         if (id) {
           pollGameUpdates();
         }
-      }, 3000);
+      }, 1500);
       
       return () => clearInterval(pollInterval);
     }
@@ -156,21 +171,41 @@ const InteractiveBoard = () => {
     }
     
     try {
+      // Optimistically update the UI first for a smoother experience
+      setPosition(fen);
+      
+      // Update game data to reflect it's the opponent's turn now
+      setGameData(prev => ({
+        ...prev,
+        yourTurn: false,
+        position: fen
+      }));
+      
       // For online games, submit the move to the server
       const response = await ApiService.makeGameMove(id, move, fen);
       if (response.success) {
-        // Update local position
-        setPosition(fen);
-        setLastMoveAt(response.lastMoveAt);
+        // Update timestamp from server response
+        setLastMoveAt(response.lastMoveAt || new Date().toISOString());
         
-        // Update game data to reflect it's the opponent's turn now
-        setGameData(prev => ({
-          ...prev,
-          yourTurn: false
-        }));
+        // Force a poll update after a short delay to ensure synchronization
+        setTimeout(() => {
+          pollGameUpdates();
+        }, 500);
       }
     } catch (error) {
       console.error('Failed to submit move:', error);
+      
+      // On error, reload the game state to ensure consistency
+      try {
+        const response = await ApiService.getGameDetails(id);
+        if (response.success && response.game) {
+          setGameData(response.game);
+          setPosition(response.game.position);
+          setLastMoveAt(response.game.lastMove);
+        }
+      } catch (refreshError) {
+        console.error('Failed to refresh game after move error:', refreshError);
+      }
     }
   };
 

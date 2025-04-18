@@ -15,6 +15,25 @@ const InteractiveBoard = () => {
   const [orientation, setOrientation] = useState('white');
   const [lastMoveAt, setLastMoveAt] = useState(null);
 
+  // Function to poll for game updates - defined before being used in useEffect
+  const pollGameUpdates = useCallback(async () => {
+    try {
+      const response = await ApiService.getGameDetails(id);
+      
+      if (response.success && response.game) {
+        // Only update if there's a new move (position changed)
+        if (response.game.position !== position) {
+          setGameData(response.game);
+          setPosition(response.game.position);
+          setLastMoveAt(response.game.lastMove);
+          console.log("Game updated with opponent's move");
+        }
+      }
+    } catch (err) {
+      console.error("Error polling for game updates:", err);
+    }
+  }, [id, position]);
+
   // Load game data if ID is provided
   useEffect(() => {
     if (id) {
@@ -86,25 +105,6 @@ const InteractiveBoard = () => {
     }
   }, [id, navigate]);
   
-  // Function to poll for game updates
-  const pollGameUpdates = useCallback(async () => {
-    try {
-      const response = await ApiService.getGameDetails(id);
-      
-      if (response.success && response.game) {
-        // Only update if there's a new move (position changed)
-        if (response.game.position !== position) {
-          setGameData(response.game);
-          setPosition(response.game.position);
-          setLastMoveAt(response.game.lastMove);
-          console.log("Game updated with opponent's move");
-        }
-      }
-    } catch (err) {
-      console.error("Error polling for game updates:", err);
-    }
-  }, [id, position]);
-
   // Handle move submission
   const handleMove = async (move, fen) => {
     if (!id) {

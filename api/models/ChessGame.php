@@ -253,5 +253,23 @@ class ChessGame {
         
         return $stmt->execute();
     }
+    
+    // Get game by ID with user access check
+    public function getById($gameId, $userId) {
+        $query = "SELECT g.*, 
+                  w.id as white_id, w.full_name as white_player_name, 
+                  b.id as black_id, b.full_name as black_player_name
+                  FROM " . $this->table_name . " g
+                  JOIN users w ON g.white_player_id = w.id
+                  JOIN users b ON g.black_player_id = b.id
+                  WHERE g.id = :game_id AND (g.white_player_id = :user_id OR g.black_player_id = :user_id)";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':game_id', $gameId);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        
+        return $stmt;
+    }
 }
 ?>

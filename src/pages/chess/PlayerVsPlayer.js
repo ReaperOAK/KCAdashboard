@@ -109,12 +109,18 @@ const PlayerVsPlayer = () => {
       });
       
       if (response.success) {
-        // Refresh data after challenging
+        // Show a message indicating the challenge has been sent
+        alert(`Challenge sent! You'll be redirected to the game board when your opponent accepts.`);
+        
+        // Redirect to waiting for the player to view and track the challenge
+        setActiveTab('challenges');
+        
+        // Refresh the challenges list
         await Promise.all([
           fetchOnlinePlayers(),
-          fetchPlayerStats()
+          fetchPlayerStats(),
+          fetchChallenges()
         ]);
-        setActiveTab('challenges');
       }
     } catch (error) {
       console.error('Failed to challenge player:', error);

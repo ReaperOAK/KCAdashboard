@@ -35,7 +35,7 @@ const ChallengeList = ({ challenges, onAccept, onDecline, onRefresh }) => {
   const handleAccept = async (id) => {
     try {
       const response = await ApiService.respondToChallenge(id, true);
-      if (response.success) {
+      if (response.success && response.gameId) {
         if (onRefresh) onRefresh();
         if (onAccept) onAccept(response.gameId);
       }

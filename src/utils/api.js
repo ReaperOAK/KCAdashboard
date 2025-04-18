@@ -551,6 +551,10 @@ class ApiService {
   static async getPlayerStats() {
     return this.get('/chess/player-stats.php');
   }
+
+  static async getChallenges() {
+    return this.get('/chess/challenges.php');
+  }
 }
 
 export default ApiService;

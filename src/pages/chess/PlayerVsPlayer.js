@@ -50,9 +50,16 @@ const PlayerVsPlayer = () => {
   // Load challenges
   const fetchChallenges = useCallback(async () => {
     try {
-      // We'll get challenges from player stats
-      if (playerStats && playerStats.challenges) {
-        setChallenges(playerStats.challenges);
+      // Get challenges directly from the dedicated endpoint
+      const challengesResponse = await ApiService.getChallenges();
+      
+      if (challengesResponse && challengesResponse.success) {
+        setChallenges(challengesResponse.challenges || []);
+      } else {
+        // Fallback to extracting challenges from player stats
+        if (playerStats && playerStats.challenges) {
+          setChallenges(playerStats.challenges);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch challenges:', error);

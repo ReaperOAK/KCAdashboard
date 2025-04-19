@@ -74,9 +74,15 @@
   "engineStrict": false,
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@fullhuman/postcss-purgecss": "^7.0.2",
     "autoprefixer": "^10.4.20",
+    "compression-webpack-plugin": "^11.1.0",
+    "cssnano": "^7.0.6",
+    "cssnano-preset-advanced": "^7.0.6",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^3.4.15",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "resolutions": {
     "lichess-pgn-viewer": "^1.5.10"

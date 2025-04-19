@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ResetPassword from './pages/auth/ResetPassword';
 import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
-import Profile from './pages/Profile';
-import PGNViewer from './pages/PGNViewer';
-import NotificationPreferences from './pages/notifications/NotificationPreferences';
 
-import adminRoutes from './routes/adminRoutes';
-import teacherRoutes from './routes/teacherRoutes';
-import studentRoutes from './routes/studentRoutes';
-import chessRoutes from './routes/chessRoutes'; // Add this import
+// Lazy load components to reduce initial bundle size
+const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
+const Profile = lazy(() => import('./pages/Profile'));
+const PGNViewer = lazy(() => import('./pages/PGNViewer'));
+const NotificationPreferences = lazy(() => import('./pages/notifications/NotificationPreferences'));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
+  </div>
+);
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -46,9 +50,40 @@ const DashboardRedirect = () => {
 
 const AppContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [routes, setRoutes] = useState({
+    admin: [],
+    teacher: [],
+    student: [],
+    chess: []
+  });
   const { user } = useAuth();
   const publicRoutes = ['/login', '/register', '/reset-password'];
   const location = useLocation();
+
+  // Load routes dynamically
+  useEffect(() => {
+    const loadRoutes = async () => {
+      try {
+        const [adminR, teacherR, studentR, chessR] = await Promise.all([
+          import('./routes/adminRoutes').then(module => module.default),
+          import('./routes/teacherRoutes').then(module => module.default),
+          import('./routes/studentRoutes').then(module => module.default),
+          import('./routes/chessRoutes').then(module => module.default)
+        ]);
+        
+        setRoutes({
+          admin: adminR,
+          teacher: teacherR,
+          student: studentR,
+          chess: chessR
+        });
+      } catch (error) {
+        console.error('Failed to load routes:', error);
+      }
+    };
+    
+    loadRoutes();
+  }, []);
 
   // Effect to handle route changes
   useEffect(() => {
@@ -56,6 +91,9 @@ const AppContent = () => {
     if (window.innerWidth < 1024) {
       setIsSidebarOpen(false);
     }
+    
+    // Scroll to top on route change
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   const renderRoutes = (routes, allowedRoles) => {
@@ -65,7 +103,9 @@ const AppContent = () => {
         path={route.path}
         element={
           <ProtectedRoute allowedRoles={allowedRoles}>
-            <route.element />
+            <Suspense fallback={<LoadingFallback />}>
+              <route.element />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -94,56 +134,60 @@ const AppContent = () => {
                 <Breadcrumbs />
               </div>
             )}
-            <Routes>
-              {/* Common Routes */}
-              <Route path="/" element={<DashboardRedirect />} />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
-                    <Profile />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Add Notification Preferences Route */}
-              <Route 
-                path="/notifications/preferences" 
-                element={
-                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
-                    <NotificationPreferences />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* PGN Viewer Standalone Route */}
-              <Route 
-                path="/pgn-viewer/:id" 
-                element={
-                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
-                    <PGNViewer />
-                  </ProtectedRoute>
-                }
-              />
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                {/* Common Routes */}
+                <Route path="/" element={<DashboardRedirect />} />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Add Notification Preferences Route */}
+                <Route 
+                  path="/notifications/preferences" 
+                  element={
+                    <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                      <NotificationPreferences />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* PGN Viewer Standalone Route */}
+                <Route 
+                  path="/pgn-viewer/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                      <PGNViewer />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Role-based Routes */}
-              {renderRoutes(adminRoutes, ['admin'])}
-              {renderRoutes(teacherRoutes, ['teacher'])}
-              {renderRoutes(studentRoutes, ['student'])}
-              
-              {/* Chess Routes - available to all user roles */}
-              {renderRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
-            </Routes>
+                {/* Role-based Routes */}
+                {renderRoutes(routes.admin, ['admin'])}
+                {renderRoutes(routes.teacher, ['teacher'])}
+                {renderRoutes(routes.student, ['student'])}
+                
+                {/* Chess Routes - available to all user roles */}
+                {renderRoutes(routes.chess, ['student', 'teacher', 'admin'])}
+              </Routes>
+            </Suspense>
           </div>
         </>
       )}
       {(!user || publicRoutes.includes(window.location.pathname)) && (
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/" element={<DashboardRedirect />} />
-        </Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/" element={<DashboardRedirect />} />
+          </Routes>
+        </Suspense>
       )}
     </div>
   );

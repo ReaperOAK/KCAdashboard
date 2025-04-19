@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Remove problematic scripts -->
-    <!-- <script src="/stockfish/direct-bootstrap.js"></script> -->
-    <!-- <script src="/stockfish/validate.js"></script> -->
-    <!-- <script src="/stockfish/debug.js"></script> -->
-    <!-- <script src="/stockfish/bootstrap.js"></script> -->
-    <!-- <script src="/stockfish/interceptor.js"></script> -->
-    
-    <!-- Add a note about the custom engine -->
-    <script>
-      console.log('KCA Dashboard is using a custom chess engine instead of Stockfish');
-    </script>
-    
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,35 +10,71 @@
       content="KCA Dashboard - Kolkata Chess Academy"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="%PUBLIC_URL%/logo192.png" as="image" />
+    
+    <!-- Preconnect to important domains -->
+    <link rel="preconnect" href="https://accounts.google.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://accounts.google.com" />
+    
+    <!-- Add note about the custom engine -->
+    <script>
+      console.log('KCA Dashboard is using a custom chess engine instead of Stockfish');
+    </script>
+    
     <title>KCA Dashboard</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Load non-critical scripts with defer -->
+    <script src="https://accounts.google.com/gsi/client" defer></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    
+    <!-- Add custom loading indicator until React loads -->
+    <div id="initial-loader" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background-color: #f3f1f9;">
+      <div style="width: 50px; height: 50px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    </div>
+    
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Hide loader when content is loaded */
+      body.loaded #initial-loader {
+        display: none;
+      }
+    </style>
+    
+    <script>
+      // Hide loader when app is ready
+      window.addEventListener('load', function() {
+        document.body.classList.add('loaded');
+      });
+      
+      // Add performance monitoring
+      if ('performance' in window && 'PerformanceObserver' in window) {
+        // FID (First Input Delay)
+        const fidObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            console.log('FID:', entry.processingStart - entry.startTime);
+          }
+        });
+        fidObserver.observe({type: 'first-input', buffered: true});
+        
+        // LCP (Largest Contentful Paint)
+        const lcpObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const lastEntry = entries[entries.length - 1];
+          console.log('LCP:', lastEntry.startTime);
+        });
+        lcpObserver.observe({type: 'largest-contentful-paint', buffered: true});
+      }
+    </script>
   </body>
 </html>

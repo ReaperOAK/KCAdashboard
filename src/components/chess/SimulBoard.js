@@ -1,53 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
+import { Chessboard } from 'react-chessboard';
 import './SimulBoard.css';
 
-const SimulBoard = ({
-  id,
-  position = 'start',
-  orientation = 'white',
-  allowMoves = true,
-  onMove = null,
-  opponentName = 'Opponent',
-  width = 300,
+const SimulBoard = ({ 
+  id, 
+  position, 
+  orientation = 'white', 
+  allowMoves = false, 
+  onMove, 
+  opponentName,
+  width = 400,
   isActive = false,
-  onBoardSelect = null,
-  result = null,
+  result = null
 }) => {
-  const [game, setGame] = useState(new Chess(position !== 'start' ? position : undefined));
+  const [game, setGame] = useState(new Chess());
   const [moveFrom, setMoveFrom] = useState('');
+  const [moveSquares, setMoveSquares] = useState({});
   const [optionSquares, setOptionSquares] = useState({});
-  const [isChecked, setIsChecked] = useState(false);
-  const [gameOver, setGameOver] = useState(result ? true : false);
-
-  // Update board state when position prop changes
+  
+  // Initialize game from FEN position
   useEffect(() => {
-    if (position !== 'start' && position !== game.fen()) {
-      setGame(new Chess(position));
+    if (position) {
+      try {
+        const newGame = new Chess();
+        newGame.load(position);
+        setGame(newGame);
+      } catch (error) {
+        console.error("Invalid FEN position:", error);
+      }
     }
-  }, [position, game]); // Add game to dependency array
-
-  // Check for game over and checks
-  useEffect(() => {
-    setIsChecked(game.inCheck());
-    
-    if (game.isGameOver() && !gameOver) {
-      setGameOver(true);
-    }
-  }, [game, gameOver]);
-
-  // Get possible moves for a square
-  function getMoveOptions(square) {
+  }, [position]);
+  
+  // Get the current turn (w or b)
+  const currentTurn = game.turn();
+  
+  // Check if game is over
+  const isGameOver = game.isGameOver();
+  
+  // Function to show possible moves
+  const getMoveOptions = (square) => {
     const moves = game.moves({
       square,
       verbose: true
     });
     
     if (moves.length === 0) return;
-
+    
     const newSquares = {};
-    moves.forEach((move) => {
+    moves.forEach(move => {
       newSquares[move.to] = {
         background:
           game.get(move.to) && game.get(move.to).color !== game.get(square).color
@@ -56,103 +57,184 @@ const SimulBoard = ({
         borderRadius: '50%'
       };
     });
+    
     newSquares[square] = {
       background: 'rgba(255, 255, 0, 0.4)'
     };
-    setOptionSquares(newSquares);
-  }
-
-  // Square click handler for making moves
-  function onSquareClick(square) {
-    if (!allowMoves || !isActive) return;
     
-    // Handle piece selection and movement
+    setOptionSquares(newSquares);
+  };
+  
+  // Function to handle square click
+  const onSquareClick = (square) => {
+    if (!allowMoves || isGameOver) return;
+    
+    // Check if it's player's turn based on board orientation
+    const isWhiteTurn = currentTurn === 'w';
+    if ((orientation === 'white' && !isWhiteTurn) || (orientation === 'black' && isWhiteTurn)) {
+      return;
+    }
+    
+    // If already have a moveFrom, attempt to make a move
     if (moveFrom) {
-      const gameCopy = new Chess(game.fen());
-      const move = {
+      const moveObj = {
         from: moveFrom,
         to: square,
-        promotion: 'q' // Always promote to queen for simplicity
+        promotion: 'q' // Default to queen for simplicity
       };
-
-      try {
-        gameCopy.move(move);
-        setGame(gameCopy);
+      
+      const move = makeMove(moveObj);
+      
+      // If move is valid, clear move indicators
+      if (move) {
         setMoveFrom('');
         setOptionSquares({});
-        
-        if (onMove) {
-          onMove(id, move, gameCopy.fen());
-        }
-      } catch (error) {
+        return;
+      }
+      
+      // If invalid move, try selecting a new square if it has a piece
+      const piece = game.get(square);
+      if (piece && piece.color === currentTurn) {
+        setMoveFrom(square);
+        getMoveOptions(square);
+      } else {
+        // Clear selection if invalid move and no new piece selected
         setMoveFrom('');
         setOptionSquares({});
       }
     } else {
+      // No piece selected yet, so select if there's a piece
       const piece = game.get(square);
-      if (piece && piece.color === game.turn()) {
+      if (piece && piece.color === currentTurn) {
         setMoveFrom(square);
         getMoveOptions(square);
       }
     }
-  }
-
-  // Calculate square styles
-  const squareStyles = {
-    ...optionSquares,
-    ...(isChecked ? {
-      [game.turn() === 'w' ? 
-        game.board().flat().find(p => p && p.type === 'k' && p.color === 'w')?.square :
-        game.board().flat().find(p => p && p.type === 'k' && p.color === 'b')?.square]: {
-        backgroundColor: 'rgba(255, 0, 0, 0.5)'
-      }
-    } : {})
   };
-
-  // Handle board click to select this board in the simul
-  const handleBoardClick = () => {
-    if (onBoardSelect) {
-      onBoardSelect(id);
-    }
-  };
-
-  // Format result for display
-  const formatResult = (result) => {
-    if (!result) return '';
+  
+  // Function to make a move
+  const makeMove = (move) => {
+    const gameCopy = new Chess(game.fen());
     
-    switch (result) {
-      case '1-0': return 'White wins';
-      case '0-1': return 'Black wins';
-      case '1/2-1/2': return 'Draw';
-      default: return result;
+    try {
+      const result = gameCopy.move(move);
+      if (result) {
+        setGame(gameCopy);
+        
+        // Highlight the move
+        setMoveSquares({
+          [move.from]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
+          [move.to]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' }
+        });
+        
+        // Call parent onMove handler with the move details
+        if (onMove) {
+          onMove(id, move, gameCopy.fen());
+        }
+        
+        return result;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   };
-
+  
+  // Function to handle piece drag
+  const onPieceDragBegin = (piece, sourceSquare) => {
+    if (!allowMoves || isGameOver) return false;
+    
+    // Check if it's player's turn based on board orientation
+    const isWhiteTurn = currentTurn === 'w';
+    if ((orientation === 'white' && !isWhiteTurn) || (orientation === 'black' && isWhiteTurn)) {
+      return false;
+    }
+    
+    // Only allow dragging player's pieces
+    const pieceObj = game.get(sourceSquare);
+    if (!pieceObj || pieceObj.color !== currentTurn) {
+      return false;
+    }
+    
+    getMoveOptions(sourceSquare);
+    return true;
+  };
+  
+  // Function to handle piece drop
+  const onPieceDrop = (sourceSquare, targetSquare, piece) => {
+    if (!allowMoves || isGameOver) return false;
+    
+    // Check if it's player's turn based on board orientation
+    const isWhiteTurn = currentTurn === 'w';
+    if ((orientation === 'white' && !isWhiteTurn) || (orientation === 'black' && isWhiteTurn)) {
+      return false;
+    }
+    
+    const move = makeMove({
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: 'q' // Default to queen for simplicity
+    });
+    
+    if (move === null) return false;
+    
+    // Clear selection after successful move
+    setMoveFrom('');
+    setOptionSquares({});
+    return true;
+  };
+  
+  // Render game status or result
+  const renderStatus = () => {
+    if (result) {
+      return (
+        <div className="simul-board-result">
+          {result === '1-0' ? 'White won' : 
+          result === '0-1' ? 'Black won' : 
+          result === '1/2-1/2' ? 'Draw' : result}
+        </div>
+      );
+    }
+    
+    if (isGameOver) {
+      if (game.isCheckmate()) return <div className="simul-board-status">Checkmate</div>;
+      if (game.isDraw()) return <div className="simul-board-status">Draw</div>;
+      if (game.isStalemate()) return <div className="simul-board-status">Stalemate</div>;
+      if (game.isThreefoldRepetition()) return <div className="simul-board-status">Draw by repetition</div>;
+      if (game.isInsufficientMaterial()) return <div className="simul-board-status">Draw by insufficient material</div>;
+      return <div className="simul-board-status">Game over</div>;
+    }
+    
+    return (
+      <div className="simul-board-status">
+        {game.turn() === 'w' ? 'White' : 'Black'} to move
+        {game.inCheck() ? ' (In check)' : ''}
+      </div>
+    );
+  };
+  
   return (
-    <div 
-      className={`simul-board ${isActive ? 'active' : ''} ${gameOver ? 'game-over' : ''}`}
-      onClick={handleBoardClick}
-    >
+    <div className={`simul-board ${isActive ? 'active' : ''}`}>
       <div className="simul-board-header">
-        <div className="opponent-name">{opponentName}</div>
-        {result && <div className="game-result">{formatResult(result)}</div>}
-        {gameOver && !result && <div className="game-result">Game Over</div>}
+        <div className="simul-board-opponent">vs {opponentName}</div>
+        {renderStatus()}
       </div>
       
-      <div className="simul-chessboard" style={{ width }}>
+      <div className="simul-board-container" style={{ width }}>
         <Chessboard
           id={`simul-board-${id}`}
           position={game.fen()}
           onSquareClick={onSquareClick}
-          customSquareStyles={squareStyles}
+          onPieceDragBegin={onPieceDragBegin}
+          onPieceDrop={onPieceDrop}
+          customSquareStyles={{
+            ...moveSquares,
+            ...optionSquares
+          }}
           boardOrientation={orientation}
-          arePiecesDraggable={false}
-          boardWidth={width}
+          areArrowsAllowed={true}
+          showBoardNotation={true}
         />
-      </div>
-      
-      <div className="simul-board-footer">
-        <div className="moves-count">Moves: {Math.floor(game.history().length / 2) + (game.history().length % 2)}</div>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 .simul-board {
-  background-color: white;
+  margin-bottom: 20px;
   border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   max-width: 320px;
   cursor: pointer;
@@ -11,7 +12,7 @@
 }
 
 .simul-board.active {
-  box-shadow: 0 0 0 3px #461fa3, 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 3px #3498db, 0 2px 10px rgba(0, 0, 0, 0.2);
   transform: scale(1.02);
 }
 
@@ -23,21 +24,37 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ecf0f1;
 }
 
-.opponent-name {
-  font-weight: bold;
-  color: #200e4a;
+.simul-board-opponent {
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-.game-result {
-  font-size: 12px;
+.simul-board-status, 
+.simul-board-result {
   padding: 4px 8px;
-  background-color: #f3f1f9;
   border-radius: 4px;
-  color: #461fa3;
-  font-weight: bold;
+  font-size: 14px;
+}
+
+.simul-board-status {
+  background-color: #e5f7ff;
+  color: #2980b9;
+}
+
+.simul-board-result {
+  background-color: #ffeaa7;
+  color: #d35400;
+  font-weight: 600;
+}
+
+.simul-board-container {
+  margin: 0 auto;
+  padding: 15px;
 }
 
 .simul-chessboard {

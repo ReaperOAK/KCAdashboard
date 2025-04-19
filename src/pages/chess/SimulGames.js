@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import SimulBoard from '../../components/chess/SimulBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
@@ -13,6 +13,7 @@ const SimulGames = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(null);
   const [createForm, setCreateForm] = useState({
     title: '',
     description: '',
@@ -20,27 +21,74 @@ const SimulGames = () => {
     timeControl: '30+0'
   });
 
+  // Define loadSimuls and refreshActiveSimul with useCallback to prevent recreation on every render
+  const loadSimuls = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await ApiService.getSimulGames();
+      
+      if (response.success) {
+        setSimuls(response.simuls || []);
+      } else {
+        setError('Failed to load simultaneous games');
+      }
+    } catch (error) {
+      setError(error.message || 'An error occurred while loading simuls');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  
+  const refreshActiveSimul = useCallback(async () => {
+    if (!activeSimul) return;
+    
+    try {
+      const response = await ApiService.getSimulGames();
+      
+      if (response.success) {
+        // Update all simuls
+        setSimuls(response.simuls || []);
+        
+        // Find and update the active simul
+        const updatedSimul = response.simuls.find(s => s.id === activeSimul.id);
+        if (updatedSimul) {
+          setActiveSimul(updatedSimul);
+          
+          // If active board is no longer in the list, select the first available board
+          if (activeBoardId && 
+              updatedSimul.boards && 
+              !updatedSimul.boards.find(b => b.id === activeBoardId)) {
+            setActiveBoardId(updatedSimul.boards.length > 0 ? updatedSimul.boards[0].id : null);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh simul:', error);
+    }
+  }, [activeSimul, activeBoardId]);
+
   // Load simul games
   useEffect(() => {
-    const loadSimuls = async () => {
-      try {
-        setLoading(true);
-        const response = await ApiService.getSimulGames();
-        
-        if (response.success) {
-          setSimuls(response.simuls || []);
-        } else {
-          setError('Failed to load simultaneous games');
-        }
-      } catch (error) {
-        setError(error.message || 'An error occurred while loading simuls');
-      } finally {
-        setLoading(false);
+    loadSimuls();
+    
+    // Set up auto-refresh for active games
+    const interval = setInterval(() => {
+      if (activeSimul) {
+        refreshActiveSimul();
+      } else {
+        loadSimuls();
+      }
+    }, 10000); // Refresh every 10 seconds
+    
+    setRefreshInterval(interval);
+    
+    // Cleanup on unmount
+    return () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
       }
     };
-    
-    loadSimuls();
-  }, []);
+  }, [activeSimul, refreshInterval, refreshActiveSimul, loadSimuls]);
 
   // Handle simul creation
   const handleCreateSimul = async (e) => {
@@ -82,10 +130,10 @@ const SimulGames = () => {
       const response = await ApiService.joinSimulGame(simulId);
       
       if (response.success) {
-        // Refresh the simul list to show the updated state
-        const refreshResponse = await ApiService.getSimulGames();
-        if (refreshResponse.success) {
-          setSimuls(refreshResponse.simuls || []);
+        // Find the simul in the list and select it
+        const joinedSimul = simuls.find(s => s.id === simulId);
+        if (joinedSimul) {
+          handleSelectSimul(response.simul || joinedSimul);
         }
       } else {
         setError('Failed to join simul');
@@ -97,33 +145,66 @@ const SimulGames = () => {
     }
   };
 
+  // Handle starting a simul (for host)
+  const handleStartSimul = async (simulId) => {
+    try {
+      setLoading(true);
+      const response = await ApiService.post('/chess/start-simul.php', { simul_id: simulId });
+      
+      if (response.success) {
+        await refreshActiveSimul();
+      } else {
+        setError('Failed to start simul');
+      }
+    } catch (error) {
+      setError(error.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle ending a simul (for host)
+  const handleEndSimul = async (simulId) => {
+    try {
+      setLoading(true);
+      const response = await ApiService.post('/chess/end-simul.php', { simul_id: simulId });
+      
+      if (response.success) {
+        await refreshActiveSimul();
+      } else {
+        setError('Failed to end simul');
+      }
+    } catch (error) {
+      setError(error.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle making a move in a simul board
   const handleMove = async (boardId, move, position) => {
-    if (!activeSimul || !activeBoardId) return;
+    if (!activeSimul || !boardId) return;
     
     try {
       // Send move to the server
       await ApiService.makeSimulMove(activeSimul.id, boardId, move, position);
       
-      // You would typically update the board state here
-      // For simplicity, we'll just reload the simul data
-      const response = await ApiService.getSimulGames();
-      if (response.success) {
-        setSimuls(response.simuls || []);
-        
-        // Update active simul
-        const updatedSimul = response.simuls.find(s => s.id === activeSimul.id);
-        if (updatedSimul) {
-          setActiveSimul(updatedSimul);
-        }
-      }
+      // Refresh the board state
+      await refreshActiveSimul();
     } catch (error) {
       console.error('Move error:', error);
+      setError('Failed to make move: ' + error.message);
     }
   };
 
-  if (loading && !activeSimul) {
-    return <div className="loading">Loading simul games...</div>;
+  if (loading && !activeSimul && simuls.length === 0) {
+    return (
+      <div className="simul-games-page">
+        <h1>Simultaneous Exhibitions</h1>
+        <ChessNavigation />
+        <div className="loading">Loading simul games...</div>
+      </div>
+    );
   }
 
   // Render create simul form
@@ -142,6 +223,7 @@ const SimulGames = () => {
                 type="text"
                 value={createForm.title}
                 onChange={(e) => setCreateForm({...createForm, title: e.target.value})}
+                placeholder="e.g., Saturday Simul with Coach Adam"
                 required
               />
             </div>
@@ -151,6 +233,7 @@ const SimulGames = () => {
               <textarea
                 value={createForm.description}
                 onChange={(e) => setCreateForm({...createForm, description: e.target.value})}
+                placeholder="Add details about this simul exhibition"
                 rows="3"
               />
             </div>
@@ -197,12 +280,15 @@ const SimulGames = () => {
   // Render simul board view if a simul is selected
   if (activeSimul) {
     const isHost = activeSimul.host.id === user.id;
-    const activeBoard = activeSimul.boards && activeSimul.boards.find(b => b.id === activeBoardId);
+    const boards = activeSimul.boards || [];
+    const activeBoard = boards.find(b => b.id === activeBoardId);
     
     return (
       <div className="simul-games-page">
-        <h1>{activeSimul.title}</h1>
-        <p className="simul-description">{activeSimul.description}</p>
+        <h1>{activeSimul.title || `Simul by ${activeSimul.host.name}`}</h1>
+        {activeSimul.description && (
+          <p className="simul-description">{activeSimul.description}</p>
+        )}
         
         <ChessNavigation />
         
@@ -210,49 +296,92 @@ const SimulGames = () => {
           <div className="simul-info">
             <p><strong>Host:</strong> {activeSimul.host.name}</p>
             <p><strong>Status:</strong> {activeSimul.status}</p>
-            <p><strong>Players:</strong> {activeSimul.boards ? activeSimul.boards.length : 0}/{activeSimul.max_players}</p>
+            <p><strong>Time Control:</strong> {activeSimul.time_control}</p>
+            <p><strong>Players:</strong> {boards.length}/{activeSimul.max_players}</p>
+            
             <button onClick={() => setActiveSimul(null)} className="back-btn">
               Back to Simuls
             </button>
+            
+            {isHost && activeSimul.status === 'pending' && boards.length > 0 && (
+              <button onClick={() => handleStartSimul(activeSimul.id)} className="start-btn">
+                Start Simul
+              </button>
+            )}
+            
+            {isHost && activeSimul.status === 'active' && (
+              <button onClick={() => handleEndSimul(activeSimul.id)} className="end-btn">
+                End Simul
+              </button>
+            )}
           </div>
           
           <div className="simul-boards-container">
-            {activeSimul.boards && activeSimul.boards.length > 0 ? (
+            {boards.length > 0 ? (
               <>
                 <div className="board-thumbnails">
-                  {activeSimul.boards.map(board => (
-                    <div 
-                      key={board.id}
-                      className={`board-thumbnail ${board.id === activeBoardId ? 'active' : ''}`}
-                      onClick={() => setActiveBoardId(board.id)}
-                    >
-                      {board.player.name}
-                    </div>
-                  ))}
+                  {boards.map(board => {
+                    // Determine if this board is the host's turn
+                    const isHostTurn = board.turn === 'w';
+                    // Determine if this board has a result
+                    const hasResult = board.result !== null;
+                    
+                    return (
+                      <div 
+                        key={board.id}
+                        className={`board-thumbnail ${board.id === activeBoardId ? 'active' : ''} ${hasResult ? 'completed' : ''} ${isHostTurn ? 'host-turn' : 'player-turn'}`}
+                        onClick={() => setActiveBoardId(board.id)}
+                      >
+                        <div className="thumbnail-name">{board.player_name}</div>
+                        {hasResult && (
+                          <div className="thumbnail-result">
+                            {board.result === '1-0' ? 'Host won' : 
+                             board.result === '0-1' ? 'Player won' : 'Draw'}
+                          </div>
+                        )}
+                        {!hasResult && (
+                          <div className="thumbnail-turn">
+                            {isHostTurn ? 'Host to move' : 'Player to move'}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
                 
                 <div className="active-board">
-                  {activeBoard && (
+                  {activeBoard ? (
                     <SimulBoard
                       id={activeBoard.id}
                       position={activeBoard.position}
                       orientation={isHost ? 'white' : 'black'}
                       allowMoves={
-                        (isHost && activeBoard.turn === 'w') || 
-                        (!isHost && activeBoard.turn === 'b' && activeBoard.player.id === user.id)
+                        activeSimul.status === 'active' && (
+                          (isHost && activeBoard.turn === 'w') || 
+                          (!isHost && activeBoard.turn === 'b' && activeBoard.player_id === user.id)
+                        )
                       }
                       onMove={handleMove}
-                      opponentName={isHost ? activeBoard.player.name : activeSimul.host.name}
+                      opponentName={isHost ? activeBoard.player_name : activeSimul.host.name}
                       width={600}
                       isActive={true}
                       result={activeBoard.result}
                     />
+                  ) : (
+                    <div className="no-active-board">
+                      <p>Select a board to view</p>
+                    </div>
                   )}
                 </div>
               </>
             ) : (
               <div className="no-boards">
-                <p>No boards available for this simul.</p>
+                <p>No players have joined this simul yet.</p>
+                {activeSimul.status === 'pending' && !isHost && (
+                  <button onClick={() => handleJoinSimul(activeSimul.id)} className="join-btn">
+                    Join This Simul
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -268,11 +397,13 @@ const SimulGames = () => {
       
       <ChessNavigation />
       
-      <div className="simul-actions">
-        <button onClick={() => setIsCreating(true)} className="create-simul-btn">
-          Create Simul
-        </button>
-      </div>
+      {(user.role === 'teacher' || user.role === 'admin') && (
+        <div className="simul-actions">
+          <button onClick={() => setIsCreating(true)} className="create-simul-btn">
+            Create Simul
+          </button>
+        </div>
+      )}
       
       {error && <div className="error-message">{error}</div>}
       
@@ -285,12 +416,14 @@ const SimulGames = () => {
           simuls.map(simul => (
             <div key={simul.id} className="simul-card">
               <div className="simul-card-content">
-                <h3>{simul.title}</h3>
+                <h3>{simul.title || `Simul by ${simul.host.name}`}</h3>
                 <p className="simul-host">Host: {simul.host.name}</p>
-                <p className="simul-description">{simul.description}</p>
+                {simul.description && (
+                  <p className="simul-description">{simul.description}</p>
+                )}
                 <div className="simul-meta">
-                  <span className="simul-status">{simul.status}</span>
-                  <span className="simul-players">{simul.player_count}/{simul.max_players} players</span>
+                  <span className={`simul-status ${simul.status}`}>{simul.status}</span>
+                  <span className="simul-players">{simul.player_count || 0}/{simul.max_players} players</span>
                 </div>
               </div>
               <div className="simul-card-actions">

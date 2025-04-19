@@ -171,27 +171,63 @@ class ChessSimul {
     }
     
     // Start simul
-    public function startSimul($id, $host_id) {
+    public function startSimul($id) {
+        // First get the simul to check if it has any boards
+        $boards_query = "SELECT COUNT(*) FROM chess_simul_boards WHERE simul_id = ?";
+        $boards_stmt = $this->conn->prepare($boards_query);
+        $boards_stmt->bindParam(1, $id);
+        $boards_stmt->execute();
+        
+        if($boards_stmt->fetchColumn() == 0) {
+            return false; // No players, can't start
+        }
+        
+        // Initialize all boards with starting position
+        $init_query = "UPDATE chess_simul_boards 
+                      SET position = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 
+                          turn = 'w',
+                          status = 'active',
+                          last_move_at = NOW()
+                      WHERE simul_id = ?";
+        $init_stmt = $this->conn->prepare($init_query);
+        $init_stmt->bindParam(1, $id);
+        $init_result = $init_stmt->execute();
+        
+        if(!$init_result) {
+            return false;
+        }
+        
+        // Update the simul status
         $query = "UPDATE " . $this->table_name . "
-                SET status = 'active'
-                WHERE id = ? AND host_id = ? AND status = 'pending'";
+                SET status = 'active',
+                    started_at = NOW()
+                WHERE id = ? AND status = 'pending'";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $id);
-        $stmt->bindParam(2, $host_id);
         
         return $stmt->execute();
     }
     
     // End simul
-    public function endSimul($id, $host_id) {
+    public function endSimul($id) {
+        // First update any active boards to completed
+        $boards_query = "UPDATE chess_simul_boards 
+                        SET status = 'completed',
+                            result = result IS NULL ? '1-0' : result  /* Default to host win if no result */
+                        WHERE simul_id = ? AND status = 'active'";
+        $boards_stmt = $this->conn->prepare($boards_query);
+        $boards_stmt->bindParam(1, $id);
+        $boards_result = $boards_stmt->execute();
+        
+        // Update the simul status
         $query = "UPDATE " . $this->table_name . "
-                SET status = 'completed'
-                WHERE id = ? AND host_id = ?";
+                SET status = 'completed',
+                    completed_at = NOW()
+                WHERE id = ?";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $id);
-        $stmt->bindParam(2, $host_id);
         
         return $stmt->execute();
     }

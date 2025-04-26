@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
-import './InteractiveBoard.css';
 
 const InteractiveBoard = () => {
   const { id } = useParams();
@@ -157,16 +156,16 @@ const InteractiveBoard = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading chess board...</div>;
+    return <div className="flex justify-center items-center h-64 text-indigo-700">Loading chess board...</div>;
   }
 
   if (error) {
     return (
-      <div className="error-container">
-        <div className="error">{error}</div>
+      <div className="max-w-7xl mx-auto px-4 py-6 text-center">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">{error}</div>
         <button 
           onClick={() => window.location.reload()}
-          className="reload-button"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
         >
           Reload Page
         </button>
@@ -175,12 +174,12 @@ const InteractiveBoard = () => {
   }
 
   return (
-    <div className="interactive-board-page">
-      <h1>{id ? 'Game Board' : 'Analysis Board'}</h1>
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold text-indigo-900 mb-4">{id ? 'Game Board' : 'Analysis Board'}</h1>
       
       <ChessNavigation />
       
-      <div className="board-container">
+      <div className="flex justify-center mt-8 mb-8">
         <ChessBoard 
           position={position}
           orientation={orientation}
@@ -194,15 +193,22 @@ const InteractiveBoard = () => {
       </div>
       
       {gameData && (
-        <div className="game-info">
-          <h2>Game Information</h2>
-          <p><strong>Opponent:</strong> {gameData.opponent && gameData.opponent.name}</p>
-          <p><strong>Your Color:</strong> {gameData.yourColor}</p>
-          <p><strong>Time Control:</strong> {gameData.timeControl || 'Standard'}</p>
-          <p><strong>Turn:</strong> <span className={gameData.yourTurn ? "your-turn" : "opponent-turn"}>
-            {gameData.yourTurn ? 'Your move' : "Opponent's move"}
-          </span></p>
-          {lastMoveAt && <p><strong>Last Move:</strong> {new Date(lastMoveAt).toLocaleString()}</p>}
+        <div className="bg-indigo-50 rounded-lg p-6 mt-4">
+          <h2 className="text-lg font-semibold text-indigo-800 mb-4">Game Information</h2>
+          <p className="mb-2"><strong>Opponent:</strong> {gameData.opponent && gameData.opponent.name}</p>
+          <p className="mb-2"><strong>Your Color:</strong> {gameData.yourColor}</p>
+          <p className="mb-2"><strong>Time Control:</strong> {gameData.timeControl || 'Standard'}</p>
+          <p className="mb-2">
+            <strong>Turn:</strong> 
+            <span className={`ml-2 inline-block px-2 py-1 rounded ${
+              gameData.yourTurn 
+                ? "bg-green-100 text-green-800" 
+                : "bg-yellow-100 text-yellow-800"
+            }`}>
+              {gameData.yourTurn ? 'Your move' : "Opponent's move"}
+            </span>
+          </p>
+          {lastMoveAt && <p className="mb-2"><strong>Last Move:</strong> {new Date(lastMoveAt).toLocaleString()}</p>}
         </div>
       )}
     </div>

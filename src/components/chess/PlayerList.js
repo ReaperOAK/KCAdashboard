@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './PlayerList.css';
 
 const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -39,36 +38,39 @@ const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
   };
 
   return (
-    <div className="player-list">
-      <div className="list-header">
-        <h3>Online Players</h3>
-        <button onClick={onRefresh} className="refresh-button">
+    <div className="bg-[#f8f8fc] rounded-lg p-4 shadow-sm mb-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="m-0 text-[#200e4a] text-lg">Online Players</h3>
+        <button 
+          onClick={onRefresh} 
+          className="bg-[#461fa3] text-white border-none rounded px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-[#341680]"
+        >
           Refresh
         </button>
       </div>
       
       {players.length === 0 ? (
-        <div className="no-players">
+        <div className="text-center text-gray-600 py-5">
           <p>No players are currently online. Check back later!</p>
         </div>
       ) : (
-        <div className="players-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {players.map(player => (
             <div 
               key={player.id} 
-              className={`player-card ${player.id === currentUser?.id ? 'current-user' : ''}`}
+              className={`flex items-center bg-white rounded-md p-3 shadow-sm transition-all duration-200 cursor-pointer hover:translate-y-[-2px] hover:shadow-md ${player.id === currentUser?.id ? 'bg-[#f3f1f9]' : ''}`}
               onClick={() => handleSelectPlayer(player)}
             >
-              <div className="player-status">
-                <span className="status-dot online"></span>
+              <div className="mr-3">
+                <span className="block w-2.5 h-2.5 rounded-full bg-green-500"></span>
               </div>
-              <div className="player-info">
-                <div className="player-name">{player.name}</div>
-                <div className="player-rating">{player.rating}</div>
+              <div className="flex-1">
+                <div className="font-semibold text-[#200e4a] mb-1">{player.name}</div>
+                <div className="text-sm text-gray-600">{player.rating}</div>
               </div>
               {player.id !== currentUser?.id && (
                 <button 
-                  className="challenge-button"
+                  className="bg-[#461fa3] text-white border-none rounded px-2.5 py-1.5 text-sm cursor-pointer transition-colors hover:bg-[#341680]"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSelectPlayer(player);
@@ -84,18 +86,18 @@ const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
       
       {/* Challenge Modal */}
       {selectedPlayer && (
-        <div className="challenge-modal-overlay">
-          <div className="challenge-modal">
-            <div className="modal-header">
-              <h3>Challenge {selectedPlayer.name}</h3>
-              <button className="close-button" onClick={handleCloseModal}>×</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+          <div className="bg-white rounded-lg w-[90%] max-w-[450px] shadow-lg">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-[#e0e0f0]">
+              <h3 className="m-0 text-[#200e4a]">Challenge {selectedPlayer.name}</h3>
+              <button className="bg-transparent border-none text-2xl text-gray-500 cursor-pointer hover:text-[#461fa3]" onClick={handleCloseModal}>×</button>
             </div>
             
-            <div className="modal-body">
-              <div className="option-group">
-                <label>Play as:</label>
-                <div className="radio-options">
-                  <label className="radio-label">
+            <div className="p-5">
+              <div className="mb-4">
+                <label className="block mb-2 font-semibold text-[#200e4a]">Play as:</label>
+                <div className="flex gap-4 flex-wrap">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input 
                       type="radio" 
                       name="color" 
@@ -105,7 +107,7 @@ const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
                     />
                     White
                   </label>
-                  <label className="radio-label">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input 
                       type="radio" 
                       name="color" 
@@ -115,7 +117,7 @@ const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
                     />
                     Black
                   </label>
-                  <label className="radio-label">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input 
                       type="radio" 
                       name="color" 
@@ -128,12 +130,13 @@ const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
                 </div>
               </div>
               
-              <div className="option-group">
-                <label>Time Control:</label>
+              <div className="mb-4">
+                <label className="block mb-2 font-semibold text-[#200e4a]">Time Control:</label>
                 <select 
                   name="timeControl" 
                   value={challengeOptions.timeControl}
                   onChange={handleOptionChange}
+                  className="w-full p-2 border border-[#c2c1d3] rounded bg-white text-base"
                 >
                   <option value="5+0">5 minutes</option>
                   <option value="10+0">10 minutes</option>
@@ -147,11 +150,17 @@ const PlayerList = ({ players, currentUser, onChallenge, onRefresh }) => {
               </div>
             </div>
             
-            <div className="modal-footer">
-              <button className="cancel-button" onClick={handleCloseModal}>
+            <div className="flex justify-end gap-3 px-5 py-4 border-t border-[#e0e0f0]">
+              <button 
+                className="bg-[#f3f1f9] text-[#200e4a] border border-[#c2c1d3] rounded px-4 py-2 font-medium cursor-pointer transition-colors hover:bg-[#e6e1f7]"
+                onClick={handleCloseModal}
+              >
                 Cancel
               </button>
-              <button className="send-challenge-button" onClick={handleSubmitChallenge}>
+              <button 
+                className="bg-[#461fa3] text-white border-none rounded px-4 py-2 font-medium cursor-pointer transition-colors hover:bg-[#341680]"
+                onClick={handleSubmitChallenge}
+              >
                 Send Challenge
               </button>
             </div>

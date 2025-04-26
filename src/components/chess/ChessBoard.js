@@ -4,8 +4,6 @@ import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
 import ChessEngineFactory from '../../utils/ChessEngineFactory';
-import './ChessBoard.css';
-
 
 const ChessBoard = ({
   position = 'start',
@@ -44,7 +42,6 @@ const ChessBoard = ({
   const engineRef = useRef(null);
   const engineMoveTimeoutRef = useRef(null);
   
-  // Analyze the current position
   const analyzeCurrentPosition = useCallback(async () => {
     if (!engineRef.current || isThinking) return;
     
@@ -59,13 +56,12 @@ const ChessBoard = ({
     }
   }, [game, isThinking]);
 
-  // Helper function to make a fallback random legal move - regular function, not a hook
-  const makeFallbackMove = useCallback((legalMoves, fen) => {
+  const makeFallbackMove = useCallback((legalMoves, gameFen) => {
     if (legalMoves.length > 0) {
       const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
       console.log('Used fallback random move:', randomMove);
       
-      const fallbackGameCopy = new Chess(fen);
+      const fallbackGameCopy = new Chess(gameFen);
       fallbackGameCopy.move(randomMove);
       setGame(fallbackGameCopy);
       
@@ -79,17 +75,14 @@ const ChessBoard = ({
     }
   }, [onMove]);
 
-  // Make the AI move
   const makeEngineMove = useCallback(async () => {
     if (!engineRef.current || isThinking || gameOver.isOver) return;
     
     try {
       setIsThinking(true);
       
-      // Add a small delay to make it feel more natural
       engineMoveTimeoutRef.current = setTimeout(async () => {
         try {
-          // Get the current FEN position - ESLint reported this as undefined
           const currentFen = game.fen();
           const bestMove = await engineRef.current.getBestMove(currentFen, 1000);
           
@@ -98,9 +91,7 @@ const ChessBoard = ({
             const to = bestMove.substring(2, 4);
             const promotion = bestMove.length > 4 ? bestMove.substring(4, 5) : undefined;
             
-            // Try to make the move with validation
             try {
-              // Make the move
               const aiGameCopy = new Chess(currentFen);
               const moveResult = aiGameCopy.move({ from, to, promotion });
               
@@ -112,27 +103,22 @@ const ChessBoard = ({
                 }
               } else {
                 console.warn('Invalid move received but not caught by chess.js:', bestMove);
-                // Get legal moves for fallback
                 const legalMoves = game.moves({ verbose: true });
                 makeFallbackMove(legalMoves, currentFen);
               }
             } catch (moveError) {
               console.error('Engine move error:', moveError, 'for move:', bestMove);
-              // Get legal moves for fallback
               const legalMoves = game.moves({ verbose: true });
               makeFallbackMove(legalMoves, currentFen);
             }
           } else {
-            // If we get an invalid format, use fallback
             const legalMoves = game.moves({ verbose: true });
             makeFallbackMove(legalMoves, currentFen);
           }
         } catch (error) {
           console.error('Engine move processing error:', error);
-          
-          // Get legal moves and use fallback
           const legalMoves = game.moves({ verbose: true });
-          // eslint-disable-next-line no-undef
+          const currentFen = game.fen();
           makeFallbackMove(legalMoves, currentFen);
         } finally {
           setIsThinking(false);
@@ -144,12 +130,9 @@ const ChessBoard = ({
     }
   }, [game, isThinking, gameOver.isOver, onMove, makeFallbackMove]);
 
-  // Initialize Chess Engine
   useEffect(() => {
-    // Initialize engine once
     if ((showAnalysis || playMode === 'vs-ai') && !engineRef.current) {
       try {
-        // Use factory to create appropriate engine
         engineRef.current = ChessEngineFactory.createEngine({
           useOnlineAPI,
           skillLevel: engineLevel
@@ -170,22 +153,19 @@ const ChessBoard = ({
         clearTimeout(engineMoveTimeoutRef.current);
       }
     };
-  }, [engineLevel, playMode, showAnalysis, useOnlineAPI]); // Add useOnlineAPI dependency
+  }, [engineLevel, playMode, showAnalysis, useOnlineAPI]);
 
-  // Update engine level when it changes
   useEffect(() => {
     if (engineRef.current) {
       engineRef.current.setSkillLevel(engineLevel);
     }
   }, [engineLevel]);
 
-  // Update FEN and analyze position
   useEffect(() => {
     setFen(game.fen());
     setIsChecked(game.inCheck());
     const currentTurn = game.turn();
     
-    // Check for game over conditions
     if (game.isGameOver()) {
       const result = { isOver: true };
       
@@ -201,18 +181,15 @@ const ChessBoard = ({
       
       setGameOver(result);
     } else {
-      // Reset game over state if we're continuing a game (e.g. when stepping through history)
       if (gameOver.isOver) {
         setGameOver({ isOver: false, result: '', reason: '' });
       }
     }
 
-    // Analyze position with engine if analysis is shown
     if (showAnalysis && engineRef.current && !isThinking) {
       analyzeCurrentPosition();
     }
     
-    // If it's AI's turn in vs-ai mode, make the AI move
     if (playMode === 'vs-ai' && !gameOver.isOver && 
         ((orientation_.charAt(0) === 'w' && currentTurn === 'b') || 
          (orientation_.charAt(0) === 'b' && currentTurn === 'w'))) {
@@ -220,14 +197,12 @@ const ChessBoard = ({
     }
   }, [game, showAnalysis, playMode, orientation_, gameOver.isOver, analyzeCurrentPosition, makeEngineMove, isThinking]);
 
-  // Apply external game over state if provided
   useEffect(() => {
     if (gameOverState && gameOverState.isOver) {
       setGameOver(gameOverState);
     }
   }, [gameOverState]);
 
-  // Record move history
   useEffect(() => {
     const moveHistory = [];
     const history = game.history({ verbose: true });
@@ -248,7 +223,6 @@ const ChessBoard = ({
     setCurrentMove(history.length - 1);
   }, [game]);
 
-  // Get possible moves for a square
   function getMoveOptions(square) {
     const moves = game.moves({
       square,
@@ -280,27 +254,22 @@ const ChessBoard = ({
     setOptionSquares({});
   }
 
-  // Square click handler for making moves
   function onSquareClick(square) {
     if (!allowMoves || isThinking) return;
     
-    // Check if it's the player's turn
     const playerColor = orientation_.charAt(0).toLowerCase();
     const currentTurn = game.turn();
     
-    // In vs-ai or vs-human mode, only allow moving pieces when it's your turn
     if ((playMode === 'vs-ai' || playMode === 'vs-human') && playerColor !== currentTurn) {
       return;
     }
     
-    // If we already have a piece selected
     if (moveFrom) {
-      // Try to make a move
       const gameCopy = new Chess(game.fen());
       const move = {
         from: moveFrom,
         to: square,
-        promotion: 'q' // Always promote to queen for simplicity
+        promotion: 'q'
       };
 
       try {
@@ -309,16 +278,13 @@ const ChessBoard = ({
         setMoveFrom('');
         setOptionSquares({});
         
-        // Call onMove callback if provided
         if (onMove) {
           onMove(move, gameCopy.fen());
         }
       } catch (error) {
-        // Illegal move, reset selection
         resetFirstMove();
       }
     } else {
-      // No piece was selected yet, try to select one
       const piece = game.get(square);
       if (piece && piece.color === game.turn()) {
         setMoveFrom(square);
@@ -327,7 +293,6 @@ const ChessBoard = ({
     }
   }
 
-  // Right-click handler for square highlighting
   function onSquareRightClick(square) {
     const colour = "rgba(0, 0, 255, 0.4)";
     setRightClickedSquares({
@@ -339,7 +304,6 @@ const ChessBoard = ({
     });
   }
 
-  // Go to a specific move in the history
   const goToMove = useCallback((moveIndex) => {
     const gameCopy = new Chess();
     const moves = game.history({ verbose: true });
@@ -352,7 +316,6 @@ const ChessBoard = ({
     setCurrentMove(moveIndex);
   }, [game]);
 
-  // Handle key navigation for moves
   const handleKeyDown = useCallback((e) => {
     if (!allowMoves) return;
     
@@ -370,12 +333,10 @@ const ChessBoard = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // Flip board orientation
   function flipBoard() {
     setOrientation(orientation_ === 'white' ? 'black' : 'white');
   }
 
-  // Reset the board to starting position
   function resetBoard() {
     setGame(new Chess());
     setMoveFrom('');
@@ -388,7 +349,6 @@ const ChessBoard = ({
     });
   }
 
-  // Calculate square styles
   const squareStyles = {
     ...optionSquares,
     ...rightClickedSquares,
@@ -402,15 +362,14 @@ const ChessBoard = ({
     } : {})
   };
 
-  // Render the chess board with controls
   return (
-    <div className="chess-board-container">
+    <div className="flex flex-row md:flex-col gap-5 mb-5 max-w-full">
       {engineLoadError && (
-        <div className="engine-error-message">
-          <p>Using lightweight chess engine. Some advanced analysis features may be limited.</p>
-          <div className="actions">
+        <div className="bg-[#ffebee] border-l-4 border-[#af0505] text-[#af0505] px-4 py-3 mb-4 rounded flex flex-col gap-2">
+          <p className="m-0">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
+          <div className="flex gap-2">
             <button 
-              className="alternative-button"
+              className="bg-[#3b3a52] text-white border-none py-1.5 px-3 rounded cursor-pointer text-sm hover:bg-[#200e4a]"
               onClick={() => window.open('/stockfish/test.html', '_blank')}
             >
               Run Engine Test
@@ -420,13 +379,13 @@ const ChessBoard = ({
       )}
       
       {useOnlineAPI && (
-        <div className="api-notice">
-          <p>Using Stockfish Online API for analysis</p>
+        <div className="py-1 px-2.5 bg-[#e6f2ff] border-l-3 border-[#0066cc] mb-2.5 text-sm">
+          <p className="m-0 text-[#0052a5]">Using Stockfish Online API for analysis</p>
         </div>
       )}
       
-      <div className="board-and-controls">
-        <div className="chess-board" style={{ width }}>
+      <div className="flex flex-col gap-2.5">
+        <div className="relative shadow-md rounded overflow-hidden" style={{ width }}>
           <Chessboard
             id="chess-board"
             position={fen}
@@ -438,31 +397,42 @@ const ChessBoard = ({
             showBoardNotation={showNotation}
           />
           {isThinking && (
-            <div className="thinking-indicator">
-              <div className="spinner"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-70 text-white py-2.5 px-4 rounded flex items-center z-10">
+              <div className="w-5 h-5 border-3 border-white border-opacity-30 rounded-full border-t-white animate-spin mr-2.5"></div>
               <span>Thinking...</span>
             </div>
           )}
         </div>
         
-        <div className="board-controls">
-          <button onClick={flipBoard} className="control-btn">
+        <div className="flex flex-wrap gap-2.5 mt-2.5">
+          <button 
+            onClick={flipBoard} 
+            className="py-2 px-3 bg-[#461fa3] text-white border-none rounded cursor-pointer font-medium text-sm transition-colors hover:bg-[#7646eb]"
+          >
             Flip Board
           </button>
-          <button onClick={resetBoard} className="control-btn" disabled={isThinking}>
+          <button 
+            onClick={resetBoard} 
+            className={`py-2 px-3 text-white border-none rounded cursor-pointer font-medium text-sm transition-colors ${
+              isThinking 
+                ? 'bg-[#c2c1d3] cursor-not-allowed' 
+                : 'bg-[#461fa3] hover:bg-[#7646eb]'
+            }`}
+            disabled={isThinking}
+          >
             Reset Board
           </button>
           
           {gameOver.isOver && (
-            <div className="game-result">
-              <span>Game Over: {gameOver.result}</span>
-              <span>Reason: {gameOver.reason}</span>
+            <div className="flex flex-col bg-[#f3f1f9] border-l-4 border-[#7646eb] py-2 px-3 mt-2.5 rounded">
+              <span className="text-[#200e4a] font-medium">Game Over: {gameOver.result}</span>
+              <span className="text-[#200e4a] font-medium">Reason: {gameOver.reason}</span>
             </div>
           )}
         </div>
       </div>
       
-      <div className="sidebar">
+      <div className="flex-1 flex flex-col gap-5 min-w-[250px] max-w-[300px] md:max-w-full">
         {showHistory && <MoveHistory history={history} currentMove={currentMove} goToMove={goToMove} />}
         {showAnalysis && <EngineAnalysis engineEvaluation={engineEvaluation} />}
       </div>

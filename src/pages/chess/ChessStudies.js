@@ -3,7 +3,6 @@ import { useAuth } from '../../hooks/useAuth';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
-import './ChessStudies.css';
 
 const ChessStudies = () => {
   const { user } = useAuth();
@@ -28,7 +27,6 @@ const ChessStudies = () => {
     position: 'start'
   });
 
-  // Fetch studies when component mounts
   useEffect(() => {
     fetchStudies();
   }, []);
@@ -38,13 +36,11 @@ const ChessStudies = () => {
       setLoading(true);
       setError(null);
       
-      // Fetch your studies
       const myStudiesResponse = await ApiService.getChessStudies();
       if (myStudiesResponse && myStudiesResponse.studies) {
         setStudies(myStudiesResponse.studies);
       }
       
-      // Fetch studies shared with you
       const sharedStudiesResponse = await ApiService.getSharedChessStudies();
       if (sharedStudiesResponse && sharedStudiesResponse.studies) {
         setSharedStudies(sharedStudiesResponse.studies);
@@ -57,7 +53,6 @@ const ChessStudies = () => {
     }
   };
 
-  // Filter studies based on search and category filter
   const filteredStudies = studies.filter(study => {
     const matchesSearch = study.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          study.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -74,7 +69,6 @@ const ChessStudies = () => {
     return matchesSearch && matchesFilter;
   });
 
-  // Handle creating a new study
   const handleCreateStudy = async (e) => {
     e.preventDefault();
     
@@ -82,7 +76,6 @@ const ChessStudies = () => {
       setIsSaving(true);
       const response = await ApiService.createChessStudy(newStudy);
       
-      // Add the new study to the list
       if (response && response.study) {
         setStudies([response.study, ...studies]);
         setIsCreating(false);
@@ -101,7 +94,6 @@ const ChessStudies = () => {
     }
   };
 
-  // Handle opening a study
   const handleOpenStudy = async (study) => {
     try {
       setLoading(true);
@@ -119,7 +111,6 @@ const ChessStudies = () => {
     }
   };
 
-  // Handle saving changes to a study
   const handleSaveStudy = async (updatedPosition) => {
     if (!activeStudy) return;
     
@@ -132,7 +123,6 @@ const ChessStudies = () => {
       
       await ApiService.updateChessStudy(activeStudy.id, updatedStudy);
       
-      // Update the study in the list
       setStudies(studies.map(study => 
         study.id === activeStudy.id ? updatedStudy : study
       ));
@@ -145,7 +135,6 @@ const ChessStudies = () => {
     }
   };
 
-  // Handle sharing a study
   const handleShareStudy = async () => {
     if (!activeStudy || selectedUsers.length === 0) return;
     
@@ -161,10 +150,8 @@ const ChessStudies = () => {
     }
   };
 
-  // Load available users for sharing
   const loadUsersForSharing = async () => {
     try {
-      // In a real app, this would call an API to get users you can share with
       const response = await ApiService.get('/users/get-shareable-users.php');
       setAvailableUsers(response.users || []);
     } catch (err) {
@@ -172,7 +159,6 @@ const ChessStudies = () => {
     }
   };
 
-  // Toggle user selection for sharing
   const toggleUserSelection = (userId) => {
     if (selectedUsers.includes(userId)) {
       setSelectedUsers(selectedUsers.filter(id => id !== userId));
@@ -181,7 +167,6 @@ const ChessStudies = () => {
     }
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, {
@@ -191,40 +176,42 @@ const ChessStudies = () => {
     });
   };
 
-  // Render create study form
   const renderCreateForm = () => {
     return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h2>Create New Study</h2>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-xl">
+          <h2 className="text-xl font-bold text-indigo-900 mb-4">Create New Study</h2>
           <form onSubmit={handleCreateStudy}>
-            <div className="form-group">
-              <label htmlFor="title">Title</label>
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-gray-700 font-medium mb-2">Title</label>
               <input 
                 type="text" 
                 id="title" 
                 value={newStudy.title}
                 onChange={(e) => setNewStudy({...newStudy, title: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
             </div>
             
-            <div className="form-group">
-              <label htmlFor="description">Description</label>
+            <div className="mb-4">
+              <label htmlFor="description" className="block text-gray-700 font-medium mb-2">Description</label>
               <textarea 
                 id="description" 
                 value={newStudy.description}
                 onChange={(e) => setNewStudy({...newStudy, description: e.target.value})}
                 rows="3"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             
-            <div className="form-group">
-              <label htmlFor="category">Category</label>
+            <div className="mb-4">
+              <label htmlFor="category" className="block text-gray-700 font-medium mb-2">Category</label>
               <select 
                 id="category" 
                 value={newStudy.category}
                 onChange={(e) => setNewStudy({...newStudy, category: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="opening">Opening</option>
                 <option value="middlegame">Middlegame</option>
@@ -234,29 +221,30 @@ const ChessStudies = () => {
               </select>
             </div>
             
-            <div className="form-group">
-              <label className="checkbox-label">
+            <div className="mb-6">
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={newStudy.isPublic}
                   onChange={(e) => setNewStudy({...newStudy, isPublic: e.target.checked})}
+                  className="text-indigo-600 rounded"
                 />
-                Make this study public
+                <span className="text-gray-700">Make this study public</span>
               </label>
             </div>
             
-            <div className="modal-actions">
+            <div className="flex justify-end space-x-4">
               <button 
                 type="button" 
                 onClick={() => setIsCreating(false)} 
-                className="cancel-btn"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50"
                 disabled={isSaving}
               >
                 Cancel
               </button>
               <button 
                 type="submit" 
-                className="create-btn"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
                 disabled={isSaving}
               >
                 {isSaving ? 'Creating...' : 'Create Study'}
@@ -268,38 +256,38 @@ const ChessStudies = () => {
     );
   };
 
-  // Render share dialog
   const renderShareDialog = () => {
     return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h2>Share Study</h2>
-          <p>Select users to share "{activeStudy.title}" with:</p>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-xl">
+          <h2 className="text-xl font-bold text-indigo-900 mb-4">Share Study</h2>
+          <p className="mb-4">Select users to share "{activeStudy.title}" with:</p>
           
-          <div className="user-list">
+          <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md p-2 mb-6">
             {availableUsers.length === 0 ? (
-              <p>No users available for sharing.</p>
+              <p className="text-gray-500 p-2">No users available for sharing.</p>
             ) : (
               availableUsers.map(user => (
-                <div key={user.id} className="user-item">
-                  <label className="checkbox-label">
+                <div key={user.id} className="p-2 hover:bg-gray-50">
+                  <label className="flex items-center space-x-2 cursor-pointer">
                     <input 
                       type="checkbox" 
                       checked={selectedUsers.includes(user.id)}
                       onChange={() => toggleUserSelection(user.id)}
+                      className="text-indigo-600 rounded"
                     />
-                    {user.name} ({user.role})
+                    <span>{user.name} <span className="text-sm text-gray-500">({user.role})</span></span>
                   </label>
                 </div>
               ))
             )}
           </div>
           
-          <div className="modal-actions">
+          <div className="flex justify-end space-x-4">
             <button 
               type="button" 
               onClick={() => setShareMode(false)} 
-              className="cancel-btn"
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50"
               disabled={isSaving}
             >
               Cancel
@@ -307,7 +295,7 @@ const ChessStudies = () => {
             <button 
               type="button" 
               onClick={handleShareStudy} 
-              className="share-btn"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
               disabled={isSaving || selectedUsers.length === 0}
             >
               {isSaving ? 'Sharing...' : 'Share'}
@@ -318,27 +306,31 @@ const ChessStudies = () => {
     );
   };
 
-  // Render study detail view
   const renderStudyDetail = () => {
     if (!activeStudy) return null;
     
     return (
-      <div className="study-detail-container">
-        <div className="study-header">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h2>{activeStudy.title}</h2>
-            <p className="study-meta">
+            <h2 className="text-2xl font-bold text-indigo-900 mb-2">{activeStudy.title}</h2>
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
               {activeStudy.owner.id !== user.id && <span>by {activeStudy.owner.name}</span>}
               <span>Created: {formatDate(activeStudy.created_at)}</span>
               <span>Last updated: {formatDate(activeStudy.updated_at)}</span>
-              <span className={`study-visibility ${activeStudy.is_public ? 'public' : 'private'}`}>
+              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                activeStudy.is_public ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
                 {activeStudy.is_public ? 'Public' : 'Private'}
               </span>
-            </p>
-            <p className="study-description">{activeStudy.description}</p>
+            </div>
+            <p className="mt-2 text-gray-700">{activeStudy.description}</p>
           </div>
-          <div className="study-actions">
-            <button onClick={() => setActiveStudy(null)} className="close-btn">
+          <div className="flex space-x-3">
+            <button 
+              onClick={() => setActiveStudy(null)} 
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+            >
               Back to Studies
             </button>
             {activeStudy.owner.id === user.id && (
@@ -347,7 +339,7 @@ const ChessStudies = () => {
                   loadUsersForSharing();
                   setShareMode(true);
                 }} 
-                className="share-btn"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
                 Share Study
               </button>
@@ -355,27 +347,28 @@ const ChessStudies = () => {
           </div>
         </div>
         
-        <div className="study-board-container">
-          <ChessBoard 
-            position={activeStudy.position}
-            allowMoves={true}
-            showHistory={true}
-            showAnalysis={true}
-            onMove={(move, fen) => handleSaveStudy(fen)}
-            width={600}
-          />
-          
-          {isSaving && (
-            <div className="saving-indicator">
-              Saving changes...
-            </div>
-          )}
+        <div className="flex justify-center">
+          <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
+            <ChessBoard 
+              position={activeStudy.position}
+              allowMoves={true}
+              showHistory={true}
+              showAnalysis={true}
+              onMove={(move, fen) => handleSaveStudy(fen)}
+              width={600}
+            />
+            
+            {isSaving && (
+              <div className="text-center mt-4 text-indigo-700">
+                Saving changes...
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   };
 
-  // If viewing a study, show that view
   if (activeStudy) return (
     <>
       {renderStudyDetail()}
@@ -383,36 +376,40 @@ const ChessStudies = () => {
     </>
   );
   
-  // Main studies listing view
   return (
-    <div className="chess-studies-container">
-      <header className="studies-header">
-        <h1>Chess Studies</h1>
-        <button onClick={() => setIsCreating(true)} className="create-study-btn">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-indigo-900">Chess Studies</h1>
+        <button 
+          onClick={() => setIsCreating(true)} 
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+        >
           Create New Study
         </button>
       </header>
       
       <ChessNavigation />
       
-      <div className="studies-description">
-        <p>Create and analyze chess positions, store your opening repertoire, or study endgame principles.</p>
+      <div className="bg-indigo-50 p-4 rounded-lg mb-6">
+        <p className="text-indigo-800">Create and analyze chess positions, store your opening repertoire, or study endgame principles.</p>
       </div>
       
-      <div className="studies-controls">
-        <div className="search-bar">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="w-full md:w-2/3">
           <input
             type="text"
             placeholder="Search studies..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         
-        <div className="filter-options">
+        <div className="w-full md:w-1/3">
           <select 
             value={filter} 
             onChange={(e) => setFilter(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="all">All Categories</option>
             <option value="opening">Openings</option>
@@ -425,39 +422,43 @@ const ChessStudies = () => {
       </div>
       
       {loading ? (
-        <div className="loading">Loading studies...</div>
+        <div className="flex justify-center items-center h-64 text-indigo-700">Loading studies...</div>
       ) : error ? (
-        <div className="error-message">{error}</div>
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">{error}</div>
       ) : (
         <>
-          <section className="studies-section">
-            <h2>Your Studies</h2>
+          <section className="mb-10">
+            <h2 className="text-xl font-semibold text-indigo-900 pb-2 border-b border-indigo-100 mb-4">Your Studies</h2>
             {filteredStudies.length === 0 ? (
-              <div className="no-studies">
-                <p>You haven't created any studies yet.</p>
-                <button onClick={() => setIsCreating(true)} className="create-first-study-btn">
+              <div className="bg-indigo-50 rounded-lg p-8 text-center">
+                <p className="text-indigo-800 mb-4">You haven't created any studies yet.</p>
+                <button 
+                  onClick={() => setIsCreating(true)} 
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                >
                   Create your first study
                 </button>
               </div>
             ) : (
-              <div className="studies-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredStudies.map(study => (
-                  <div key={study.id} className="study-card" onClick={() => handleOpenStudy(study)}>
-                    <div className="study-card-preview">
-                      <div className="mini-board" 
+                  <div key={study.id} 
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+                    onClick={() => handleOpenStudy(study)}>
+                    <div className="h-36 bg-indigo-50 flex items-center justify-center">
+                      <div className="w-28 h-28 bg-center bg-no-repeat bg-contain border border-gray-300" 
                         style={{ 
                           backgroundImage: study.preview_url 
                             ? `url(${study.preview_url})` 
                             : `url(/img/mini-boards/${study.category}.png)` 
-                        }}
-                      ></div>
+                        }}></div>
                     </div>
-                    <div className="study-card-content">
-                      <h3>{study.title}</h3>
-                      <p className="study-card-description">{study.description}</p>
-                      <div className="study-card-footer">
-                        <span className="study-category">{study.category}</span>
-                        <span className="study-date">{formatDate(study.updated_at)}</span>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-indigo-800 mb-2">{study.title}</h3>
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{study.description}</p>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full capitalize">{study.category}</span>
+                        <span>{formatDate(study.updated_at)}</span>
                       </div>
                     </div>
                   </div>
@@ -467,26 +468,27 @@ const ChessStudies = () => {
           </section>
           
           {filteredSharedStudies.length > 0 && (
-            <section className="studies-section">
-              <h2>Shared With You</h2>
-              <div className="studies-grid">
+            <section>
+              <h2 className="text-xl font-semibold text-indigo-900 pb-2 border-b border-indigo-100 mb-4">Shared With You</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSharedStudies.map(study => (
-                  <div key={study.id} className="study-card" onClick={() => handleOpenStudy(study)}>
-                    <div className="study-card-preview">
-                      <div className="mini-board" 
+                  <div key={study.id} 
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+                    onClick={() => handleOpenStudy(study)}>
+                    <div className="h-36 bg-indigo-50 flex items-center justify-center">
+                      <div className="w-28 h-28 bg-center bg-no-repeat bg-contain border border-gray-300" 
                         style={{ 
                           backgroundImage: study.preview_url 
                             ? `url(${study.preview_url})` 
                             : `url(/img/mini-boards/${study.category}.png)` 
-                        }}
-                      ></div>
+                        }}></div>
                     </div>
-                    <div className="study-card-content">
-                      <h3>{study.title}</h3>
-                      <p className="study-card-description">{study.description}</p>
-                      <div className="study-card-footer">
-                        <span className="study-owner">By {study.owner.name}</span>
-                        <span className="study-date">{formatDate(study.updated_at)}</span>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-indigo-800 mb-2">{study.title}</h3>
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{study.description}</p>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>By {study.owner.name}</span>
+                        <span>{formatDate(study.updated_at)}</span>
                       </div>
                     </div>
                   </div>

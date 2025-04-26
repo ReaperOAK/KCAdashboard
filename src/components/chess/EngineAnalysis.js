@@ -1,5 +1,4 @@
 import React from 'react';
-import './EngineAnalysis.css';
 
 const EngineAnalysis = ({ engineEvaluation }) => {
   // Format evaluation score
@@ -37,32 +36,32 @@ const EngineAnalysis = ({ engineEvaluation }) => {
   const blackPercentage = 100 - whitePercentage;
 
   return (
-    <div className="engine-analysis">
-      <h3>Engine Analysis</h3>
+    <div className="bg-[#f3f1f9] rounded-lg p-3 shadow-md flex flex-col">
+      <h3 className="mt-0 mb-3 text-[#200e4a] text-base font-semibold">Engine Analysis</h3>
       
       {!engineEvaluation ? (
-        <div className="waiting-analysis">Waiting for analysis...</div>
+        <div className="text-[#3b3a52] italic text-center py-2.5">Waiting for analysis...</div>
       ) : (
         <>
-          <div className="evaluation-bar">
+          <div className="h-40 w-[30px] border border-[#c2c1d3] rounded overflow-hidden flex flex-col mx-auto mb-2.5">
             <div 
-              className="white-eval" 
+              className="bg-[#f0f0f0] w-full transition-height duration-500 ease-in-out" 
               style={{ height: `${whitePercentage}%` }}
             ></div>
             <div 
-              className="black-eval" 
+              className="bg-[#3b3a52] w-full transition-height duration-500 ease-in-out" 
               style={{ height: `${blackPercentage}%` }}
             ></div>
           </div>
           
-          <div className="evaluation-info">
-            <div className="eval-score">
+          <div className="flex flex-col items-center mt-1">
+            <div className="text-xl font-bold text-[#200e4a] mb-1">
               {formatEvaluation(engineEvaluation)}
             </div>
-            <div className="eval-detail">
-              <span>Depth: {engineEvaluation.depth}</span>
+            <div className="flex flex-col items-center text-sm text-[#3b3a52]">
+              <span className="my-0.5">Depth: {engineEvaluation.depth}</span>
               {engineEvaluation.bestMove && (
-                <span>Best: {engineEvaluation.bestMove}</span>
+                <span className="my-0.5">Best: {engineEvaluation.bestMove}</span>
               )}
             </div>
           </div>

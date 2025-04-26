@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
-import './SimulBoard.css';
 
 const SimulBoard = ({ 
   id, 
@@ -188,7 +187,7 @@ const SimulBoard = ({
   const renderStatus = () => {
     if (result) {
       return (
-        <div className="simul-board-result">
+        <div className="bg-amber-100 text-orange-700 py-1 px-2 rounded font-semibold text-sm">
           {result === '1-0' ? 'White won' : 
           result === '0-1' ? 'Black won' : 
           result === '1/2-1/2' ? 'Draw' : result}
@@ -197,16 +196,16 @@ const SimulBoard = ({
     }
     
     if (isGameOver) {
-      if (game.isCheckmate()) return <div className="simul-board-status">Checkmate</div>;
-      if (game.isDraw()) return <div className="simul-board-status">Draw</div>;
-      if (game.isStalemate()) return <div className="simul-board-status">Stalemate</div>;
-      if (game.isThreefoldRepetition()) return <div className="simul-board-status">Draw by repetition</div>;
-      if (game.isInsufficientMaterial()) return <div className="simul-board-status">Draw by insufficient material</div>;
-      return <div className="simul-board-status">Game over</div>;
+      if (game.isCheckmate()) return <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">Checkmate</div>;
+      if (game.isDraw()) return <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">Draw</div>;
+      if (game.isStalemate()) return <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">Stalemate</div>;
+      if (game.isThreefoldRepetition()) return <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">Draw by repetition</div>;
+      if (game.isInsufficientMaterial()) return <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">Draw by insufficient material</div>;
+      return <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">Game over</div>;
     }
     
     return (
-      <div className="simul-board-status">
+      <div className="bg-blue-100 text-blue-800 py-1 px-2 rounded text-sm">
         {game.turn() === 'w' ? 'White' : 'Black'} to move
         {game.inCheck() ? ' (In check)' : ''}
       </div>
@@ -214,13 +213,13 @@ const SimulBoard = ({
   };
   
   return (
-    <div className={`simul-board ${isActive ? 'active' : ''}`}>
-      <div className="simul-board-header">
-        <div className="simul-board-opponent">vs {opponentName}</div>
+    <div className={`mb-5 rounded-lg overflow-hidden bg-white shadow-md transition-all duration-300 max-w-[320px] cursor-pointer flex flex-col ${isActive ? 'shadow-[0_0_0_3px_#3498db,0_2px_10px_rgba(0,0,0,0.2)] scale-[1.02]' : ''}`}>
+      <div className="flex justify-between items-center px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="font-semibold text-gray-800">vs {opponentName}</div>
         {renderStatus()}
       </div>
       
-      <div className="simul-board-container" style={{ width }}>
+      <div className="mx-auto p-4" style={{ width }}>
         <Chessboard
           id={`simul-board-${id}`}
           position={game.fen()}

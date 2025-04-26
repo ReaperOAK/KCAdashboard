@@ -13,7 +13,6 @@ const SimulGames = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [refreshInterval, setRefreshInterval] = useState(null);
   const [createForm, setCreateForm] = useState({
     title: '',
     description: '',
@@ -78,17 +77,13 @@ const SimulGames = () => {
       } else {
         loadSimuls();
       }
-    }, 10000); // Refresh every 10 seconds
-    
-    setRefreshInterval(interval);
+    }, 1000); // Refresh every 1 seconds
     
     // Cleanup on unmount
     return () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-      }
+      clearInterval(interval); // Clear the interval created in this effect
     };
-  }, [activeSimul, refreshInterval, refreshActiveSimul, loadSimuls]);
+  }, [activeSimul, refreshActiveSimul, loadSimuls]);
 
   // Handle simul creation
   const handleCreateSimul = async (e) => {

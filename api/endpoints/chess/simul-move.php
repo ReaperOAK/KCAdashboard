@@ -43,7 +43,14 @@ try {
     // Update board position
     if($simul->updateBoardPosition($data->board_id, $data->fen, $user['id'])) {
         // Record the move in the database
-        // Code to record the move would go here
+        $moveData = [
+            'move_number' => isset($data->move_number) ? $data->move_number : 1,
+            'move_san' => isset($data->move->san) ? $data->move->san : 'move',
+            'position_after' => $data->fen,
+            'made_by_id' => $user['id']
+        ];
+        
+        $simul->recordSimulMove($data->board_id, $moveData);
         
         http_response_code(200);
         echo json_encode([

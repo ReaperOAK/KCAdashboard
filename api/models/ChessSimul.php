@@ -231,5 +231,52 @@ class ChessSimul {
         
         return $stmt->execute();
     }
+    
+    // Record a move in a simul game
+    public function recordSimulMove($boardId, $moveData) {
+        $query = "INSERT INTO chess_simul_moves 
+                 (board_id, move_number, move_san, position_after, made_by_id, created_at)
+                 VALUES (?, ?, ?, ?, ?, NOW())";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $boardId);
+        $stmt->bindParam(2, $moveData['move_number']);
+        $stmt->bindParam(3, $moveData['move_san']);
+        $stmt->bindParam(4, $moveData['position_after']);
+        $stmt->bindParam(5, $moveData['made_by_id']);
+        
+        return $stmt->execute();
+    }
+    
+    // Get moves for a simul board
+    public function getSimulMoves($boardId) {
+        $query = "SELECT m.*, u.full_name as player_name
+                  FROM chess_simul_moves m
+                  JOIN users u ON m.made_by_id = u.id
+                  WHERE m.board_id = ?
+                  ORDER BY m.move_number";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $boardId);
+        $stmt->execute();
+        
+        $moves = [];
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $moves[] = [
+                'id' => $row['id'],
+                'move_number' => $row['move_number'],
+                'move_san' => $row['move_san'],
+                'position_after' => $row['position_after'],
+                'made_by' => [
+                    'id' => $row['made_by_id'],
+                    'name' => $row['player_name']
+                ],
+                'created_at' => $row['created_at']
+            ];
+        }
+        
+        return $moves;
+    }
 }
 ?>

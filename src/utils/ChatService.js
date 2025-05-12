@@ -10,6 +10,7 @@ class ChatService {
       throw error;
     }
   }
+  
 
   // Get messages from a conversation
   static async getMessages(conversationId, limit = 50, offset = 0) {

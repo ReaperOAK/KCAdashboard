@@ -42,13 +42,13 @@
     "stockfish": "^15.0.0",
     "web-vitals": "^2.1.4",
     "yup": "^1.6.1"
-  },
-  "scripts": {
+  },  "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build-deploy": "powershell -File ./deploy-to-hostinger.ps1 -Password \"%FTP_PASSWORD%\""
+    "build-deploy": "powershell -File ./deploy-to-hostinger.ps1 -Password \"%FTP_PASSWORD%\"",
+    "deploy": "node ftpconfig.js"
   },
   "eslintConfig": {
     "extends": [

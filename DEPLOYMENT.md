@@ -1,12 +1,14 @@
 # Kolkata Chess Academy Dashboard - Deployment Guide
 
-This project includes scripts to build the React application and deploy it to the Hostinger hosting service via FTP.
+This project includes scripts to build the React application and deploy it to the Hostinger hosting service via FTP. The system supports both incremental (Git-like) and full deployments.
 
-## Deployment Steps
+## Deployment Options
 
-### Option 1: Using the Deployment Batch File (Recommended)
+### Option 1: Incremental Deployment (Recommended)
 
-1. Run the deployment batch file:
+This option only uploads files that have changed since the last deployment, making it much faster.
+
+1. Run the incremental deployment batch file:
    ```
    .\deploy.bat
    ```
@@ -17,7 +19,23 @@ This project includes scripts to build the React application and deploy it to th
    - Prepare the Stockfish chess engine files
    - Build the React application
    - Copy necessary server configuration files (.htaccess, web.config)
-   - Deploy the build files to Hostinger via FTP
+   - Compare all files against the previous deployment
+   - Only upload new or modified files
+   
+### Option 2: Force Full Deployment
+
+Use this when you want to ensure all files are uploaded, regardless of whether they've changed.
+
+1. Run the force deployment batch file:
+   ```
+   .\deploy-force.bat
+   ```
+
+2. When prompted, enter your FTP password.
+
+3. The script will:
+   - Remove the previous deployment tracking manifest
+   - Perform a complete deployment of all files
 
 ### Option 2: Using PowerShell Script Directly
 
@@ -70,12 +88,30 @@ The deployment script automatically prepares Stockfish files for production:
 After deployment, you can verify Stockfish is working by visiting:
 `https://kolkatachessacademy.in/stockfish/test.html`
 
+## How Incremental Deployment Works
+
+The incremental deployment system works similar to Git by tracking file changes:
+
+1. A manifest file (`.ftp-manifest.json`) stores information about all deployed files
+2. For each file, it stores:
+   - An MD5 hash of the file's content
+   - The timestamp of when it was last uploaded
+
+3. During deployment:
+   - New files (not in the manifest) are always uploaded
+   - Existing files are only uploaded if their content hash has changed
+   - The UI shows whether each file is new or changed during upload
+   - After successful deployment, the manifest is updated
+
+This approach significantly speeds up deployments since only modified files are transferred.
+
 ## Troubleshooting
 
 ### If Files Aren't Uploading
 - Check the FTP credentials
 - Ensure the remote directory path is correct
 - Verify the server allows FTP connections on port 21
+- If files should be uploading but aren't, try the force deployment option
 
 ### If Stockfish Engine Doesn't Work
 - Verify MIME type configuration on your server

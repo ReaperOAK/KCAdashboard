@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import PGNViewer from './pages/PGNViewer';
 import NotificationPreferences from './pages/notifications/NotificationPreferences';
 
+
 import adminRoutes from './routes/adminRoutes';
 import teacherRoutes from './routes/teacherRoutes';
 import studentRoutes from './routes/studentRoutes';

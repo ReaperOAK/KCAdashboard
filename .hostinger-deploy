@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Hostinger auto-deployment configuration
+echo "Running custom deployment script..."
+
+# Configure git to use merge strategy for pulls
+git config pull.rebase false
+
+# Pull changes (will use merge strategy)
+git pull origin main
+
+# Run the PHP deployment script to handle fixed packages
+php api/deploy-setup.php
+
+echo "Deployment completed successfully"

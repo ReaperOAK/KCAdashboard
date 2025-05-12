@@ -22,23 +22,24 @@ jobs:
           echo "lichess-pgn-viewer@*:*: --no-save" > .npmrc
           echo "snabbdom@*:*: --no-save" >> .npmrc
           npm install
-
-      - name: Copy fixed packages
+      
+      - name: Copy fixed packages to node_modules for the build process
         run: |
-          # Copy pre-fixed packages to node_modules
+          # Copy fixed packages directly to node_modules for the build process
           mkdir -p node_modules/lichess-pgn-viewer
           mkdir -p node_modules/snabbdom
-          cp -r fixed-packages/lichess-pgn-viewer/* node_modules/lichess-pgn-viewer/
-          cp -r fixed-packages/snabbdom/* node_modules/snabbdom/
+          cp -r public/fixed-packages/lichess-pgn-viewer/* node_modules/lichess-pgn-viewer/
+          cp -r public/fixed-packages/snabbdom/* node_modules/snabbdom/
 
       - name: Build React app
-        run: npm run build
-
-      - name: Copy API files
+        run: npm run build      
+      - name: Copy API files and deployment scripts
         run: |
           mkdir -p build/api
           cp -r api/* build/api/
           cp .htaccess build/
+          cp deploy.sh build/
+          cp .hostinger-deploy build/
 
       - name: Push (creating new build branch)
         uses: s0/git-publish-subdir-action@develop

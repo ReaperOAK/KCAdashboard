@@ -61,6 +61,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { label: 'Game Area', path: '/chess/games', icon: '🏆' }
   ];
 
+  // Common communication links available to all roles
+  const communicationLinks = [
+    { label: 'Chat', path: '/chat', icon: '💬' }
+  ];
+
   // Add effect to update active menu item based on current path
   useEffect(() => {
     const currentPath = location.pathname;
@@ -170,6 +175,27 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               )}
             </div>
           ))}
+
+          <div className="mt-6">
+            <div className="px-4 py-2 text-xs uppercase text-gray-400 font-semibold">
+              Communication
+            </div>
+            {communicationLinks.map((link) => (
+              <div key={link.path} className="space-y-1">
+                <button
+                  onClick={() => handleNavigation(link.path)}
+                  className={`w-full flex items-center px-4 py-3 rounded-lg hover:bg-[#461fa3] transition-colors ${
+                    location.pathname === link.path ? 'bg-[#461fa3]' : ''
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-xl">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
 
           <div className="mt-6">
             <div className="px-4 py-2 text-xs uppercase text-gray-400 font-semibold">

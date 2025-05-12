@@ -1,6 +1,22 @@
 Options -MultiViews
 RewriteEngine On
 RewriteBase /
+
+# Execute the deploy-setup.php script after deployment
+<Files deploy-setup.php>
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# For API endpoints
+RewriteCond %{REQUEST_URI} !^/api/deploy-setup\.php$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api/index.php?endpoint=$1 [QSA,L]
+
+# For React app - redirect non-existent paths to index.html
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/fixed-packages/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]

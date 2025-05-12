@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../utils/api';
+import WebSocketService from '../utils/WebSocketService';
 
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
@@ -19,7 +20,8 @@ const NotificationBell = () => {
         { id: 'assignment', label: 'Assignments' },
         { id: 'attendance', label: 'Attendance' },
         { id: 'announcement', label: 'Announcements' },
-        { id: 'achievement', label: 'Achievements' }
+        { id: 'achievement', label: 'Achievements' },
+        { id: 'chat', label: 'Messages' }
     ];
 
     const fetchNotifications = useCallback(async () => {
@@ -114,11 +116,57 @@ const NotificationBell = () => {
         };
     }, []);
 
+    // Initialize WebSocket connection and event handlers
     useEffect(() => {
+        // Initial fetch
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000); // Poll every minute
-        return () => clearInterval(interval);
-    }, [fetchNotifications]);
+        
+        // Set up WebSocket notification listener
+        const unsubscribe = WebSocketService.on('notification', (data) => {
+            if (data && data.data) {
+                // Add new notification to the list
+                const newNotification = data.data;
+                setNotifications(prevNotifications => [newNotification, ...prevNotifications]);
+                
+                // Increment unread count
+                setUnreadCount(prevCount => prevCount + 1);
+                
+                // Update filtered notifications
+                filterNotifications([newNotification, ...notifications], activeCategory);
+                
+                // Show browser notification if supported and user has given permission
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(newNotification.title, {
+                        body: newNotification.message,
+                        icon: '/logo192.png'
+                    });
+                }
+            }
+        });
+        
+        // Set up listener for pending notifications when reconnected
+        const pendingUnsubscribe = WebSocketService.on('pending_notifications', (data) => {
+            if (data && data.data && Array.isArray(data.data)) {
+                fetchNotifications(); // Re-fetch all notifications
+            }
+        });
+        
+        // Request browser notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+        
+        // Ensure WebSocket is connected
+        if (!WebSocketService.isConnected()) {
+            WebSocketService.connect();
+        }
+        
+        // Clean up
+        return () => {
+            unsubscribe();
+            pendingUnsubscribe();
+        };
+    }, [fetchNotifications, notifications, activeCategory]);
     
     useEffect(() => {
         // Update filtered notifications when active category or notifications change
@@ -134,7 +182,8 @@ const NotificationBell = () => {
             assignment: 'bg-[#af0505]',
             attendance: 'bg-orange-500',
             announcement: 'bg-blue-500',
-            achievement: 'bg-green-500'
+            achievement: 'bg-green-500',
+            chat: 'bg-cyan-500'
         };
         
         return colors[category] || 'bg-gray-500';
@@ -174,7 +223,7 @@ const NotificationBell = () => {
                     </span>
                 )}
             </button>
-
+            
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] flex flex-col">
                     <div className="p-4 border-b flex justify-between items-center">

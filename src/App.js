@@ -14,7 +14,8 @@ import NotificationPreferences from './pages/notifications/NotificationPreferenc
 import adminRoutes from './routes/adminRoutes';
 import teacherRoutes from './routes/teacherRoutes';
 import studentRoutes from './routes/studentRoutes';
-import chessRoutes from './routes/chessRoutes'; // Add this import
+import chessRoutes from './routes/chessRoutes';
+import chatRoutes from './routes/chatRoutes'; // Import the chat routes
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -133,6 +134,9 @@ const AppContent = () => {
               
               {/* Chess Routes - available to all user roles */}
               {renderRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
+              
+              {/* Chat Routes - available to all user roles */}
+              {renderRoutes(chatRoutes, ['student', 'teacher', 'admin'])}
             </Routes>
           </div>
         </>

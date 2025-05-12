@@ -11,6 +11,8 @@ class Classroom {
     public $schedule;
     public $status;
     public $created_at;
+    public $meeting_link;
+    public $platform;
 
     // Constructor
     public function __construct($db){
@@ -334,6 +336,311 @@ class Classroom {
             error_log("Database error in getClassDetails: " . $e->getMessage());
             throw new Exception("Database error: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Update video conference link for a batch
+     * @param int $batch_id The batch ID
+     * @param string $meeting_link The Google Meet or Zoom link
+     * @param string $platform The platform (google_meet or zoom)
+     * @return boolean True if successful, false otherwise
+     */
+    public function updateBatchMeetingLink($batch_id, $meeting_link, $platform = 'google_meet') {
+        try {
+            // Update the video meeting link in batches table
+            // Check if the 'meeting_link' column exists, if not add it
+            $this->ensureMeetingLinkColumn();
+            
+            $query = "UPDATE batches 
+                     SET meeting_link = :meeting_link, 
+                         video_platform = :platform,
+                         updated_at = NOW() 
+                     WHERE id = :batch_id";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':meeting_link', $meeting_link);
+            $stmt->bindParam(':platform', $platform);
+            $stmt->bindParam(':batch_id', $batch_id);
+            
+            if ($stmt->execute()) {
+                return true;
+            }
+            return false;
+        } catch (PDOException $e) {
+            error_log("Database error in updateBatchMeetingLink: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get video conference link for a batch
+     * @param int $batch_id The batch ID
+     * @return array Meeting link data or null if not found
+     */
+    public function getBatchMeetingLink($batch_id) {
+        try {
+            $query = "SELECT meeting_link, video_platform 
+                     FROM batches 
+                     WHERE id = :batch_id";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batch_id);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                return [
+                    'meeting_link' => $result['meeting_link'],
+                    'platform' => $result['video_platform'] ?? 'google_meet'
+                ];
+            }
+            return null;
+        } catch (PDOException $e) {
+            error_log("Database error in getBatchMeetingLink: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Create a new meeting session with the existing meeting link
+     * @param array $data Meeting session data
+     * @return array|boolean New session data if successful, false otherwise
+     */
+    public function createMeeting($data) {
+        try {
+            // First, get the batch meeting link if it exists
+            $meetingInfo = $this->getBatchMeetingLink($data['batch_id']);
+            $meetingLink = $meetingInfo ? $meetingInfo['meeting_link'] : null;
+            $platform = $meetingInfo ? $meetingInfo['platform'] : 'google_meet';
+            
+            // If no link exists, use the provided one or return an error
+            if (!$meetingLink && empty($data['meeting_link'])) {
+                return ['success' => false, 'message' => 'No meeting link available for this batch'];
+            }
+            
+            // Use the existing link from the batch if provided link is empty
+            $finalLink = empty($data['meeting_link']) ? $meetingLink : $data['meeting_link'];
+            
+            $query = "INSERT INTO batch_sessions 
+                     (batch_id, title, date_time, duration, type, meeting_link, online_meeting_id) 
+                     VALUES 
+                     (:batch_id, :title, :scheduled_time, :duration_minutes, 'online', :meeting_link, :meeting_id)";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $data['batch_id']);
+            $stmt->bindParam(':title', $data['title']);
+            $stmt->bindParam(':scheduled_time', $data['scheduled_time']);
+            $stmt->bindParam(':duration_minutes', $data['duration_minutes']);
+            $stmt->bindParam(':meeting_link', $finalLink);
+            
+            // Generate a simple meeting ID for reference
+            $meetingId = $platform . '_' . time();
+            $stmt->bindParam(':meeting_id', $meetingId);
+            
+            if ($stmt->execute()) {
+                $sessionId = $this->conn->lastInsertId();
+                
+                return [
+                    'success' => true,
+                    'id' => $sessionId,
+                    'batch_id' => $data['batch_id'],
+                    'title' => $data['title'],
+                    'scheduled_time' => $data['scheduled_time'],
+                    'duration_minutes' => $data['duration_minutes'],
+                    'meeting_link' => $finalLink,
+                    'platform' => $platform,
+                    'meeting_id' => $meetingId
+                ];
+            }
+            return ['success' => false, 'message' => 'Failed to create meeting session'];
+        } catch (PDOException $e) {
+            error_log("Database error in createMeeting: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Ensure the meeting_link column exists in the batches table
+     */
+    private function ensureMeetingLinkColumn() {
+        try {
+            // Check if meeting_link column exists
+            $query = "SHOW COLUMNS FROM batches LIKE 'meeting_link'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                // Column doesn't exist, add it
+                $alterQuery = "ALTER TABLE batches 
+                              ADD COLUMN meeting_link VARCHAR(512) NULL AFTER status,
+                              ADD COLUMN video_platform VARCHAR(50) DEFAULT 'google_meet' AFTER meeting_link";
+                $this->conn->exec($alterQuery);
+            }
+            
+            // Check if video_platform column exists
+            $query = "SHOW COLUMNS FROM batches LIKE 'video_platform'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() === 0) {
+                // Column doesn't exist, add it
+                $alterQuery = "ALTER TABLE batches 
+                              ADD COLUMN video_platform VARCHAR(50) DEFAULT 'google_meet' AFTER meeting_link";
+                $this->conn->exec($alterQuery);
+            }
+        } catch (PDOException $e) {
+            error_log("Database error in ensureMeetingLinkColumn: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Check if a student is a participant in a batch
+     * @param int $student_id The student ID
+     * @param int $batch_id The batch ID
+     * @return boolean True if student is in batch, false otherwise
+     */
+    public function isStudentInBatch($student_id, $batch_id) {
+        $query = "SELECT 1 FROM batch_students 
+                 WHERE student_id = :student_id 
+                 AND batch_id = :batch_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':student_id', $student_id);
+        $stmt->bindParam(':batch_id', $batch_id);
+        $stmt->execute();
+        
+        return $stmt->rowCount() > 0;
+    }
+    
+    /**
+     * Check if a teacher teaches a student
+     * @param int $teacher_id The teacher ID
+     * @param int $student_id The student ID
+     * @return boolean True if teacher teaches student, false otherwise
+     */
+    public function isTeacherForStudent($teacher_id, $student_id) {
+        $query = "SELECT 1 FROM batches b
+                 JOIN batch_students bs ON b.id = bs.batch_id
+                 WHERE b.teacher_id = :teacher_id
+                 AND bs.student_id = :student_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        $stmt->bindParam(':student_id', $student_id);
+        $stmt->execute();
+        
+        return $stmt->rowCount() > 0;
+    }
+    
+    /**
+     * Get meetings for a batch
+     * @param int $batch_id The batch ID
+     * @param boolean $includeCompleted Include completed meetings
+     * @return array Array of meeting objects
+     */
+    public function getMeetingsByBatch($batch_id, $includeCompleted = false) {
+        $timeCondition = $includeCompleted ? "" : " AND date_time >= NOW() - INTERVAL 1 HOUR";
+        
+        $query = "SELECT id, batch_id, title, date_time as scheduled_time, 
+                 duration as duration_minutes, type, meeting_link, online_meeting_id
+                 FROM batch_sessions
+                 WHERE batch_id = :batch_id
+                 AND type = 'online'
+                 $timeCondition
+                 ORDER BY date_time DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':batch_id', $batch_id);
+        $stmt->execute();
+        
+        $meetings = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $meetings[] = $row;
+        }
+        
+        return $meetings;
+    }
+    
+    /**
+     * Get meetings by teacher
+     * @param int $teacher_id The teacher ID
+     * @param boolean $includeCompleted Include completed meetings
+     * @return array Array of meeting objects
+     */
+    public function getMeetingsByTeacher($teacher_id, $includeCompleted = false) {
+        $timeCondition = $includeCompleted ? "" : " AND bs.date_time >= NOW() - INTERVAL 1 HOUR";
+        
+        $query = "SELECT bs.id, bs.batch_id, bs.title, bs.date_time as scheduled_time, 
+                 bs.duration as duration_minutes, bs.type, bs.meeting_link, bs.online_meeting_id,
+                 b.teacher_id
+                 FROM batch_sessions bs
+                 JOIN batches b ON bs.batch_id = b.id
+                 WHERE b.teacher_id = :teacher_id
+                 AND bs.type = 'online'
+                 $timeCondition
+                 ORDER BY bs.date_time DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        $stmt->execute();
+        
+        $meetings = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $meetings[] = $row;
+        }
+        
+        return $meetings;
+    }
+    
+    /**
+     * Get teacher details
+     * @param int $teacher_id The teacher ID
+     * @return array Teacher details
+     */
+    public function getTeacherDetails($teacher_id) {
+        $query = "SELECT id, full_name, email, profile_picture
+                 FROM users
+                 WHERE id = :teacher_id";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get batch details
+     * @param int $batch_id The batch ID
+     * @return array Batch details
+     */
+    public function getBatchDetails($batch_id) {
+        $query = "SELECT id, name, description, level, status
+                 FROM batches
+                 WHERE id = :batch_id";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':batch_id', $batch_id);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get batch student IDs
+     * @param int $batch_id The batch ID
+     * @return array Array of student IDs
+     */
+    public function getBatchStudentIds($batch_id) {
+        $query = "SELECT student_id
+                 FROM batch_students
+                 WHERE batch_id = :batch_id";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':batch_id', $batch_id);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 }
 ?>

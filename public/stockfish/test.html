@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stockfish Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    #output { background: #f5f5f5; border: 1px solid #ddd; padding: 10px; height: 300px; overflow-y: auto; }
+    button { margin: 10px 0; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <h1>Stockfish Engine Test</h1>
+  <p>This page tests if the Stockfish chess engine is working correctly.</p>
+  
+  <button id="startTest">Run Test</button>
+  <div id="output"></div>
+  
+  <script src="./stockfish-loader.js"></script>
+  <script>
+    const output = document.getElementById('output');
+    const startTestBtn = document.getElementById('startTest');
+    
+    function log(message) {
+      const line = document.createElement('div');
+      line.textContent = message;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    startTestBtn.addEventListener('click', function() {
+      output.innerHTML = '';
+      log('Loading Stockfish...');
+      
+      try {
+        const engine = loadStockfish(function(stockfish) {
+          log('Stockfish loaded successfully!');
+          
+          stockfish.onmessage = function(event) {
+            log('> ' + event.data);
+          };
+          
+          log('Sending commands to Stockfish...');
+          stockfish.postMessage('position startpos');
+          stockfish.postMessage('go depth 10');
+          
+          setTimeout(() => {
+            stockfish.postMessage('stop');
+            log('Test completed successfully!');
+          }, 3000);
+        });
+      } catch (err) {
+        log('Error: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

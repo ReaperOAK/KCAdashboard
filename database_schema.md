@@ -412,41 +412,6 @@
 | created_at    | timestamp                                | YES  |     | CURRENT_TIMESTAMP |      |
 | expires_at    | timestamp                                | YES  |     | NULL     |                |
 
-### chess_simuls
-| Column       | Type                                | Null | Key | Default  | Extra          |
-|--------------|-------------------------------------|------|-----|----------|----------------|
-| id           | int(11)                             | NO   | PRI | NULL     | auto_increment |
-| title        | varchar(255)                        | YES  |     | NULL     |                |
-| host_id      | int(11)                             | NO   | MUL | NULL     |                |
-| description  | text                                | YES  |     | NULL     |                |
-| status       | enum('pending', 'active', 'completed') | YES | | 'pending' |                |
-| max_players  | int(11)                             | NO   |     | 5        |                |
-| time_control | varchar(50)                         | YES  |     | NULL     |                |
-| created_at   | timestamp                           | YES  |     | CURRENT_TIMESTAMP |      |
-
-### chess_simul_boards
-| Column       | Type                        | Null | Key | Default  | Extra          |
-|--------------|-----------------------------|------|-----|----------|----------------|
-| id           | int(11)                     | NO   | PRI | NULL     | auto_increment |
-| simul_id     | int(11)                     | NO   | MUL | NULL     |                |
-| player_id    | int(11)                     | NO   | MUL | NULL     |                |
-| position     | varchar(255)                | NO   |     | 'start'  |                |
-| status       | enum('active', 'completed') | YES  |     | 'active' |                |
-| result       | varchar(10)                 | YES  |     | NULL     |                |
-| turn         | char(1)                     | YES  |     | 'w'      |                |
-| last_move_at | timestamp                   | YES  |     | CURRENT_TIMESTAMP |      |
-
-### chess_simul_moves
-| Column         | Type       | Null | Key | Default | Extra          |
-|----------------|------------|------|-----|---------|----------------|
-| id             | int(11)    | NO   | PRI | NULL    | auto_increment |
-| board_id       | int(11)    | NO   | MUL | NULL    |                |
-| move_number    | int(11)    | NO   |     | NULL    |                |
-| move_san       | varchar(10)| NO   |     | NULL    |                |
-| position_after | varchar(255)| NO  |     | NULL    |                |
-| made_by_id     | int(11)    | NO   | MUL | NULL    |                |
-| created_at     | timestamp  | YES  |     | CURRENT_TIMESTAMP |      |
-
 ### chess_practice_positions
 | Column       | Type                                     | Null | Key | Default | Extra          |
 |--------------|------------------------------------------|------|-----|---------|----------------|
@@ -514,17 +479,6 @@
 ### chess_challenges
 - `challenger_id` references `users(id)` ON DELETE CASCADE
 - `recipient_id` references `users(id)` ON DELETE CASCADE
-
-### chess_simuls
-- `host_id` references `users(id)` ON DELETE CASCADE
-
-### chess_simul_boards
-- `simul_id` references `chess_simuls(id)` ON DELETE CASCADE
-- `player_id` references `users(id)` ON DELETE CASCADE
-
-### chess_simul_moves
-- `board_id` references `chess_simul_boards(id)` ON DELETE CASCADE
-- `made_by_id` references `users(id)`
 
 ### chess_practice_positions
 - `created_by` references `users(id)` ON DELETE CASCADE

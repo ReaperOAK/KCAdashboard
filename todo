@@ -1,6 +1,19 @@
-### Comprehensive Plan for Chess Academy Dashboard Website
+### Comprehensive Plan for Chess Academy3. 5. **Resource Cente7. **Tournaments Page:** View and register for upcoming chess tournaments.
+<!--DONE!! The PHP endpoints for tournaments
+Tournament registration system
+Tournament results tracking
+Integration with Lichess.org tournaments
+Tournament payment system -->
+8. **Chat Page:** Communicate with peers, teachers, and admins.wnloadable PGN files, notes, and videos.
+<!-- DONE The PHP endpoints for fetching resources
+File upload functionality for PGN and PDF files
+Video embedding for chess tutorials
+Resource search and filtering
+Resource bookmarking system -->
+6. **Quiz Page:** Chess-related quizzes for practice.active Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
+4. **Game Area:** Dedicated space for chess games and practice.ashboard Website
 
-This report outlines the design and development plan for the Chess Academy's dashboard website, incorporating key features like simul games, classroom management, chess studies, analytics, and an attendance system.
+This report outlines the design and development plan for the Chess Academy's dashboard website, incorporating key features like classroom management, chess studies, analytics, and an attendance system.
 
 ---
 
@@ -31,30 +44,29 @@ Create email notifications in addition to in-app notifications -->
 ---
 
 ### **Student Features**
-1. **Simul Games:** Integration with [Lichess.org](https://lichess.org) for simultaneous exhibition matches.
-2. **Classroom:** View and manage enrolled batches, teachers, and materials.
+1. **Classroom:** View and manage enrolled batches, teachers, and materials.
 <!-- DONE!! Class detail view
 Enrollment functionality
 Class materials section
 Assignment submission system
 Class discussion feature -->
-3. **Studies:** Access chess studies integrated with [Lichess.org](https://lichess.org).
-4. **Interactive Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
-5. **Game Area:** Dedicated space for chess games and practice.
-6. **Resource Center:** Downloadable PGN files, notes, and videos.
+2. **Studies:** Access chess studies integrated with [Lichess.org](https://lichess.org).
+3. **Interactive Board:** Play with AI, teachers, or fellow students via [Lichess.org](https://lichess.org).
+4. **Game Area:** Dedicated space for chess games and practice.
+5. **Resource Center:** Downloadable PGN files, notes, and videos.
 <!-- DONE The PHP endpoints for fetching resources
 File upload functionality for PGN and PDF files
 Video embedding for chess tutorials
 Resource search and filtering
 Resource bookmarking system -->
-7. **Quiz Page:** Chess-related quizzes for practice.
+6. **Quiz Page:** Chess-related quizzes for practice.
 <!-- DONE The Quiz detail/taking page
 The PHP endpoints for quizzes
 The scoring system
 Quiz results and history
 Quiz attempt tracking
 Quiz leaderboard -->
-8. **Tournaments Page:** View and register for upcoming chess tournaments.
+7. **Tournaments Page:** View and register for upcoming chess tournaments.
 <!--DONE!! The PHP endpoints for tournaments
 Tournament registration system
 Tournament results tracking

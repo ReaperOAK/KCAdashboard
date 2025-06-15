@@ -1,6 +1,5 @@
 import ChessStudies from '../pages/chess/ChessStudies';
 import InteractiveBoard from '../pages/chess/InteractiveBoard';
-import SimulGames from '../pages/chess/SimulGames';
 import GameArea from '../pages/chess/GameArea';
 import PlayerVsPlayer from '../pages/chess/PlayerVsPlayer';
 import ChessHome from '../pages/chess/ChessHome';
@@ -25,20 +24,12 @@ const chessRoutes = [
     name: 'Play Chess',
     icon: 'chess-knight',
     description: 'Challenge other players to games'
-  },
-  {
+  },  {
     path: '/chess/board',
     element: InteractiveBoard,
     name: 'Interactive Board',
     icon: 'chess-board',
     description: 'Practice with an interactive chess board and engine analysis'
-  },
-  {
-    path: '/chess/simuls',
-    element: SimulGames,
-    name: 'Simultaneous Exhibitions',
-    icon: 'users',
-    description: 'Play or participate in simultaneous exhibitions'
   },
   {
     path: '/chess/games',

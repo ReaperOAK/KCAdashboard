@@ -448,29 +448,7 @@ class ApiService {
   static getResourceDownloadUrl(resourceId) {
     return `${this.API_URL}/resources/download.php?id=${resourceId}`;
   }
-
   // Chess API endpoints
-  static async getSimulGames() {
-    return this.get('/chess/simul-games.php');
-  }
-
-  static async createSimulGame(data) {
-    return this.post('/chess/create-simul.php', data);
-  }
-
-  static async joinSimulGame(id) {
-    return this.post('/chess/join-simul.php', { simul_id: id });
-  }
-
-  static async makeSimulMove(simulId, boardId, move, fen) {
-    return this.post('/chess/simul-move.php', {
-      simul_id: simulId,
-      board_id: boardId,
-      move,
-      fen
-    });
-  }
-
   static async getChessStudies() {
     return this.get('/chess/studies.php');
   }

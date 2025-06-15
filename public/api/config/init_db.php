@@ -261,51 +261,7 @@ try {
         expires_at TIMESTAMP,
         FOREIGN KEY (challenger_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
-    )";
-    $db->exec($sql);
-    
-    // Simul Games
-    $sql = "CREATE TABLE IF NOT EXISTS chess_simuls (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        title VARCHAR(255),
-        host_id INT NOT NULL,
-        description TEXT,
-        status ENUM('pending', 'active', 'completed') DEFAULT 'pending',
-        max_players INT NOT NULL DEFAULT 5,
-        time_control VARCHAR(50),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (host_id) REFERENCES users(id) ON DELETE CASCADE
-    )";
-    $db->exec($sql);
-    
-    // Simul Boards
-    $sql = "CREATE TABLE IF NOT EXISTS chess_simul_boards (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        simul_id INT NOT NULL,
-        player_id INT NOT NULL,
-        position VARCHAR(255) NOT NULL DEFAULT 'start',
-        status ENUM('active', 'completed') DEFAULT 'active',
-        result VARCHAR(10),
-        turn CHAR(1) DEFAULT 'w',
-        last_move_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (simul_id) REFERENCES chess_simuls(id) ON DELETE CASCADE,
-        FOREIGN KEY (player_id) REFERENCES users(id) ON DELETE CASCADE
-    )";
-    $db->exec($sql);
-    
-    // Simul Board Moves
-    $sql = "CREATE TABLE IF NOT EXISTS chess_simul_moves (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        board_id INT NOT NULL,
-        move_number INT NOT NULL,
-        move_san VARCHAR(10) NOT NULL,
-        position_after VARCHAR(255) NOT NULL,
-        made_by_id INT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (board_id) REFERENCES chess_simul_boards(id) ON DELETE CASCADE,
-        FOREIGN KEY (made_by_id) REFERENCES users(id)
-    )";
-    $db->exec($sql);
+    )";    $db->exec($sql);
     
     // Practice Positions
     $sql = "CREATE TABLE IF NOT EXISTS chess_practice_positions (

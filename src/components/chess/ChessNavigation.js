@@ -15,16 +15,10 @@ const ChessNavigation = () => {
       path: '/chess/studies',
       name: 'Study Collection',
       icon: 'book'
-    },
-    {
+    },    {
       path: '/chess/board',
       name: 'Analysis Board',
       icon: 'chess-board'
-    },
-    {
-      path: '/chess/simuls',
-      name: 'Simuls',
-      icon: 'users'
     },
     {
       path: '/chess/games',

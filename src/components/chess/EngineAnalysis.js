@@ -1,5 +1,4 @@
 import React from 'react';
-import './EngineAnalysis.css';
 
 const EngineAnalysis = ({ engineEvaluation }) => {
   // Format evaluation score
@@ -37,32 +36,33 @@ const EngineAnalysis = ({ engineEvaluation }) => {
   const blackPercentage = 100 - whitePercentage;
 
   return (
-    <div className="engine-analysis">
-      <h3>Engine Analysis</h3>
+    <div className="bg-white rounded-lg p-4 shadow-sm">
+      <h3 className="text-lg font-semibold text-purple-900 mb-3">Engine Analysis</h3>
       
       {!engineEvaluation ? (
-        <div className="waiting-analysis">Waiting for analysis...</div>
+        <div className="text-gray-500 text-center py-4">Waiting for analysis...</div>
       ) : (
         <>
-          <div className="evaluation-bar">
+          <div className="relative w-8 h-32 bg-gray-200 rounded mx-auto mb-4">
             <div 
-              className="white-eval" 
+              className="absolute bottom-0 left-0 w-full bg-gray-800 rounded-b transition-all duration-300" 
               style={{ height: `${whitePercentage}%` }}
-            ></div>
-            <div 
-              className="black-eval" 
+            ></div>            <div 
+              className="absolute top-0 left-0 w-full bg-white rounded-t transition-all duration-300" 
               style={{ height: `${blackPercentage}%` }}
             ></div>
           </div>
           
-          <div className="evaluation-info">
-            <div className="eval-score">
-              {formatEvaluation(engineEvaluation)}
+          <div className="space-y-2">
+            <div className="text-center">
+              <span className="text-xl font-bold text-purple-900 font-mono">
+                {formatEvaluation(engineEvaluation)}
+              </span>
             </div>
-            <div className="eval-detail">
-              <span>Depth: {engineEvaluation.depth}</span>
+            <div className="text-center space-y-1">
+              <div className="text-sm text-gray-600">Depth: {engineEvaluation.depth}</div>
               {engineEvaluation.bestMove && (
-                <span>Best: {engineEvaluation.bestMove}</span>
+                <div className="text-sm text-gray-600">Best: <span className="font-mono font-semibold">{engineEvaluation.bestMove}</span></div>
               )}
             </div>
           </div>

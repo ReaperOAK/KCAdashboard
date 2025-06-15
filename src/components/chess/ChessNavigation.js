@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import './ChessNavigation.css';
 
 const ChessNavigation = () => {
   const location = useLocation();
@@ -26,15 +25,18 @@ const ChessNavigation = () => {
       icon: 'trophy'
     }
   ];
-  
-  return (
-    <div className="chess-navigation">
-      <nav className="chess-nav-container">
+    return (
+    <div className="mb-6">
+      <nav className="flex flex-wrap gap-2 p-4 bg-purple-50 rounded-lg">
         {navItems.map(item => (
           <Link 
             key={item.path}
             to={item.path}
-            className={`chess-nav-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+              location.pathname === item.path 
+                ? 'bg-purple-700 text-white' 
+                : 'text-purple-700 hover:bg-purple-100'
+            }`}
           >
             <i className={`fas fa-${item.icon}`}></i>
             <span>{item.name}</span>

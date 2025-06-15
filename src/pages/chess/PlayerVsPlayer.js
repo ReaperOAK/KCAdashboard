@@ -6,7 +6,6 @@ import ChessNavigation from '../../components/chess/ChessNavigation';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ApiService from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
-import './PlayerVsPlayer.css';
 
 const PlayerVsPlayer = () => {
   const { user } = useAuth();
@@ -147,68 +146,84 @@ const PlayerVsPlayer = () => {
       setIsLoading(false);
     }
   };
-  
-  if (isLoading) {
+    if (isLoading) {
     return (
-      <div className="chess-page">
-        <div className="loading-spinner">Loading...</div>
+      <div className="max-w-6xl mx-auto px-5 pb-10">
+        <div className="flex justify-center items-center h-96 text-purple-700 font-bold">Loading...</div>
       </div>
     );
   }
   
   if (error) {
     return (
-      <div className="chess-page">
-        <div className="error-message">{error}</div>
-        <button onClick={handleRefresh} className="refresh-button">
+      <div className="max-w-6xl mx-auto px-5 pb-10">
+        <div className="flex justify-center items-center h-48 text-red-600 font-bold text-center mb-6">{error}</div>
+        <button onClick={handleRefresh} className="block mx-auto px-4 py-2 bg-purple-700 text-white border-none rounded cursor-pointer">
           Retry
         </button>
       </div>
     );
   }
-
   return (
-    <div className="chess-page">
-      <div className="chess-header">
-        <h1>Play Chess</h1>
-        <div className="player-rating">
+    <div className="max-w-6xl mx-auto px-5 pb-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-purple-900 m-0">Play Chess</h1>
+        <div className="bg-purple-700 text-white px-4 py-2 rounded-full font-bold text-base">
           Your Rating: {playerStats ? playerStats.rating : 1200}
         </div>
       </div>
       
       <ChessNavigation />
       
-      <div className="chess-tabs">
+      <div className="flex border-b border-gray-200 mb-6">
         <button 
-          className={`tab ${activeTab === 'players' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'players' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => setActiveTab('players')}
         >
           Online Players
         </button>
         <button 
-          className={`tab ${activeTab === 'challenges' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'challenges' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => setActiveTab('challenges')}
         >
           Challenges
           {challenges.length > 0 && (
-            <span className="challenge-count">{challenges.length}</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-white text-xs ml-2">
+              {challenges.length}
+            </span>
           )}
         </button>
         <button 
-          className={`tab ${activeTab === 'computer' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'computer' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => setActiveTab('computer')}
         >
           Play Computer
         </button>
         <button 
-          className={`tab ${activeTab === 'stats' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'stats' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => setActiveTab('stats')}
         >
           My Stats
         </button>
       </div>
       
-      <div className="chess-content">
+      <div className="min-h-96">
         {activeTab === 'players' && (
           <PlayerList 
             players={onlinePlayers} 
@@ -225,65 +240,71 @@ const PlayerVsPlayer = () => {
             onRefresh={handleRefresh}
           />
         )}
-        
-        {activeTab === 'computer' && (
-          <div className="computer-play-container">
-            <div className="computer-options">
-              <div className="option-group">
-                <label>Engine Level</label>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="20" 
-                  value={engineLevel} 
-                  onChange={(e) => setEngineLevel(parseInt(e.target.value))} 
-                  className="level-slider"
-                />
-                <span className="level-display">{engineLevel}</span>
-              </div>
-              
-              <div className="option-group">
-                <label>Play as</label>
-                <div className="radio-options">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="color"
-                      value="white"
-                      checked={engineColor === 'black'}
-                      onChange={() => setEngineColor('black')}
+          {activeTab === 'computer' && (
+          <div className="flex gap-6">
+            <div className="flex-1 space-y-6">
+              <div className="bg-purple-50 p-6 rounded-lg">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-purple-900 mb-2">Engine Level</label>
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="20" 
+                      value={engineLevel} 
+                      onChange={(e) => setEngineLevel(parseInt(e.target.value))} 
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider:bg-purple-600"
                     />
-                    White
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="color"
-                      value="black"
-                      checked={engineColor === 'white'}
-                      onChange={() => setEngineColor('white')}
-                    />
-                    Black
-                  </label>
+                    <span className="min-w-[24px] text-center font-bold text-purple-700">{engineLevel}</span>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="option-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={useOnlineAPI}
-                    onChange={(e) => setUseOnlineAPI(e.target.checked)}
-                  />
-                  Use Online API (more powerful analysis)
-                </label>
-                <p className="option-hint">
-                  The online API provides stronger analysis but requires an internet connection.
-                </p>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-purple-900 mb-2">Play as</label>
+                  <div className="flex gap-5">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="color"
+                        value="white"
+                        checked={engineColor === 'black'}
+                        onChange={() => setEngineColor('black')}
+                        className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500"
+                      />
+                      <span className="text-gray-700">White</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="color"
+                        value="black"
+                        checked={engineColor === 'white'}
+                        onChange={() => setEngineColor('white')}
+                        className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500"
+                      />
+                      <span className="text-gray-700">Black</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useOnlineAPI}
+                      onChange={(e) => setUseOnlineAPI(e.target.checked)}
+                      className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+                    />
+                    <span className="text-gray-700">Use Online API (more powerful analysis)</span>
+                  </label>
+                  <p className="text-sm text-gray-600 mt-1">
+                    The online API provides stronger analysis but requires an internet connection.
+                  </p>
+                </div>
               </div>
             </div>
             
-            <div className="computer-board-container">
+            <div className="flex-shrink-0">
               <ChessBoard 
                 position="start"
                 orientation={engineColor === 'black' ? 'white' : 'black'}
@@ -298,77 +319,82 @@ const PlayerVsPlayer = () => {
             </div>
           </div>
         )}
-        
-        {activeTab === 'stats' && playerStats && (
-          <div className="player-stats">
-            <h2>Your Chess Statistics</h2>
+          {activeTab === 'stats' && playerStats && (
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-purple-900 text-center mb-6">Your Chess Statistics</h2>
             
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-value">{playerStats.rating}</div>
-                <div className="stat-label">Rating</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.rating}</div>
+                <div className="text-gray-600">Rating</div>
               </div>
               
-              <div className="stat-card">
-                <div className="stat-value">{playerStats.games_played}</div>
-                <div className="stat-label">Games Played</div>
+              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.games_played}</div>
+                <div className="text-gray-600">Games Played</div>
               </div>
               
-              <div className="stat-card">
-                <div className="stat-value">{playerStats.win_rate}%</div>
-                <div className="stat-label">Win Rate</div>
+              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.win_rate}%</div>
+                <div className="text-gray-600">Win Rate</div>
               </div>
               
-              <div className="stat-card">
-                <div className="stat-value">{playerStats.rank}</div>
-                <div className="stat-label">Rank</div>
+              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.rank}</div>
+                <div className="text-gray-600">Rank</div>
               </div>
             </div>
             
-            <div className="record-breakdown">
-              <div className="record-item wins">
-                <span className="record-value">{playerStats.games_won}</span>
-                <span className="record-label">Wins</span>
+            <div className="flex justify-between bg-gray-50 rounded-lg p-4 mb-8 shadow-sm">
+              <div className="flex flex-col items-center flex-1">
+                <div className="text-2xl font-bold text-green-600 mb-1">{playerStats.games_won}</div>
+                <div className="text-gray-600">Wins</div>
               </div>
-              <div className="record-item draws">
-                <span className="record-value">{playerStats.games_drawn}</span>
-                <span className="record-label">Draws</span>
+              <div className="flex flex-col items-center flex-1">
+                <div className="text-2xl font-bold text-yellow-600 mb-1">{playerStats.games_drawn}</div>
+                <div className="text-gray-600">Draws</div>
               </div>
-              <div className="record-item losses">
-                <span className="record-value">{playerStats.games_lost}</span>
-                <span className="record-label">Losses</span>
+              <div className="flex flex-col items-center flex-1">
+                <div className="text-2xl font-bold text-red-600 mb-1">{playerStats.games_lost}</div>
+                <div className="text-gray-600">Losses</div>
               </div>
             </div>
             
             {playerStats.recent_games && playerStats.recent_games.length > 0 && (
-              <div className="recent-games">
-                <h3>Recent Games</h3>
-                <table className="games-table">
-                  <thead>
-                    <tr>
-                      <th>Opponent</th>
-                      <th>Result</th>
-                      <th>Color</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {playerStats.recent_games.map((game, index) => (
-                      <tr key={index} className={game.result}>
-                        <td>{game.opponent_name}</td>
-                        <td className={`result ${game.result}`}>
-                          {game.result === 'win' ? 'Won' : 
-                           game.result === 'loss' ? 'Lost' : 
-                           game.result === 'draw' ? 'Draw' : 'Active'}
-                        </td>
-                        <td>{game.player_color}</td>
-                        <td>
-                          {new Date(game.last_move_at).toLocaleDateString()}
-                        </td>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h3 className="text-xl font-semibold text-purple-700 mb-4 border-b border-gray-200 pb-2">Recent Games</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="text-left p-3 text-purple-700">Opponent</th>
+                        <th className="text-left p-3 text-purple-700">Result</th>
+                        <th className="text-left p-3 text-purple-700">Color</th>
+                        <th className="text-left p-3 text-purple-700">Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {playerStats.recent_games.map((game, index) => (
+                        <tr key={index} className="border-b border-gray-100">
+                          <td className="p-3">{game.opponent_name}</td>
+                          <td className={`p-3 font-bold ${
+                            game.result === 'win' ? 'text-green-600' : 
+                            game.result === 'loss' ? 'text-red-600' : 
+                            game.result === 'draw' ? 'text-yellow-600' : 'text-blue-600'
+                          }`}>
+                            {game.result === 'win' ? 'Won' : 
+                             game.result === 'loss' ? 'Lost' : 
+                             game.result === 'draw' ? 'Draw' : 'Active'}
+                          </td>
+                          <td className="p-3 capitalize">{game.player_color}</td>
+                          <td className="p-3">
+                            {new Date(game.last_move_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

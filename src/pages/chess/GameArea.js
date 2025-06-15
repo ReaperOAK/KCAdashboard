@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
-import './GameArea.css';
 
 const GameArea = () => {
   const navigate = useNavigate();
@@ -62,41 +61,51 @@ const GameArea = () => {
     // Redirect to interactive board with position data
     navigate('/chess/board', { state: { position: position.position } });
   };
-
   return (
-    <div className="game-area-page">
-      <h1>Chess Game Area</h1>
+    <div className="max-w-6xl mx-auto px-5 pb-10">
+      <h1 className="text-3xl font-bold text-purple-900 mb-5">Chess Game Area</h1>
       
       <ChessNavigation />
       
-      <div className="game-area-tabs">
+      <div className="flex border-b border-gray-200 mb-6">
         <button 
-          className={`tab ${activeTab === 'games' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'games' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => setActiveTab('games')}
         >
           My Games
         </button>
         <button 
-          className={`tab ${activeTab === 'practice' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'practice' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => setActiveTab('practice')}
         >
           Practice Positions
         </button>
         <button 
-          className={`tab ${activeTab === 'challenges' ? 'active' : ''}`}
+          className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative ${
+            activeTab === 'challenges' 
+              ? 'text-purple-700 font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-purple-700' 
+              : 'text-gray-600 hover:bg-purple-50'
+          }`}
           onClick={() => navigate('/chess/play')}
         >
           Find Opponents
         </button>
       </div>
-      
-      {activeTab === 'games' && (
-        <div className="games-container">
-          <div className="filter-controls">
+        {activeTab === 'games' && (
+        <div>
+          <div className="flex justify-end mb-5">
             <select 
               value={gameStatus} 
               onChange={(e) => setGameStatus(e.target.value)}
-              className="status-filter"
+              className="px-3 py-2 border border-gray-300 rounded text-base bg-white min-w-40"
             >
               <option value="active">Active Games</option>
               <option value="completed">Completed Games</option>
@@ -105,36 +114,39 @@ const GameArea = () => {
           </div>
           
           {loading ? (
-            <div className="loading">Loading games...</div>
+            <div className="text-center py-15 text-purple-700 font-bold">Loading games...</div>
           ) : error ? (
-            <div className="error-message">{error}</div>
+            <div className="text-center py-15 text-red-600 font-bold">{error}</div>
           ) : games.length === 0 ? (
-            <div className="no-games">
-              <p>No games found. Challenge someone to play!</p>
-              <button onClick={() => navigate('/chess/play')} className="challenge-btn">
+            <div className="bg-purple-50 p-8 rounded-lg text-center">
+              <p className="mb-4 text-gray-700">No games found. Challenge someone to play!</p>
+              <button onClick={() => navigate('/chess/play')} className="px-4 py-2 bg-purple-700 text-white border-none rounded cursor-pointer hover:bg-purple-800 transition-colors">
                 Find Opponents
               </button>
             </div>
           ) : (
-            <div className="games-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {games.map(game => (
-                <div key={game.id} className="game-card" onClick={() => handleSelectGame(game.id)}>
-                  <div className="game-card-preview">
-                    <div className="mini-board" style={{ backgroundImage: game.preview_url ? `url(${game.preview_url})` : '' }}></div>
+                <div key={game.id} className="bg-white rounded-lg overflow-hidden shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onClick={() => handleSelectGame(game.id)}>                  <div className="h-36 bg-purple-50 flex items-center justify-center border-b border-gray-200">
+                    <div className="w-30 h-30 bg-gray-200 bg-contain bg-center bg-no-repeat border border-gray-300" style={{ backgroundImage: game.preview_url ? `url(${game.preview_url})` : '' }}></div>
                   </div>
-                  <div className="game-card-content">
-                    <div className="game-players">
-                      <div className="white-player">{game.white_player.name}</div>
-                      <span className="vs">vs</span>
-                      <div className="black-player">{game.black_player.name}</div>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-purple-700 font-semibold">{game.white_player.name}</div>
+                      <span className="text-gray-500 text-sm">vs</span>
+                      <div className="text-purple-700 font-semibold">{game.black_player.name}</div>
                     </div>
-                    <div className="game-meta">
-                      <span className="game-time-control">{game.time_control || 'Standard'}</span>
-                      <span className="game-last-move">{formatDate(game.last_move_at)}</span>
+                    <div className="flex justify-between items-center mb-3 text-sm text-gray-600">
+                      <span>{game.time_control || 'Standard'}</span>
+                      <span>{formatDate(game.last_move_at)}</span>
                     </div>
-                    <div className="game-status">
-                      <span className={`status-badge ${game.status}`}>{game.status}</span>
-                      {game.result && <span className="result-badge">{game.result}</span>}
+                    <div className="flex justify-between items-center">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        game.status === 'active' ? 'bg-green-100 text-green-800' : 
+                        game.status === 'completed' ? 'bg-gray-100 text-gray-800' : 
+                        'bg-blue-100 text-blue-800'
+                      }`}>{game.status}</span>
+                      {game.result && <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-medium">{game.result}</span>}
                     </div>
                   </div>
                 </div>
@@ -145,30 +157,37 @@ const GameArea = () => {
       )}
       
       {activeTab === 'practice' && (
-        <div className="practice-container">
+        <div>
           {loading ? (
-            <div className="loading">Loading practice positions...</div>
+            <div className="text-center py-15 text-purple-700 font-bold">Loading practice positions...</div>
           ) : error ? (
-            <div className="error-message">{error}</div>
-          ) : practicePositions.length === 0 ? (
-            <div className="no-practice">
-              <p>No practice positions found.</p>
+            <div className="text-center py-15 text-red-600 font-bold">{error}</div>          ) : practicePositions.length === 0 ? (
+            <div className="bg-purple-50 p-8 rounded-lg text-center">
+              <p className="text-gray-700">No practice positions found.</p>
             </div>
           ) : (
-            <div className="practice-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {practicePositions.map(position => (
-                <div key={position.id} className="practice-card" onClick={() => handleSelectPractice(position)}>
-                  <div className="practice-card-preview">
-                    <div className="mini-board" style={{ backgroundImage: position.preview_url ? `url(${position.preview_url})` : '' }}></div>
+                <div key={position.id} className="bg-white rounded-lg overflow-hidden shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onClick={() => handleSelectPractice(position)}>
+                  <div className="h-36 bg-purple-50 flex items-center justify-center border-b border-gray-200">
+                    <div className="w-30 h-30 bg-gray-200 bg-contain bg-center bg-no-repeat border border-gray-300" style={{ backgroundImage: position.preview_url ? `url(${position.preview_url})` : '' }}></div>
                   </div>
-                  <div className="practice-card-content">
-                    <h3>{position.title}</h3>
-                    <p className="practice-description">{position.description}</p>
-                    <div className="practice-meta">
-                      <span className="practice-type">{position.type}</span>
-                      <span className="practice-difficulty">{position.difficulty}</span>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-purple-700 mb-2">{position.title}</h3>
+                    <p className="text-gray-600 text-sm mb-3 overflow-hidden" style={{
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      display: '-webkit-box'
+                    }}>{position.description}</p>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium capitalize">{position.type}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium capitalize ${
+                        position.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
+                        position.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>{position.difficulty}</span>
                     </div>
-                    <div className="practice-creator">
+                    <div className="text-xs text-gray-500">
                       By {position.creator.name}
                     </div>
                   </div>

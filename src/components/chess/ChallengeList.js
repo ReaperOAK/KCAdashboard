@@ -1,7 +1,6 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import ApiService from '../../utils/api';
-import './ChallengeList.css';
 
 const ChallengeList = ({ challenges, onAccept, onDecline, onRefresh }) => {
   // Format time control for display
@@ -58,92 +57,93 @@ const ChallengeList = ({ challenges, onAccept, onDecline, onRefresh }) => {
   // Group challenges by direction (incoming vs outgoing)
   const incomingChallenges = challenges.filter(c => c.direction === 'incoming');
   const outgoingChallenges = challenges.filter(c => c.direction === 'outgoing');
-
   return (
-    <div className="challenge-list">
-      <h3>Chess Challenges</h3>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-purple-900">Chess Challenges</h3>
       
       {challenges.length === 0 ? (
-        <div className="no-challenges">
-          <p>No pending challenges</p>
+        <div className="bg-purple-50 p-6 rounded-lg text-center">
+          <p className="text-gray-600">No pending challenges</p>
         </div>
       ) : (
-        <div className="challenges-container">
+        <div className="space-y-6">
           {incomingChallenges.length > 0 && (
-            <div className="challenge-section">
-              <h4>Incoming Challenges</h4>
-              <ul className="challenges">
+            <div>
+              <h4 className="text-md font-medium text-purple-800 mb-3">Incoming Challenges</h4>
+              <div className="space-y-3">
                 {incomingChallenges.map(challenge => (
-                  <li key={challenge.id} className="challenge-item incoming">
-                    <div className="challenge-info">
-                      <span className="challenger-name">{challenge.challenger.name}</span>
-                      <span className="challenge-time-control">
-                        {formatTimeControl(challenge.time_control)}
-                      </span>
-                      <span className="challenge-color">
-                        You play as: {challenge.color === 'white' ? 'Black' : 'White'}
-                      </span>
-                      <span className="challenge-time">
-                        {formatTimeAgo(challenge.created_at)}
-                      </span>
+                  <div key={challenge.id} className="bg-white border-l-4 border-green-500 p-4 rounded-lg shadow-sm">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="font-semibold text-purple-900 mb-1">{challenge.challenger.name}</div>
+                        <div className="text-sm text-gray-600 mb-2">
+                          {formatTimeControl(challenge.time_control)}</div>                        <div className="text-xs text-gray-500">
+                          You play as: {challenge.color === 'white' ? 'Black' : 'White'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatTimeAgo(challenge.created_at)}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <button 
+                          className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                          onClick={() => handleAccept(challenge.id)}
+                        >
+                          Accept
+                        </button>
+                        <button 
+                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                          onClick={() => handleDecline(challenge.id)}
+                        >
+                          Decline
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="challenge-actions">
-                      <button 
-                        className="accept-btn"
-                        onClick={() => handleAccept(challenge.id)}
-                      >
-                        Accept
-                      </button>
-                      <button 
-                        className="decline-btn"
-                        onClick={() => handleDecline(challenge.id)}
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
           
           {outgoingChallenges.length > 0 && (
-            <div className="challenge-section">
-              <h4>Outgoing Challenges</h4>
-              <ul className="challenges">
+            <div>
+              <h4 className="text-md font-medium text-purple-800 mb-3">Outgoing Challenges</h4>
+              <div className="space-y-3">
                 {outgoingChallenges.map(challenge => (
-                  <li key={challenge.id} className="challenge-item outgoing">
-                    <div className="challenge-info">
-                      <span className="recipient-name">To: {challenge.recipient.name}</span>
-                      <span className="challenge-time-control">
-                        {formatTimeControl(challenge.time_control)}
-                      </span>
-                      <span className="challenge-color">
-                        You play as: {challenge.color}
-                      </span>
-                      <span className="challenge-time">
-                        {formatTimeAgo(challenge.created_at)}
-                      </span>
+                  <div key={challenge.id} className="bg-white border-l-4 border-blue-500 p-4 rounded-lg shadow-sm">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="font-semibold text-purple-900 mb-1">To: {challenge.recipient.name}</div>
+                        <div className="text-sm text-gray-600 mb-2">
+                          {formatTimeControl(challenge.time_control)}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          You play as: {challenge.color}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatTimeAgo(challenge.created_at)}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <button 
+                          className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 transition-colors"
+                          onClick={() => handleDecline(challenge.id)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="challenge-actions">
-                      <button 
-                        className="cancel-btn"
-                        onClick={() => handleDecline(challenge.id)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
         </div>
       )}
       
-      <button className="refresh-btn" onClick={onRefresh}>
+      <button className="w-full px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition-colors" onClick={onRefresh}>
         Refresh Challenges
       </button>
     </div>

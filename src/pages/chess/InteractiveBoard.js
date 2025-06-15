@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
-import './InteractiveBoard.css';
 
 const InteractiveBoard = () => {
   const { id } = useParams();
@@ -155,18 +154,17 @@ const InteractiveBoard = () => {
       }
     }
   };
-
   if (loading) {
-    return <div className="loading">Loading chess board...</div>;
+    return <div className="flex justify-center items-center min-h-96 text-purple-700 font-bold text-lg">Loading chess board...</div>;
   }
 
   if (error) {
     return (
-      <div className="error-container">
-        <div className="error">{error}</div>
+      <div className="flex flex-col items-center justify-center min-h-96 space-y-4">
+        <div className="text-red-600 font-bold text-center">{error}</div>
         <button 
           onClick={() => window.location.reload()}
-          className="reload-button"
+          className="px-4 py-2 bg-purple-700 text-white border-none rounded cursor-pointer hover:bg-purple-800 transition-colors"
         >
           Reload Page
         </button>
@@ -175,12 +173,12 @@ const InteractiveBoard = () => {
   }
 
   return (
-    <div className="interactive-board-page">
-      <h1>{id ? 'Game Board' : 'Analysis Board'}</h1>
+    <div className="max-w-6xl mx-auto px-5 pb-10">
+      <h1 className="text-3xl font-bold text-purple-900 mb-5">{id ? 'Game Board' : 'Analysis Board'}</h1>
       
       <ChessNavigation />
       
-      <div className="board-container">
+      <div className="flex justify-center mb-6">
         <ChessBoard 
           position={position}
           orientation={orientation}
@@ -194,15 +192,17 @@ const InteractiveBoard = () => {
       </div>
       
       {gameData && (
-        <div className="game-info">
-          <h2>Game Information</h2>
-          <p><strong>Opponent:</strong> {gameData.opponent && gameData.opponent.name}</p>
-          <p><strong>Your Color:</strong> {gameData.yourColor}</p>
-          <p><strong>Time Control:</strong> {gameData.timeControl || 'Standard'}</p>
-          <p><strong>Turn:</strong> <span className={gameData.yourTurn ? "your-turn" : "opponent-turn"}>
-            {gameData.yourTurn ? 'Your move' : "Opponent's move"}
-          </span></p>
-          {lastMoveAt && <p><strong>Last Move:</strong> {new Date(lastMoveAt).toLocaleString()}</p>}
+        <div className="bg-white rounded-lg p-6 shadow-sm max-w-2xl mx-auto">
+          <h2 className="text-xl font-bold text-purple-700 mb-4">Game Information</h2>
+          <div className="space-y-2">
+            <p><strong className="text-gray-700">Opponent:</strong> <span className="text-gray-900">{gameData.opponent && gameData.opponent.name}</span></p>
+            <p><strong className="text-gray-700">Your Color:</strong> <span className="text-gray-900 capitalize">{gameData.yourColor}</span></p>
+            <p><strong className="text-gray-700">Time Control:</strong> <span className="text-gray-900">{gameData.timeControl || 'Standard'}</span></p>
+            <p><strong className="text-gray-700">Turn:</strong> <span className={`font-semibold ${gameData.yourTurn ? "text-green-600" : "text-blue-600"}`}>
+              {gameData.yourTurn ? 'Your move' : "Opponent's move"}
+            </span></p>
+            {lastMoveAt && <p><strong className="text-gray-700">Last Move:</strong> <span className="text-gray-900">{new Date(lastMoveAt).toLocaleString()}</span></p>}
+          </div>
         </div>
       )}
     </div>

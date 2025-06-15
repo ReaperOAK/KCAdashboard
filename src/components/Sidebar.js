@@ -51,9 +51,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       { label: 'Tournaments', path: '/student/tournaments', icon: '🏆' },
       { label: 'Games', path: '/student/games', icon: '♟️' }
     ]
-  }), []); // Empty dependency array since this object is static
-  // Common chess links available to all roles
+  }), []); // Empty dependency array since this object is static  // Common chess links available to all roles
   const chessLinks = [
+    { label: 'Play Chess', path: '/chess/play', icon: '♟️' },
     { label: 'Chess Studies', path: '/chess/studies', icon: '📚' },
     { label: 'Interactive Board', path: '/chess/board', icon: '🎮' },
     { label: 'Game Area', path: '/chess/games', icon: '🏆' }

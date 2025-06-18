@@ -109,8 +109,21 @@
 | quiz_id    | int(11)                           | NO   | MUL | NULL    |                |
 | question   | text                              | NO   |     | NULL    |                |
 | image_url  | varchar(512)                      | YES  |     | NULL    |                |
-| type       | enum('multiple_choice','puzzle')  | NO   |     | NULL    |                |
+| type       | enum('multiple_choice','puzzle','chess')  | NO   |  | NULL    |                |
 | points     | int(11)                           | YES  |     | 1       |                |
+| chess_position | varchar(100)                      | YES  |     | NULL    | FEN notation   |
+| chess_orientation | enum('white','black')           | YES  |     | white   | Board orientation |
+| correct_moves  | text                              | YES  |     | NULL    | JSON array     |
+
+### Chess Question Features
+- **chess_position**: Stores the chess position in FEN (Forsyth-Edwards Notation) format. Default is 'start' for starting position.
+- **chess_orientation**: Determines which side of the board is shown at the bottom ('white' or 'black').
+- **correct_moves**: JSON array storing the correct moves for the position. Each move contains 'from', 'to', and optional 'description' fields.
+
+### Usage Examples
+1. **Tactical puzzle**: Set a position where student needs to find the best move
+2. **Endgame study**: Present an endgame position with multiple correct continuations  
+3. **Opening theory**: Show an opening position and ask for the correct next move
 
 ### quiz_answers
 | Column      | Type      | Null | Key | Default | Extra           |

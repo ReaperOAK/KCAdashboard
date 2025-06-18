@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaSave, FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck } from 'react-icons/fa';
+import { FaSave, FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess } from 'react-icons/fa';
 import ApiService from '../../utils/api';
 import { toast } from 'react-toastify';
+import ChessQuizBoard from '../../components/chess/ChessQuizBoard';
 
 const QuizCreator = () => {
   const { id } = useParams();
@@ -51,21 +52,26 @@ const QuizCreator = () => {
     const { name, value } = e.target;
     setQuiz(prev => ({ ...prev, [name]: value }));
   };
-  
-  const handleAddQuestion = () => {
+    const handleAddQuestion = (questionType = 'multiple_choice') => {
     const newQuestion = {
       tempId: Date.now(), // Temporary ID for frontend use
       question: '',
       image_url: '',
-      type: 'multiple_choice',
-      answers: [
+      type: questionType,
+    };
+
+    if (questionType === 'chess') {
+      newQuestion.chess_position = 'start';
+      newQuestion.chess_orientation = 'white';
+      newQuestion.correct_moves = [];
+    } else {
+      newQuestion.answers = [
         { tempId: Date.now(), answer_text: '', is_correct: true },
         { tempId: Date.now() + 1, answer_text: '', is_correct: false },
         { tempId: Date.now() + 2, answer_text: '', is_correct: false },
         { tempId: Date.now() + 3, answer_text: '', is_correct: false }
-      ]
-    };
-    
+      ];
+    }    
     setQuiz(prev => ({
       ...prev,
       questions: [...prev.questions, newQuestion]
@@ -128,8 +134,7 @@ const QuizCreator = () => {
       toast.error('Failed to upload image');
     }
   };
-  
-  const validateQuiz = () => {
+    const validateQuiz = () => {
     if (!quiz.title.trim()) return 'Quiz title is required';
     if (!quiz.time_limit || quiz.time_limit <= 0) return 'Time limit must be greater than 0';
     if (quiz.questions.length === 0) return 'Quiz must have at least one question';
@@ -138,11 +143,17 @@ const QuizCreator = () => {
       const q = quiz.questions[i];
       if (!q.question.trim()) return `Question ${i + 1} text is required`;
       
-      const hasCorrectAnswer = q.answers.some(a => a.is_correct);
-      if (!hasCorrectAnswer) return `Question ${i + 1} must have a correct answer`;
-      
-      const emptyAnswers = q.answers.filter(a => !a.answer_text.trim());
-      if (emptyAnswers.length > 0) return `All answers for question ${i + 1} must be filled out`;
+      if (q.type === 'chess') {
+        if (!q.correct_moves || q.correct_moves.length === 0) {
+          return `Question ${i + 1} must have at least one correct move defined`;
+        }
+      } else {
+        const hasCorrectAnswer = q.answers && q.answers.some(a => a.is_correct);
+        if (!hasCorrectAnswer) return `Question ${i + 1} must have a correct answer`;
+        
+        const emptyAnswers = q.answers ? q.answers.filter(a => !a.answer_text.trim()) : [];
+        if (emptyAnswers.length > 0) return `All answers for question ${i + 1} must be filled out`;
+      }
     }
     
     return null;
@@ -175,7 +186,47 @@ const QuizCreator = () => {
       setSaving(false);
     }
   };
-  
+    const handleChessPositionChange = (questionIndex, position) => {
+    handleQuestionChange(questionIndex, 'chess_position', position);
+  };
+
+  const handleChessOrientationChange = (questionIndex, orientation) => {
+    handleQuestionChange(questionIndex, 'chess_orientation', orientation);
+  };
+
+  const addCorrectMove = (questionIndex) => {
+    const updatedQuestions = [...quiz.questions];
+    if (!updatedQuestions[questionIndex].correct_moves) {
+      updatedQuestions[questionIndex].correct_moves = [];
+    }
+    updatedQuestions[questionIndex].correct_moves.push({ from: '', to: '', description: '' });
+    
+    setQuiz(prev => ({
+      ...prev,
+      questions: updatedQuestions
+    }));
+  };
+
+  const removeCorrectMove = (questionIndex, moveIndex) => {
+    const updatedQuestions = [...quiz.questions];
+    updatedQuestions[questionIndex].correct_moves.splice(moveIndex, 1);
+    
+    setQuiz(prev => ({
+      ...prev,
+      questions: updatedQuestions
+    }));
+  };
+
+  const handleCorrectMoveChange = (questionIndex, moveIndex, field, value) => {
+    const updatedQuestions = [...quiz.questions];
+    updatedQuestions[questionIndex].correct_moves[moveIndex][field] = value;
+    
+    setQuiz(prev => ({
+      ...prev,
+      questions: updatedQuestions
+    }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f3f1f9] p-8 flex items-center justify-center">
@@ -272,34 +323,56 @@ const QuizCreator = () => {
             </div>
           </div>
         </div>
-        
-        <div className="bg-white rounded-lg shadow-md mb-8">
+          <div className="bg-white rounded-lg shadow-md mb-8">
           <div className="p-6 border-b flex justify-between items-center">
             <h2 className="text-xl font-semibold">Questions</h2>
-            <button
-              onClick={handleAddQuestion}
-              className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb] flex items-center text-sm"
-            >
-              <FaPlus className="mr-2" /> Add Question
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleAddQuestion('multiple_choice')}
+                className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb] flex items-center text-sm"
+              >
+                <FaPlus className="mr-2" /> Add Multiple Choice
+              </button>
+              <button
+                onClick={() => handleAddQuestion('chess')}
+                className="px-4 py-2 bg-[#7646eb] text-white rounded-lg hover:bg-[#461fa3] flex items-center text-sm"
+              >
+                <FaChess className="mr-2" /> Add Chess Question
+              </button>
+            </div>
           </div>
-          
-          {quiz.questions.length === 0 ? (
+            {quiz.questions.length === 0 ? (
             <div className="p-6 text-center">
               <p className="text-gray-500 mb-4">No questions added yet</p>
-              <button
-                onClick={handleAddQuestion}
-                className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb]"
-              >
-                Add First Question
-              </button>
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={() => handleAddQuestion('multiple_choice')}
+                  className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb]"
+                >
+                  Add Multiple Choice Question
+                </button>
+                <button
+                  onClick={() => handleAddQuestion('chess')}
+                  className="px-4 py-2 bg-[#7646eb] text-white rounded-lg hover:bg-[#461fa3]"
+                >
+                  Add Chess Question
+                </button>
+              </div>
             </div>
           ) : (
             <div>
-              {quiz.questions.map((question, questionIndex) => (
-                <div key={question.id || question.tempId} className="p-6 border-b">
+              {quiz.questions.map((question, questionIndex) => (                <div key={question.id || question.tempId} className="p-6 border-b">
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="font-semibold">Question {questionIndex + 1}</h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold">Question {questionIndex + 1}</h3>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        question.type === 'chess' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {question.type === 'chess' ? 'Chess' : 'Multiple Choice'}
+                      </span>
+                    </div>
                     <button
                       onClick={() => handleRemoveQuestion(questionIndex)}
                       className="p-1 text-red-600 hover:bg-red-50 rounded"
@@ -348,55 +421,152 @@ const QuizCreator = () => {
                           onChange={(e) => handleImageUpload(questionIndex, e.target.files[0])}
                         />
                       </label>
-                    </div>
-                  </div>
+                    </div>                  </div>
                   
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Answers</label>
-                    <p className="text-sm text-gray-500 mb-2">Select the correct answer</p>
-                    
-                    {question.answers.map((answer, answerIndex) => (
-                      <div key={answer.id || answer.tempId} className="flex items-center mb-2">
-                        <div className="flex-1 flex items-center">
-                          <button
-                            type="button"
-                            className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
-                              answer.is_correct 
-                                ? 'bg-green-500 text-white' 
-                                : 'bg-gray-100 hover:bg-gray-200'
-                            }`}
-                            onClick={() => handleAnswerChange(questionIndex, answerIndex, 'is_correct', true)}
-                          >
-                            {answer.is_correct && <FaCheck className="text-xs" />}
-                          </button>
+                  {/* Conditional rendering based on question type */}
+                  {question.type === 'multiple_choice' ? (
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Answers</label>
+                      <p className="text-sm text-gray-500 mb-2">Select the correct answer</p>
+                      
+                      {question.answers && question.answers.map((answer, answerIndex) => (
+                        <div key={answer.id || answer.tempId} className="flex items-center mb-2">
+                          <div className="flex-1 flex items-center">
+                            <button
+                              type="button"
+                              className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
+                                answer.is_correct 
+                                  ? 'bg-green-500 text-white' 
+                                  : 'bg-gray-100 hover:bg-gray-200'
+                              }`}
+                              onClick={() => handleAnswerChange(questionIndex, answerIndex, 'is_correct', true)}
+                            >
+                              {answer.is_correct && <FaCheck className="text-xs" />}
+                            </button>
+                            <input
+                              type="text"
+                              value={answer.answer_text}
+                              onChange={(e) => handleAnswerChange(
+                                questionIndex, 
+                                answerIndex, 
+                                'answer_text', 
+                                e.target.value
+                              )}
+                              className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                              placeholder={`Answer ${answerIndex + 1}`}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Chess Question Interface */
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Chess Position (FEN)</label>
                           <input
                             type="text"
-                            value={answer.answer_text}
-                            onChange={(e) => handleAnswerChange(
-                              questionIndex, 
-                              answerIndex, 
-                              'answer_text', 
-                              e.target.value
-                            )}
-                            className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
-                            placeholder={`Answer ${answerIndex + 1}`}
+                            value={question.chess_position || 'start'}
+                            onChange={(e) => handleChessPositionChange(questionIndex, e.target.value)}
+                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                            placeholder="start or FEN string"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Board Orientation</label>
+                          <select
+                            value={question.chess_orientation || 'white'}
+                            onChange={(e) => handleChessOrientationChange(questionIndex, e.target.value)}
+                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                          >
+                            <option value="white">White</option>
+                            <option value="black">Black</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Correct Moves</label>
+                        <p className="text-sm text-gray-500 mb-2">Define the correct moves for this position</p>
+                        
+                        {question.correct_moves && question.correct_moves.map((move, moveIndex) => (
+                          <div key={moveIndex} className="flex items-center gap-2 mb-2">
+                            <input
+                              type="text"
+                              value={move.from || ''}
+                              onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'from', e.target.value)}
+                              className="w-16 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                              placeholder="From"
+                            />
+                            <span className="text-gray-500">→</span>
+                            <input
+                              type="text"
+                              value={move.to || ''}
+                              onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'to', e.target.value)}
+                              className="w-16 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                              placeholder="To"
+                            />
+                            <input
+                              type="text"
+                              value={move.description || ''}
+                              onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'description', e.target.value)}
+                              className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                              placeholder="Move description (optional)"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeCorrectMove(questionIndex, moveIndex)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              <FaTrash className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                        
+                        <button
+                          type="button"
+                          onClick={() => addCorrectMove(questionIndex)}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                        >
+                          <FaPlus className="mr-1" /> Add Move
+                        </button>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Chess Board Preview</label>
+                        <div className="border rounded-lg p-4 bg-gray-50">
+                          <ChessQuizBoard
+                            initialPosition={question.chess_position || 'start'}
+                            orientation={question.chess_orientation || 'white'}
+                            correctMoves={question.correct_moves || []}
+                            allowMoves={false}
+                            width={300}
                           />
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>                  )}
                 </div>
               ))}
             </div>
           )}
           
           <div className="p-6">
-            <button
-              onClick={handleAddQuestion}
-              className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb] flex items-center"
-            >
-              <FaPlus className="mr-2" /> Add Another Question
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAddQuestion('multiple_choice')}
+                className="px-4 py-2 bg-[#461fa3] text-white rounded-lg hover:bg-[#7646eb] flex items-center"
+              >
+                <FaPlus className="mr-2" /> Add Multiple Choice
+              </button>
+              <button
+                onClick={() => handleAddQuestion('chess')}
+                className="px-4 py-2 bg-[#7646eb] text-white rounded-lg hover:bg-[#461fa3] flex items-center"
+              >
+                <FaChess className="mr-2" /> Add Chess Question
+              </button>
+            </div>
           </div>
         </div>
         

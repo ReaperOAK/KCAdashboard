@@ -63,21 +63,28 @@ class Quiz {
             if (!$quiz) {
                 return null;
             }
-            
-            // Get questions for this quiz
-            $query = "SELECT * FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
+              // Get questions for this quiz
+            $query = "SELECT *, correct_moves FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":quiz_id", $id);
             $stmt->execute();
             $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // For each question, get its answers
+            // For each question, get its answers and parse chess data
             foreach ($questions as $key => $question) {
-                $query = "SELECT * FROM quiz_answers WHERE question_id = :question_id";
-                $stmt = $this->conn->prepare($query);
-                $stmt->bindParam(":question_id", $question['id']);
-                $stmt->execute();
-                $questions[$key]['answers'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                // Parse correct_moves JSON for chess questions
+                if ($question['type'] === 'chess' && $question['correct_moves']) {
+                    $questions[$key]['correct_moves'] = json_decode($question['correct_moves'], true);
+                }
+                
+                // Get answers for multiple choice questions
+                if ($question['type'] === 'multiple_choice') {
+                    $query = "SELECT * FROM quiz_answers WHERE question_id = :question_id";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindParam(":question_id", $question['id']);
+                    $stmt->execute();
+                    $questions[$key]['answers'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                }
             }
             
             $quiz['questions'] = $questions;
@@ -87,8 +94,7 @@ class Quiz {
             throw new Exception("Error fetching quiz by ID: " . $e->getMessage());
         }
     }
-    
-    public function submitQuiz($userId, $quizId, $answers, $timeTaken) {
+      public function submitQuiz($userId, $quizId, $answers, $chessMoves, $timeTaken) {
         try {
             $this->conn->beginTransaction();
             
@@ -108,21 +114,60 @@ class Quiz {
                 throw new Exception("Quiz not found.");
             }
             
-            // Calculate score
-            $score = 0;
-            foreach ($answers as $questionId => $answerId) {
-                $query = "SELECT is_correct FROM quiz_answers 
-                         WHERE id = :answer_id AND question_id = :question_id";
-                $stmt = $this->conn->prepare($query);
-                $stmt->bindParam(":answer_id", $answerId);
-                $stmt->bindParam(":question_id", $questionId);
-                $stmt->execute();
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($result && $result['is_correct']) {
-                    $score++;
+            // Get all questions with their types and correct answers/moves
+            $query = "SELECT qq.*, qa.is_correct, qa.id as answer_id 
+                     FROM quiz_questions qq
+                     LEFT JOIN quiz_answers qa ON qq.id = qa.question_id
+                     WHERE qq.quiz_id = :quiz_id
+                     ORDER BY qq.id, qa.id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $quizId);
+            $stmt->execute();
+            $questionData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Organize questions by type
+            $questions = [];
+            foreach ($questionData as $row) {
+                if (!isset($questions[$row['id']])) {
+                    $questions[$row['id']] = [
+                        'type' => $row['type'],
+                        'correct_moves' => $row['correct_moves'] ? json_decode($row['correct_moves'], true) : null,
+                        'correct_answers' => []
+                    ];
+                }
+                if ($row['is_correct'] == 1) {
+                    $questions[$row['id']]['correct_answers'][] = $row['answer_id'];
                 }
             }
+            
+            // Calculate score
+            $score = 0;
+            $totalQuestions = count($questions);
+            
+            foreach ($questions as $questionId => $questionInfo) {
+                if ($questionInfo['type'] === 'chess') {
+                    // Check chess moves
+                    if (isset($chessMoves->{$questionId}) && $questionInfo['correct_moves']) {
+                        $userMove = $chessMoves->{$questionId};
+                        $correctMoves = $questionInfo['correct_moves'];
+                        
+                        // Check if user move matches any correct move
+                        foreach ($correctMoves as $correctMove) {
+                            if (isset($userMove->from) && isset($userMove->to) &&
+                                $userMove->from === $correctMove['from'] && 
+                                $userMove->to === $correctMove['to']) {
+                                $score++;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    // Check multiple choice answers
+                    if (isset($answers->{$questionId}) && 
+                        in_array($answers->{$questionId}, $questionInfo['correct_answers'])) {
+                        $score++;
+                    }
+                }            }
             
             // Insert quiz attempt
             $query = "INSERT INTO quiz_attempts (user_id, quiz_id, score, time_taken, completed_at)
@@ -527,41 +572,65 @@ class Quiz {
             throw new Exception("Error deleting quiz: " . $e->getMessage());
         }
     }
-    
-    // Helper method to add questions to a quiz
+      // Helper method to add questions to a quiz
     private function addQuestions($quizId, $questions) {
         foreach ($questions as $question) {
-            $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type) 
-                     VALUES (:quiz_id, :question, :image_url, :type)";
-            $stmt = $this->conn->prepare($query);
+            $type = isset($question['type']) ? $question['type'] : 'multiple_choice';
             
-            $questionText = htmlspecialchars(strip_tags($question['question']));
-            $imageUrl = isset($question['image_url']) ? htmlspecialchars(strip_tags($question['image_url'])) : '';
-            $type = 'multiple_choice'; // Default for now
-            
-            $stmt->bindParam(":quiz_id", $quizId);
-            $stmt->bindParam(":question", $questionText);
-            $stmt->bindParam(":image_url", $imageUrl);
-            $stmt->bindParam(":type", $type);
-            
-            $stmt->execute();
-            $questionId = $this->conn->lastInsertId();
-            
-            // Add answers for this question
-            if (isset($question['answers']) && is_array($question['answers'])) {
-                foreach ($question['answers'] as $answer) {
-                    $query = "INSERT INTO quiz_answers (question_id, answer_text, is_correct) 
-                             VALUES (:question_id, :answer_text, :is_correct)";
-                    $stmt = $this->conn->prepare($query);
-                    
-                    $answerText = htmlspecialchars(strip_tags($answer['answer_text']));
-                    $isCorrect = $answer['is_correct'] ? 1 : 0;
-                    
-                    $stmt->bindParam(":question_id", $questionId);
-                    $stmt->bindParam(":answer_text", $answerText);
-                    $stmt->bindParam(":is_correct", $isCorrect);
-                    
-                    $stmt->execute();
+            if ($type === 'chess') {
+                // Handle chess questions
+                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type, chess_position, chess_orientation, correct_moves) 
+                         VALUES (:quiz_id, :question, :image_url, :type, :chess_position, :chess_orientation, :correct_moves)";
+                $stmt = $this->conn->prepare($query);
+                
+                $questionText = htmlspecialchars(strip_tags($question['question']));
+                $imageUrl = isset($question['image_url']) ? htmlspecialchars(strip_tags($question['image_url'])) : '';
+                $chessPosition = isset($question['chess_position']) ? $question['chess_position'] : 'start';
+                $chessOrientation = isset($question['chess_orientation']) ? $question['chess_orientation'] : 'white';
+                $correctMoves = isset($question['correct_moves']) ? json_encode($question['correct_moves']) : null;
+                
+                $stmt->bindParam(":quiz_id", $quizId);
+                $stmt->bindParam(":question", $questionText);
+                $stmt->bindParam(":image_url", $imageUrl);
+                $stmt->bindParam(":type", $type);
+                $stmt->bindParam(":chess_position", $chessPosition);
+                $stmt->bindParam(":chess_orientation", $chessOrientation);
+                $stmt->bindParam(":correct_moves", $correctMoves);
+                
+                $stmt->execute();
+            } else {
+                // Handle regular multiple choice questions
+                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type) 
+                         VALUES (:quiz_id, :question, :image_url, :type)";
+                $stmt = $this->conn->prepare($query);
+                
+                $questionText = htmlspecialchars(strip_tags($question['question']));
+                $imageUrl = isset($question['image_url']) ? htmlspecialchars(strip_tags($question['image_url'])) : '';
+                
+                $stmt->bindParam(":quiz_id", $quizId);
+                $stmt->bindParam(":question", $questionText);
+                $stmt->bindParam(":image_url", $imageUrl);
+                $stmt->bindParam(":type", $type);
+                
+                $stmt->execute();
+                $questionId = $this->conn->lastInsertId();
+                
+                // Add answers for multiple choice questions
+                if (isset($question['answers']) && is_array($question['answers'])) {
+                    foreach ($question['answers'] as $answer) {
+                        $query = "INSERT INTO quiz_answers (question_id, answer_text, is_correct) 
+                                 VALUES (:question_id, :answer_text, :is_correct)";
+                        $stmt = $this->conn->prepare($query);
+                        
+                        $answerText = htmlspecialchars(strip_tags($answer['answer_text']));
+                        $isCorrect = $answer['is_correct'] ? 1 : 0;
+                        
+                        $stmt->bindParam(":question_id", $questionId);
+                        $stmt->bindParam(":answer_text", $answerText);
+                        $stmt->bindParam(":is_correct", $isCorrect);
+                        
+                        $stmt->execute();
+                    }
                 }
             }
         }

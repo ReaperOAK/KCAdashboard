@@ -7,8 +7,7 @@ require_once '../../middleware/auth.php';
 try {
     // Get request data
     $data = json_decode(file_get_contents("php://input"));
-    
-    if (!$data || !isset($data->quiz_id) || !isset($data->answers) || !isset($data->time_taken)) {
+      if (!$data || !isset($data->quiz_id) || !isset($data->time_taken)) {
         http_response_code(400);
         echo json_encode([
             "message" => "Missing required fields"
@@ -29,13 +28,12 @@ try {
     
     $database = new Database();
     $db = $database->getConnection();
-    $quiz = new Quiz($db);
-
-    // Process quiz submission
+    $quiz = new Quiz($db);    // Process quiz submission
     $result = $quiz->submitQuiz(
         $user['id'], 
         $data->quiz_id,
-        $data->answers,
+        isset($data->answers) ? $data->answers : null,
+        isset($data->chess_moves) ? $data->chess_moves : null,
         $data->time_taken
     );
 

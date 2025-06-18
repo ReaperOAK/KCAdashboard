@@ -2,15 +2,16 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
 import { FaChessPawn, FaClock, FaChessKnight } from 'react-icons/fa';
+import ChessQuizBoard from '../../components/chess/ChessQuizBoard';
 
 const QuizDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [error, setError] = useState(null);  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [chessMoves, setChessMoves] = useState({}); // Track chess moves for each question
   const [timeLeft, setTimeLeft] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
@@ -40,10 +41,10 @@ const QuizDetailPage = () => {
     setIsSubmitting(true);
     try {
       const timeTaken = (quiz.time_limit * 60) - timeLeft;
-      
-      const response = await ApiService.post('/quiz/submit-quiz.php', {
+        const response = await ApiService.post('/quiz/submit-quiz.php', {
         quiz_id: id,
         answers: selectedAnswers,
+        chess_moves: chessMoves,
         time_taken: timeTaken
       });
       
@@ -59,7 +60,7 @@ const QuizDetailPage = () => {
       setError('Failed to submit quiz');
       setIsSubmitting(false);
     }
-  }, [id, isSubmitting, navigate, quiz, selectedAnswers, timeLeft]);
+  }, [id, isSubmitting, navigate, quiz, selectedAnswers, chessMoves, timeLeft]);
 
   // Timer functionality
   useEffect(() => {
@@ -102,6 +103,13 @@ const QuizDetailPage = () => {
 
   const handlePreviousQuestion = () => {
     setCurrentQuestionIndex(currentQuestionIndex - 1);
+  };
+
+  const handleChessMove = (questionId, moveData) => {
+    setChessMoves({
+      ...chessMoves,
+      [questionId]: moveData
+    });
   };
 
   if (loading) {
@@ -222,36 +230,59 @@ const QuizDetailPage = () => {
                     className="max-h-64 rounded-lg border border-gray-200"
                   />
                 </div>
-              )}
-            </div>
+              )}            </div>
 
-            <div className="space-y-3 mb-8">
-              {currentQuestion.answers && currentQuestion.answers.map((answer) => (
-                <div 
-                  key={answer.id}
-                  onClick={() => handleAnswerSelect(currentQuestion.id, answer.id)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all
-                    ${selectedAnswers[currentQuestion.id] === answer.id 
-                      ? 'border-[#461fa3] bg-[#f3f1f9]' 
-                      : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                >
-                  <div className="flex items-center">
-                    <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center
-                      ${selectedAnswers[currentQuestion.id] === answer.id 
-                        ? 'border-[#461fa3]' 
-                        : 'border-gray-400'
-                      }`}
-                    >
-                      {selectedAnswers[currentQuestion.id] === answer.id && (
-                        <div className="w-3 h-3 rounded-full bg-[#461fa3]"></div>
-                      )}
-                    </div>
-                    <span>{answer.answer_text}</span>
+            {/* Conditional rendering based on question type */}
+            {currentQuestion.type === 'chess' ? (
+              <div className="mb-8">
+                <ChessQuizBoard
+                  initialPosition={currentQuestion.chess_position || 'start'}
+                  orientation={currentQuestion.chess_orientation || 'white'}
+                  correctMoves={currentQuestion.correct_moves || []}
+                  question=""
+                  allowMoves={true}
+                  showAnswer={false}
+                  onMove={(moveData) => handleChessMove(currentQuestion.id, moveData)}
+                  width={400}
+                  className="mx-auto"
+                />
+                {chessMoves[currentQuestion.id] && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      Move recorded: {chessMoves[currentQuestion.id].from} → {chessMoves[currentQuestion.id].to}
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3 mb-8">
+                {currentQuestion.answers && currentQuestion.answers.map((answer) => (
+                  <div 
+                    key={answer.id}
+                    onClick={() => handleAnswerSelect(currentQuestion.id, answer.id)}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all
+                      ${selectedAnswers[currentQuestion.id] === answer.id 
+                        ? 'border-[#461fa3] bg-[#f3f1f9]' 
+                        : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                  >
+                    <div className="flex items-center">
+                      <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center
+                        ${selectedAnswers[currentQuestion.id] === answer.id 
+                          ? 'border-[#461fa3]' 
+                          : 'border-gray-400'
+                        }`}
+                      >
+                        {selectedAnswers[currentQuestion.id] === answer.id && (
+                          <div className="w-3 h-3 rounded-full bg-[#461fa3]"></div>
+                        )}
+                      </div>
+                      <span>{answer.answer_text}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Navigation Buttons */}
             <div className="flex justify-between">
@@ -296,23 +327,31 @@ const QuizDetailPage = () => {
 
       {/* Question Navigation */}
       <div className="max-w-3xl mx-auto mt-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex flex-wrap gap-2">
-            {quiz.questions && quiz.questions.map((question, index) => (
-              <button
-                key={question.id}
-                onClick={() => setCurrentQuestionIndex(index)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center
-                  ${selectedAnswers[question.id] 
-                    ? 'bg-[#461fa3] text-white' 
-                    : currentQuestionIndex === index 
-                      ? 'bg-[#7646eb] text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                {index + 1}
-              </button>
-            ))}
+        <div className="bg-white rounded-lg shadow p-4">          <div className="flex flex-wrap gap-2">
+            {quiz.questions && quiz.questions.map((question, index) => {
+              const isAnswered = question.type === 'chess' 
+                ? chessMoves[question.id] 
+                : selectedAnswers[question.id];
+              
+              return (
+                <button
+                  key={question.id}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center relative
+                    ${isAnswered
+                      ? 'bg-[#461fa3] text-white' 
+                      : currentQuestionIndex === index 
+                        ? 'bg-[#7646eb] text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  {index + 1}
+                  {question.type === 'chess' && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full"></div>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

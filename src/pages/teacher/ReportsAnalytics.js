@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
+import ApiService from '../../utils/api';
 import ExportButton from '../../components/ExportButton'; // Import the export button
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -29,7 +29,9 @@ ChartJS.register(
 
 const ReportsAnalytics = () => {
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);    const [stats, setStats] = useState({
+    const [error, setError] = useState(null);
+    const [debugInfo, setDebugInfo] = useState(null);
+    const [stats, setStats] = useState({
         attendanceData: {
             labels: [],
             datasets: []
@@ -58,123 +60,53 @@ const ReportsAnalytics = () => {
         end_date: '',
         status: ''
     });
-    const [exportType, setExportType] = useState('attendance');      const fetchData = useCallback(async () => {
+    const [exportType, setExportType] = useState('attendance');    const fetchData = useCallback(async () => {
         setLoading(true);
         setError(null);
+        setDebugInfo(null);
+        
         try {
-            console.log('Generating analytics data for batch:', selectedBatch);
+            console.log('Fetching analytics data for batch:', selectedBatch);
             
-            // Since PHP doesn't work on Hostinger, generate realistic mock data
-            const mockData = generateMockAnalyticsData(selectedBatch);
+            // Debug: Check if we have auth token
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            setDebugInfo(`User: ${user.name || 'Unknown'}, Role: ${user.role || 'Unknown'}, Token: ${token ? 'Present' : 'Missing'}`);
             
-            // Simulate API delay for realistic experience
-            await new Promise(resolve => setTimeout(resolve, 800));
+            // Call the real API endpoint
+            const params = selectedBatch !== 'all' ? { batch: selectedBatch } : {};
+            const response = await ApiService.request('/analytics/teacher-stats.php', 'GET', null, { params });
             
-            console.log('Generated analytics data:', mockData);
+            console.log('Analytics API response:', response);
             
-            setStats(mockData.stats);
-            setBatches(mockData.batches);
+            if (response && response.success) {
+                setStats(response.stats);
+                setBatches(response.batches || []);
+            } else {
+                throw new Error(response?.message || 'Failed to fetch analytics data');
+            }
+            
             setLoading(false);
         } catch (error) {
-            console.error('Analytics generation error:', error);
-            setError(error.message || 'Failed to generate analytics data');
+            console.error('Analytics API error:', error);
+            setError(`Failed to fetch analytics data: ${error.message}`);
+            
+            // Initialize empty state to prevent chart errors
+            setStats({
+                attendanceData: { labels: [], datasets: [] },
+                performanceData: { labels: [], datasets: [] },
+                quizStats: { labels: [], datasets: [] },
+                summaryStats: {
+                    avgAttendance: 0,
+                    activeStudents: 0,
+                    avgQuizScore: 0,
+                    classesThisMonth: 0
+                }
+            });
+            setBatches([]);
             setLoading(false);
         }
-    }, [selectedBatch]);    const generateMockAnalyticsData = (batchFilter) => {
-        // Generate realistic batch data
-        const mockBatches = [
-            { id: 'beginner-1', name: 'Beginner Batch A' },
-            { id: 'beginner-2', name: 'Beginner Batch B' },
-            { id: 'intermediate-1', name: 'Intermediate Batch A' },
-            { id: 'advanced-1', name: 'Advanced Batch' }
-        ];
-        
-        // Calculate realistic numbers based on selected batch
-        const isAllBatches = batchFilter === 'all';
-        const baseStudentCount = isAllBatches ? 45 : 12;
-        const totalStudents = baseStudentCount + Math.floor(Math.random() * 8);
-        const activeStudents = Math.floor(totalStudents * (0.75 + Math.random() * 0.2));
-        
-        // Generate attendance data for the last 30 days
-        const attendanceLabels = [];
-        const attendanceData = [];
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            attendanceLabels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-            // Realistic attendance percentage (70-95%)
-            attendanceData.push(70 + Math.floor(Math.random() * 25));
-        }
-        
-        // Generate performance distribution
-        const performanceData = isAllBatches ? 
-            [18, 20, 7] : // All batches: more beginners and intermediates
-            batchFilter.includes('beginner') ? [10, 2, 0] :
-            batchFilter.includes('intermediate') ? [2, 8, 2] :
-            [0, 4, 8]; // Advanced batch
-        
-        // Generate quiz scores for the last 6 months
-        const quizLabels = [];
-        const quizScores = [];
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date();
-            date.setMonth(date.getMonth() - i);
-            quizLabels.push(date.toLocaleDateString('en-US', { month: 'short' }));
-            // Progressive improvement in quiz scores
-            quizScores.push(65 + Math.floor(Math.random() * 20) + (5 - i) * 2);
-        }
-        
-        return {
-            stats: {
-                attendanceData: {
-                    labels: attendanceLabels,
-                    datasets: [{
-                        label: 'Attendance Rate (%)',
-                        data: attendanceData,
-                        borderColor: '#461fa3',
-                        backgroundColor: 'rgba(70, 31, 163, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                performanceData: {
-                    labels: ['Beginner', 'Intermediate', 'Advanced'],
-                    datasets: [{
-                        label: 'Students by Level',
-                        data: performanceData,
-                        backgroundColor: [
-                            '#fbbf24', // Yellow for beginner
-                            '#10b981', // Green for intermediate  
-                            '#ef4444'  // Red for advanced
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                quizStats: {
-                    labels: quizLabels,
-                    datasets: [{
-                        label: 'Average Quiz Score (%)',
-                        data: quizScores,
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                summaryStats: {
-                    avgAttendance: Math.floor(attendanceData.reduce((a, b) => a + b, 0) / attendanceData.length),
-                    activeStudents: activeStudents,
-                    avgQuizScore: Math.floor(quizScores.reduce((a, b) => a + b, 0) / quizScores.length),
-                    classesThisMonth: Math.floor(Math.random() * 12) + 8
-                }
-            },
-            batches: mockBatches
-        };
-    };
-
-    useEffect(() => {
+    }, [selectedBatch]);useEffect(() => {
         fetchData();
     }, [fetchData]);
 
@@ -212,18 +144,35 @@ const ReportsAnalytics = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Export Data
-                        </button>
-                    </div>
+                        </button>                    </div>
                 </div>
 
+                {/* Debug Info - Show only in development */}
+                {process.env.NODE_ENV === 'development' && debugInfo && (
+                    <div className="bg-blue-100 p-2 rounded mb-4 text-sm text-blue-800">
+                        <strong>Debug:</strong> {debugInfo}
+                    </div>
+                )}
+                
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#461fa3]"></div>
                     </div>
                 ) : error ? (
                     <div className="bg-red-100 p-4 rounded-xl text-red-700 mb-6">
-                        <p className="font-bold">Error</p>
-                        <p>{error}</p>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <p className="font-bold">Error Loading Analytics</p>
+                                <p>{error}</p>
+                                <p className="text-sm mt-1">Please check your internet connection and try again.</p>
+                            </div>
+                            <button 
+                                onClick={handleRefresh}
+                                className="ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                            >
+                                Retry
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">                        {/* Attendance Overview */}
@@ -264,8 +213,7 @@ const ReportsAnalytics = () => {
                                         },
                                         scales: {
                                             y: {
-                                                beginAtZero: true,
-                                                max: 100
+                                                beginAtZero: true
                                             }
                                         }
                                     }}
@@ -279,7 +227,7 @@ const ReportsAnalytics = () => {
 
                         {/* Quiz Statistics */}
                         <div className="bg-white p-6 rounded-xl shadow-lg">
-                            <h2 className="text-xl font-semibold text-[#461fa3] mb-4">Quiz Statistics</h2>
+                            <h2 className="text-xl font-semibold text-[#461fa3] mb-4">Quiz Score Distribution</h2>
                             {stats.quizStats && stats.quizStats.labels && stats.quizStats.labels.length > 0 ? (
                                 <Doughnut 
                                     data={stats.quizStats}

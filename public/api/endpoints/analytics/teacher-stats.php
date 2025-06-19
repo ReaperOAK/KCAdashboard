@@ -31,15 +31,15 @@ try {
     $batch_stmt->bindParam(':teacher_id', $teacher_id);
     $batch_stmt->execute();
     $batches = $batch_stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Prepare response
+      // Prepare response
     $response = [
         'success' => true,
         'batches' => $batches,
         'stats' => [
             'attendanceData' => generateAttendanceData($db, $teacher_id, $batch_id),
             'performanceData' => generatePerformanceData($db, $teacher_id, $batch_id),
-            'quizStats' => generateQuizStats($db, $teacher_id, $batch_id)
+            'quizStats' => generateQuizStats($db, $teacher_id, $batch_id),
+            'summaryStats' => generateSummaryStats($db, $teacher_id, $batch_id)
         ]
     ];
     
@@ -295,7 +295,104 @@ function generateQuizStats($db, $teacher_id, $batch_id) {
             'labels' => [],
             'datasets' => [
                 ['label' => 'Quiz Score Distribution', 'data' => [], 'backgroundColor' => [], 'borderColor' => 'rgba(255, 255, 255, 0.8)', 'borderWidth' => 1]
-            ]
+            ]        ];
+    }
+}
+
+// Helper function to generate summary statistics
+function generateSummaryStats($db, $teacher_id, $batch_id) {
+    try {
+        $batch_condition = ($batch_id != 'all') ? "AND b.id = :batch_id" : "";
+        
+        // Calculate average attendance
+        $attendance_query = "SELECT 
+                               AVG(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100 as avg_attendance
+                             FROM batch_sessions bs
+                             INNER JOIN batches b ON bs.batch_id = b.id
+                             LEFT JOIN attendance a ON bs.id = a.session_id
+                             WHERE b.teacher_id = :teacher_id
+                             $batch_condition
+                             AND bs.date_time <= NOW()";
+        
+        $stmt = $db->prepare($attendance_query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        if ($batch_id != 'all') {
+            $stmt->bindParam(':batch_id', $batch_id);
+        }
+        $stmt->execute();
+        $attendance_result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $avg_attendance = round($attendance_result['avg_attendance'] ?? 0, 1);
+        
+        // Count active students
+        $student_query = "SELECT COUNT(DISTINCT bs.student_id) as active_students
+                          FROM batch_students bs
+                          INNER JOIN batches b ON bs.batch_id = b.id
+                          WHERE b.teacher_id = :teacher_id
+                          $batch_condition
+                          AND bs.status = 'active'";
+        
+        $stmt = $db->prepare($student_query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        if ($batch_id != 'all') {
+            $stmt->bindParam(':batch_id', $batch_id);
+        }
+        $stmt->execute();
+        $student_result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $active_students = $student_result['active_students'] ?? 0;
+        
+        // Calculate average quiz score
+        $quiz_query = "SELECT AVG(qa.score) as avg_quiz_score
+                       FROM quiz_attempts qa
+                       INNER JOIN quizzes q ON qa.quiz_id = q.id
+                       WHERE q.created_by = :teacher_id";
+        
+        if ($batch_id != 'all') {
+            $quiz_query .= " AND qa.user_id IN (
+                              SELECT student_id FROM batch_students WHERE batch_id = :batch_id
+                            )";
+        }
+        
+        $stmt = $db->prepare($quiz_query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        if ($batch_id != 'all') {
+            $stmt->bindParam(':batch_id', $batch_id);
+        }
+        $stmt->execute();
+        $quiz_result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $avg_quiz_score = round($quiz_result['avg_quiz_score'] ?? 0, 1);
+        
+        // Count classes this month
+        $class_query = "SELECT COUNT(*) as classes_this_month
+                        FROM batch_sessions bs
+                        INNER JOIN batches b ON bs.batch_id = b.id
+                        WHERE b.teacher_id = :teacher_id
+                        $batch_condition
+                        AND MONTH(bs.date_time) = MONTH(NOW())
+                        AND YEAR(bs.date_time) = YEAR(NOW())";
+        
+        $stmt = $db->prepare($class_query);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        if ($batch_id != 'all') {
+            $stmt->bindParam(':batch_id', $batch_id);
+        }
+        $stmt->execute();
+        $class_result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $classes_this_month = $class_result['classes_this_month'] ?? 0;
+        
+        return [
+            'avgAttendance' => $avg_attendance,
+            'activeStudents' => (int)$active_students,
+            'avgQuizScore' => $avg_quiz_score,
+            'classesThisMonth' => (int)$classes_this_month
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error in generateSummaryStats: " . $e->getMessage());
+        return [
+            'avgAttendance' => 0,
+            'activeStudents' => 0,
+            'avgQuizScore' => 0,
+            'classesThisMonth' => 0
         ];
     }
 }

@@ -4,6 +4,7 @@ import { FaSave, FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess } from 
 import ApiService from '../../utils/api';
 import { toast } from 'react-toastify';
 import ChessQuizBoard from '../../components/chess/ChessQuizBoard';
+import ChessPositionEditor from '../../components/chess/ChessPositionEditor';
 
 const QuizCreator = () => {
   const { id } = useParams();
@@ -141,11 +142,18 @@ const QuizCreator = () => {
     
     for (let i = 0; i < quiz.questions.length; i++) {
       const q = quiz.questions[i];
-      if (!q.question.trim()) return `Question ${i + 1} text is required`;
-      
-      if (q.type === 'chess') {
+      if (!q.question.trim()) return `Question ${i + 1} text is required`;      if (q.type === 'chess') {
+        // Allow chess questions to be saved without moves, but warn if no moves are set
         if (!q.correct_moves || q.correct_moves.length === 0) {
-          return `Question ${i + 1} must have at least one correct move defined`;
+          console.warn(`Chess question ${i + 1} has no correct moves defined. Students won't be able to get this question right.`);
+        } else {
+          // Check if correct moves have valid from/to values
+          const validMoves = q.correct_moves.filter(move => 
+            move && move.from && move.to && move.from.trim() && move.to.trim()
+          );
+          if (validMoves.length === 0) {
+            console.warn(`Chess question ${i + 1} has no valid moves. Please ensure moves have 'from' and 'to' squares defined.`);
+          }
         }
       } else {
         const hasCorrectAnswer = q.answers && q.answers.some(a => a.is_correct);
@@ -167,8 +175,7 @@ const QuizCreator = () => {
       toast.error(validationError);
       return;
     }
-    
-    setSaving(true);
+      setSaving(true);
     
     try {
       const endpoint = isEditing 
@@ -176,13 +183,42 @@ const QuizCreator = () => {
         : '/quiz/create.php';
       
       const method = isEditing ? 'put' : 'post';
+        // Debug: Log the quiz data being sent
+      console.log('Submitting quiz data:', JSON.stringify(quiz, null, 2));
+      
+      // Debug: Check chess questions specifically
+      const chessQuestions = quiz.questions.filter(q => q.type === 'chess');
+      if (chessQuestions.length > 0) {
+        console.log('Chess questions found:', chessQuestions);
+        chessQuestions.forEach((q, index) => {
+          console.log(`Chess question ${index + 1}:`, {
+            question: q.question,
+            position: q.chess_position,
+            orientation: q.chess_orientation,
+            correct_moves: q.correct_moves
+          });
+        });
+      }
       
       await ApiService[method](endpoint, quiz);
       
       toast.success(`Quiz ${isEditing ? 'updated' : 'created'} successfully!`);
-      navigate('/teacher/quizzes');
-    } catch (error) {
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} quiz`);
+      navigate('/teacher/quizzes');    } catch (error) {
+      console.error('Quiz submission error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        quiz: quiz
+      });
+      
+      let errorMessage = 'Unknown error occurred';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      toast.error(`Failed to ${isEditing ? 'update' : 'create'} quiz: ${errorMessage}`);
       setSaving(false);
     }
   };
@@ -459,94 +495,118 @@ const QuizCreator = () => {
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    /* Chess Question Interface */
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  ) : (                    /* Chess Question Interface */
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Chess Position (FEN)</label>
-                          <input
-                            type="text"
-                            value={question.chess_position || 'start'}
-                            onChange={(e) => handleChessPositionChange(questionIndex, e.target.value)}
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
-                            placeholder="start or FEN string"
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Setup Chess Position</label>
+                          <p className="text-sm text-gray-500 mb-3">
+                            Drag pieces to set up the position. Use the controls to reset or clear the board.
+                          </p>
+                          <ChessPositionEditor
+                            initialPosition={question.chess_position || 'start'}
+                            orientation={question.chess_orientation || 'white'}
+                            onPositionChange={(fen) => handleChessPositionChange(questionIndex, fen)}
+                            width={350}
                           />
                         </div>
                         
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Board Orientation</label>
-                          <select
-                            value={question.chess_orientation || 'white'}
-                            onChange={(e) => handleChessOrientationChange(questionIndex, e.target.value)}
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
-                          >
-                            <option value="white">White</option>
-                            <option value="black">Black</option>
-                          </select>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Board Orientation</label>
+                            <select
+                              value={question.chess_orientation || 'white'}
+                              onChange={(e) => handleChessOrientationChange(questionIndex, e.target.value)}
+                              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                            >
+                              <option value="white">White</option>
+                              <option value="black">Black</option>
+                            </select>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Position (FEN)</label>
+                            <textarea
+                              value={question.chess_position || 'start'}
+                              onChange={(e) => handleChessPositionChange(questionIndex, e.target.value)}
+                              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent text-xs font-mono"
+                              rows="3"
+                              placeholder="FEN notation will appear here"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              You can also manually edit the FEN notation
+                            </p>
+                          </div>
+                            <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <label className="block text-sm font-medium text-gray-700">Correct Moves</label>
+                              {(!question.correct_moves || question.correct_moves.length === 0) && (
+                                <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                                  ⚠️ No moves defined
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500 mb-2">Define the correct moves for this position</p>
+                            
+                            {question.correct_moves && question.correct_moves.map((move, moveIndex) => (
+                              <div key={moveIndex} className="flex items-center gap-2 mb-2">
+                                <input
+                                  type="text"
+                                  value={move.from || ''}
+                                  onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'from', e.target.value)}
+                                  className="w-16 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                                  placeholder="From"
+                                />
+                                <span className="text-gray-500">→</span>
+                                <input
+                                  type="text"
+                                  value={move.to || ''}
+                                  onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'to', e.target.value)}
+                                  className="w-16 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                                  placeholder="To"
+                                />
+                                <input
+                                  type="text"
+                                  value={move.description || ''}
+                                  onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'description', e.target.value)}
+                                  className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                                  placeholder="Move description (optional)"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeCorrectMove(questionIndex, moveIndex)}
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded"
+                                >
+                                  <FaTrash className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                            
+                            <button
+                              type="button"
+                              onClick={() => addCorrectMove(questionIndex)}
+                              className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                            >
+                              <FaPlus className="mr-1" /> Add Move
+                            </button>
+                          </div>
                         </div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Correct Moves</label>
-                        <p className="text-sm text-gray-500 mb-2">Define the correct moves for this position</p>
-                        
-                        {question.correct_moves && question.correct_moves.map((move, moveIndex) => (
-                          <div key={moveIndex} className="flex items-center gap-2 mb-2">
-                            <input
-                              type="text"
-                              value={move.from || ''}
-                              onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'from', e.target.value)}
-                              className="w-16 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
-                              placeholder="From"
-                            />
-                            <span className="text-gray-500">→</span>
-                            <input
-                              type="text"
-                              value={move.to || ''}
-                              onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'to', e.target.value)}
-                              className="w-16 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
-                              placeholder="To"
-                            />
-                            <input
-                              type="text"
-                              value={move.description || ''}
-                              onChange={(e) => handleCorrectMoveChange(questionIndex, moveIndex, 'description', e.target.value)}
-                              className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
-                              placeholder="Move description (optional)"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeCorrectMove(questionIndex, moveIndex)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded"
-                            >
-                              <FaTrash className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                        
-                        <button
-                          type="button"
-                          onClick={() => addCorrectMove(questionIndex)}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
-                        >
-                          <FaPlus className="mr-1" /> Add Move
-                        </button>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Chess Board Preview</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Question Preview</label>
                         <div className="border rounded-lg p-4 bg-gray-50">
                           <ChessQuizBoard
                             initialPosition={question.chess_position || 'start'}
                             orientation={question.chess_orientation || 'white'}
                             correctMoves={question.correct_moves || []}
+                            question={question.question}
                             allowMoves={false}
                             width={300}
                           />
                         </div>
                       </div>
-                    </div>                  )}
+                    </div>)}
                 </div>
               ))}
             </div>

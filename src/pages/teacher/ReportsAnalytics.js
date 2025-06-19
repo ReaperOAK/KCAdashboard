@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-import ApiService from '../../utils/api';
 import ExportButton from '../../components/ExportButton'; // Import the export button
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -81,12 +80,7 @@ const ReportsAnalytics = () => {
             setError(error.message || 'Failed to generate analytics data');
             setLoading(false);
         }
-    }, [selectedBatch]);
-
-    const generateMockAnalyticsData = (batchFilter) => {
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        
+    }, [selectedBatch]);    const generateMockAnalyticsData = (batchFilter) => {
         // Generate realistic batch data
         const mockBatches = [
             { id: 'beginner-1', name: 'Beginner Batch A' },

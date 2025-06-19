@@ -253,6 +253,10 @@ class ApiService {
   }
 
   // Teacher Analytics Endpoints
+  static async getTeacherDashboardStats() {
+    return this.get('/analytics/teacher-dashboard-stats.php');
+  }
+
   static async getTeacherStats(batchId = 'all') {
     return this.get(`/analytics/teacher-stats.php?batch=${batchId}`);
   }

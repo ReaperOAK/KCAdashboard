@@ -71,15 +71,14 @@ class Batch {
             // Get the newly created batch ID
             $batch_id = $this->conn->lastInsertId();
             
-            // Create corresponding classroom
+            // Create corresponding classroom (classrooms table doesn't have level column)
             $classroom_query = "INSERT INTO classrooms 
-                              (name, description, level, schedule, teacher_id, status, created_at)
-                              VALUES (:name, :description, :level, :schedule, :teacher_id, 'active', NOW())";
+                              (name, description, schedule, teacher_id, status, created_at)
+                              VALUES (:name, :description, :schedule, :teacher_id, 'active', NOW())";
             
             $classroom_stmt = $this->conn->prepare($classroom_query);
             $classroom_stmt->bindParam(':name', $this->name);
             $classroom_stmt->bindParam(':description', $this->description);
-            $classroom_stmt->bindParam(':level', $this->level);
             $classroom_stmt->bindParam(':schedule', $this->schedule);
             $classroom_stmt->bindParam(':teacher_id', $this->teacher_id);
             
@@ -151,12 +150,10 @@ class Batch {
             if (!$stmt->execute()) {
                 throw new Exception("Failed to update batch");
             }
-            
-            // Update corresponding classroom (find by teacher_id and similar name)
+              // Update corresponding classroom (classrooms table doesn't have level column)
             $classroom_query = "UPDATE classrooms 
                               SET name = :name,
                                   description = :description,
-                                  level = :level,
                                   schedule = :schedule,
                                   status = :status
                               WHERE teacher_id = :teacher_id 
@@ -172,7 +169,6 @@ class Batch {
             $classroom_stmt = $this->conn->prepare($classroom_query);
             $classroom_stmt->bindParam(':name', $this->name);
             $classroom_stmt->bindParam(':description', $this->description);
-            $classroom_stmt->bindParam(':level', $this->level);
             $classroom_stmt->bindParam(':schedule', $this->schedule);
             $classroom_stmt->bindParam(':status', $this->status);
             $classroom_stmt->bindParam(':teacher_id', $this->teacher_id);

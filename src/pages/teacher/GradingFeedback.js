@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -110,38 +110,40 @@ const GradingFeedback = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleViewPerformance = async (student) => {
+    };    const handleViewPerformance = async (student) => {
         setSelectedStudent(student);
         setLoading(true);
         
         try {
+            console.log('Fetching performance data for student:', student.id, 'timeframe:', selectedTimeframe);
             const response = await ApiService.getStudentPerformance(
                 student.id, 
                 selectedTimeframe
             );
+            console.log('Performance data response:', response);
             setPerformanceData(response);
             setShowPerformanceModal(true);
         } catch (error) {
+            console.error('Error fetching performance data:', error);
             setError('Failed to fetch performance data');
         } finally {
             setLoading(false);
         }
-    };
-
-    const updatePerformanceTimeframe = async (timeframe) => {
+    };    const updatePerformanceTimeframe = async (timeframe) => {
         setSelectedTimeframe(timeframe);
         
         if (selectedStudent) {
             setLoading(true);
             try {
+                console.log('Updating performance timeframe:', timeframe, 'for student:', selectedStudent.id);
                 const response = await ApiService.getStudentPerformance(
                     selectedStudent.id, 
                     timeframe
                 );
+                console.log('Updated performance data response:', response);
                 setPerformanceData(response);
             } catch (error) {
+                console.error('Error updating performance data:', error);
                 setError('Failed to update performance data');
             } finally {
                 setLoading(false);
@@ -158,49 +160,69 @@ const GradingFeedback = () => {
         if (rating >= 4) return 'bg-green-100 text-green-800';
         if (rating >= 3) return 'bg-yellow-100 text-yellow-800';
         return 'bg-red-100 text-red-800';
-    };
-
-    // Prepare chart data for performance view
+    };    // Prepare chart data for performance view
     const prepareChartData = () => {
-        if (!performanceData || !performanceData.feedback_trend) return null;
+        if (!performanceData || !performanceData.charts || !performanceData.charts.quiz_scores) {
+            console.log('No quiz chart data available:', performanceData);
+            return null;
+        }
 
-        const labels = performanceData.feedback_trend.map(item => item.period);
-        const ratings = performanceData.feedback_trend.map(item => parseFloat(item.avg_rating));
-
-        return {
-            labels,
-            datasets: [
-                {
-                    label: 'Average Rating',
-                    data: ratings,
-                    fill: false,
-                    backgroundColor: 'rgba(70, 31, 163, 0.2)',
-                    borderColor: 'rgba(70, 31, 163, 1)',
-                    tension: 0.4
-                }
-            ]
-        };
+        console.log('Quiz chart data:', performanceData.charts.quiz_scores);
+        return performanceData.charts.quiz_scores;
     };
 
-    const chartOptions = {
+    const prepareAttendanceChartData = () => {
+        if (!performanceData || !performanceData.charts || !performanceData.charts.monthly_attendance) {
+            console.log('No attendance chart data available:', performanceData);
+            return null;
+        }
+
+        console.log('Attendance chart data:', performanceData.charts.monthly_attendance);
+        return performanceData.charts.monthly_attendance;
+    };const chartOptions = {
         scales: {
             y: {
-                beginAtZero: false,
-                min: 1,
-                max: 5,
+                beginAtZero: true,
                 ticks: {
                     stepSize: 1
                 }
             }
         },
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: 'top'
             },
             title: {
                 display: true,
-                text: 'Rating Trend Over Time'
+                text: 'Performance Chart'
+            }
+        }
+    };
+
+    const attendanceChartOptions = {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    stepSize: 10,
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            title: {
+                display: true,
+                text: 'Monthly Attendance'
             }
         }
     };
@@ -464,25 +486,52 @@ const GradingFeedback = () => {
                                     >
                                         {period.charAt(0).toUpperCase() + period.slice(1)}
                                     </button>
-                                ))}
-                            </div>
+                                ))}                            </div>
                             
                             {!performanceData ? (
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#461fa3]"></div>
                                 </div>
                             ) : (
-                                <div className="space-y-8">
-                                    {/* Rating Trend Chart */}
+                                <div>
+                                    {/* Debug info - remove in production */}
+                                    <div className="mb-4 p-2 bg-yellow-100 rounded text-xs">
+                                        <details>
+                                            <summary>Debug: Performance Data Structure</summary>
+                                            <pre className="mt-2 overflow-auto max-h-32">
+                                                {JSON.stringify(performanceData, null, 2)}
+                                            </pre>
+                                        </details>
+                                    </div>
+                                    
+                                    <div className="space-y-8">{/* Quiz Performance Chart */}
                                     <div className="bg-gray-50 p-4 rounded-lg">
-                                        <h3 className="text-lg font-medium text-[#200e4a] mb-4">Rating Trend</h3>
-                                        {performanceData.feedback_trend && performanceData.feedback_trend.length > 0 ? (
-                                            <div className="h-64">
-                                                <Line data={prepareChartData()} options={chartOptions} />
-                                            </div>
-                                        ) : (
-                                            <p className="text-gray-500 text-center py-8">No rating data available for this time period</p>
-                                        )}
+                                        <h3 className="text-lg font-medium text-[#200e4a] mb-4">Quiz Performance</h3>
+                                        {(() => {
+                                            const chartData = prepareChartData();
+                                            console.log('Prepared chart data:', chartData);
+                                            return chartData && chartData.labels && chartData.labels.length > 0 ? (
+                                                <div className="h-64">
+                                                    <Bar data={chartData} options={chartOptions} />
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 text-center py-8">No quiz data available for this time period</p>
+                                            );
+                                        })()}
+                                    </div>                                    {/* Monthly Attendance Chart */}
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <h3 className="text-lg font-medium text-[#200e4a] mb-4">Monthly Attendance Trend</h3>
+                                        {(() => {
+                                            const attendanceChartData = prepareAttendanceChartData();
+                                            console.log('Prepared attendance chart data:', attendanceChartData);
+                                            return attendanceChartData && attendanceChartData.labels && attendanceChartData.labels.length > 0 ? (
+                                                <div className="h-64">
+                                                    <Line data={attendanceChartData} options={attendanceChartOptions} />
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 text-center py-8">No attendance data available for this time period</p>
+                                            );
+                                        })()}
                                     </div>
                                     
                                     {/* Attendance Statistics */}
@@ -493,28 +542,25 @@ const GradingFeedback = () => {
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="bg-white p-3 rounded-md text-center">
                                                         <div className="text-2xl font-bold text-[#461fa3]">
-                                                            {performanceData.attendance.present_count || 0}
+                                                            {performanceData.attendance.present || 0}
                                                         </div>
                                                         <div className="text-sm text-gray-500">Present</div>
                                                     </div>
                                                     <div className="bg-white p-3 rounded-md text-center">
                                                         <div className="text-2xl font-bold text-red-500">
-                                                            {performanceData.attendance.absent_count || 0}
+                                                            {performanceData.attendance.absent || 0}
                                                         </div>
                                                         <div className="text-sm text-gray-500">Absent</div>
                                                     </div>
                                                     <div className="bg-white p-3 rounded-md text-center">
                                                         <div className="text-2xl font-bold text-yellow-500">
-                                                            {performanceData.attendance.late_count || 0}
+                                                            {performanceData.attendance.late || 0}
                                                         </div>
                                                         <div className="text-sm text-gray-500">Late</div>
                                                     </div>
                                                     <div className="bg-white p-3 rounded-md text-center">
                                                         <div className="text-2xl font-bold text-blue-500">
-                                                            {performanceData.attendance.total_sessions 
-                                                                ? Math.round((performanceData.attendance.present_count / performanceData.attendance.total_sessions) * 100)
-                                                                : 0
-                                                            }%
+                                                            {performanceData.attendance.rate || 0}%
                                                         </div>
                                                         <div className="text-sm text-gray-500">Attendance Rate</div>
                                                     </div>
@@ -524,37 +570,114 @@ const GradingFeedback = () => {
                                             )}
                                         </div>
                                         
-                                        {/* Quiz Performance */}
+                                        {/* Quiz Performance Summary */}
                                         <div className="bg-gray-50 p-4 rounded-lg">
-                                            <h3 className="text-lg font-medium text-[#200e4a] mb-4">Recent Quiz Results</h3>
-                                            {performanceData.quizzes && performanceData.quizzes.length > 0 ? (
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-full divide-y divide-gray-200">
-                                                        <thead>
-                                                            <tr>
-                                                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Quiz</th>
-                                                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Score</th>
-                                                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Date</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {performanceData.quizzes.slice(0, 5).map((quiz, index) => (
-                                                                <tr key={index} className="bg-white">
-                                                                    <td className="px-3 py-2 text-sm text-gray-900">{quiz.title}</td>
-                                                                    <td className="px-3 py-2 text-sm text-gray-900">{quiz.score}%</td>
-                                                                    <td className="px-3 py-2 text-sm text-gray-500">
-                                                                        {formatDate(quiz.completed_at)}
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
+                                            <h3 className="text-lg font-medium text-[#200e4a] mb-4">Quiz Performance Summary</h3>
+                                            {performanceData.quiz_performance ? (
+                                                <div className="space-y-3">
+                                                    <div className="bg-white p-3 rounded-md">
+                                                        <div className="text-2xl font-bold text-[#461fa3]">
+                                                            {performanceData.quiz_performance.average || 0}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">Average Score</div>
+                                                    </div>
+                                                    <div className="bg-white p-3 rounded-md">
+                                                        <div className="text-2xl font-bold text-blue-500">
+                                                            {performanceData.quiz_performance.count || 0}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">Total Quizzes</div>
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <p className="text-gray-500 text-center py-4">No quiz data available</p>
+                                                <p className="text-gray-500 text-center py-4">No quiz performance data available</p>
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* Recent Quiz Results */}
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <h3 className="text-lg font-medium text-[#200e4a] mb-4">Recent Quiz Results</h3>
+                                        {performanceData.quiz_performance && performanceData.quiz_performance.detailed && performanceData.quiz_performance.detailed.length > 0 ? (
+                                            <div className="overflow-x-auto">
+                                                <table className="min-w-full divide-y divide-gray-200">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Quiz</th>
+                                                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Score</th>
+                                                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Difficulty</th>
+                                                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {performanceData.quiz_performance.detailed.slice(0, 10).map((quiz, index) => (
+                                                            <tr key={index} className="bg-white">
+                                                                <td className="px-3 py-2 text-sm text-gray-900">{quiz.title}</td>
+                                                                <td className="px-3 py-2 text-sm text-gray-900">{quiz.score}</td>
+                                                                <td className="px-3 py-2 text-sm text-gray-500">
+                                                                    <span className={`px-2 py-1 text-xs rounded-full ${
+                                                                        quiz.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
+                                                                        quiz.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                                                                        'bg-red-100 text-red-800'
+                                                                    }`}>
+                                                                        {quiz.difficulty}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-3 py-2 text-sm text-gray-500">
+                                                                    {formatDate(quiz.completed_at)}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 text-center py-4">No quiz data available</p>
+                                        )}
+                                    </div>
+
+                                    {/* Recent Feedback */}
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <h3 className="text-lg font-medium text-[#200e4a] mb-4">Recent Teacher Feedback</h3>
+                                        {performanceData.feedback && performanceData.feedback.length > 0 ? (
+                                            <div className="space-y-4">
+                                                {performanceData.feedback.map((feedback) => (
+                                                    <div key={feedback.id} className="bg-white p-4 rounded-lg border">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <span className="text-sm text-gray-500">
+                                                                By {feedback.teacher_name} on {formatDate(feedback.created_at)}
+                                                            </span>
+                                                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRatingColor(feedback.rating)}`}>
+                                                                {feedback.rating}/5
+                                                            </span>
+                                                        </div>
+                                                        
+                                                        {feedback.comment && (
+                                                            <div className="mb-2">
+                                                                <h5 className="text-sm font-medium text-gray-700">Comment:</h5>
+                                                                <p className="text-sm text-gray-600">{feedback.comment}</p>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {feedback.strengths && (
+                                                            <div className="mb-2">
+                                                                <h5 className="text-sm font-medium text-gray-700">Strengths:</h5>
+                                                                <p className="text-sm text-gray-600">{feedback.strengths}</p>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {feedback.areas_of_improvement && (
+                                                            <div>
+                                                                <h5 className="text-sm font-medium text-gray-700">Areas for Improvement:</h5>
+                                                                <p className="text-sm text-gray-600">{feedback.areas_of_improvement}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 text-center py-4">No recent feedback available</p>
+                                        )}
+                                    </div>
+                                </div>
                                 </div>
                             )}
                         </div>

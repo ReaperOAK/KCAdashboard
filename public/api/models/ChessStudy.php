@@ -246,8 +246,7 @@ class ChessStudy {
         
         return $stmt->rowCount() > 0;
     }
-    
-    // Get study by ID with access check
+      // Get study by ID with access check
     public function getById($studyId, $userId) {
         $query = "SELECT s.*, u.full_name as owner_name 
                   FROM " . $this->table_name . " s
@@ -265,6 +264,7 @@ class ChessStudy {
         $stmt->bindParam(1, $studyId);
         $stmt->bindParam(2, $userId);
         $stmt->bindParam(3, $userId);
+        $stmt->execute();
         
         return $stmt;
     }

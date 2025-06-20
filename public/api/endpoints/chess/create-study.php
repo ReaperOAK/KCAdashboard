@@ -59,37 +59,63 @@ try {
     $study->category = $data->category;
     $study->owner_id = $user['id'];
     $study->is_public = $data->isPublic ?? false;
-    
-    // Create the study
+      // Create the study
     if($study->create()) {
-        // Get the newly created study details
-        $study_id = $db->lastInsertId();
-        $stmt = $study->getById($study_id, $user['id']);
-        $study_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        error_log("Create Study: Study created successfully with ID: " . $study->id);
         
-        $response = [
-            "success" => true,
-            "message" => "Study created successfully",
-            "study" => [
-                "id" => $study_data['id'],
-                "title" => $study_data['title'],
-                "description" => $study_data['description'],
-                "category" => $study_data['category'],
-                "position" => $study_data['position'],
-                "is_public" => $study_data['is_public'] ? true : false,
-                "owner" => [
-                    "id" => $study_data['owner_id'],
-                    "name" => $study_data['owner_name']
-                ],
-                "created_at" => $study_data['created_at']
-            ]
-        ];
+        // Get the newly created study details
+        $study_id = $study->id; // Use the ID from the study object
+        $stmt = $study->getById($study_id, $user['id']);
+        
+        if ($stmt && $stmt->rowCount() > 0) {
+            $study_data = $stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("Create Study: Retrieved study data: " . json_encode($study_data));
+            
+            $response = [
+                "success" => true,
+                "message" => "Study created successfully",
+                "study" => [
+                    "id" => $study_data['id'],
+                    "title" => $study_data['title'],
+                    "description" => $study_data['description'],
+                    "category" => $study_data['category'],
+                    "position" => $study_data['position'],
+                    "is_public" => $study_data['is_public'] ? true : false,
+                    "owner" => [
+                        "id" => $study_data['owner_id'],
+                        "name" => $study_data['owner_name']
+                    ],
+                    "created_at" => $study_data['created_at']
+                ]
+            ];
+        } else {
+            error_log("Create Study: Could not retrieve created study data");
+            // Fallback response with basic data
+            $response = [
+                "success" => true,
+                "message" => "Study created successfully",
+                "study" => [
+                    "id" => $study->id,
+                    "title" => $study->title,
+                    "description" => $study->description,
+                    "category" => $study->category,
+                    "position" => $study->position,
+                    "is_public" => $study->is_public ? true : false,
+                    "owner" => [
+                        "id" => $study->owner_id,
+                        "name" => $user['full_name'] ?? $user['name'] ?? 'Unknown'
+                    ],
+                    "created_at" => date('Y-m-d H:i:s')
+                ]
+            ];
+        }
         
         http_response_code(201);
         echo json_encode($response);
     } else {
+        error_log("Create Study: Failed to create study");
         http_response_code(500);
-        echo json_encode(["message" => "Unable to create study"]);
+        echo json_encode(["success" => false, "message" => "Unable to create study"]);
     }
     
 } catch(Exception $e) {

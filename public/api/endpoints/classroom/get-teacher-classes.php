@@ -39,8 +39,7 @@ try {
         exit;
     }
 
-    try {
-        $database = new Database();
+    try {        $database = new Database();
         $db = $database->getConnection();
         
         $teacher_id = $user_data['id'];

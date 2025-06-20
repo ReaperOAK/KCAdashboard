@@ -234,93 +234,79 @@ class Classroom {
 
     /**
      * Get detailed information about a specific classroom
-     */
-    public function getClassDetails($class_id, $user_id) {
+     */    public function getClassDetails($class_id, $user_id) {
         try {
-            // First check if the user has access to this classroom
-            $accessQuery = "SELECT c.*, 
+            // Check if this is a batch being accessed as a classroom
+            // First try to get batch details
+            $batchQuery = "SELECT b.*, 
                          u.full_name as teacher_name,
-                         (SELECT COUNT(*) FROM classroom_students WHERE classroom_id = c.id) as student_count
+                         (SELECT COUNT(*) FROM batch_students WHERE batch_id = b.id AND status = 'active') as student_count
                         FROM 
-                         classrooms c
+                         batches b
                         JOIN 
-                         users u ON c.teacher_id = u.id
+                         users u ON b.teacher_id = u.id
                         LEFT JOIN
-                         classroom_students cs ON c.id = cs.classroom_id AND cs.student_id = :user_id
+                         batch_students bs ON b.id = bs.batch_id AND bs.student_id = :user_id
                         WHERE 
-                         c.id = :class_id 
-                         AND (c.teacher_id = :user_id OR cs.student_id = :user_id)";
+                         b.id = :class_id 
+                         AND (b.teacher_id = :user_id OR bs.student_id = :user_id)";
             
-            $stmt = $this->conn->prepare($accessQuery);
+            $stmt = $this->conn->prepare($batchQuery);
             $stmt->bindParam(":class_id", $class_id);
             $stmt->bindParam(":user_id", $user_id);
             $stmt->execute();
             
-            if ($stmt->rowCount() === 0) {
-                // Try to check if user is admin - admins can access any classroom
+            $classroom = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$classroom) {
+                // Check if user is admin and can access any batch
                 $userQuery = "SELECT role FROM users WHERE id = :user_id";
                 $userStmt = $this->conn->prepare($userQuery);
                 $userStmt->bindParam(":user_id", $user_id);
                 $userStmt->execute();
                 
                 $userRole = $userStmt->fetch(PDO::FETCH_ASSOC);
-                if (!$userRole || $userRole['role'] !== 'admin') {
-                    return false; // User doesn't have access
+                if ($userRole && $userRole['role'] === 'admin') {
+                    // Admin can access any batch
+                    $adminQuery = "SELECT b.*, 
+                                  u.full_name as teacher_name,
+                                  (SELECT COUNT(*) FROM batch_students WHERE batch_id = b.id AND status = 'active') as student_count
+                                 FROM 
+                                  batches b
+                                 JOIN 
+                                  users u ON b.teacher_id = u.id
+                                 WHERE 
+                                  b.id = :class_id";
+                                  
+                    $stmt = $this->conn->prepare($adminQuery);
+                    $stmt->bindParam(":class_id", $class_id);
+                    $stmt->execute();
+                    $classroom = $stmt->fetch(PDO::FETCH_ASSOC);
                 }
                 
-                // If admin, fetch classroom details without access check
-                $query = "SELECT c.*, 
-                          u.full_name as teacher_name,
-                          (SELECT COUNT(*) FROM classroom_students WHERE classroom_id = c.id) as student_count
-                         FROM 
-                          classrooms c
-                         JOIN 
-                          users u ON c.teacher_id = u.id
-                         WHERE 
-                          c.id = :class_id";
-                          
-                $stmt = $this->conn->prepare($query);
-                $stmt->bindParam(":class_id", $class_id);
-                $stmt->execute();
+                if (!$classroom) {
+                    return false; // User doesn't have access
+                }
             }
             
-            $classroom = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Get next session for this batch
+            $nextSessionQuery = "SELECT title, date_time 
+                               FROM batch_sessions 
+                               WHERE batch_id = :batch_id AND date_time > NOW() 
+                               ORDER BY date_time ASC
+                               LIMIT 1";
+                               
+            $nextStmt = $this->conn->prepare($nextSessionQuery);
+            $nextStmt->bindParam(":batch_id", $class_id);
+            $nextStmt->execute();
+            $nextSession = $nextStmt->fetch(PDO::FETCH_ASSOC);
             
-            if (!$classroom) {
-                return false;
-            }
-            
-            // Get next session from batch_sessions instead of classroom_sessions
-            // First check if this classroom is linked to a batch
-            $batchQuery = "SELECT b.id FROM batches b 
-                          WHERE b.teacher_id = :teacher_id 
-                          LIMIT 1";
-                          
-            $batchStmt = $this->conn->prepare($batchQuery);
-            $batchStmt->bindParam(":teacher_id", $classroom['teacher_id']);
-            $batchStmt->execute();
-            $batch = $batchStmt->fetch(PDO::FETCH_ASSOC);
-            
-            $nextSession = null;
-            if ($batch) {
-                $nextSessionQuery = "SELECT title, date_time 
-                                   FROM batch_sessions 
-                                   WHERE batch_id = :batch_id AND date_time > NOW() 
-                                   ORDER BY date_time ASC
-                                   LIMIT 1";
-                                   
-                $nextStmt = $this->conn->prepare($nextSessionQuery);
-                $nextStmt->bindParam(":batch_id", $batch['id']);
-                $nextStmt->execute();
-                $nextSession = $nextStmt->fetch(PDO::FETCH_ASSOC);
-            }
-            
-            // Format data for response
+            // Format data for response (using batch data as classroom data)
             $classDetails = [
                 "id" => $classroom['id'],
                 "name" => $classroom['name'],
                 "description" => $classroom['description'],
-                "schedule" => $classroom['schedule'],
+                "schedule" => $classroom['schedule'] ?? 'Not specified',
                 "status" => $classroom['status'],
                 "teacher_id" => $classroom['teacher_id'],
                 "teacher_name" => $classroom['teacher_name'],

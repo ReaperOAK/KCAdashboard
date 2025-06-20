@@ -45,10 +45,12 @@ class Batch {
         } catch (PDOException $e) {
             throw new Exception("Error fetching teacher's batches: " . $e->getMessage());
         }
-    }
-
-    public function create() {
+    }    public function create() {
         try {
+            // Start transaction to ensure both batch and classroom are created together
+            $this->conn->beginTransaction();
+            
+            // Create the batch
             $query = "INSERT INTO " . $this->table_name . "
                     (name, description, level, schedule, max_students, teacher_id)
                     VALUES (:name, :description, :level, :schedule, :max_students, :teacher_id)";
@@ -62,8 +64,38 @@ class Batch {
             $stmt->bindParam(':max_students', $this->max_students);
             $stmt->bindParam(':teacher_id', $this->teacher_id);
 
-            return $stmt->execute();
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to create batch");
+            }
+            
+            // Get the newly created batch ID
+            $batch_id = $this->conn->lastInsertId();
+            
+            // Create corresponding classroom
+            $classroom_query = "INSERT INTO classrooms 
+                              (name, description, level, schedule, teacher_id, status, created_at)
+                              VALUES (:name, :description, :level, :schedule, :teacher_id, 'active', NOW())";
+            
+            $classroom_stmt = $this->conn->prepare($classroom_query);
+            $classroom_stmt->bindParam(':name', $this->name);
+            $classroom_stmt->bindParam(':description', $this->description);
+            $classroom_stmt->bindParam(':level', $this->level);
+            $classroom_stmt->bindParam(':schedule', $this->schedule);
+            $classroom_stmt->bindParam(':teacher_id', $this->teacher_id);
+            
+            if (!$classroom_stmt->execute()) {
+                throw new Exception("Failed to create corresponding classroom");
+            }
+            
+            // Commit transaction
+            $this->conn->commit();
+            return true;
+            
         } catch (PDOException $e) {
+            // Rollback transaction on error
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollback();
+            }
             throw new Exception("Error creating batch: " . $e->getMessage());
         }
     }
@@ -90,10 +122,12 @@ class Batch {
         } catch (PDOException $e) {
             throw new Exception("Error fetching batch details: " . $e->getMessage());
         }
-    }
-
-    public function update($id) {
+    }    public function update($id) {
         try {
+            // Start transaction to ensure both batch and classroom are updated together
+            $this->conn->beginTransaction();
+            
+            // Update the batch
             $query = "UPDATE " . $this->table_name . "
                     SET name = :name,
                         description = :description,
@@ -114,23 +148,65 @@ class Batch {
             $stmt->bindParam(':id', $id);
             $stmt->bindParam(':teacher_id', $this->teacher_id);
 
-            return $stmt->execute();
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to update batch");
+            }
+            
+            // Update corresponding classroom (find by teacher_id and similar name)
+            $classroom_query = "UPDATE classrooms 
+                              SET name = :name,
+                                  description = :description,
+                                  level = :level,
+                                  schedule = :schedule,
+                                  status = :status
+                              WHERE teacher_id = :teacher_id 
+                              AND (name = :old_name OR id = :id)";
+            
+            // We need to get the old name first
+            $old_name_query = "SELECT name FROM " . $this->table_name . " WHERE id = :id";
+            $old_name_stmt = $this->conn->prepare($old_name_query);
+            $old_name_stmt->bindParam(':id', $id);
+            $old_name_stmt->execute();
+            $old_batch = $old_name_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            $classroom_stmt = $this->conn->prepare($classroom_query);
+            $classroom_stmt->bindParam(':name', $this->name);
+            $classroom_stmt->bindParam(':description', $this->description);
+            $classroom_stmt->bindParam(':level', $this->level);
+            $classroom_stmt->bindParam(':schedule', $this->schedule);
+            $classroom_stmt->bindParam(':status', $this->status);
+            $classroom_stmt->bindParam(':teacher_id', $this->teacher_id);
+            $classroom_stmt->bindParam(':old_name', $old_batch['name']);
+            $classroom_stmt->bindParam(':id', $id);
+            
+            $classroom_stmt->execute();
+            
+            // Commit transaction
+            $this->conn->commit();
+            return true;
+            
         } catch (PDOException $e) {
+            // Rollback transaction on error
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollback();
+            }
             throw new Exception("Error updating batch: " . $e->getMessage());
         }
-    }
-
-    public function delete($id, $teacherId) {
+    }    public function delete($id, $teacherId) {
         try {
+            // Start transaction to ensure both batch and classroom are deleted together
+            $this->conn->beginTransaction();
+            
             // First check if the batch belongs to the teacher
-            $query = "SELECT id FROM " . $this->table_name . " 
+            $query = "SELECT name FROM " . $this->table_name . " 
                      WHERE id = :id AND teacher_id = :teacher_id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);
             $stmt->bindParam(':teacher_id', $teacherId);
             $stmt->execute();
             
-            if (!$stmt->fetch()) {
+            $batch = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$batch) {
                 throw new Exception("Batch not found or unauthorized");
             }
 
@@ -140,14 +216,43 @@ class Batch {
             $stmt->bindParam(':id', $id);
             $stmt->execute();
 
+            // Delete corresponding classroom_students entries
+            $classroom_query = "DELETE cs FROM classroom_students cs
+                              JOIN classrooms c ON cs.classroom_id = c.id
+                              WHERE c.teacher_id = :teacher_id AND c.name = :batch_name";
+            $classroom_stmt = $this->conn->prepare($classroom_query);
+            $classroom_stmt->bindParam(':teacher_id', $teacherId);
+            $classroom_stmt->bindParam(':batch_name', $batch['name']);
+            $classroom_stmt->execute();
+
+            // Delete the corresponding classroom
+            $delete_classroom_query = "DELETE FROM classrooms 
+                                     WHERE teacher_id = :teacher_id AND name = :batch_name";
+            $delete_classroom_stmt = $this->conn->prepare($delete_classroom_query);
+            $delete_classroom_stmt->bindParam(':teacher_id', $teacherId);
+            $delete_classroom_stmt->bindParam(':batch_name', $batch['name']);
+            $delete_classroom_stmt->execute();
+
             // Then delete the batch
             $query = "DELETE FROM " . $this->table_name . " 
                      WHERE id = :id AND teacher_id = :teacher_id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);
             $stmt->bindParam(':teacher_id', $teacherId);
-            return $stmt->execute();
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to delete batch");
+            }
+            
+            // Commit transaction
+            $this->conn->commit();
+            return true;
+            
         } catch (PDOException $e) {
+            // Rollback transaction on error
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollback();
+            }
             throw new Exception("Error deleting batch: " . $e->getMessage());
         }
     }
@@ -184,11 +289,14 @@ class Batch {
             throw new Exception("Error verifying teacher ownership: " . $e->getMessage());
         }
     }
-    
-    public function addStudent($batchId, $studentId) {
+      public function addStudent($batchId, $studentId) {
         try {
+            // Start transaction
+            $this->conn->beginTransaction();
+            
             // Check if the batch exists
-            $query = "SELECT id, max_students FROM " . $this->table_name . " WHERE id = :batch_id";
+            $query = "SELECT b.id, b.max_students, b.name, b.teacher_id 
+                     FROM " . $this->table_name . " b WHERE b.id = :batch_id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':batch_id', $batchId);
             $stmt->execute();
@@ -238,18 +346,49 @@ class Batch {
             $stmt->bindParam(':batch_id', $batchId);
             $stmt->bindParam(':student_id', $studentId);
             
-            if($stmt->execute()) {
-                return true;
-            } else {
+            if(!$stmt->execute()) {
                 throw new Exception("Failed to add student to batch");
             }
+            
+            // Also add student to corresponding classroom
+            $classroom_query = "INSERT INTO classroom_students (classroom_id, student_id, joined_at, status)
+                              SELECT c.id, :student_id, NOW(), 'active'
+                              FROM classrooms c 
+                              WHERE c.teacher_id = :teacher_id AND c.name = :batch_name
+                              LIMIT 1";
+            $classroom_stmt = $this->conn->prepare($classroom_query);
+            $classroom_stmt->bindParam(':student_id', $studentId);
+            $classroom_stmt->bindParam(':teacher_id', $batch['teacher_id']);
+            $classroom_stmt->bindParam(':batch_name', $batch['name']);
+            $classroom_stmt->execute();
+            
+            // Commit transaction
+            $this->conn->commit();
+            return true;
+            
         } catch (PDOException $e) {
+            // Rollback on error
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollback();
+            }
             throw new Exception("Database error: " . $e->getMessage());
         }
-    }
-
-    public function removeStudent($batchId, $studentId) {
+    }    public function removeStudent($batchId, $studentId) {
         try {
+            // Start transaction
+            $this->conn->beginTransaction();
+            
+            // Get batch info
+            $query = "SELECT b.name, b.teacher_id FROM " . $this->table_name . " b WHERE b.id = :batch_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->execute();
+            
+            $batch = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$batch) {
+                throw new Exception("Batch not found");
+            }
+            
             // Check if the student is in the batch
             $query = "SELECT * FROM batch_students 
                      WHERE batch_id = :batch_id AND student_id = :student_id";
@@ -269,20 +408,39 @@ class Batch {
             $stmt->bindParam(':batch_id', $batchId);
             $stmt->bindParam(':student_id', $studentId);
             
-            if($stmt->execute()) {
-                // Also remove related attendance records
-                $query = "DELETE FROM attendance 
-                         WHERE batch_id = :batch_id AND student_id = :student_id";
-                $stmt = $this->conn->prepare($query);
-                $stmt->bindParam(':batch_id', $batchId);
-                $stmt->bindParam(':student_id', $studentId);
-                $stmt->execute();
-                
-                return true;
-            } else {
+            if(!$stmt->execute()) {
                 throw new Exception("Failed to remove student from batch");
             }
+            
+            // Also remove from corresponding classroom
+            $classroom_query = "DELETE cs FROM classroom_students cs
+                              JOIN classrooms c ON cs.classroom_id = c.id
+                              WHERE c.teacher_id = :teacher_id 
+                              AND c.name = :batch_name 
+                              AND cs.student_id = :student_id";
+            $classroom_stmt = $this->conn->prepare($classroom_query);
+            $classroom_stmt->bindParam(':teacher_id', $batch['teacher_id']);
+            $classroom_stmt->bindParam(':batch_name', $batch['name']);
+            $classroom_stmt->bindParam(':student_id', $studentId);
+            $classroom_stmt->execute();
+            
+            // Also remove related attendance records
+            $query = "DELETE FROM attendance 
+                     WHERE batch_id = :batch_id AND student_id = :student_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':batch_id', $batchId);
+            $stmt->bindParam(':student_id', $studentId);
+            $stmt->execute();
+            
+            // Commit transaction
+            $this->conn->commit();
+            return true;
+            
         } catch (PDOException $e) {
+            // Rollback on error
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollback();
+            }
             throw new Exception("Database error: " . $e->getMessage());
         }
     }

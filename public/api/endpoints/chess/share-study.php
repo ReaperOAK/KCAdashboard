@@ -39,10 +39,14 @@ try {
         echo json_encode(["message" => "Missing required fields (study_id, user_ids)"]);
         exit;
     }
-    
-    // Get database connection
+      // Get database connection
     $database = new Database();
     $db = $database->getConnection();
+    
+    if (!$db) {
+        error_log("Share Study: Database connection failed");
+        throw new Exception("Database connection failed");
+    }
     
     // Initialize study object
     $study = new ChessStudy($db);
@@ -51,43 +55,42 @@ try {
     $stmt = $study->getById($data->study_id, $user['id']);
     
     if($stmt->rowCount() == 0) {
+        error_log("Share Study: Study not found or no access for study ID: " . $data->study_id);
         http_response_code(404);
         echo json_encode(["message" => "Study not found or you don't have access"]);
         exit;
     }
     
     $study_data = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if($study_data['owner_id'] != $user['id']) {
+    error_log("Share Study: Retrieved study: " . $study_data['title'] . " owned by: " . $study_data['owner_id']);
+      if($study_data['owner_id'] != $user['id']) {
+        error_log("Share Study: User is not owner of study");
         http_response_code(403);
         echo json_encode(["message" => "You are not the owner of this study"]);
         exit;
     }
     
-    // Share study with each user
-    $success_count = 0;
-    $failed_count = 0;
+    error_log("Share Study: User is owner, proceeding to share with " . count($data->user_ids) . " users");
     
-    foreach($data->user_ids as $user_id) {
-        $user_id = intval($user_id);
-        if($user_id > 0 && $study->shareWithUser($data->study_id, $user_id)) {
-            $success_count++;
-        } else {
-            $failed_count++;
-        }
-    }
+    // Set the study ID and share with users
+    $study->id = $data->study_id;
+    $result = $study->shareStudy($data->user_ids);
+    
+    error_log("Share Study: Shared successfully with " . $result['successful'] . " users");
     
     http_response_code(200);
     echo json_encode([
         "success" => true,
         "message" => "Study shared successfully",
         "stats" => [
-            "success" => $success_count,
-            "failed" => $failed_count
+            "success" => $result['successful'],
+            "failed" => count($result['errors']),
+            "errors" => $result['errors']
         ]
     ]);
     
 } catch(Exception $e) {
+    error_log("Share Study Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
     http_response_code(500);
     echo json_encode([
         "success" => false,

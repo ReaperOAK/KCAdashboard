@@ -159,12 +159,11 @@ const ChessStudies = () => {
       setIsSaving(false);
     }
   };
-
   // Load available users for sharing
   const loadUsersForSharing = async () => {
     try {
-      // In a real app, this would call an API to get users you can share with
-      const response = await ApiService.get('/users/get-shareable-users.php');
+      // Get users that can be shared with
+      const response = await ApiService.getShareableUsers();
       setAvailableUsers(response.users || []);
     } catch (err) {
       setError('Failed to load users: ' + err.message);

@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Required headers
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
@@ -16,16 +20,21 @@ try {
     $user = getAuthUser();
     
     if(!$user) {
+        error_log("Share Study: User not authenticated");
         http_response_code(401);
         echo json_encode(["message" => "Unauthorized"]);
         exit;
     }
     
+    error_log("Share Study: User authenticated, ID: " . $user['id']);
+    
     // Get posted data
     $data = json_decode(file_get_contents("php://input"));
+    error_log("Share Study: Received data: " . json_encode($data));
     
     // Validate data
     if(!isset($data->study_id) || !isset($data->user_ids) || !is_array($data->user_ids)) {
+        error_log("Share Study: Missing required fields");
         http_response_code(400);
         echo json_encode(["message" => "Missing required fields (study_id, user_ids)"]);
         exit;

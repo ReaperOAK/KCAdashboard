@@ -589,6 +589,11 @@ class ApiService {
   static async getChallenges() {
     return this.get('/chess/challenges.php');
   }
+
+  // User API endpoints
+  static async getShareableUsers() {
+    return this.get('/users/get-shareable-users.php');
+  }
 }
 
 export default ApiService;

@@ -33,13 +33,17 @@ const PlayerVsPlayer = () => {
       setError('Failed to load online players. Please try again later.');
     }
   };
-  
-  // Get player stats
+    // Get player stats
   const fetchPlayerStats = async () => {
     try {
+      console.log('Fetching player stats...');
       const response = await ApiService.getPlayerStats();
+      console.log('Player stats response:', response);
       if (response.success) {
         setPlayerStats(response.stats);
+        console.log('Player stats set:', response.stats);
+      } else {
+        console.error('Player stats response not successful:', response);
       }
     } catch (error) {
       console.error('Failed to fetch player stats:', error);
@@ -318,84 +322,97 @@ const PlayerVsPlayer = () => {
               />
             </div>
           </div>
-        )}
-          {activeTab === 'stats' && playerStats && (
+        )}          {activeTab === 'stats' && (
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-purple-900 text-center mb-6">Your Chess Statistics</h2>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.rating}</div>
-                <div className="text-gray-600">Rating</div>
+            {!playerStats ? (
+              <div className="text-center py-8">
+                <div className="text-purple-700 font-bold text-lg mb-4">Loading your stats...</div>
+                <p className="text-gray-600">If this is your first time, your stats will appear after playing your first game.</p>
               </div>
-              
-              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.games_played}</div>
-                <div className="text-gray-600">Games Played</div>
-              </div>
-              
-              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.win_rate}%</div>
-                <div className="text-gray-600">Win Rate</div>
-              </div>
-              
-              <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.rank}</div>
-                <div className="text-gray-600">Rank</div>
-              </div>
-            </div>
-            
-            <div className="flex justify-between bg-gray-50 rounded-lg p-4 mb-8 shadow-sm">
-              <div className="flex flex-col items-center flex-1">
-                <div className="text-2xl font-bold text-green-600 mb-1">{playerStats.games_won}</div>
-                <div className="text-gray-600">Wins</div>
-              </div>
-              <div className="flex flex-col items-center flex-1">
-                <div className="text-2xl font-bold text-yellow-600 mb-1">{playerStats.games_drawn}</div>
-                <div className="text-gray-600">Draws</div>
-              </div>
-              <div className="flex flex-col items-center flex-1">
-                <div className="text-2xl font-bold text-red-600 mb-1">{playerStats.games_lost}</div>
-                <div className="text-gray-600">Losses</div>
-              </div>
-            </div>
-            
-            {playerStats.recent_games && playerStats.recent_games.length > 0 && (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="text-xl font-semibold text-purple-700 mb-4 border-b border-gray-200 pb-2">Recent Games</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-2 border-gray-200">
-                        <th className="text-left p-3 text-purple-700">Opponent</th>
-                        <th className="text-left p-3 text-purple-700">Result</th>
-                        <th className="text-left p-3 text-purple-700">Color</th>
-                        <th className="text-left p-3 text-purple-700">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {playerStats.recent_games.map((game, index) => (
-                        <tr key={index} className="border-b border-gray-100">
-                          <td className="p-3">{game.opponent_name}</td>
-                          <td className={`p-3 font-bold ${
-                            game.result === 'win' ? 'text-green-600' : 
-                            game.result === 'loss' ? 'text-red-600' : 
-                            game.result === 'draw' ? 'text-yellow-600' : 'text-blue-600'
-                          }`}>
-                            {game.result === 'win' ? 'Won' : 
-                             game.result === 'loss' ? 'Lost' : 
-                             game.result === 'draw' ? 'Draw' : 'Active'}
-                          </td>
-                          <td className="p-3 capitalize">{game.player_color}</td>
-                          <td className="p-3">
-                            {new Date(game.last_move_at).toLocaleDateString()}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.rating || 1200}</div>
+                    <div className="text-gray-600">Rating</div>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.games_played || 0}</div>
+                    <div className="text-gray-600">Games Played</div>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.win_rate || 0}%</div>
+                    <div className="text-gray-600">Win Rate</div>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl font-bold text-purple-700 mb-2">{playerStats.rank || 'N/A'}</div>
+                    <div className="text-gray-600">Rank</div>
+                  </div>
                 </div>
-              </div>
+                
+                <div className="flex justify-between bg-gray-50 rounded-lg p-4 mb-8 shadow-sm">
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="text-2xl font-bold text-green-600 mb-1">{playerStats.games_won || 0}</div>
+                    <div className="text-gray-600">Wins</div>
+                  </div>
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="text-2xl font-bold text-yellow-600 mb-1">{playerStats.games_drawn || 0}</div>
+                    <div className="text-gray-600">Draws</div>
+                  </div>
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="text-2xl font-bold text-red-600 mb-1">{playerStats.games_lost || 0}</div>
+                    <div className="text-gray-600">Losses</div>
+                  </div>
+                </div>
+                
+                {playerStats.recent_games && playerStats.recent_games.length > 0 ? (
+                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                    <h3 className="text-xl font-semibold text-purple-700 mb-4 border-b border-gray-200 pb-2">Recent Games</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b-2 border-gray-200">
+                            <th className="text-left p-3 text-purple-700">Opponent</th>
+                            <th className="text-left p-3 text-purple-700">Result</th>
+                            <th className="text-left p-3 text-purple-700">Color</th>
+                            <th className="text-left p-3 text-purple-700">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {playerStats.recent_games.map((game, index) => (
+                            <tr key={index} className="border-b border-gray-100">
+                              <td className="p-3">{game.opponent_name}</td>
+                              <td className={`p-3 font-bold ${
+                                game.result === 'win' ? 'text-green-600' : 
+                                game.result === 'loss' ? 'text-red-600' : 
+                                game.result === 'draw' ? 'text-yellow-600' : 'text-blue-600'
+                              }`}>
+                                {game.result === 'win' ? 'Won' : 
+                                 game.result === 'loss' ? 'Lost' : 
+                                 game.result === 'draw' ? 'Draw' : 'Active'}
+                              </td>
+                              <td className="p-3 capitalize">{game.player_color}</td>
+                              <td className="p-3">
+                                {new Date(game.last_move_at).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg p-8 shadow-sm text-center">
+                    <p className="text-gray-600 mb-4">No recent games found.</p>
+                    <p className="text-sm text-gray-500">Start playing to see your game history!</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

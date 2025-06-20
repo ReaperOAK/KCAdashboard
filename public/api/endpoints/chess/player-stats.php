@@ -10,37 +10,53 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
 
-try {
-    // Get authenticated user
+// Enable error logging for debugging
+error_log("Player stats endpoint accessed");
+
+try {    // Get authenticated user
     $user = getAuthUser();
     
     if(!$user) {
+        error_log("Player stats - unauthorized access attempt");
         http_response_code(401);
         echo json_encode(["message" => "Unauthorized"]);
         exit;
     }
+    
+    error_log("Player stats requested for user: " . $user['id']);
     
     // Get target user_id from query parameters (defaults to current user)
     $userId = isset($_GET['user_id']) ? intval($_GET['user_id']) : $user['id'];
     
     // Get database connection
     $database = new Database();
-    $db = $database->getConnection();
-
-    // Get player stats
+    $db = $database->getConnection();    // Get player stats
     $statsQuery = "SELECT * FROM chess_player_stats WHERE user_id = :user_id";
     $statsStmt = $db->prepare($statsQuery);
     $statsStmt->bindParam(':user_id', $userId);
     $statsStmt->execute();
     
-    $stats = $statsStmt->rowCount() > 0 ? $statsStmt->fetch(PDO::FETCH_ASSOC) : [
-        'user_id' => $userId,
-        'games_played' => 0,
-        'games_won' => 0,
-        'games_lost' => 0,
-        'games_drawn' => 0,
-        'rating' => 1200
-    ];
+    if ($statsStmt->rowCount() > 0) {
+        $stats = $statsStmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        // Initialize stats for new player
+        $stats = [
+            'user_id' => $userId,
+            'games_played' => 0,
+            'games_won' => 0,
+            'games_lost' => 0,
+            'games_drawn' => 0,
+            'rating' => 1200
+        ];
+        
+        // Insert initial stats record
+        $insertQuery = "INSERT INTO chess_player_stats (user_id, games_played, games_won, games_lost, games_drawn, rating) 
+                       VALUES (:user_id, 0, 0, 0, 0, 1200)
+                       ON DUPLICATE KEY UPDATE user_id = user_id";
+        $insertStmt = $db->prepare($insertQuery);
+        $insertStmt->bindParam(':user_id', $userId);
+        $insertStmt->execute();
+    }
     
     // Get recent games
     $recentGamesQuery = "SELECT g.id, g.status, g.result, g.time_control, g.type, g.last_move_at,
@@ -80,17 +96,16 @@ try {
                 $playerResult = 'draw';
             }
         }
-        
-        $recentGames[] = [
+          $recentGames[] = [
             'id' => $row['id'],
             'status' => $row['status'],
-            'playerColor' => $row['player_color'],
-            'opponentId' => $row['opponent_id'],
-            'opponentName' => $row['opponent_name'],
+            'player_color' => $row['player_color'],
+            'opponent_id' => $row['opponent_id'],
+            'opponent_name' => $row['opponent_name'],
             'result' => $playerResult,
-            'timeControl' => $row['time_control'],
+            'time_control' => $row['time_control'],
             'type' => $row['type'],
-            'lastMoveAt' => $row['last_move_at']
+            'last_move_at' => $row['last_move_at']
         ];
     }
     
@@ -121,41 +136,49 @@ try {
     $challengesStmt->execute();
     
     $challenges = [];
-    while($row = $challengesStmt->fetch(PDO::FETCH_ASSOC)) {
-        $challenges[] = [
+    while($row = $challengesStmt->fetch(PDO::FETCH_ASSOC)) {        $challenges[] = [
             'id' => $row['id'],
             'direction' => $row['direction'],
-            'otherUserId' => $row['other_user_id'],
-            'otherUserName' => $row['other_user_name'],
-            'timeControl' => $row['time_control'],
+            'other_user_id' => $row['other_user_id'],
+            'other_user_name' => $row['other_user_name'],
+            'time_control' => $row['time_control'],
             'color' => $row['color'],
             'status' => $row['status'],
-            'createdAt' => $row['created_at'],
-            'expiresAt' => $row['expires_at']
+            'created_at' => $row['created_at'],
+            'expires_at' => $row['expires_at']
         ];
     }
     
     // Calculate win rate
     $winRate = $stats['games_played'] > 0 ? 
                round(($stats['games_won'] / $stats['games_played']) * 100, 1) : 0;
-    
+      // Calculate rank (optional - can be expensive for large datasets)
+    $rankQuery = "SELECT COUNT(*) as rank FROM chess_player_stats WHERE rating > :rating";
+    $rankStmt = $db->prepare($rankQuery);
+    $rankStmt->bindParam(':rating', $stats['rating']);
+    $rankStmt->execute();
+    $rank = $rankStmt->fetch(PDO::FETCH_ASSOC)['rank'] + 1;
+
     // Format response
     $response = [
         'success' => true,
         'stats' => [
             'userId' => $stats['user_id'],
             'rating' => intval($stats['rating']),
-            'gamesPlayed' => intval($stats['games_played']),
-            'gamesWon' => intval($stats['games_won']),
-            'gamesLost' => intval($stats['games_lost']),
-            'gamesDrawn' => intval($stats['games_drawn']),
-            'winRate' => $winRate
+            'games_played' => intval($stats['games_played']),
+            'games_won' => intval($stats['games_won']),
+            'games_lost' => intval($stats['games_lost']),
+            'games_drawn' => intval($stats['games_drawn']),
+            'win_rate' => $winRate,
+            'rank' => $rank
         ],
-        'recentGames' => $recentGames,
+        'recent_games' => $recentGames,
         'challenges' => $challenges
     ];
+      http_response_code(200);
     
-    http_response_code(200);
+    error_log("Player stats response: " . json_encode($response));
+    
     echo json_encode($response);
     
 } catch(Exception $e) {

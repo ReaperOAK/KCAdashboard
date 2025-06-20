@@ -109,9 +109,11 @@ class ChessGame {
         
         return null;
     }
-    
-    // Get games for a specific player
+      // Get games for a specific player
     public function getPlayerGames($userId, $status = 'active') {
+        // First, clean up expired games
+        $this->expireInactiveGames();
+        
         $query = "SELECT g.*, 
                   w.full_name as white_player_name, w.email as white_player_email, 
                   b.full_name as black_player_name, b.email as black_player_email,
@@ -253,8 +255,7 @@ class ChessGame {
         
         return $stmt->execute();
     }
-    
-    // Get game by ID with user access check
+      // Get game by ID with user access check
     public function getById($gameId, $userId) {
         $query = "SELECT g.*, 
                   w.id as white_id, w.full_name as white_player_name, 
@@ -270,6 +271,54 @@ class ChessGame {
         $stmt->execute();
         
         return $stmt;
+    }
+      // Expire inactive games (no moves for specified duration)
+    public function expireInactiveGames($inactivityDays = 30) {
+        // Calculate the threshold date (30 days ago by default)
+        $thresholdDate = date('Y-m-d H:i:s', strtotime("-{$inactivityDays} days"));
+        
+        // Update active games that haven't had moves for the specified period
+        $query = "UPDATE " . $this->table_name . " 
+                  SET status = 'abandoned', result = '1/2-1/2', reason = 'inactivity timeout'
+                  WHERE status = 'active' 
+                  AND last_move_at < :threshold_date";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':threshold_date', $thresholdDate);
+        
+        return $stmt->execute();
+    }
+    
+    // Check if a specific game should be expired
+    public function isGameExpired($gameId, $inactivityDays = 30) {
+        $thresholdDate = date('Y-m-d H:i:s', strtotime("-{$inactivityDays} days"));
+        
+        $query = "SELECT id FROM " . $this->table_name . "
+                  WHERE id = :game_id 
+                  AND status = 'active'
+                  AND last_move_at < :threshold_date";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':game_id', $gameId);
+        $stmt->bindParam(':threshold_date', $thresholdDate);
+        $stmt->execute();
+        
+        return $stmt->rowCount() > 0;
+    }
+    
+    // Clean up expired games (similar to challenges cleanup)
+    public static function cleanupExpiredGames($db, $inactivityDays = 30) {
+        $thresholdDate = date('Y-m-d H:i:s', strtotime("-{$inactivityDays} days"));
+        
+        $query = "UPDATE chess_games 
+                  SET status = 'abandoned', result = '1/2-1/2', reason = 'inactivity timeout'
+                  WHERE status = 'active' 
+                  AND last_move_at < :threshold_date";
+                  
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':threshold_date', $thresholdDate);
+        
+        return $stmt->execute();
     }
 }
 ?>

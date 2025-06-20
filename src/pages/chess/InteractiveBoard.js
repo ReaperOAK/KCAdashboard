@@ -178,11 +178,10 @@ const InteractiveBoard = () => {
       
       <ChessNavigation />
       
-      <div className="flex justify-center mb-6">
-        <ChessBoard 
+      <div className="flex justify-center mb-6">        <ChessBoard 
           position={position}
           orientation={orientation}
-          allowMoves={id ? (gameData && gameData.yourTurn) : true}
+          allowMoves={id ? (gameData && gameData.yourTurn && gameData.status === 'active') : true}
           showHistory={true}
           showAnalysis={!id}
           onMove={handleMove}
@@ -190,10 +189,20 @@ const InteractiveBoard = () => {
           width={600}
         />
       </div>
-      
-      {gameData && (
+        {gameData && (
         <div className="bg-white rounded-lg p-6 shadow-sm max-w-2xl mx-auto">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Game Information</h2>
+          
+          {gameData.status === 'abandoned' && (
+            <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-4">
+              <div className="text-orange-800 font-semibold">Game Expired</div>
+              <div className="text-orange-700 text-sm">
+                This game was automatically expired due to inactivity. 
+                {gameData.reason === 'inactivity timeout' && ' No moves were made for an extended period.'}
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-2">
             <p><strong className="text-gray-700">Opponent:</strong> <span className="text-gray-900">{gameData.opponent && gameData.opponent.name}</span></p>
             <p><strong className="text-gray-700">Your Color:</strong> <span className="text-gray-900 capitalize">{gameData.yourColor}</span></p>

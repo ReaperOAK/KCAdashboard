@@ -34,11 +34,13 @@ try {
             "message" => "Missing required fields: game_id, move, fen"
         ]);
         exit;
-    }
-
-    // Get database connection
+    }    // Get database connection
     $database = new Database();
     $db = $database->getConnection();
+    
+    // Clean up expired games first
+    require_once '../../models/ChessGame.php';
+    ChessGame::cleanupExpiredGames($db);
 
     // Get the game details
     $query = "SELECT g.*, 

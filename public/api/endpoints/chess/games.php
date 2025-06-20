@@ -23,13 +23,17 @@ try {
     
     // Get status filter from URL parameter
     $status = isset($_GET['status']) ? $_GET['status'] : 'all';
-    
-    // Get database connection
+      // Get database connection
     $database = new Database();
     $db = $database->getConnection();
-      // Initialize game object
+    
+    // Clean up expired games first (similar to how challenges are cleaned up)
+    ChessGame::cleanupExpiredGames($db);
+    
+    // Initialize game object
     $game = new ChessGame($db);
-      // Get user's games
+    
+    // Get user's games
     $games = $game->getPlayerGames($user['id'], $status);
     
     http_response_code(200);

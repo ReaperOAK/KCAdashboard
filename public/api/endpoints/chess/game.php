@@ -33,10 +33,13 @@ try {
         echo json_encode(["success" => false, "message" => "Missing game ID parameter"]);
         exit;
     }
-    
-    // Get database connection
+      // Get database connection
     $database = new Database();
     $db = $database->getConnection();
+    
+    // Clean up expired games
+    require_once '../../models/ChessGame.php';
+    ChessGame::cleanupExpiredGames($db);
     
     // Direct SQL query for simplicity and reliability
     $query = "SELECT g.*, 

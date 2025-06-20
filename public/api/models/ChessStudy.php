@@ -247,6 +247,28 @@ class ChessStudy {
         return $stmt->rowCount() > 0;
     }
     
+    // Get study by ID with access check
+    public function getById($studyId, $userId) {
+        $query = "SELECT s.*, u.full_name as owner_name 
+                  FROM " . $this->table_name . " s
+                  JOIN users u ON s.owner_id = u.id
+                  WHERE s.id = ? AND (
+                      s.owner_id = ? OR 
+                      s.is_public = 1 OR 
+                      EXISTS (
+                          SELECT 1 FROM chess_study_shares css 
+                          WHERE css.study_id = s.id AND css.user_id = ?
+                      )
+                  )";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $studyId);
+        $stmt->bindParam(2, $userId);
+        $stmt->bindParam(3, $userId);
+        
+        return $stmt;
+    }
+    
     // Delete a study
     public function delete() {
         // First delete all shares

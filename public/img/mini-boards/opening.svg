@@ -1,0 +1,15 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" fill="#f0d9b5"/>
+  <g stroke="#b58863" stroke-width="1" fill="none">
+    <path d="M8,8 L56,8 L56,56 L8,56 Z"/>
+    <path d="M16,8 L16,56 M24,8 L24,56 M32,8 L32,56 M40,8 L40,56 M48,8 L48,56"/>
+    <path d="M8,16 L56,16 M8,24 L56,24 M8,32 L56,32 M8,40 L56,40 M8,48 L56,48"/>
+  </g>
+  <!-- Chess pieces representation -->
+  <text x="32" y="20" text-anchor="middle" font-family="serif" font-size="8" fill="#333">♛</text>
+  <text x="24" y="20" text-anchor="middle" font-family="serif" font-size="8" fill="#333">♚</text>
+  <text x="40" y="20" text-anchor="middle" font-family="serif" font-size="8" fill="#333">♜</text>
+  <text x="32" y="48" text-anchor="middle" font-family="serif" font-size="8" fill="#666">♕</text>
+  <text x="24" y="48" text-anchor="middle" font-family="serif" font-size="8" fill="#666">♔</text>
+  <text x="40" y="48" text-anchor="middle" font-family="serif" font-size="8" fill="#666">♖</text>
+</svg>

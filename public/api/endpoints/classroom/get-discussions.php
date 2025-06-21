@@ -25,28 +25,34 @@ try {
     // Connect to database
     $database = new Database();
     $db = $database->getConnection();
+      // Check access to classroom
+    $hasAccess = false;
     
-    // Check access to classroom
-    $checkAccess = "SELECT c.id FROM classrooms c 
-                   LEFT JOIN classroom_students cs ON c.id = cs.classroom_id AND cs.student_id = :user_id
-                   WHERE c.id = :classroom_id AND (cs.student_id IS NOT NULL OR c.teacher_id = :user_id)";
-                   
-    // For admins, allow access to any classroom
-    if ($user['role'] === 'admin') {
-        $checkAccess = "SELECT id FROM classrooms WHERE id = :classroom_id";
-    }
-    
-    $stmt = $db->prepare($checkAccess);
-    $stmt->bindParam(':classroom_id', $classroom_id);
-    
-    // Only bind user_id for non-admin roles
-    if ($user['role'] !== 'admin') {
+    if ($user['role'] === 'student') {
+        $checkAccess = "SELECT c.id FROM classrooms c 
+                       JOIN classroom_students cs ON c.id = cs.classroom_id
+                       WHERE c.id = :classroom_id AND cs.student_id = :user_id";
+        $stmt = $db->prepare($checkAccess);
+        $stmt->bindParam(':classroom_id', $classroom_id);
         $stmt->bindParam(':user_id', $user['id']);
+        $stmt->execute();
+        $hasAccess = $stmt->rowCount() > 0;
+    } elseif ($user['role'] === 'teacher') {
+        $checkAccess = "SELECT id FROM classrooms WHERE id = :classroom_id AND teacher_id = :user_id";
+        $stmt = $db->prepare($checkAccess);
+        $stmt->bindParam(':classroom_id', $classroom_id);
+        $stmt->bindParam(':user_id', $user['id']);
+        $stmt->execute();
+        $hasAccess = $stmt->rowCount() > 0;
+    } elseif ($user['role'] === 'admin') {
+        $checkAccess = "SELECT id FROM classrooms WHERE id = :classroom_id";
+        $stmt = $db->prepare($checkAccess);
+        $stmt->bindParam(':classroom_id', $classroom_id);
+        $stmt->execute();
+        $hasAccess = $stmt->rowCount() > 0;
     }
-    
-    $stmt->execute();
-    
-    if ($stmt->rowCount() === 0) {
+      
+    if (!$hasAccess) {
         throw new Exception('You do not have access to this classroom');
     }
     

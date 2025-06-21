@@ -28,39 +28,33 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
+    if (!$db) {
+        throw new Exception("Database connection failed");
+    }
+    
     // Initialize practice object
     $practice = new ChessPractice($db);
     
     // Get practice positions
-    $stmt = $practice->getPositions($type);
-    $positions = [];
-    
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $position_item = [
-            "id" => $row['id'],
-            "title" => $row['title'],
-            "description" => $row['description'],
-            "position" => $row['position'],
-            "type" => $row['type'],
-            "difficulty" => $row['difficulty'],
-            "engine_level" => $row['engine_level'],
-            "creator_name" => $row['creator_name'],
-            "preview_url" => $row['preview_url'],
-            "created_at" => $row['created_at']
-        ];
-        
-        $positions[] = $position_item;
-    }
+    $positions = $practice->getPositionsByType($type);
     
     http_response_code(200);
-    echo json_encode(["success" => true, "positions" => $positions]);
+    echo json_encode([
+        "success" => true, 
+        "positions" => $positions,
+        "count" => count($positions),
+        "type_filter" => $type
+    ]);
     
 } catch(Exception $e) {
+    error_log("Practice positions error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "success" => false,
         "message" => "Unable to retrieve practice positions",
-        "error" => $e->getMessage()
+        "error" => $e->getMessage(),
+        "file" => basename(__FILE__),
+        "line" => $e->getLine()
     ]);
 }
 ?>

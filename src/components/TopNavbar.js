@@ -11,12 +11,9 @@ const TopNavbar = ({ toggleSidebar }) => {
     logout();
     navigate('/login');
   };
-
   const commonLinks = [
     { label: 'Dashboard', path: `/${user?.role}-dashboard` },
-    { label: 'Profile', path: '/profile', icon: '👤' },
-    { label: 'Settings', path: '/settings', icon: '⚙️' },
-    { label: 'Messages', path: '/messages', icon: '✉️' }
+    { label: 'Profile', path: '/profile', icon: '👤' }
   ];
 
   return (

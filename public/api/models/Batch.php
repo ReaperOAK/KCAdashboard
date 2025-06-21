@@ -354,10 +354,9 @@ class Batch {
             if ($stmt->rowCount() > 0) {
                 throw new Exception("Student is already in this batch");
             }
-            
-            // Add the student to the batch
-            $query = "INSERT INTO batch_students (batch_id, student_id) 
-                     VALUES (:batch_id, :student_id)";
+              // Add the student to the batch (including status column with default value)
+            $query = "INSERT INTO batch_students (batch_id, student_id, joined_at, status) 
+                     VALUES (:batch_id, :student_id, NOW(), 'active')";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':batch_id', $batchId);
             $stmt->bindParam(':student_id', $studentId);
@@ -366,9 +365,9 @@ class Batch {
                 throw new Exception("Failed to add student to batch");
             }
             
-            // Also add student to corresponding classroom
-            $classroom_query = "INSERT INTO classroom_students (classroom_id, student_id, joined_at, status)
-                              SELECT c.id, :student_id, NOW(), 'active'
+            // Also add student to corresponding classroom (classroom_students table doesn't have status column)
+            $classroom_query = "INSERT INTO classroom_students (classroom_id, student_id, joined_at)
+                              SELECT c.id, :student_id, NOW()
                               FROM classrooms c 
                               WHERE c.teacher_id = :teacher_id AND c.name = :batch_name
                               LIMIT 1";

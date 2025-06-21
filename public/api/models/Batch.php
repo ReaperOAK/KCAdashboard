@@ -190,7 +190,7 @@ class Batch {
         }
     }    public function delete($id, $teacherId) {
         try {
-            // Start transaction to ensure both batch and classroom are deleted together
+            // Start transaction to ensure all related data is deleted together
             $this->conn->beginTransaction();
             
             // First check if the batch belongs to the teacher
@@ -206,13 +206,33 @@ class Batch {
                 throw new Exception("Batch not found or unauthorized");
             }
 
-            // Delete batch_students entries first
+            // 1. Delete attendance records first (they reference batch_sessions and batches)
+            $query = "DELETE FROM attendance WHERE batch_id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            // 2. Delete online meeting sync logs for batch sessions
+            $query = "DELETE omsl FROM online_meeting_sync_logs omsl
+                     JOIN batch_sessions bs ON omsl.session_id = bs.id
+                     WHERE bs.batch_id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            // 3. Delete batch sessions
+            $query = "DELETE FROM batch_sessions WHERE batch_id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            // 4. Delete batch_students entries
             $query = "DELETE FROM batch_students WHERE batch_id = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);
             $stmt->execute();
 
-            // Delete corresponding classroom_students entries
+            // 5. Delete corresponding classroom_students entries
             $classroom_query = "DELETE cs FROM classroom_students cs
                               JOIN classrooms c ON cs.classroom_id = c.id
                               WHERE c.teacher_id = :teacher_id AND c.name = :batch_name";
@@ -221,7 +241,7 @@ class Batch {
             $classroom_stmt->bindParam(':batch_name', $batch['name']);
             $classroom_stmt->execute();
 
-            // Delete the corresponding classroom
+            // 6. Delete the corresponding classroom
             $delete_classroom_query = "DELETE FROM classrooms 
                                      WHERE teacher_id = :teacher_id AND name = :batch_name";
             $delete_classroom_stmt = $this->conn->prepare($delete_classroom_query);
@@ -229,7 +249,7 @@ class Batch {
             $delete_classroom_stmt->bindParam(':batch_name', $batch['name']);
             $delete_classroom_stmt->execute();
 
-            // Then delete the batch
+            // 7. Finally delete the batch itself
             $query = "DELETE FROM " . $this->table_name . " 
                      WHERE id = :id AND teacher_id = :teacher_id";
             $stmt = $this->conn->prepare($query);

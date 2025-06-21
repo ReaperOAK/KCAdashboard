@@ -15,13 +15,12 @@ const ClassroomDetail = () => {
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
   useEffect(() => {
     const fetchClassroomDetails = async () => {
       try {
         setLoading(true);
-        // Assuming an endpoint to fetch a specific classroom's details
-        const response = await ApiService.get(`/classroom/get-classroom-details.php?id=${id}`);
+        // Fetch classroom details using the dedicated API method
+        const response = await ApiService.getClassroomDetails(id);
         
         if (response.success) {
           setClassroom(response.classroom);
@@ -29,6 +28,7 @@ const ClassroomDetail = () => {
           setError(response.message || 'Failed to fetch classroom details');
         }
       } catch (err) {
+        console.error('Error fetching classroom details:', err);
         setError('Error retrieving classroom: ' + err.message);
       } finally {
         setLoading(false);

@@ -68,9 +68,7 @@ class ApiService {
           }
         }
         return response.blob();
-      }
-
-      // Handle regular JSON responses
+      }      // Handle regular JSON responses
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         try {
@@ -83,23 +81,34 @@ class ApiService {
           // Then parse the JSON
           try {
             const result = JSON.parse(text);
+            // For non-ok responses (like 404), check if we have a proper error structure
             if (!response.ok) {
-              throw new Error(result.message || `HTTP error! status: ${response.status}`);
+              // If it's a valid JSON response with error details, use that message
+              if (result && result.message) {
+                throw new Error(result.message);
+              }
+              throw new Error(`HTTP error! status: ${response.status}`);
             }
             return result;
           } catch (parseError) {
-            console.error('JSON parse error:', parseError);
-            // If the response contains HTML (likely an error page)
-            if (text.includes('<!DOCTYPE html>') || text.includes('<br />')) {
-              // Extract error message from PHP error if possible
-              const errorMatch = text.match(/Fatal error:(.*?)in/);
-              const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned HTML instead of JSON';
-              throw new Error(`Server error: ${errorMessage}`);
+            // If parsing fails and it's not a valid JSON error, check for HTML content
+            if (parseError instanceof SyntaxError) {
+              console.error('JSON parse error:', parseError);
+              // If the response contains HTML (likely an error page)
+              if (text.includes('<!DOCTYPE html>') || text.includes('<br />')) {
+                // Extract error message from PHP error if possible
+                const errorMatch = text.match(/Fatal error:(.*?)in/);
+                const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned HTML instead of JSON';
+                throw new Error(`Server error: ${errorMessage}`);
+              }
+              throw new Error(`Failed to parse JSON response: ${text.substring(0, 100)}...`);
+            } else {
+              // Re-throw the original error (like Error messages from result.message)
+              throw parseError;
             }
-            throw new Error(`Failed to parse JSON response: ${text.substring(0, 100)}...`);
           }
         } catch (jsonError) {
-          console.error('JSON parsing error:', jsonError);
+          console.error('JSON processing error:', jsonError);
           throw jsonError;
         }
       }
@@ -631,6 +640,65 @@ class ApiService {
   // User API endpoints
   static async getShareableUsers() {
     return this.get('/users/get-shareable-users.php');
+  }
+
+  // Classroom API endpoints
+  static async getClassroomDetails(classroomId) {
+    return this.get(`/classroom/get-classroom-details.php?id=${classroomId}`);
+  }
+
+  static async getClassroomMaterials(classroomId) {
+    return this.get(`/classroom/get-materials.php?classroom_id=${classroomId}`);
+  }
+
+  static async getClassroomAssignments(classroomId) {
+    return this.get(`/classroom/get-assignments.php?classroom_id=${classroomId}`);
+  }
+
+  static async getClassroomSessions(classroomId) {
+    return this.get(`/classroom/get-sessions.php?classroom_id=${classroomId}`);
+  }
+
+  static async getClassroomDiscussions(classroomId) {
+    return this.get(`/classroom/get-discussions.php?classroom_id=${classroomId}`);
+  }
+
+  static async postClassroomDiscussion(classroomId, discussionData) {
+    return this.post('/classroom/post-discussion.php', {
+      classroom_id: classroomId,
+      ...discussionData
+    });
+  }
+
+  static async submitAssignment(assignmentId, assignmentData) {
+    const formData = new FormData();
+    formData.append('assignment_id', assignmentId);
+    
+    Object.keys(assignmentData).forEach(key => {
+      if (assignmentData[key] instanceof File) {
+        formData.append(key, assignmentData[key]);
+      } else {
+        formData.append(key, assignmentData[key]);
+      }
+    });
+    
+    return this.postFormData('/classroom/submit-assignment.php', formData);
+  }
+
+  static async getStudentClasses() {
+    return this.get('/classroom/get-student-classes.php');
+  }
+
+  static async getTeacherClasses() {
+    return this.get('/classroom/get-teacher-classes.php');
+  }
+
+  // Debug endpoint for troubleshooting
+  static async debugClassroom(classroomId = null) {
+    const endpoint = classroomId 
+      ? `/classroom/debug-classroom.php?id=${classroomId}`
+      : '/classroom/debug-classroom.php';
+    return this.get(endpoint);
   }
 }
 

@@ -11,6 +11,7 @@ import SupportSystem from '../pages/admin/SupportSystem';
 import StudentAttendanceList from '../pages/admin/StudentAttendanceList';
 import TournamentManagement from '../pages/admin/TournamentManagement';
 import TournamentRegistrations from '../pages/admin/TournamentRegistrations';
+import ClassroomDebug from '../components/debug/ClassroomDebug';
 
 const adminRoutes = [
   {
@@ -78,6 +79,11 @@ const adminRoutes = [
     path: '/admin/tournaments/:id/registrations',
     element: TournamentRegistrations,
     title: 'Tournament Registrations'
+  },
+  {
+    path: '/admin/debug/classroom',
+    element: ClassroomDebug,
+    title: 'Classroom Debug'
   }
 ];
 

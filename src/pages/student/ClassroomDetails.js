@@ -19,16 +19,15 @@ const ClassroomDetails = () => {
     const [submissionText, setSubmissionText] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
-    const [submitError, setSubmitError] = useState(null);
-
-    useEffect(() => {
+    const [submitError, setSubmitError] = useState(null);    useEffect(() => {
         const fetchClassroomDetails = async () => {
             try {
-                const response = await ApiService.get(`/classroom/get-classroom-details.php?id=${id}`);
+                const response = await ApiService.getClassroomDetails(id);
                 setClassroom(response.classroom);
                 setLoading(false);
             } catch (error) {
-                setError('Failed to fetch classroom details');
+                console.error('Error fetching classroom details:', error);
+                setError(error.message || 'Failed to fetch classroom details');
                 setLoading(false);
             }
         };
@@ -39,17 +38,16 @@ const ClassroomDetails = () => {
     // Fetch tab content when tab changes
     useEffect(() => {
         if (!classroom) return;
-        
-        const fetchTabContent = async () => {
+          const fetchTabContent = async () => {
             try {
                 if (activeTab === 'materials') {
-                    const response = await ApiService.get(`/classroom/get-materials.php?classroom_id=${id}`);
+                    const response = await ApiService.getClassroomMaterials(id);
                     setMaterials(response.materials || []);
                 } else if (activeTab === 'assignments') {
-                    const response = await ApiService.get(`/classroom/get-assignments.php?classroom_id=${id}`);
+                    const response = await ApiService.getClassroomAssignments(id);
                     setAssignments(response.assignments || []);
                 } else if (activeTab === 'discussions') {
-                    const response = await ApiService.get(`/classroom/get-discussions.php?classroom_id=${id}`);
+                    const response = await ApiService.getClassroomDiscussions(id);
                     setDiscussions(response.discussions || []);
                 }
             } catch (error) {

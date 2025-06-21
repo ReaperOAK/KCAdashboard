@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaSave, FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
 import ApiService from '../../utils/api';
 import { toast } from 'react-toastify';
 import ChessQuizBoard from '../../components/chess/ChessQuizBoard';
@@ -193,62 +193,6 @@ const QuizCreator = () => {
     }
     
     return null;
-  };
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const validationError = validateQuiz();
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
-      setSaving(true);
-    
-    try {
-      const endpoint = isEditing 
-        ? `/quiz/update.php?id=${id}`
-        : '/quiz/create.php';
-      
-      const method = isEditing ? 'put' : 'post';
-        // Debug: Log the quiz data being sent
-      console.log('Submitting quiz data:', JSON.stringify(quiz, null, 2));
-      
-      // Debug: Check chess questions specifically
-      const chessQuestions = quiz.questions.filter(q => q.type === 'chess');
-      if (chessQuestions.length > 0) {
-        console.log('Chess questions found:', chessQuestions);
-        chessQuestions.forEach((q, index) => {
-          console.log(`Chess question ${index + 1}:`, {
-            question: q.question,
-            position: q.chess_position,
-            orientation: q.chess_orientation,
-            correct_moves: q.correct_moves
-          });
-        });
-      }
-      
-      await ApiService[method](endpoint, quiz);
-      
-      toast.success(`Quiz ${isEditing ? 'updated' : 'created'} successfully!`);
-      navigate('/teacher/quizzes');    } catch (error) {
-      console.error('Quiz submission error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        quiz: quiz
-      });
-      
-      let errorMessage = 'Unknown error occurred';
-      if (error.message) {
-        errorMessage = error.message;
-      } else if (error.response && error.response.data && error.response.data.message) {
-        errorMessage = error.response.data.message;
-      }
-      
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} quiz: ${errorMessage}`);
-      setSaving(false);
-    }
   };
     const handleChessPositionChange = (questionIndex, position) => {
     handleQuestionChange(questionIndex, 'chess_position', position);

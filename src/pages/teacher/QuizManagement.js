@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
-import { FaPlus, FaEdit, FaTrash, FaChessBoard, FaFilter, FaSearch, FaEye, FaFileAlt } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaChessBoard, FaFilter, FaSearch, FaEye } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const QuizManagement = () => {

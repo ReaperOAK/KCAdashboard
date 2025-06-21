@@ -152,6 +152,7 @@ class Classroom {
                     users u ON c.teacher_id = u.id
                   WHERE 
                     cs.student_id = :student_id
+                    AND c.status IN ('active', 'upcoming')
                   ORDER BY
                     c.name ASC";
         
@@ -174,6 +175,51 @@ class Classroom {
         return $classes;
     }
     
+    /**
+     * Get all batches in which a student is enrolled (alternative method)
+     */
+    public function getStudentBatches($student_id) {
+        $query = "SELECT 
+                    b.id, 
+                    b.name, 
+                    b.description, 
+                    b.schedule,
+                    b.status,
+                    b.level,
+                    u.full_name as teacher_name
+                  FROM 
+                    batches b
+                  JOIN 
+                    batch_students bs ON b.id = bs.batch_id
+                  JOIN 
+                    users u ON b.teacher_id = u.id
+                  WHERE 
+                    bs.student_id = :student_id
+                    AND bs.status = 'active'
+                    AND b.status IN ('active', 'inactive')
+                  ORDER BY
+                    b.name ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id", $student_id);
+        $stmt->execute();
+        
+        $batches = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $batches[] = [
+                "id" => $row['id'],
+                "name" => $row['name'],
+                "description" => $row['description'],
+                "schedule" => $row['schedule'],
+                "status" => $row['status'],
+                "level" => $row['level'],
+                "teacher_name" => $row['teacher_name']
+            ];
+        }
+        
+        return $batches;
+    }
+
     /**
      * Get available classes that a student can join
      */

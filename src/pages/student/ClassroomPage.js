@@ -22,11 +22,16 @@ const ClassroomPage = () => {
         if (showAvailable) {
             fetchAvailableClasses();
         }
-    }, [showAvailable]);
-
-    const fetchClasses = async () => {
+    }, [showAvailable]);    const fetchClasses = async () => {
         try {
-            const response = await ApiService.get('/classroom/get-student-classes.php');
+            // Try fetching from batches first, fallback to classrooms
+            let response;
+            try {
+                response = await ApiService.get('/classroom/get-student-batches.php');
+            } catch (batchError) {
+                console.log('Batch endpoint not available, falling back to classroom endpoint');
+                response = await ApiService.get('/classroom/get-student-classes.php');
+            }
             setClasses(response.classes);
             setLoading(false);
         } catch (error) {

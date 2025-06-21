@@ -8,6 +8,7 @@ class Quiz {
     public $description;
     public $difficulty;
     public $time_limit;
+    public $status;
     public $created_by;
     public $created_at;
 
@@ -16,10 +17,10 @@ class Quiz {
     }
 
     public function getAll() {
-        try {
-            $query = "SELECT q.*, u.full_name as creator_name 
+        try {            $query = "SELECT q.*, u.full_name as creator_name 
                      FROM " . $this->table_name . " q
                      JOIN users u ON q.created_by = u.id
+                     WHERE q.status = 'published'
                      ORDER BY q.created_at DESC";
 
             $stmt = $this->conn->prepare($query);
@@ -31,11 +32,10 @@ class Quiz {
     }
 
     public function getByDifficulty($difficulty) {
-        try {
-            $query = "SELECT q.*, u.full_name as creator_name 
+        try {            $query = "SELECT q.*, u.full_name as creator_name 
                      FROM " . $this->table_name . " q
                      JOIN users u ON q.created_by = u.id
-                     WHERE q.difficulty = :difficulty
+                     WHERE q.difficulty = :difficulty AND q.status = 'published'
                      ORDER BY q.created_at DESC";
 
             $stmt = $this->conn->prepare($query);
@@ -62,9 +62,8 @@ class Quiz {
             
             if (!$quiz) {
                 return null;
-            }
-              // Get questions for this quiz
-            $query = "SELECT *, correct_moves FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
+            }              // Get questions for this quiz
+            $query = "SELECT *, correct_moves, pgn_data, expected_player_color FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":quiz_id", $id);
             $stmt->execute();
@@ -113,8 +112,7 @@ class Quiz {
             if (!$quizInfo) {
                 throw new Exception("Quiz not found.");
             }
-            
-            // Get all questions with their types and correct answers/moves
+              // Get all questions with their types and correct answers/moves
             $query = "SELECT qq.*, qa.is_correct, qa.id as answer_id 
                      FROM quiz_questions qq
                      LEFT JOIN quiz_answers qa ON qq.id = qa.question_id
@@ -132,6 +130,8 @@ class Quiz {
                     $questions[$row['id']] = [
                         'type' => $row['type'],
                         'correct_moves' => $row['correct_moves'] ? json_decode($row['correct_moves'], true) : null,
+                        'pgn_data' => $row['pgn_data'],
+                        'expected_player_color' => $row['expected_player_color'],
                         'correct_answers' => []
                     ];
                 }
@@ -143,21 +143,31 @@ class Quiz {
             // Calculate score
             $score = 0;
             $totalQuestions = count($questions);
-            
-            foreach ($questions as $questionId => $questionInfo) {
+              foreach ($questions as $questionId => $questionInfo) {
                 if ($questionInfo['type'] === 'chess') {
                     // Check chess moves
-                    if (isset($chessMoves->{$questionId}) && $questionInfo['correct_moves']) {
+                    if (isset($chessMoves->{$questionId})) {
                         $userMove = $chessMoves->{$questionId};
-                        $correctMoves = $questionInfo['correct_moves'];
                         
-                        // Check if user move matches any correct move
-                        foreach ($correctMoves as $correctMove) {
-                            if (isset($userMove->from) && isset($userMove->to) &&
-                                $userMove->from === $correctMove['from'] && 
-                                $userMove->to === $correctMove['to']) {
+                        if ($questionInfo['pgn_data']) {
+                            // PGN-based question: check if sequence was completed or correct move was made
+                            if (isset($userMove->completed) && $userMove->completed) {
                                 $score++;
-                                break;
+                            } elseif (isset($userMove->isCorrect) && $userMove->isCorrect) {
+                                $score++;
+                            }
+                        } elseif ($questionInfo['correct_moves']) {
+                            // FEN-based question: check against correct moves
+                            $correctMoves = $questionInfo['correct_moves'];
+                            
+                            // Check if user move matches any correct move
+                            foreach ($correctMoves as $correctMove) {
+                                if (isset($userMove->from) && isset($userMove->to) &&
+                                    $userMove->from === $correctMove['from'] && 
+                                    $userMove->to === $correctMove['to']) {
+                                    $score++;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -167,7 +177,7 @@ class Quiz {
                         in_array($answers->{$questionId}, $questionInfo['correct_answers'])) {
                         $score++;
                     }
-                }            }
+                }}
             
             // Insert quiz attempt
             $query = "INSERT INTO quiz_attempts (user_id, quiz_id, score, time_taken, completed_at)
@@ -421,16 +431,15 @@ class Quiz {
             throw new Exception("Error fetching teacher quizzes: " . $e->getMessage());
         }
     }
-    
-    // Create a new quiz
+      // Create a new quiz
     public function create($data) {
         try {
             $this->conn->beginTransaction();
             
             // Insert the quiz
             $query = "INSERT INTO " . $this->table_name . " 
-                    (title, description, difficulty, time_limit, created_by) 
-                    VALUES (:title, :description, :difficulty, :time_limit, :created_by)";
+                    (title, description, difficulty, time_limit, status, created_by) 
+                    VALUES (:title, :description, :difficulty, :time_limit, :status, :created_by)";
             
             $stmt = $this->conn->prepare($query);
             
@@ -439,11 +448,13 @@ class Quiz {
             $description = htmlspecialchars(strip_tags($data['description'] ?? ''));
             $difficulty = htmlspecialchars(strip_tags($data['difficulty']));
             $time_limit = (int)$data['time_limit'];
+            $status = isset($data['status']) ? htmlspecialchars(strip_tags($data['status'])) : 'draft';
             
             $stmt->bindParam(":title", $title);
             $stmt->bindParam(":description", $description);
             $stmt->bindParam(":difficulty", $difficulty);
             $stmt->bindParam(":time_limit", $time_limit);
+            $stmt->bindParam(":status", $status);
             $stmt->bindParam(":created_by", $data['created_by']);
             
             $stmt->execute();
@@ -478,13 +489,13 @@ class Quiz {
             if ($stmt->rowCount() === 0) {
                 throw new Exception("Quiz not found or you don't have permission to edit it");
             }
-            
-            // Update the quiz
+              // Update the quiz
             $query = "UPDATE " . $this->table_name . " SET 
                      title = :title, 
                      description = :description, 
                      difficulty = :difficulty, 
-                     time_limit = :time_limit 
+                     time_limit = :time_limit,
+                     status = :status 
                      WHERE id = :id";
                      
             $stmt = $this->conn->prepare($query);
@@ -494,11 +505,13 @@ class Quiz {
             $description = htmlspecialchars(strip_tags($data['description'] ?? ''));
             $difficulty = htmlspecialchars(strip_tags($data['difficulty']));
             $time_limit = (int)$data['time_limit'];
+            $status = isset($data['status']) ? htmlspecialchars(strip_tags($data['status'])) : 'draft';
             
             $stmt->bindParam(":title", $title);
             $stmt->bindParam(":description", $description);
             $stmt->bindParam(":difficulty", $difficulty);
             $stmt->bindParam(":time_limit", $time_limit);
+            $stmt->bindParam(":status", $status);
             $stmt->bindParam(":id", $id);
             
             $stmt->execute();
@@ -576,11 +589,10 @@ class Quiz {
     private function addQuestions($quizId, $questions) {
         foreach ($questions as $question) {
             $type = isset($question['type']) ? $question['type'] : 'multiple_choice';
-            
-            if ($type === 'chess') {
+              if ($type === 'chess') {
                 // Handle chess questions
-                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type, chess_position, chess_orientation, correct_moves) 
-                         VALUES (:quiz_id, :question, :image_url, :type, :chess_position, :chess_orientation, :correct_moves)";
+                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type, chess_position, chess_orientation, correct_moves, pgn_data, expected_player_color) 
+                         VALUES (:quiz_id, :question, :image_url, :type, :chess_position, :chess_orientation, :correct_moves, :pgn_data, :expected_player_color)";
                 $stmt = $this->conn->prepare($query);
                 
                 $questionText = htmlspecialchars(strip_tags($question['question']));
@@ -588,6 +600,8 @@ class Quiz {
                 $chessPosition = isset($question['chess_position']) ? $question['chess_position'] : 'start';
                 $chessOrientation = isset($question['chess_orientation']) ? $question['chess_orientation'] : 'white';
                 $correctMoves = isset($question['correct_moves']) ? json_encode($question['correct_moves']) : null;
+                $pgnData = isset($question['pgn_data']) ? $question['pgn_data'] : null;
+                $expectedPlayerColor = isset($question['expected_player_color']) ? $question['expected_player_color'] : 'white';
                 
                 $stmt->bindParam(":quiz_id", $quizId);
                 $stmt->bindParam(":question", $questionText);
@@ -596,6 +610,8 @@ class Quiz {
                 $stmt->bindParam(":chess_position", $chessPosition);
                 $stmt->bindParam(":chess_orientation", $chessOrientation);
                 $stmt->bindParam(":correct_moves", $correctMoves);
+                $stmt->bindParam(":pgn_data", $pgnData);
+                $stmt->bindParam(":expected_player_color", $expectedPlayerColor);
                 
                 $stmt->execute();
             } else {

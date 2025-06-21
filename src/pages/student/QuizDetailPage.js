@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
 import { FaChessPawn, FaClock, FaChessKnight } from 'react-icons/fa';
 import ChessQuizBoard from '../../components/chess/ChessQuizBoard';
+import ChessPGNBoard from '../../components/chess/ChessPGNBoard';
 
 const QuizDetailPage = () => {
   const { id } = useParams();
@@ -104,7 +105,6 @@ const QuizDetailPage = () => {
   const handlePreviousQuestion = () => {
     setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
-
   const handleChessMove = (questionId, moveData) => {
     setChessMoves({
       ...chessMoves,
@@ -230,26 +230,44 @@ const QuizDetailPage = () => {
                     className="max-h-64 rounded-lg border border-gray-200"
                   />
                 </div>
-              )}            </div>
-
-            {/* Conditional rendering based on question type */}
+              )}            </div>            {/* Conditional rendering based on question type */}
             {currentQuestion.type === 'chess' ? (
               <div className="mb-8">
-                <ChessQuizBoard
-                  initialPosition={currentQuestion.chess_position || 'start'}
-                  orientation={currentQuestion.chess_orientation || 'white'}
-                  correctMoves={currentQuestion.correct_moves || []}
-                  question=""
-                  allowMoves={true}
-                  showAnswer={false}
-                  onMove={(moveData) => handleChessMove(currentQuestion.id, moveData)}
-                  width={400}
-                  className="mx-auto"
-                />
+                {currentQuestion.pgn_data ? (
+                  // PGN-based chess question
+                  <ChessPGNBoard
+                    pgn={currentQuestion.pgn_data}
+                    expectedPlayerColor={currentQuestion.expected_player_color || 'white'}
+                    orientation={currentQuestion.chess_orientation || 'white'}
+                    question=""
+                    onMove={(moveData) => handleChessMove(currentQuestion.id, moveData)}
+                    width={400}
+                    className="mx-auto"
+                  />
+                ) : (
+                  // FEN-based chess question (original functionality)
+                  <ChessQuizBoard
+                    initialPosition={currentQuestion.chess_position || 'start'}
+                    orientation={currentQuestion.chess_orientation || 'white'}
+                    correctMoves={currentQuestion.correct_moves || []}
+                    question=""
+                    allowMoves={true}
+                    showAnswer={false}
+                    onMove={(moveData) => handleChessMove(currentQuestion.id, moveData)}
+                    width={400}
+                    className="mx-auto"
+                  />
+                )}
                 {chessMoves[currentQuestion.id] && (
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-800">
-                      Move recorded: {chessMoves[currentQuestion.id].from} → {chessMoves[currentQuestion.id].to}
+                      {currentQuestion.pgn_data ? (
+                        chessMoves[currentQuestion.id].completed ? 
+                          'Sequence completed successfully!' :
+                          `Move recorded: ${chessMoves[currentQuestion.id].san} ${chessMoves[currentQuestion.id].isCorrect ? '✓' : '✗'}`
+                      ) : (
+                        `Move recorded: ${chessMoves[currentQuestion.id].from} → ${chessMoves[currentQuestion.id].to}`
+                      )}
                     </p>
                   </div>
                 )}
@@ -330,7 +348,11 @@ const QuizDetailPage = () => {
         <div className="bg-white rounded-lg shadow p-4">          <div className="flex flex-wrap gap-2">
             {quiz.questions && quiz.questions.map((question, index) => {
               const isAnswered = question.type === 'chess' 
-                ? chessMoves[question.id] 
+                ? chessMoves[question.id] && (
+                    question.pgn_data 
+                      ? chessMoves[question.id].completed || chessMoves[question.id].isCorrect
+                      : chessMoves[question.id].from && chessMoves[question.id].to
+                  )
                 : selectedAnswers[question.id];
               
               return (
@@ -347,7 +369,9 @@ const QuizDetailPage = () => {
                 >
                   {index + 1}
                   {question.type === 'chess' && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
+                      question.pgn_data ? 'bg-purple-500' : 'bg-blue-500'
+                    }`}></div>
                   )}
                 </button>
               );

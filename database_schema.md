@@ -99,6 +99,7 @@
 | description| text                                   | YES  |     | NULL    |                |
 | difficulty | enum('beginner','intermediate','advanced')| NO |   | NULL    |                |
 | time_limit | int(11)                               | YES  |     | NULL    |                |
+| status     | enum('draft','published')              | NO   |     | 'draft' |                |
 | created_by | int(11)                               | NO   | MUL | NULL    |                |
 | created_at | timestamp                             | YES  |     | NULL    |                |
 
@@ -114,16 +115,27 @@
 | chess_position | varchar(100)                      | YES  |     | NULL    | FEN notation   |
 | chess_orientation | enum('white','black')           | YES  |     | white   | Board orientation |
 | correct_moves  | text                              | YES  |     | NULL    | JSON array     |
+| pgn_data   | text                              | YES  |     | NULL    | PGN for multi-move sequences |
+| expected_player_color | enum('white','black')          | YES  |     | 'white' | Player color in PGN mode |
 
 ### Chess Question Features
 - **chess_position**: Stores the chess position in FEN (Forsyth-Edwards Notation) format. Default is 'start' for starting position.
 - **chess_orientation**: Determines which side of the board is shown at the bottom ('white' or 'black').
 - **correct_moves**: JSON array storing the correct moves for the position. Each move contains 'from', 'to', and optional 'description' fields.
+- **pgn_data**: PGN string for multi-move sequences where the computer makes automatic moves based on the game line.
+- **expected_player_color**: Determines which color the student should play in PGN mode ('white' or 'black').
+
+### Chess Question Modes
+1. **Single Position Mode (FEN)**: Set a position where student needs to find the best move
+2. **Multi-Move Mode (PGN)**: Present a game line where student plays their color and computer responds automatically
+3. **Tactical Puzzle**: Combination of position setup with specific move sequences
+4. **Opening Theory**: Show an opening position with expected continuation
 
 ### Usage Examples
 1. **Tactical puzzle**: Set a position where student needs to find the best move
 2. **Endgame study**: Present an endgame position with multiple correct continuations  
 3. **Opening theory**: Show an opening position and ask for the correct next move
+4. **Multi-move sequence**: Provide a PGN where student plays White moves and computer makes Black moves automatically
 
 ### quiz_answers
 | Column      | Type      | Null | Key | Default | Extra           |

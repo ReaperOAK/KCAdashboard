@@ -353,8 +353,7 @@ class Batch {
             
             if ($stmt->rowCount() > 0) {
                 throw new Exception("Student is already in this batch");
-            }
-              // Add the student to the batch (including status column with default value)
+            }            // Add the student to the batch (including status column with default value)
             $query = "INSERT INTO batch_students (batch_id, student_id, joined_at, status) 
                      VALUES (:batch_id, :student_id, NOW(), 'active')";
             $stmt = $this->conn->prepare($query);
@@ -365,17 +364,55 @@ class Batch {
                 throw new Exception("Failed to add student to batch");
             }
             
-            // Also add student to corresponding classroom (classroom_students table doesn't have status column)
-            $classroom_query = "INSERT INTO classroom_students (classroom_id, student_id, joined_at)
-                              SELECT c.id, :student_id, NOW()
-                              FROM classrooms c 
-                              WHERE c.teacher_id = :teacher_id AND c.name = :batch_name
+            // Find and add student to ALL corresponding classrooms for this teacher
+            // First, try to find classroom with exact same name
+            $classroom_query = "SELECT id FROM classrooms 
+                              WHERE teacher_id = :teacher_id AND name = :batch_name
                               LIMIT 1";
             $classroom_stmt = $this->conn->prepare($classroom_query);
-            $classroom_stmt->bindParam(':student_id', $studentId);
             $classroom_stmt->bindParam(':teacher_id', $batch['teacher_id']);
             $classroom_stmt->bindParam(':batch_name', $batch['name']);
             $classroom_stmt->execute();
+            
+            $classroom_id = null;
+            if ($classroom_stmt->rowCount() > 0) {
+                $classroom = $classroom_stmt->fetch(PDO::FETCH_ASSOC);
+                $classroom_id = $classroom['id'];
+            } else {
+                // If no exact match, try to find any classroom by this teacher that looks similar
+                // or create one with the same name as the batch
+                $create_classroom_query = "INSERT INTO classrooms (name, description, teacher_id, status, created_at)
+                                         VALUES (:name, :description, :teacher_id, 'active', NOW())";
+                $create_stmt = $this->conn->prepare($create_classroom_query);
+                $create_stmt->bindParam(':name', $batch['name']);
+                $create_stmt->bindParam(':description', $batch['name'] . ' - Auto-created from batch');
+                $create_stmt->bindParam(':teacher_id', $batch['teacher_id']);
+                
+                if ($create_stmt->execute()) {
+                    $classroom_id = $this->conn->lastInsertId();
+                }
+            }
+            
+            // Add student to classroom if we found or created one
+            if ($classroom_id) {
+                // Check if student is already in the classroom
+                $check_classroom_query = "SELECT id FROM classroom_students 
+                                        WHERE classroom_id = :classroom_id AND student_id = :student_id";
+                $check_classroom_stmt = $this->conn->prepare($check_classroom_query);
+                $check_classroom_stmt->bindParam(':classroom_id', $classroom_id);
+                $check_classroom_stmt->bindParam(':student_id', $studentId);
+                $check_classroom_stmt->execute();
+                
+                if ($check_classroom_stmt->rowCount() == 0) {
+                    // Add to classroom
+                    $add_to_classroom_query = "INSERT INTO classroom_students (classroom_id, student_id, joined_at)
+                                             VALUES (:classroom_id, :student_id, NOW())";
+                    $add_to_classroom_stmt = $this->conn->prepare($add_to_classroom_query);
+                    $add_to_classroom_stmt->bindParam(':classroom_id', $classroom_id);
+                    $add_to_classroom_stmt->bindParam(':student_id', $studentId);
+                    $add_to_classroom_stmt->execute();
+                }
+            }
             
             // Commit transaction
             $this->conn->commit();
@@ -415,8 +452,7 @@ class Batch {
             if ($stmt->rowCount() === 0) {
                 throw new Exception("Student is not in this batch");
             }
-            
-            // Remove the student from the batch
+              // Remove the student from the batch
             $query = "DELETE FROM batch_students 
                      WHERE batch_id = :batch_id AND student_id = :student_id";
             $stmt = $this->conn->prepare($query);
@@ -427,17 +463,24 @@ class Batch {
                 throw new Exception("Failed to remove student from batch");
             }
             
-            // Also remove from corresponding classroom
-            $classroom_query = "DELETE cs FROM classroom_students cs
-                              JOIN classrooms c ON cs.classroom_id = c.id
-                              WHERE c.teacher_id = :teacher_id 
-                              AND c.name = :batch_name 
-                              AND cs.student_id = :student_id";
-            $classroom_stmt = $this->conn->prepare($classroom_query);
-            $classroom_stmt->bindParam(':teacher_id', $batch['teacher_id']);
-            $classroom_stmt->bindParam(':batch_name', $batch['name']);
-            $classroom_stmt->bindParam(':student_id', $studentId);
-            $classroom_stmt->execute();
+            // Find and remove from corresponding classroom(s)
+            // First, try to find classroom with exact same name
+            $find_classroom_query = "SELECT id FROM classrooms 
+                                   WHERE teacher_id = :teacher_id AND name = :batch_name";
+            $find_classroom_stmt = $this->conn->prepare($find_classroom_query);
+            $find_classroom_stmt->bindParam(':teacher_id', $batch['teacher_id']);
+            $find_classroom_stmt->bindParam(':batch_name', $batch['name']);
+            $find_classroom_stmt->execute();
+            
+            // Remove from all matching classrooms
+            while ($classroom = $find_classroom_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $remove_classroom_query = "DELETE FROM classroom_students 
+                                         WHERE classroom_id = :classroom_id AND student_id = :student_id";
+                $remove_classroom_stmt = $this->conn->prepare($remove_classroom_query);
+                $remove_classroom_stmt->bindParam(':classroom_id', $classroom['id']);
+                $remove_classroom_stmt->bindParam(':student_id', $studentId);
+                $remove_classroom_stmt->execute();
+            }
             
             // Also remove related attendance records
             $query = "DELETE FROM attendance 

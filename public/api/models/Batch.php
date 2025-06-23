@@ -394,9 +394,8 @@ class Batch {
             }
             
             // Add student to classroom if we found or created one
-            if ($classroom_id) {
-                // Check if student is already in the classroom
-                $check_classroom_query = "SELECT id FROM classroom_students 
+            if ($classroom_id) {                // Check if student is already in the classroom
+                $check_classroom_query = "SELECT classroom_id FROM classroom_students 
                                         WHERE classroom_id = :classroom_id AND student_id = :student_id";
                 $check_classroom_stmt = $this->conn->prepare($check_classroom_query);
                 $check_classroom_stmt->bindParam(':classroom_id', $classroom_id);

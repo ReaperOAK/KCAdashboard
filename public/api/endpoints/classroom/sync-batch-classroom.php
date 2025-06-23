@@ -101,9 +101,8 @@ try {
                     
                     foreach ($batch_students as $batch_student) {
                         $student_id = $batch_student['student_id'];
-                        
-                        // Check if student is already in classroom
-                        $check_query = "SELECT id FROM classroom_students 
+                          // Check if student is already in classroom
+                        $check_query = "SELECT classroom_id FROM classroom_students 
                                       WHERE classroom_id = :classroom_id AND student_id = :student_id";
                         $check_stmt = $db->prepare($check_query);
                         $check_stmt->bindParam(':classroom_id', $classroom_id);

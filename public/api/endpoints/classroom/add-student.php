@@ -69,10 +69,8 @@ try {
     
     if (!$student) {
         throw new Exception('Student not found');
-    }
-
-    // Check if student is already enrolled
-    $check_query = "SELECT id FROM classroom_students 
+    }    // Check if student is already enrolled
+    $check_query = "SELECT classroom_id FROM classroom_students 
                     WHERE classroom_id = :classroom_id AND student_id = :student_id";
     $check_stmt = $db->prepare($check_query);
     $check_stmt->bindParam(':classroom_id', $classroom_id);

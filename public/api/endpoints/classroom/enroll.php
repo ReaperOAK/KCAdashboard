@@ -53,10 +53,8 @@ try {
     
     if (!$classroom) {
         throw new Exception('Classroom not found or not available for enrollment');
-    }
-
-    // Check if student is already enrolled
-    $query = "SELECT id FROM classroom_students 
+    }    // Check if student is already enrolled
+    $query = "SELECT classroom_id FROM classroom_students 
               WHERE classroom_id = :classroom_id AND student_id = :student_id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':classroom_id', $classroom_id);
@@ -95,9 +93,8 @@ try {
     
     $batch = $batch_stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($batch) {
-        // Check if student is already in the batch
-        $check_batch_query = "SELECT id FROM batch_students 
+    if ($batch) {        // Check if student is already in the batch
+        $check_batch_query = "SELECT batch_id FROM batch_students 
                               WHERE batch_id = :batch_id AND student_id = :student_id";
         $check_batch_stmt = $db->prepare($check_batch_query);
         $check_batch_stmt->bindParam(':batch_id', $batch['id']);

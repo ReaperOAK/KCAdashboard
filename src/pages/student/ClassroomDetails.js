@@ -353,10 +353,9 @@ const ClassroomDetails = () => {
                                                                 )}
                                                                 {assignment.submission_file && (
                                                                     <div>
-                                                                        <span className="font-medium text-blue-700">Your File Submission:</span>
-                                                                        <div className="mt-1">
+                                                                        <span className="font-medium text-blue-700">Your File Submission:</span>                                                                        <div className="mt-1">
                                                                             <a 
-                                                                                href={`${ApiService.API_URL.replace('/endpoints', '')}/uploads/${assignment.submission_file}`}
+                                                                                href={`https://dashboard.kolkatachessacademy.in/uploads/assignments/${assignment.submission_file}`}
                                                                                 target="_blank"
                                                                                 rel="noopener noreferrer"
                                                                                 className="text-blue-600 hover:text-blue-800 underline text-sm"

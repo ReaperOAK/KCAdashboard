@@ -163,9 +163,8 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
                                         {submission.submission_file && (
                                             <div className="mb-3">
                                                 <span className="font-medium text-gray-700">File Submission:</span>
-                                                <div className="mt-1">
-                                                    <a 
-                                                        href={`${ApiService.API_URL.replace('/endpoints', '')}/uploads/${submission.submission_file}`}
+                                                <div className="mt-1">                                                    <a 
+                                                        href={`https://dashboard.kolkatachessacademy.in/uploads/assignments/${submission.submission_file}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-[#461fa3] hover:text-[#7646eb] underline"

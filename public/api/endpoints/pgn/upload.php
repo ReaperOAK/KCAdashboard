@@ -65,9 +65,8 @@ try {    // Create uploads directory
         $file = $_FILES['pgn_file'];
         $filename = uniqid() . '_' . basename($file['name']);
         $targetPath = $uploadDir . '/' . $filename;
-        
-        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            $filePath = 'uploads/pgn/' . $filename;
+          if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            $filePath = $filename;
         } else {
             throw new Exception('Failed to upload file');
         }

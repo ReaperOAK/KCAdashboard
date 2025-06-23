@@ -85,11 +85,10 @@ try {
         // Generate a unique filename
         $filename = uniqid() . '_' . basename($_FILES['file']['name']);
         $target_file = $upload_dir . $filename;
-        
-        // Move the uploaded file
+          // Move the uploaded file
         if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-            // Store only the path relative to the uploads directory, without the 'uploads/' prefix
-            $file_url = 'classroom_materials/' . $filename;
+            // Store only the filename in the database, not the subdirectory path
+            $file_url = $filename;
         } else {
             echo json_encode([
                 'success' => false,

@@ -52,11 +52,10 @@ try {
         // Generate a unique filename
         $new_filename = UploadHelper::generateUniqueFilename($file['name'], $user['id']);
         $upload_path = $upload_dir . $new_filename;
-        
-        // Move the uploaded file
+          // Move the uploaded file
         if(move_uploaded_file($file['tmp_name'], $upload_path)) {
-            // Generate URL for the file
-            $file_url = UploadHelper::getWebPath('resources', $new_filename);
+            // Store just the filename in the database, not the full path
+            $file_url = $new_filename;
             
             // Generate thumbnail for PDFs or video (placeholder for now)
             $thumbnail_url = null;

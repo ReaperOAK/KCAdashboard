@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
-import PGNList from '../../components/PGNDatabase/PGNList';
 
 const StudentPGNDatabase = () => {
     const navigate = useNavigate();

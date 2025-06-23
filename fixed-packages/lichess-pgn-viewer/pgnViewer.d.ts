@@ -1,8 +1,8 @@
 import { Api as CgApi } from 'chessground/api';
 import { GoTo, InitialOrMove, Opts, Translate } from './interfaces';
 import { Config as CgConfig } from 'chessground/config';
-import { Path } from './path';
-import { AnyNode, Game } from './game';
+import { Path } from './path.js';
+import { AnyNode, Game } from './game.js';
 export default class PgnViewer {
     readonly opts: Opts;
     readonly redraw: () => void;

@@ -1,4 +1,4 @@
-import PgnViewer from '../pgnViewer';
+import PgnViewer from '../pgnViewer.js';
 import { Config as CgConfig } from 'chessground/config';
 import { VNode } from 'snabbdom';
 export default function view(ctrl: PgnViewer): VNode;

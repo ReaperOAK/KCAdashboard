@@ -1,5 +1,5 @@
 import { h } from 'snabbdom';
-import PgnViewer from '../pgnViewer';
+import PgnViewer from '../pgnViewer.js';
 import { GoTo } from '../interfaces';
 import { bind, bindMobileMousedown, onInsert } from './util';
 import { eventRepeater } from '../events';

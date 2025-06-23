@@ -1,8 +1,8 @@
 import { makeUci } from 'chessops';
-import { scalachessCharPair } from 'chessops/compat.js';
-import { makeFen } from 'chessops/fen.js';
-import { parsePgn, parseComment, startingPosition, transform } from 'chessops/pgn.js';
-import { makeSanAndPlay, parseSan } from 'chessops/san.js';
+import { scalachessCharPair } from 'chessops/compat';
+import { makeFen } from 'chessops/fen';
+import { parsePgn, parseComment, startingPosition, transform } from 'chessops/pgn';
+import { makeSanAndPlay, parseSan } from 'chessops/san';
 import { Game } from './game.js';
 import { Path } from './path.js';
 class State {

@@ -3,8 +3,8 @@ import { scalachessCharPair } from 'chessops/compat';
 import { makeFen } from 'chessops/fen';
 import { parsePgn, parseComment, startingPosition, transform } from 'chessops/pgn';
 import { makeSanAndPlay, parseSan } from 'chessops/san';
-import { Game } from './game';
-import { Path } from './path';
+import { Game } from './game.js';
+import { Path } from './path.js';
 class State {
     constructor(pos, path, clocks) {
         this.pos = pos;

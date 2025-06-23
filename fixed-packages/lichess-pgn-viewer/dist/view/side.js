@@ -1,5 +1,5 @@
 import { h } from 'snabbdom';
-import { Path } from '../path';
+import { Path } from '../path.js';
 export const renderMoves = (ctrl) => h('div.lpv__side', h('div.lpv__moves', {
     hook: {
         insert: vnode => {

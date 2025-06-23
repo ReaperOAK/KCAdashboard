@@ -1,7 +1,7 @@
 import { Color, Move, Position } from 'chessops';
 import { Config as CgConfig } from 'chessground/config';
 import { FEN } from 'chessground/types';
-import { Path } from './path';
+import { Path } from './path.js';
 import { CommentShape } from 'chessops/pgn';
 
 export type Id = string;

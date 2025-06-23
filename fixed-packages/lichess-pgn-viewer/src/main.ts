@@ -1,8 +1,8 @@
-import PgnViewer from './pgnViewer';
-import view from './view/main';
+import PgnViewer from './pgnViewer.js';
+import view from './view/main.js';
 import { init, attributesModule, classModule } from 'snabbdom';
 import { Opts } from './interfaces';
-import config from './config';
+import config from './config.js';
 
 export default function start(element: HTMLElement, cfg: Partial<Opts>): PgnViewer {
   const patch = init([classModule, attributesModule]);

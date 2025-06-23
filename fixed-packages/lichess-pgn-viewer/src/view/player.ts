@@ -1,6 +1,6 @@
 import { Color, opposite } from 'chessops';
 import { h, VNode } from 'snabbdom';
-import PgnViewer from '../pgnViewer';
+import PgnViewer from '../pgnViewer.js';
 
 export default function renderPlayer(ctrl: PgnViewer, side: 'top' | 'bottom'): VNode {
   const color = side == 'bottom' ? ctrl.orientation() : opposite(ctrl.orientation());

@@ -1,4 +1,4 @@
-import PgnViewer from './pgnViewer';
+import PgnViewer from './pgnViewer.js';
 
 export function stepwiseScroll(inner: (e: WheelEvent, scroll: boolean) => void): (e: WheelEvent) => void {
   let scrollTotal = 0;

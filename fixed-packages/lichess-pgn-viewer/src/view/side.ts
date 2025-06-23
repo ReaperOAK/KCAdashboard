@@ -1,8 +1,8 @@
 import { h, VNode } from 'snabbdom';
-import PgnViewer from '../pgnViewer';
-import { MoveNode } from '../game';
+import PgnViewer from '../pgnViewer.js';
+import { MoveNode } from '../game.js';
 import { MoveData } from '../interfaces';
-import { Path } from '../path';
+import { Path } from '../path.js';
 
 export const renderMoves = (ctrl: PgnViewer) =>
   h(

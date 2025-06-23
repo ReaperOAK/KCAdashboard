@@ -1,4 +1,4 @@
-import { Path } from './path';
+import { Path } from './path.js';
 // immutable
 export class Game {
     constructor(initial, moves, players, metadata) {

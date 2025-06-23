@@ -2,8 +2,8 @@ import { makeSquare, opposite } from 'chessops';
 import translator from './translation.js';
 import { uciToMove } from 'chessground/util';
 import { Path } from './path.js';
-import { isMoveData } from './game.js';
-import { makeGame } from './pgn.js';
+import { isMoveData } from './game.js.js';
+import { makeGame } from './pgn.js.js';
 export default class Ctrl {
     constructor(opts, redraw) {
         this.opts = opts;

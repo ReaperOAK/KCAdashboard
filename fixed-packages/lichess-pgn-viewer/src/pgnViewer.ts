@@ -4,9 +4,9 @@ import translator from './translation';
 import { GoTo, InitialOrMove, Opts, Translate } from './interfaces';
 import { Config as CgConfig } from 'chessground/config';
 import { uciToMove } from 'chessground/util';
-import { Path } from './path';
-import { AnyNode, Game, isMoveData } from './game';
-import { makeGame } from './pgn';
+import { Path } from './path.js';
+import { AnyNode, Game, isMoveData } from './game.js';
+import { makeGame } from './pgn.js';
 
 export default class PgnViewer {
   game: Game;

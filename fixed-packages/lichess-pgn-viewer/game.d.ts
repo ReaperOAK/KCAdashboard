@@ -1,6 +1,6 @@
 import { Node, ChildNode } from 'chessops/pgn';
 import { Initial, InitialOrMove, Metadata, MoveData, Players, Ply } from './interfaces';
-import { Path } from './path';
+import { Path } from './path.js';
 export type AnyNode = Node<MoveData>;
 export type MoveNode = ChildNode<MoveData>;
 export declare class Game {

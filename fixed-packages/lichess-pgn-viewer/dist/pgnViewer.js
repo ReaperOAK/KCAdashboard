@@ -1,9 +1,9 @@
 import { makeSquare, opposite } from 'chessops';
 import translator from './translation';
 import { uciToMove } from 'chessground/util';
-import { Path } from './path';
-import { isMoveData } from './game';
-import { makeGame } from './pgn';
+import { Path } from './path.js';
+import { isMoveData } from './game.js';
+import { makeGame } from './pgn.js';
 export default class PgnViewer {
     constructor(opts, redraw) {
         this.opts = opts;

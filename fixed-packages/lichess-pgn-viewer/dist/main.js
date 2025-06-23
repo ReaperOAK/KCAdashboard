@@ -1,7 +1,7 @@
-import PgnViewer from './pgnViewer';
-import view from './view/main';
+import PgnViewer from './pgnViewer.js';
+import view from './view/main.js';
 import { init, attributesModule, classModule } from 'snabbdom';
-import config from './config';
+import config from './config.js';
 export default function start(element, cfg) {
     const patch = init([classModule, attributesModule]);
     const opts = config(element, cfg);

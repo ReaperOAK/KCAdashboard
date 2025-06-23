@@ -3,9 +3,9 @@ import { scalachessCharPair } from 'chessops/compat';
 import { makeFen } from 'chessops/fen';
 import { parsePgn, parseComment, PgnNodeData, startingPosition, transform, Node } from 'chessops/pgn';
 import { makeSanAndPlay, parseSan } from 'chessops/san';
-import { Game } from './game';
+import { Game } from './game.js';
 import { MoveData, Initial, Players, Player, Comments, Metadata, Clocks, Lichess } from './interfaces';
-import { Path } from './path';
+import { Path } from './path.js';
 
 class State {
   constructor(readonly pos: Position, public path: Path, public clocks: Clocks) {}

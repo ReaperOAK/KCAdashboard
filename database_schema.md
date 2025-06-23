@@ -54,6 +54,17 @@
 | student_id  | int(11)   | NO   | PRI | NULL    |        |
 | joined_at   | timestamp | YES  |     | NULL    |        |
 
+### classroom_discussions
+| Column       | Type      | Null | Key | Default           | Extra           |
+|-------------|-----------|------|-----|-------------------|-----------------|
+| id          | int(11)   | NO   | PRI | NULL              | auto_increment |
+| classroom_id| int(11)   | NO   | MUL | NULL              |                |
+| user_id     | int(11)   | NO   | MUL | NULL              |                |
+| message     | text      | NO   |     | NULL              |                |
+| parent_id   | int(11)   | YES  | MUL | NULL              |                |
+| created_at  | timestamp | NO   |     | CURRENT_TIMESTAMP |                |
+| updated_at  | timestamp | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
 ### batches
 | Column       | Type                                   | Null | Key | Default | Extra           |
 |--------------|----------------------------------------|------|-----|---------|-----------------|
@@ -474,6 +485,11 @@
 
 ### activity_logs
 - `user_id` references `users(id)` ON DELETE CASCADE
+
+### classroom_discussions
+- `classroom_id` references `classrooms(id)` ON DELETE CASCADE
+- `user_id` references `users(id)` ON DELETE CASCADE
+- `parent_id` references `classroom_discussions(id)` ON DELETE CASCADE
 
 ### attendance
 - `student_id` references `users(id)`

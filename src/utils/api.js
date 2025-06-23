@@ -693,6 +693,29 @@ class ApiService {
     return this.get('/classroom/get-teacher-classes.php');
   }
 
+  // Classroom student management endpoints
+  static async addStudentToClassroom(classroomId, studentId) {
+    return this.post('/classroom/add-student.php', { 
+      classroom_id: classroomId, 
+      student_id: studentId 
+    });
+  }
+
+  static async removeStudentFromClassroom(classroomId, studentId) {
+    return this.post('/classroom/remove-student.php', { 
+      classroom_id: classroomId, 
+      student_id: studentId 
+    });
+  }
+
+  static async getClassroomStudents(classroomId) {
+    return this.get(`/classroom/get-students.php?classroom_id=${classroomId}`);
+  }
+
+  static async enrollInClassroom(classroomId) {
+    return this.post('/classroom/enroll.php', { classroom_id: classroomId });
+  }
+
   // Debug endpoint for troubleshooting
   static async debugClassroom(classroomId = null) {
     const endpoint = classroomId 

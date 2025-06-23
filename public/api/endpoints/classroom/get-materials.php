@@ -24,9 +24,14 @@ try {
     
     // Connect to database
     $database = new Database();
-    $db = $database->getConnection();
-      // Get classroom details and check if user has access
+    $db = $database->getConnection();    // Get classroom details and check if user has access
     $hasAccess = false;
+    $debugInfo = [
+        'user_id' => $user['id'],
+        'user_role' => $user['role'],
+        'classroom_id' => $classroom_id,
+        'queries_executed' => []
+    ];
     
     if ($user['role'] === 'student') {
         $checkAccess = "SELECT c.id FROM classrooms c 
@@ -37,6 +42,12 @@ try {
         $stmt->bindParam(':user_id', $user['id']);
         $stmt->execute();
         $hasAccess = $stmt->rowCount() > 0;
+        $debugInfo['queries_executed'][] = [
+            'role' => 'student',
+            'query' => $checkAccess,
+            'params' => ['classroom_id' => $classroom_id, 'user_id' => $user['id']],
+            'result_count' => $stmt->rowCount()
+        ];
     } elseif ($user['role'] === 'teacher') {
         $checkAccess = "SELECT id FROM classrooms WHERE id = :classroom_id AND teacher_id = :user_id";
         $stmt = $db->prepare($checkAccess);
@@ -44,16 +55,29 @@ try {
         $stmt->bindParam(':user_id', $user['id']);
         $stmt->execute();
         $hasAccess = $stmt->rowCount() > 0;
+        $debugInfo['queries_executed'][] = [
+            'role' => 'teacher',
+            'query' => $checkAccess,
+            'params' => ['classroom_id' => $classroom_id, 'user_id' => $user['id']],
+            'result_count' => $stmt->rowCount()
+        ];
     } elseif ($user['role'] === 'admin') {
         $checkAccess = "SELECT id FROM classrooms WHERE id = :classroom_id";
         $stmt = $db->prepare($checkAccess);
         $stmt->bindParam(':classroom_id', $classroom_id);
         $stmt->execute();
         $hasAccess = $stmt->rowCount() > 0;
-    }
-      
+        $debugInfo['queries_executed'][] = [
+            'role' => 'admin',
+            'query' => $checkAccess,
+            'params' => ['classroom_id' => $classroom_id],
+            'result_count' => $stmt->rowCount()
+        ];
+    }    
     if (!$hasAccess) {
-        throw new Exception('You do not have access to this classroom');
+        // Add debug info to the error response
+        error_log('Access denied for classroom: ' . json_encode($debugInfo));
+        throw new Exception('You do not have access to this classroom. Debug: ' . json_encode($debugInfo));
     }
     
     // Get materials for this classroom based on the teacher who created them

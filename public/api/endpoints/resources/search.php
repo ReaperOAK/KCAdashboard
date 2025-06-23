@@ -9,6 +9,14 @@ try {
     $db = $database->getConnection();
     $resource = new Resource($db);
 
+    // Validate user token
+    $user = verifyToken();
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["message" => "Unauthorized"]);
+        exit();
+    }
+
     // Get search term and filters
     $search_term = isset($_GET['q']) ? $_GET['q'] : '';
     
@@ -25,17 +33,18 @@ try {
         $filters['difficulty'] = $_GET['difficulty'];
     }
     
-    // Get results
-    $results = $resource->search($search_term, $filters);
+    // Get results based on user role and access permissions
+    if ($user['role'] === 'admin' || $user['role'] === 'teacher') {
+        // Admin and teachers can search all resources
+        $results = $resource->search($search_term, $filters);
+    } else {
+        // Students can only search public resources and those shared with them
+        $results = $resource->searchStudentAccessibleResources($user['id'], $search_term, $filters);
+    }
     
-    // Get user ID for bookmark status
-    $user = verifyToken();
-    
-    // Add bookmark status to results if user is logged in
-    if ($user) {
-        foreach ($results as &$item) {
-            $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
-        }
+    // Add bookmark status to results
+    foreach ($results as &$item) {
+        $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
     }
     
     http_response_code(200);

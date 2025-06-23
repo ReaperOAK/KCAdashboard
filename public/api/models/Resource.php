@@ -20,9 +20,7 @@ class Resource {
 
     public function __construct($db) {
         $this->conn = $db;
-    }
-
-    public function getAll() {
+    }    public function getAll() {
         $query = "SELECT r.*, u.full_name as author_name 
                  FROM " . $this->table_name . " r
                  JOIN users u ON r.created_by = u.id
@@ -33,7 +31,47 @@ class Resource {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getByCategory($category) {
+    public function getStudentAccessibleResources($student_id) {
+        $query = "SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 WHERE r.is_public = 1
+                 
+                 UNION
+                 
+                 SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN student_resource_shares srs ON r.id = srs.resource_id
+                 WHERE srs.student_id = :student_id1
+                 
+                 UNION
+                 
+                 SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN classroom_resources cr ON r.id = cr.resource_id
+                 JOIN classroom_students cs ON cr.classroom_id = cs.classroom_id
+                 WHERE cs.student_id = :student_id2
+                 
+                 UNION
+                 
+                 SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN batch_resources br ON r.id = br.resource_id
+                 JOIN batch_students bs ON br.batch_id = bs.batch_id
+                 WHERE bs.student_id = :student_id3
+                 
+                 ORDER BY created_at DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id1", $student_id);
+        $stmt->bindParam(":student_id2", $student_id);
+        $stmt->bindParam(":student_id3", $student_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    public function getByCategory($category) {
         $query = "SELECT r.*, u.full_name as author_name 
                  FROM " . $this->table_name . " r
                  JOIN users u ON r.created_by = u.id
@@ -42,6 +80,52 @@ class Resource {
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":category", $category);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getStudentAccessibleResourcesByCategory($student_id, $category) {
+        $query = "SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 WHERE r.category = :category AND r.is_public = 1
+                 
+                 UNION
+                 
+                 SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN student_resource_shares srs ON r.id = srs.resource_id
+                 WHERE srs.student_id = :student_id1 AND r.category = :category1
+                 
+                 UNION
+                 
+                 SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN classroom_resources cr ON r.id = cr.resource_id
+                 JOIN classroom_students cs ON cr.classroom_id = cs.classroom_id
+                 WHERE cs.student_id = :student_id2 AND r.category = :category2
+                 
+                 UNION
+                 
+                 SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN batch_resources br ON r.id = br.resource_id
+                 JOIN batch_students bs ON br.batch_id = bs.batch_id
+                 WHERE bs.student_id = :student_id3 AND r.category = :category3
+                 
+                 ORDER BY created_at DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":category", $category);
+        $stmt->bindParam(":student_id1", $student_id);
+        $stmt->bindParam(":category1", $category);
+        $stmt->bindParam(":student_id2", $student_id);
+        $stmt->bindParam(":category2", $category);
+        $stmt->bindParam(":student_id3", $student_id);
+        $stmt->bindParam(":category3", $category);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -55,9 +139,7 @@ class Resource {
         $stmt->bindParam(":resource_id", $resource_id);
         $stmt->bindParam(":user_id", $user_id);
         return $stmt->execute();
-    }
-
-    public function search($term, $filters = []) {
+    }    public function search($term, $filters = []) {
         $query = "SELECT r.*, u.full_name as author_name 
                  FROM " . $this->table_name . " r
                  JOIN users u ON r.created_by = u.id
@@ -102,7 +184,71 @@ class Resource {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getFeatured() {
+    public function searchStudentAccessibleResources($student_id, $term, $filters = []) {
+        $baseQuery = "SELECT DISTINCT r.*, u.full_name as author_name 
+                     FROM " . $this->table_name . " r
+                     JOIN users u ON r.created_by = u.id
+                     WHERE (r.title LIKE :term OR r.description LIKE :term OR r.tags LIKE :term)";
+        
+        // Add filters
+        $filterClause = "";
+        if (!empty($filters['category'])) {
+            $filterClause .= " AND r.category = :category";
+        }
+        if (!empty($filters['type'])) {
+            $filterClause .= " AND r.type = :type";
+        }
+        if (!empty($filters['difficulty'])) {
+            $filterClause .= " AND r.difficulty = :difficulty";
+        }
+        
+        $query = "(" . $baseQuery . " AND r.is_public = 1" . $filterClause . ")
+                 
+                 UNION
+                 
+                 (" . $baseQuery . $filterClause . "
+                 AND r.id IN (SELECT resource_id FROM student_resource_shares WHERE student_id = :student_id1))
+                 
+                 UNION
+                 
+                 (" . $baseQuery . $filterClause . "
+                 AND r.id IN (
+                     SELECT cr.resource_id FROM classroom_resources cr
+                     JOIN classroom_students cs ON cr.classroom_id = cs.classroom_id
+                     WHERE cs.student_id = :student_id2
+                 ))
+                 
+                 UNION
+                 
+                 (" . $baseQuery . $filterClause . "
+                 AND r.id IN (
+                     SELECT br.resource_id FROM batch_resources br
+                     JOIN batch_students bs ON br.batch_id = bs.batch_id
+                     WHERE bs.student_id = :student_id3
+                 ))
+                 
+                 ORDER BY created_at DESC";
+
+        $stmt = $this->conn->prepare($query);
+        
+        $searchTerm = "%" . $term . "%";
+        $stmt->bindParam(":term", $searchTerm);
+        $stmt->bindParam(":student_id1", $student_id);
+        $stmt->bindParam(":student_id2", $student_id);
+        $stmt->bindParam(":student_id3", $student_id);
+        
+        if (!empty($filters['category'])) {
+            $stmt->bindParam(":category", $filters['category']);
+        }
+        if (!empty($filters['type'])) {
+            $stmt->bindParam(":type", $filters['type']);
+        }
+        if (!empty($filters['difficulty'])) {
+            $stmt->bindParam(":difficulty", $filters['difficulty']);
+        }
+          $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    public function getFeatured() {
         $query = "SELECT r.*, u.full_name as author_name 
                  FROM " . $this->table_name . " r
                  JOIN users u ON r.created_by = u.id
@@ -115,13 +261,40 @@ class Resource {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create($data) {
+    public function getStudentAccessibleFeatured($student_id) {
+        $query = "SELECT DISTINCT r.*, u.full_name as author_name 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 WHERE r.is_featured = 1 AND (
+                     r.is_public = 1
+                     OR r.id IN (SELECT resource_id FROM student_resource_shares WHERE student_id = :student_id1)
+                     OR r.id IN (
+                         SELECT cr.resource_id FROM classroom_resources cr
+                         JOIN classroom_students cs ON cr.classroom_id = cs.classroom_id
+                         WHERE cs.student_id = :student_id2
+                     )
+                     OR r.id IN (
+                         SELECT br.resource_id FROM batch_resources br
+                         JOIN batch_students bs ON br.batch_id = bs.batch_id
+                         WHERE bs.student_id = :student_id3
+                     )
+                 )
+                 ORDER BY r.created_at DESC
+                 LIMIT 5";
+                 
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id1", $student_id);
+        $stmt->bindParam(":student_id2", $student_id);
+        $stmt->bindParam(":student_id3", $student_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }public function create($data) {
         $query = "INSERT INTO " . $this->table_name . " 
                  (title, description, type, url, category, created_by, file_size, 
-                 thumbnail_url, tags, difficulty) 
+                 thumbnail_url, tags, difficulty, is_public) 
                  VALUES 
                  (:title, :description, :type, :url, :category, :created_by, :file_size, 
-                 :thumbnail_url, :tags, :difficulty)";
+                 :thumbnail_url, :tags, :difficulty, :is_public)";
         
         $stmt = $this->conn->prepare($query);
         
@@ -136,6 +309,7 @@ class Resource {
         $this->thumbnail_url = $data['thumbnail_url'] ?? null;
         $this->tags = $data['tags'] ?? null;
         $this->difficulty = $data['difficulty'] ?? 'beginner';
+        $is_public = $data['is_public'] ?? false;
         
         // Bind parameters
         $stmt->bindParam(":title", $this->title);
@@ -148,6 +322,7 @@ class Resource {
         $stmt->bindParam(":thumbnail_url", $this->thumbnail_url);
         $stmt->bindParam(":tags", $this->tags);
         $stmt->bindParam(":difficulty", $this->difficulty);
+        $stmt->bindParam(":is_public", $is_public, PDO::PARAM_BOOL);
         
         if ($stmt->execute()) {
             return $this->conn->lastInsertId();
@@ -226,6 +401,78 @@ class Resource {
         
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['count'] > 0;
+    }
+
+    public function getResourcesSharedWithClassroom($classroom_id) {
+        $query = "SELECT r.*, u.full_name as author_name, cr.shared_at 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN classroom_resources cr ON r.id = cr.resource_id
+                 WHERE cr.classroom_id = :classroom_id
+                 ORDER BY cr.shared_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":classroom_id", $classroom_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getResourcesSharedWithBatch($batch_id) {
+        $query = "SELECT r.*, u.full_name as author_name, br.shared_at 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN batch_resources br ON r.id = br.resource_id
+                 WHERE br.batch_id = :batch_id
+                 ORDER BY br.shared_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":batch_id", $batch_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getResourcesSharedWithStudent($student_id) {
+        $query = "SELECT r.*, u.full_name as author_name, srs.shared_at 
+                 FROM " . $this->table_name . " r
+                 JOIN users u ON r.created_by = u.id
+                 JOIN student_resource_shares srs ON r.id = srs.resource_id
+                 WHERE srs.student_id = :student_id
+                 ORDER BY srs.shared_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id", $student_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function removeResourceFromClassroom($classroom_id, $resource_id) {
+        $query = "DELETE FROM classroom_resources 
+                 WHERE classroom_id = :classroom_id AND resource_id = :resource_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":classroom_id", $classroom_id);
+        $stmt->bindParam(":resource_id", $resource_id);
+        return $stmt->execute();
+    }
+
+    public function removeResourceFromBatch($batch_id, $resource_id) {
+        $query = "DELETE FROM batch_resources 
+                 WHERE batch_id = :batch_id AND resource_id = :resource_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":batch_id", $batch_id);
+        $stmt->bindParam(":resource_id", $resource_id);
+        return $stmt->execute();
+    }
+
+    public function removeResourceFromStudent($student_id, $resource_id) {
+        $query = "DELETE FROM student_resource_shares 
+                 WHERE student_id = :student_id AND resource_id = :resource_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":student_id", $student_id);
+        $stmt->bindParam(":resource_id", $resource_id);
+        return $stmt->execute();
     }
 }
 ?>

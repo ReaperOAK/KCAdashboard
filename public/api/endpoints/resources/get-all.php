@@ -9,14 +9,26 @@ try {
     $db = $database->getConnection();
     $resource = new Resource($db);
 
-    $resources = $resource->getAll();
-
-    // Add bookmark status if user is logged in
+    // Validate user token
     $user = verifyToken();
-    if ($user) {
-        foreach ($resources as &$item) {
-            $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
-        }
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["message" => "Unauthorized"]);
+        exit();
+    }
+
+    // Get resources based on user role and access permissions
+    if ($user['role'] === 'admin' || $user['role'] === 'teacher') {
+        // Admin and teachers can see all resources
+        $resources = $resource->getAll();
+    } else {
+        // Students can only see public resources and those shared with them
+        $resources = $resource->getStudentAccessibleResources($user['id']);
+    }
+
+    // Add bookmark status
+    foreach ($resources as &$item) {
+        $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
     }
 
     http_response_code(200);

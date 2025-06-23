@@ -9,14 +9,26 @@ try {
     $db = $database->getConnection();
     $resource = new Resource($db);
 
-    $featured = $resource->getFeatured();
-    
-    // Add bookmark status if user is logged in
+    // Validate user token
     $user = verifyToken();
-    if ($user) {
-        foreach ($featured as &$item) {
-            $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
-        }
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["message" => "Unauthorized"]);
+        exit();
+    }
+
+    // Get featured resources based on user role and access permissions
+    if ($user['role'] === 'admin' || $user['role'] === 'teacher') {
+        // Admin and teachers can see all featured resources
+        $featured = $resource->getFeatured();
+    } else {
+        // Students can only see public featured resources and those shared with them
+        $featured = $resource->getStudentAccessibleFeatured($user['id']);
+    }
+    
+    // Add bookmark status
+    foreach ($featured as &$item) {
+        $item['is_bookmarked'] = $resource->isBookmarked($user['id'], $item['id']);
     }
     
     http_response_code(200);

@@ -256,6 +256,23 @@
 | payment_status  | enum('pending','completed','refunded') | YES  |     | 'pending'|        |
 
 ## Resources & Materials
+
+### Resource Access Control System
+The resource system implements a comprehensive access control mechanism:
+
+- **Public Resources**: Resources marked with `is_public = TRUE` are accessible to all users
+- **Classroom Sharing**: Resources can be shared with specific classrooms via `classroom_resources`
+- **Batch Sharing**: Resources can be shared with specific batches via `batch_resources`  
+- **Individual Sharing**: Resources can be shared directly with students via `student_resource_shares`
+
+**Access Logic for Students**: A student can access a resource if ANY of the following is true:
+1. The resource is public (`is_public = TRUE`)
+2. The resource is directly shared with them
+3. The resource is shared with a classroom they belong to
+4. The resource is shared with a batch they belong to
+
+**Access Logic for Teachers/Admins**: Can see all resources and share them with their own classrooms/batches.
+
 ### resources
 | Column        | Type                           | Null | Key | Default | Extra           |
 |---------------|--------------------------------|------|-----|---------|-----------------|
@@ -273,6 +290,31 @@
 | is_featured   | boolean                        | YES  |     | FALSE   |                |
 | tags          | text                           | YES  |     | NULL    |                |
 | difficulty    | enum('beginner','intermediate','advanced') | YES | | 'beginner' |     |
+| is_public     | boolean                        | YES  |     | FALSE   |                |
+
+### classroom_resources
+| Column       | Type      | Null | Key | Default | Extra |
+|-------------|-----------|------|-----|---------|--------|
+| classroom_id | int(11)   | NO   | PRI | NULL    |        |
+| resource_id  | int(11)   | NO   | PRI | NULL    |        |
+| shared_by    | int(11)   | NO   | MUL | NULL    |        |
+| shared_at    | timestamp | YES  |     | CURRENT_TIMESTAMP |  |
+
+### batch_resources
+| Column      | Type      | Null | Key | Default | Extra |
+|------------|-----------|------|-----|---------|--------|
+| batch_id   | int(11)   | NO   | PRI | NULL    |        |
+| resource_id| int(11)   | NO   | PRI | NULL    |        |
+| shared_by  | int(11)   | NO   | MUL | NULL    |        |
+| shared_at  | timestamp | YES  |     | CURRENT_TIMESTAMP |  |
+
+### student_resource_shares
+| Column      | Type      | Null | Key | Default | Extra |
+|------------|-----------|------|-----|---------|--------|
+| student_id | int(11)   | NO   | PRI | NULL    |        |
+| resource_id| int(11)   | NO   | PRI | NULL    |        |
+| shared_by  | int(11)   | NO   | MUL | NULL    |        |
+| shared_at  | timestamp | YES  |     | CURRENT_TIMESTAMP |  |
 
 ### resource_access
 | Column       | Type      | Null | Key | Default | Extra |
@@ -538,6 +580,34 @@
 
 ### online_meeting_sync_logs
 - `session_id` references `batch_sessions(id)`
+
+## Resources Foreign Key Relationships
+
+### resources
+- `created_by` references `users(id)` ON DELETE CASCADE
+
+### classroom_resources
+- `classroom_id` references `classrooms(id)` ON DELETE CASCADE
+- `resource_id` references `resources(id)` ON DELETE CASCADE
+- `shared_by` references `users(id)`
+
+### batch_resources
+- `batch_id` references `batches(id)` ON DELETE CASCADE
+- `resource_id` references `resources(id)` ON DELETE CASCADE
+- `shared_by` references `users(id)`
+
+### student_resource_shares
+- `student_id` references `users(id)` ON DELETE CASCADE
+- `resource_id` references `resources(id)` ON DELETE CASCADE
+- `shared_by` references `users(id)`
+
+### resource_access
+- `resource_id` references `resources(id)` ON DELETE CASCADE
+- `user_id` references `users(id)` ON DELETE CASCADE
+
+### resource_bookmarks
+- `user_id` references `users(id)` ON DELETE CASCADE
+- `resource_id` references `resources(id)` ON DELETE CASCADE
 
 ## Foreign Key Relationships for Chess Tables
 

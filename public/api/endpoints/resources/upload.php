@@ -23,10 +23,10 @@ try {
         $file = $_FILES['file'];
         $title = $_POST['title'] ?? '';
         $description = $_POST['description'] ?? '';
-        $category = $_POST['category'] ?? '';
-        $tags = $_POST['tags'] ?? '';
+        $category = $_POST['category'] ?? '';        $tags = $_POST['tags'] ?? '';
         $type = $_POST['type'] ?? '';
         $difficulty = $_POST['difficulty'] ?? 'beginner';
+        $is_public = isset($_POST['is_public']) ? filter_var($_POST['is_public'], FILTER_VALIDATE_BOOLEAN) : false;
         
         // Validate required fields
         if(empty($title) || empty($category) || empty($type)) {
@@ -64,8 +64,7 @@ try {
             } else if($type === 'video') {
                 $thumbnail_url = '/assets/images/video-thumbnail.png';
             }
-            
-            // Create resource data
+              // Create resource data
             $resource_data = [
                 'title' => $title,
                 'description' => $description,
@@ -76,7 +75,8 @@ try {
                 'file_size' => $file['size'],
                 'thumbnail_url' => $thumbnail_url,
                 'tags' => $tags,
-                'difficulty' => $difficulty
+                'difficulty' => $difficulty,
+                'is_public' => $is_public
             ];
             
             // Save to database
@@ -99,17 +99,16 @@ try {
         // Handle link resources
         $title = $_POST['title'] ?? '';
         $description = $_POST['description'] ?? '';
-        $category = $_POST['category'] ?? '';
-        $url = $_POST['url'] ?? '';
+        $category = $_POST['category'] ?? '';        $url = $_POST['url'] ?? '';
         $tags = $_POST['tags'] ?? '';
         $difficulty = $_POST['difficulty'] ?? 'beginner';
+        $is_public = isset($_POST['is_public']) ? filter_var($_POST['is_public'], FILTER_VALIDATE_BOOLEAN) : false;
         
         // Validate required fields
         if(empty($title) || empty($category) || empty($url)) {
             throw new Exception("Title, category and URL are required fields");
         }
-        
-        // Create resource data
+          // Create resource data
         $resource_data = [
             'title' => $title,
             'description' => $description,
@@ -118,7 +117,8 @@ try {
             'category' => $category,
             'created_by' => $user['id'],
             'tags' => $tags,
-            'difficulty' => $difficulty
+            'difficulty' => $difficulty,
+            'is_public' => $is_public
         ];
         
         // Save to database

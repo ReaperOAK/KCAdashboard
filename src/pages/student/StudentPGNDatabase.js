@@ -32,12 +32,12 @@ const StudentPGNDatabase = () => {
             setError('Failed to fetch PGNs');
             setLoading(false);
         }
-    }, [filterCategory, filterTeacher]);
-
-    const fetchTeachers = useCallback(async () => {
+    }, [filterCategory, filterTeacher]);    const fetchTeachers = useCallback(async () => {
         try {
-            const response = await ApiService.getTeachers();
-            setTeachers(response.teachers || []);
+            const response = await ApiService.getStudentTeachers();
+            if (response.success) {
+                setTeachers(response.teachers || []);
+            }
         } catch (error) {
             console.error('Failed to fetch teachers:', error);
         }

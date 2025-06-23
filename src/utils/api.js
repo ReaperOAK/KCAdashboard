@@ -752,6 +752,16 @@ class ApiService {
       return { success: false, pgns: [], message: error.message };
     }
   }
+
+  static async getStudentTeachers() {
+    try {
+      const response = await this.get('/pgn/get-student-teachers.php');
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch student teachers:', error);
+      return { success: false, teachers: [], message: error.message };
+    }
+  }
 }
 
 export default ApiService;

@@ -261,5 +261,51 @@ class PGN {
         
         return ['valid' => true];
     }
+
+    public function getStudentAccessiblePGNs($student_id, $category = null, $teacher_id = null) {
+        try {
+            // Query to get PGNs that are either public OR shared with the student
+            $query = "SELECT DISTINCT p.*, u.full_name as teacher_name,
+                     CASE 
+                         WHEN p.is_public = 1 THEN 'public'
+                         WHEN s.pgn_id IS NOT NULL THEN 'shared'
+                         ELSE 'none'
+                     END as access_type,
+                     s.permission,
+                     s.shared_at
+                     FROM " . $this->table_name . " p
+                     JOIN users u ON p.teacher_id = u.id
+                     LEFT JOIN " . $this->shares_table . " s ON p.id = s.pgn_id AND s.user_id = :student_id
+                     WHERE (p.is_public = 1 OR s.pgn_id IS NOT NULL)";
+            
+            $params = [':student_id' => $student_id];
+            
+            // Add category filter if provided
+            if ($category) {
+                $query .= " AND p.category = :category";
+                $params[':category'] = $category;
+            }
+            
+            // Add teacher filter if provided
+            if ($teacher_id) {
+                $query .= " AND p.teacher_id = :teacher_id";
+                $params[':teacher_id'] = $teacher_id;
+            }
+            
+            $query .= " ORDER BY p.created_at DESC";
+
+            $stmt = $this->conn->prepare($query);
+            
+            // Bind parameters
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching student accessible PGNs: " . $e->getMessage());
+        }
+    }
 }
 ?>

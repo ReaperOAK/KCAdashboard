@@ -189,9 +189,8 @@ class ApiService {
       throw error;
     }
   }
-
-  static get(endpoint) {
-    return this.request(endpoint);
+  static get(endpoint, options = {}) {
+    return this.request(endpoint, 'GET', null, options);
   }
 
   static post(endpoint, data) {
@@ -736,6 +735,22 @@ class ApiService {
       ? `/classroom/debug-classroom.php?id=${classroomId}`
       : '/classroom/debug-classroom.php';
     return this.get(endpoint);
+  }
+
+  static async getStudentPGNs(category = null, teacherId = null) {
+    try {
+      let url = '/pgn/get-student-pgns.php';
+      const params = {};
+      
+      if (category) params.category = category;
+      if (teacherId) params.teacher_id = teacherId;
+      
+      const response = await this.get(url, { params });
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch student PGNs:', error);
+      return { success: false, pgns: [], message: error.message };
+    }
   }
 }
 

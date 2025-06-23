@@ -3,6 +3,7 @@ import ClassroomPage from '../pages/student/ClassroomPage';
 import ClassroomDetails from '../pages/student/ClassroomDetails';
 import ResourceCenter from '../pages/student/ResourceCenter';
 import ResourceDetails from '../pages/student/ResourceDetails';
+import StudentPGNDatabase from '../pages/student/StudentPGNDatabase';
 import QuizPage from '../pages/student/QuizPage';
 import QuizDetailPage from '../pages/student/QuizDetailPage';
 import QuizResultsPage from '../pages/student/QuizResultsPage';
@@ -35,6 +36,11 @@ const studentRoutes = [
     path: '/student/resources/:id',
     element: ResourceDetails,
     title: 'Resource Details'
+  },
+  {
+    path: '/student/pgn',
+    element: StudentPGNDatabase,
+    title: 'PGN Database'
   },
   {
     path: '/student/quiz',

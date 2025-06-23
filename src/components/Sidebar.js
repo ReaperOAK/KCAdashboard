@@ -46,6 +46,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     ],    student: [
       { label: 'My Classes', path: '/student/classes', icon: '📚' },
       { label: 'Resources', path: '/student/resources', icon: '📖' },
+      { label: 'PGN Database', path: '/student/pgn', icon: '♟️' },
       { label: 'Quiz', path: '/student/quiz', icon: '✏️' },
       { label: 'Tournaments', path: '/student/tournaments', icon: '🏆' }
     ]

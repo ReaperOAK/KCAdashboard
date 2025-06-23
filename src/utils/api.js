@@ -254,12 +254,26 @@ class ApiService {
   }
 
   static async addStudentToBatch(batchId, studentId) {
+    // This automatically adds the student to both the batch and the corresponding classroom
     return this.post('/batches/add-student.php', { batch_id: batchId, student_id: studentId });
   }
 
   static async removeStudentFromBatch(batchId, studentId) {
+    // This automatically removes the student from both the batch and the corresponding classroom
     return this.post('/batches/remove-student.php', { batch_id: batchId, student_id: studentId });
   }
+
+  static async getBatchClassroomId(batchId) {
+    // Get the classroom ID that corresponds to a batch so students can access classroom resources
+    return this.get(`/batches/get-classroom-id.php?batch_id=${batchId}`);
+  }
+
+  // Debug and testing endpoints
+  static async testBatchClassroomWorkflow() {
+    // Test endpoint to analyze the batch-classroom workflow health
+    return this.get('/debug/test-workflow.php');
+  }
+
   // Teacher Analytics Endpoints
   static async getTeacherDashboardStats() {
     try {

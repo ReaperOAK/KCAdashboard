@@ -41,11 +41,14 @@ try {
             throw new Exception('You do not have permission to modify this batch');
         }
     }
-    
-    // Add student to batch
+      // Add student to batch (this automatically adds them to the classroom too)
     $result = $batch->addStudent($data->batch_id, $data->student_id);
     
-    echo json_encode(['success' => true, 'message' => 'Student added to batch successfully']);
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Student added to batch and classroom successfully',
+        'data' => $result
+    ]);
     
 } catch(Exception $e) {
     // Log error to server log

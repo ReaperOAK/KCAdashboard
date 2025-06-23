@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
 
 const AssignmentsView = ({ classroomId, refreshTrigger }) => {
@@ -9,13 +9,7 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
     const [submissions, setSubmissions] = useState([]);
     const [showSubmissions, setShowSubmissions] = useState(false);
     const [gradingSubmission, setGradingSubmission] = useState(null);
-    const [gradeForm, setGradeForm] = useState({ grade: '', feedback: '' });
-
-    useEffect(() => {
-        fetchAssignments();
-    }, [classroomId, refreshTrigger]);
-
-    const fetchAssignments = async () => {
+    const [gradeForm, setGradeForm] = useState({ grade: '', feedback: '' });    const fetchAssignments = useCallback(async () => {
         try {
             setLoading(true);
             const response = await ApiService.getTeacherAssignments(classroomId);
@@ -26,7 +20,11 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [classroomId]);
+
+    useEffect(() => {
+        fetchAssignments();
+    }, [fetchAssignments, refreshTrigger]);
 
     const handleViewSubmissions = async (assignment) => {
         try {

@@ -65,6 +65,36 @@
 | created_at  | timestamp | NO   |     | CURRENT_TIMESTAMP |                |
 | updated_at  | timestamp | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
 
+### classroom_assignments
+| Column          | Type                           | Null | Key | Default           | Extra           |
+|----------------|--------------------------------|------|-----|-------------------|-----------------|
+| id             | int(11)                        | NO   | PRI | NULL              | auto_increment |
+| classroom_id   | int(11)                        | NO   | MUL | NULL              |                |
+| title          | varchar(255)                   | NO   |     | NULL              |                |
+| description    | text                           | YES  |     | NULL              |                |
+| instructions   | text                           | YES  |     | NULL              |                |
+| due_date       | datetime                       | NO   |     | NULL              |                |
+| points         | int                            | YES  |     | 100               |                |
+| assignment_type| enum('text','file','both')     | YES  |     | 'both'            |                |
+| created_by     | int(11)                        | NO   | MUL | NULL              |                |
+| created_at     | timestamp                      | YES  |     | CURRENT_TIMESTAMP |                |
+| updated_at     | timestamp                      | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
+### assignment_submissions
+| Column          | Type                                   | Null | Key | Default           | Extra           |
+|----------------|----------------------------------------|------|-----|-------------------|-----------------|
+| id             | int(11)                                | NO   | PRI | NULL              | auto_increment |
+| assignment_id  | int(11)                                | NO   | MUL | NULL              |                |
+| student_id     | int(11)                                | NO   | MUL | NULL              |                |
+| submission_text| text                                   | YES  |     | NULL              |                |
+| submission_file| varchar(512)                           | YES  |     | NULL              |                |
+| submission_date| timestamp                              | YES  |     | CURRENT_TIMESTAMP |                |
+| grade          | decimal(5,2)                           | YES  |     | NULL              |                |
+| feedback       | text                                   | YES  |     | NULL              |                |
+| graded_by      | int(11)                                | YES  | MUL | NULL              |                |
+| graded_at      | timestamp                              | YES  |     | NULL              |                |
+| status         | enum('submitted','graded','returned')  | YES  |     | 'submitted'       |                |
+
 ### batches
 | Column       | Type                                   | Null | Key | Default | Extra           |
 |--------------|----------------------------------------|------|-----|---------|-----------------|
@@ -490,6 +520,15 @@
 - `classroom_id` references `classrooms(id)` ON DELETE CASCADE
 - `user_id` references `users(id)` ON DELETE CASCADE
 - `parent_id` references `classroom_discussions(id)` ON DELETE CASCADE
+
+### classroom_assignments
+- `classroom_id` references `classrooms(id)` ON DELETE CASCADE
+- `created_by` references `users(id)` ON DELETE CASCADE
+
+### assignment_submissions
+- `assignment_id` references `classroom_assignments(id)` ON DELETE CASCADE
+- `student_id` references `users(id)` ON DELETE CASCADE
+- `graded_by` references `users(id)` ON DELETE SET NULL
 
 ### attendance
 - `student_id` references `users(id)`

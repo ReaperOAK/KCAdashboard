@@ -73,8 +73,7 @@ const ClassroomDetails = () => {
     const handleFileChange = (e) => {
         setSubmissionFile(e.target.files[0]);
     };
-    
-    const handleSubmitAssignment = async (assignmentId) => {
+      const handleSubmitAssignment = async (assignmentId) => {
         if (!submissionFile && !submissionText) {
             setSubmitError('Please provide a file or text submission');
             return;
@@ -98,8 +97,12 @@ const ClassroomDetails = () => {
             setSubmissionFile(null);
             setSubmissionText('');
             
+            // Clear the file input
+            const fileInput = document.querySelector('input[type="file"]');
+            if (fileInput) fileInput.value = '';
+            
             // Refresh assignments to show updated status
-            const response = await ApiService.get(`/classroom/get-assignments.php?classroom_id=${id}`);
+            const response = await ApiService.getClassroomAssignments(id);
             setAssignments(response.assignments || []);
         } catch (error) {
             setSubmitError(error.message || 'Failed to submit assignment');
@@ -292,7 +295,7 @@ const ClassroomDetails = () => {
                                                             </div>
                                                         )}
                                                         
-                                                        {assignment.status === 'pending' && (
+                                                        {assignment.status === 'pending' && new Date(assignment.due_date) >= new Date() && (
                                                             <div className="p-4 border-t border-gray-200">
                                                                 <h4 className="font-medium text-sm mb-2">Submit Your Work</h4>
                                                                 <div className="space-y-3">
@@ -323,8 +326,7 @@ const ClassroomDetails = () => {
                                                                     {submitSuccess && (
                                                                         <div className="text-sm text-green-600">Assignment submitted successfully!</div>
                                                                     )}
-                                                                    
-                                                                    <button
+                                                                      <button
                                                                         onClick={() => handleSubmitAssignment(assignment.id)}
                                                                         disabled={submitting}
                                                                         className="px-4 py-2 bg-[#461fa3] text-white rounded-md hover:bg-[#7646eb] disabled:opacity-50"
@@ -332,6 +334,59 @@ const ClassroomDetails = () => {
                                                                         {submitting ? 'Submitting...' : 'Submit Assignment'}
                                                                     </button>
                                                                 </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {assignment.status === 'submitted' && (
+                                                            <div className="p-4 border-t border-gray-200 bg-blue-50">
+                                                                <h4 className="font-medium text-sm mb-2 text-blue-800">Assignment Submitted</h4>
+                                                                <p className="text-sm text-blue-600 mb-2">
+                                                                    Submitted on: {new Date(assignment.submission_date).toLocaleString()}
+                                                                </p>
+                                                                {assignment.submission_text && (
+                                                                    <div className="mb-2">
+                                                                        <span className="font-medium text-blue-700">Your Text Submission:</span>
+                                                                        <div className="mt-1 p-2 bg-white rounded border">
+                                                                            <p className="text-sm text-gray-800 whitespace-pre-wrap">{assignment.submission_text}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                {assignment.submission_file && (
+                                                                    <div>
+                                                                        <span className="font-medium text-blue-700">Your File Submission:</span>
+                                                                        <div className="mt-1">
+                                                                            <a 
+                                                                                href={`${ApiService.API_URL.replace('/endpoints', '')}/uploads/${assignment.submission_file}`}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="text-blue-600 hover:text-blue-800 underline text-sm"
+                                                                            >
+                                                                                View Submitted File
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                <p className="text-sm text-blue-600 mt-2">Waiting for teacher to grade...</p>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {assignment.status === 'graded' && (
+                                                            <div className="p-4 border-t border-gray-200 bg-green-50">
+                                                                <h4 className="font-medium text-sm mb-2 text-green-800">Assignment Graded</h4>
+                                                                <div className="flex justify-between items-center mb-2">
+                                                                    <span className="font-medium text-green-700">Grade: {assignment.grade}</span>
+                                                                    <span className="text-sm text-green-600">
+                                                                        Submitted: {new Date(assignment.submission_date).toLocaleDateString()}
+                                                                    </span>
+                                                                </div>
+                                                                {assignment.feedback && (
+                                                                    <div className="mb-3">
+                                                                        <span className="font-medium text-green-700">Teacher Feedback:</span>
+                                                                        <div className="mt-1 p-3 bg-white rounded border">
+                                                                            <p className="text-sm text-gray-800 whitespace-pre-wrap">{assignment.feedback}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>

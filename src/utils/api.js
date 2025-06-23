@@ -682,7 +682,6 @@ class ApiService {
       ...discussionData
     });
   }
-
   static async submitAssignment(assignmentId, assignmentData) {
     const formData = new FormData();
     formData.append('assignment_id', assignmentId);
@@ -696,6 +695,26 @@ class ApiService {
     });
     
     return this.postFormData('/classroom/submit-assignment.php', formData);
+  }
+
+  static async createAssignment(assignmentData) {
+    return this.post('/classroom/create-assignment.php', assignmentData);
+  }
+
+  static async getTeacherAssignments(classroomId) {
+    return this.get(`/classroom/get-teacher-assignments.php?classroom_id=${classroomId}`);
+  }
+
+  static async getAssignmentSubmissions(assignmentId) {
+    return this.get(`/classroom/get-assignment-submissions.php?assignment_id=${assignmentId}`);
+  }
+
+  static async gradeAssignment(submissionId, grade, feedback) {
+    return this.post('/classroom/grade-assignment.php', {
+      submission_id: submissionId,
+      grade: grade,
+      feedback: feedback
+    });
   }
 
   static async getStudentClasses() {

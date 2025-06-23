@@ -55,14 +55,64 @@ try {
     if (!$hasAccess) {
         throw new Exception('You do not have access to this classroom');
     }
-    
-    // Check if classroom_assignments table exists
+      // Check if classroom_assignments table exists
     $tableExists = false;
     try {
         $checkTableQuery = "SHOW TABLES LIKE 'classroom_assignments'";
         $checkStmt = $db->prepare($checkTableQuery);
         $checkStmt->execute();
         $tableExists = ($checkStmt->rowCount() > 0);
+        
+        // If table doesn't exist, create it
+        if (!$tableExists) {
+            $createTableQuery = "
+                CREATE TABLE IF NOT EXISTS classroom_assignments (
+                    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+                    classroom_id INT(11) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    instructions TEXT,
+                    due_date DATETIME NOT NULL,
+                    points INT DEFAULT 100,
+                    assignment_type ENUM('text', 'file', 'both') DEFAULT 'both',
+                    created_by INT(11) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_classroom (classroom_id),
+                    INDEX idx_due_date (due_date),
+                    FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE,
+                    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ";
+            
+            $db->exec($createTableQuery);
+            
+            $createSubmissionsTable = "
+                CREATE TABLE IF NOT EXISTS assignment_submissions (
+                    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+                    assignment_id INT(11) NOT NULL,
+                    student_id INT(11) NOT NULL,
+                    submission_text TEXT,
+                    submission_file VARCHAR(512),
+                    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    grade DECIMAL(5,2) DEFAULT NULL,
+                    feedback TEXT,
+                    graded_by INT(11) DEFAULT NULL,
+                    graded_at TIMESTAMP NULL,
+                    status ENUM('submitted', 'graded', 'returned') DEFAULT 'submitted',
+                    INDEX idx_assignment (assignment_id),
+                    INDEX idx_student (student_id),
+                    INDEX idx_status (status),
+                    UNIQUE KEY unique_submission (assignment_id, student_id),
+                    FOREIGN KEY (assignment_id) REFERENCES classroom_assignments(id) ON DELETE CASCADE,
+                    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (graded_by) REFERENCES users(id) ON DELETE SET NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ";
+            
+            $db->exec($createSubmissionsTable);
+            $tableExists = true;
+        }
     } catch (PDOException $e) {
         // Ignore errors from this query
     }

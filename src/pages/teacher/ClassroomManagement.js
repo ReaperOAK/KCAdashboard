@@ -4,6 +4,7 @@ import ApiService from '../../utils/api';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
 import AttendanceModal from '../../components/classroom/AttendanceModal';
 import MaterialsView from '../../components/classroom/MaterialsView';
+import AssignmentsView from '../../components/classroom/AssignmentsView';
 
 const ClassroomManagement = () => {
     const [classrooms, setClassrooms] = useState([]);
@@ -20,13 +21,23 @@ const ClassroomManagement = () => {
         type: 'offline',
         meeting_link: '',
         description: ''
-    });
-    const [materialForm, setMaterialForm] = useState({
+    });    const [materialForm, setMaterialForm] = useState({
         title: '',
         type: 'document',
         content: '',
         file: null
     });
+    
+    const [assignmentForm, setAssignmentForm] = useState({
+        title: '',
+        description: '',
+        instructions: '',
+        due_date: '',
+        points: 100,
+        assignment_type: 'both'
+    });
+    
+    const [showAssignmentModal, setShowAssignmentModal] = useState(false);
     // New state variables for enhanced features
     const [currentView, setCurrentView] = useState('calendar'); // 'calendar' or 'materials'
     const [showAttendanceModal, setShowAttendanceModal] = useState(false);
@@ -36,6 +47,12 @@ const ClassroomManagement = () => {
     const handleScheduleChange = (e) => {
         const { name, value } = e.target;
         setScheduleForm(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };    const handleAssignmentChange = (e) => {
+        const { name, value } = e.target;
+        setAssignmentForm(prev => ({
             ...prev,
             [name]: value
         }));
@@ -87,6 +104,35 @@ const ClassroomManagement = () => {
         }
     };
 
+    const handleAssignmentSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await ApiService.createAssignment({
+                classroom_id: selectedClass.id,
+                ...assignmentForm
+            });
+            
+            if (response.success) {
+                setShowAssignmentModal(false);
+                setRefreshTrigger(prev => prev + 1);
+                setAssignmentForm({
+                    title: '',
+                    description: '',
+                    instructions: '',
+                    due_date: '',
+                    points: 100,
+                    assignment_type: 'both'
+                });
+                alert('Assignment created successfully!');
+            } else {
+                setError(response.message || 'Failed to create assignment');
+            }
+        } catch (error) {
+            console.error('Assignment creation error:', error);
+            setError('Failed to create assignment: ' + error.message);
+        }
+    };
+
     const handleMaterialSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -107,9 +153,7 @@ const ClassroomManagement = () => {
                 type: materialForm.type,
                 content: materialForm.content,
                 file: materialForm.file ? materialForm.file.name : 'No file'
-            });
-
-            // Use postFormData instead of post for multipart/form-data
+            });            // Use postFormData instead of post for multipart/form-data
             const response = await ApiService.postFormData('/classroom/add-material.php', formData);
             
             if (response.success) {
@@ -121,6 +165,7 @@ const ClassroomManagement = () => {
                     content: '',
                     file: null
                 });
+                alert('Material uploaded successfully!');
             } else {
                 setError(response.message || 'Failed to upload material');
             }
@@ -176,6 +221,14 @@ const ClassroomManagement = () => {
                                             className="text-[#461fa3] hover:text-[#7646eb]"
                                         >
                                             Schedule Class
+                                        </button>                                        <button
+                                            onClick={() => {
+                                                setSelectedClass(classroom);
+                                                setShowAssignmentModal(true);
+                                            }}
+                                            className="text-[#461fa3] hover:text-[#7646eb]"
+                                        >
+                                            Create Assignment
                                         </button>
                                         <button
                                             onClick={() => {
@@ -197,8 +250,7 @@ const ClassroomManagement = () => {
                                     <h2 className="text-2xl font-bold text-[#200e4a]">
                                         {selectedClass.name}
                                     </h2>
-                                    
-                                    <div className="flex space-x-4">
+                                      <div className="flex space-x-4">
                                         <button 
                                             className={`px-4 py-2 rounded-md ${currentView === 'calendar' 
                                                 ? 'bg-[#461fa3] text-white' 
@@ -215,17 +267,28 @@ const ClassroomManagement = () => {
                                         >
                                             Materials
                                         </button>
+                                        <button 
+                                            className={`px-4 py-2 rounded-md ${currentView === 'assignments' 
+                                                ? 'bg-[#461fa3] text-white' 
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                            onClick={() => setCurrentView('assignments')}
+                                        >
+                                            Assignments
+                                        </button>
                                     </div>
-                                </div>
-
-                                {currentView === 'calendar' ? (
+                                </div>                                {currentView === 'calendar' ? (
                                     <ClassroomCalendar 
                                         classroomId={selectedClass.id} 
                                         onEventClick={handleEventClick} 
                                         refreshTrigger={refreshTrigger}
                                     />
-                                ) : (
+                                ) : currentView === 'materials' ? (
                                     <MaterialsView 
+                                        classroomId={selectedClass.id} 
+                                        refreshTrigger={refreshTrigger}
+                                    />
+                                ) : (
+                                    <AssignmentsView 
                                         classroomId={selectedClass.id} 
                                         refreshTrigger={refreshTrigger}
                                     />
@@ -369,17 +432,15 @@ const ClassroomManagement = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Type</label>
-                                    <select
-                                        name="type"
-                                        value={materialForm.type}
-                                        onChange={handleMaterialChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
-                                    >
-                                        <option value="document">Document</option>
-                                        <option value="video">Video Link</option>
-                                        <option value="assignment">Assignment</option>
-                                    </select>
+                                    <label className="block text-sm font-medium text-gray-700">Type</label>                                        <select
+                                            name="type"
+                                            value={materialForm.type}
+                                            onChange={handleMaterialChange}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                        >
+                                            <option value="document">Document</option>
+                                            <option value="video">Video Link</option>
+                                        </select>
                                 </div>
                                 {materialForm.type === 'video' ? (
                                     <div>
@@ -421,6 +482,106 @@ const ClassroomManagement = () => {
                                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
                                     >
                                         Upload
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>                )}
+
+                {/* Assignment Modal */}
+                {showAssignmentModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+                        <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                            <h2 className="text-2xl font-bold text-[#200e4a] mb-4">Create Assignment</h2>
+                            <form onSubmit={handleAssignmentSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Assignment Title</label>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={assignmentForm.title}
+                                        onChange={handleAssignmentChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                        required
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea
+                                        name="description"
+                                        value={assignmentForm.description}
+                                        onChange={handleAssignmentChange}
+                                        rows={3}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                        placeholder="Brief description of the assignment..."
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Instructions</label>
+                                    <textarea
+                                        name="instructions"
+                                        value={assignmentForm.instructions}
+                                        onChange={handleAssignmentChange}
+                                        rows={4}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                        placeholder="Detailed instructions for students..."
+                                    />
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Due Date</label>
+                                        <input
+                                            type="datetime-local"
+                                            name="due_date"
+                                            value={assignmentForm.due_date}
+                                            onChange={handleAssignmentChange}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Points</label>
+                                        <input
+                                            type="number"
+                                            name="points"
+                                            value={assignmentForm.points}
+                                            onChange={handleAssignmentChange}
+                                            min="1"
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Submission Type</label>
+                                    <select
+                                        name="assignment_type"
+                                        value={assignmentForm.assignment_type}
+                                        onChange={handleAssignmentChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#461fa3] focus:ring-[#461fa3]"
+                                    >
+                                        <option value="both">Text or File Submission</option>
+                                        <option value="text">Text Only</option>
+                                        <option value="file">File Only</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="flex justify-end space-x-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAssignmentModal(false)}
+                                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#461fa3] hover:bg-[#7646eb]"
+                                    >
+                                        Create Assignment
                                     </button>
                                 </div>
                             </form>

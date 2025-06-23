@@ -74,9 +74,8 @@ try {
     if (!$isRegistered) {
         $tournament->registerUser($tournament_id, $user['id']);
     }
-    
-    // Create upload directory if it doesn't exist
-    $upload_dir = __DIR__ . '/../../uploads/payments/';
+      // Create upload directory if it doesn't exist
+    $upload_dir = __DIR__ . '/../../../uploads/payments/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }

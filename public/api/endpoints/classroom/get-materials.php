@@ -107,12 +107,11 @@ try {
     $stmt->execute();
     
     $materials = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        // Process URL path if needed based on type
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {        // Process URL path if needed based on type
         if ($row['type'] === 'pdf' || $row['type'] === 'pgn') {
             // Store just the filename in the database, construct full path here
             if (!preg_match('/^https?:\/\//', $row['url'])) {
-                $row['full_url'] = '/uploads/materials/' . $row['url'];
+                $row['full_url'] = '/uploads/classroom_materials/' . $row['url'];
             }
         }
         

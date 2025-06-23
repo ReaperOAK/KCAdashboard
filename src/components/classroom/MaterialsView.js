@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ApiService from '../../utils/api';
+import UploadUtils from '../../utils/uploadUtils';
 
 const MaterialsView = ({ classroomId, refreshTrigger = 0 }) => {
   const [materials, setMaterials] = useState([]);
@@ -52,9 +53,8 @@ const MaterialsView = ({ classroomId, refreshTrigger = 0 }) => {
       // If URL already contains http:// or https://, use it directly
       if (material.url && (material.url.startsWith('http://') || material.url.startsWith('https://'))) {
         window.open(material.url, '_blank');
-      } else {
-        // Otherwise, construct the full URL with the API uploads directory
-        window.open(`${ApiService.API_URL.replace('/endpoints', '')}/uploads/${material.url}`, '_blank');
+      } else {        // Otherwise, construct the full URL with the uploads directory
+        window.open(UploadUtils.getMaterialUrl(material.url), '_blank');
       }
     }
   };

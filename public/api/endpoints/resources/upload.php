@@ -3,6 +3,7 @@ require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../models/Resource.php';
 require_once '../../middleware/auth.php';
+require_once '../../utils/UploadHelper.php';
 
 try {
     // Validate user token
@@ -40,26 +41,22 @@ try {
             'pgn' => ['pgn'],
             'pdf' => ['pdf'],
             'video' => ['mp4', 'webm', 'ogg'],
-        ];
-        
+        ];        
         if ($type !== 'link' && (!isset($allowed_extensions[$type]) || !in_array($file_ext, $allowed_extensions[$type]))) {
             throw new Exception("Invalid file type for the selected resource type");
         }
         
-        // Create uploads directory if it doesn't exist
-        $upload_dir = '../../../uploads/resources/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
-        }
+        // Use UploadHelper for consistent path management
+        $upload_dir = UploadHelper::getServerPath('resources');
         
         // Generate a unique filename
-        $new_filename = uniqid() . '_' . $user['id'] . '.' . $file_ext;
+        $new_filename = UploadHelper::generateUniqueFilename($file['name'], $user['id']);
         $upload_path = $upload_dir . $new_filename;
         
         // Move the uploaded file
         if(move_uploaded_file($file['tmp_name'], $upload_path)) {
             // Generate URL for the file
-            $file_url = '/uploads/resources/' . $new_filename;
+            $file_url = UploadHelper::getWebPath('resources', $new_filename);
             
             // Generate thumbnail for PDFs or video (placeholder for now)
             $thumbnail_url = null;

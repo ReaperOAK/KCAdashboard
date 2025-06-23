@@ -326,12 +326,10 @@ try {
         $db->exec($sql);
     } catch (PDOException $e) {
         log_progress("Note: Foreign keys may already exist: " . $e->getMessage());
-    }
-
-    log_progress("Creating upload directories for chess thumbnails...");
+    }    log_progress("Creating upload directories for chess thumbnails...");
     $chess_upload_dirs = [
-        'api/uploads/chess',
-        'api/uploads/chess/thumbnails'
+        'uploads/chess',
+        'uploads/chess/thumbnails'
     ];
 
     foreach ($chess_upload_dirs as $dir) {
@@ -355,10 +353,14 @@ try {
     // Define directories relative to the script location
     $base_path = dirname(__FILE__) . '/../../';
     $upload_dirs = [
-        'api/uploads',
-        'api/uploads/payments',
-        'api/uploads/profiles',
-        'api/uploads/resources'
+        'uploads',
+        'uploads/payments',
+        'uploads/profiles',
+        'uploads/resources',
+        'uploads/classroom_materials',
+        'uploads/assignments',
+        'uploads/quiz_images',
+        'uploads/pgn'
     ];
     
     foreach ($upload_dirs as $dir) {

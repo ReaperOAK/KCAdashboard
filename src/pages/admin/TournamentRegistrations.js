@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ApiService from '../../utils/api';
+import UploadUtils from '../../utils/uploadUtils';
 import { toast } from 'react-hot-toast';
 
 const TournamentRegistrations = () => {
@@ -31,9 +32,8 @@ const TournamentRegistrations = () => {
         fetchRegistrations();
     }, [fetchRegistrations]); // Now fetchRegistrations is properly included in the dependency array
 
-    const handleViewPayment = (paymentId, screenshotPath) => {
-        setSelectedPaymentId(paymentId);
-        setSelectedImage(`/api/uploads/payments/${screenshotPath}`);
+    const handleViewPayment = (paymentId, screenshotPath) => {        setSelectedPaymentId(paymentId);
+        setSelectedImage(UploadUtils.getPaymentUrl(screenshotPath));
         setShowImageModal(true);
     };
 

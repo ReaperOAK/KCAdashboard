@@ -73,8 +73,7 @@ try {
     if ($stmt->rowCount() > 0) {
         throw new Exception('You have already submitted this assignment');
     }
-    
-    // Handle file upload if present
+      // Handle file upload if present
     $submission_file = null;
     if (isset($_FILES['submission_file']) && $_FILES['submission_file']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = '../../../uploads/assignments/';

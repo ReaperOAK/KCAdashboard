@@ -10,7 +10,7 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
 // Log requests for debugging
-$logFile = __DIR__ . '/../../uploads/upload_log.txt';
+$logFile = __DIR__ . '/../../../uploads/upload_log.txt';
 file_put_contents($logFile, date('Y-m-d H:i:s') . " - New upload attempt\n", FILE_APPEND);
 file_put_contents($logFile, "POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
 file_put_contents($logFile, "FILES: " . print_r($_FILES, true) . "\n", FILE_APPEND);
@@ -21,9 +21,8 @@ require_once __DIR__ . '/../../config/Database.php';
 require_once __DIR__ . '/../../models/PGN.php';
 require_once __DIR__ . '/../../middleware/auth.php';
 
-try {
-    // Create uploads directory
-    $uploadDir = __DIR__ . '/../../uploads/pgn';
+try {    // Create uploads directory
+    $uploadDir = __DIR__ . '/../../../uploads/pgn';
     if (!file_exists($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }

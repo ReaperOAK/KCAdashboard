@@ -10,9 +10,8 @@ class ChessHelper {
         'K' => '♔', 'Q' => '♕', 'R' => '♖', 'B' => '♗', 'N' => '♘', 'P' => '♙',
         'k' => '♚', 'q' => '♛', 'r' => '♜', 'b' => '♝', 'n' => '♞', 'p' => '♟'
     ];
-    
-    // Folder for storing generated thumbnails
-    const THUMBNAIL_DIR = '../../uploads/chess/thumbnails/';
+      // Folder for storing generated thumbnails
+    const THUMBNAIL_DIR = '../../../uploads/chess/thumbnails/';
     
     /**
      * Generate a thumbnail image for a chess position
@@ -29,10 +28,9 @@ class ChessHelper {
         // Generate a unique filename based on the FEN string
         $filename = hash('md5', $fen) . '.png';
         $filepath = self::THUMBNAIL_DIR . $filename;
-        
-        // Check if this thumbnail already exists
+          // Check if this thumbnail already exists
         if (file_exists($filepath)) {
-            return str_replace('../../', '/', $filepath);
+            return str_replace('../../../', '/', $filepath);
         }
         
         // Try to generate a thumbnail using GD library

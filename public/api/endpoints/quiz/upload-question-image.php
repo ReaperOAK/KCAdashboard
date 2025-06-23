@@ -54,9 +54,8 @@ try {
         ]);
         exit;
     }
-    
-    // Create uploads directory if it doesn't exist
-    $upload_dir = __DIR__ . '/../../uploads/quiz_images/';
+      // Create uploads directory if it doesn't exist
+    $upload_dir = __DIR__ . '/../../../uploads/quiz_images/';
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }

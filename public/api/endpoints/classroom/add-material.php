@@ -72,11 +72,10 @@ try {
         ]);
         exit;
     }
-    
-    // Handle file upload if present
+      // Handle file upload if present
     $file_url = null;
     if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = '../../uploads/classroom_materials/';
+        $upload_dir = '../../../uploads/classroom_materials/';
         
         // Create directory if it doesn't exist
         if (!file_exists($upload_dir)) {

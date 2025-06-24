@@ -8,7 +8,7 @@ import PgnFallback from './fallback';
 
 /**
  * React component that wraps the Lichess PGN Viewer library
- * Now using the fixed version of the library with proper error handling
+ * Now using the fixed version with arrow drawing disabled by default
  */
 const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
   const containerRef = useRef(null);
@@ -95,11 +95,12 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
       // Wait for next frame to ensure container has dimensions
       requestAnimationFrame(() => {
         // Initialize with default options merged with user provided options
+        // Arrow drawing is now disabled by default in the fixed library
         viewerRef.current = LichessPgnViewerLib(currentContainer, {
           pgn: pgn,
           showPlayers: 'auto',
           showClocks: true,
-          showMoves: 'right', // Force moves to the right instead of auto
+          showMoves: 'right',
           scrollToMove: true,
           keyboardToMove: true, 
           orientation: undefined,
@@ -111,7 +112,8 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
             movable: { free: false },
             responsive: true
           },
-          drawArrows: true,
+          // drawArrows is now false by default in the fixed library
+          // Users can explicitly enable it if needed: drawArrows: true
           viewOnly: true,
           resizable: true,
           menu: {
@@ -151,9 +153,7 @@ const LichessPgnViewer = ({ pgn, options = {}, containerClassName = "" }) => {
   // If there's an error, show the fallback component
   if (error) {
     return <PgnFallback pgn={pgn} title="PGN Analysis (Fallback View)" />;
-  }
-
-  return (
+  }  return (
     <div className={`lichess-pgn-viewer-wrapper w-full h-full ${containerClassName}`} 
          style={{ display: 'flex', flexDirection: 'column', minHeight: '300px' }}>
       <div 

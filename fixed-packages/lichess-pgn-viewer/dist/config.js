@@ -10,7 +10,7 @@ const defaults = {
     orientation: undefined,
     initialPly: 0,
     chessground: {},
-    drawArrows: true,
+    drawArrows: false,
     menu: {
         getPgn: {
             enabled: true,

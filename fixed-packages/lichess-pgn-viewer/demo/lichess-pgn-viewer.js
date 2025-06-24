@@ -5858,7 +5858,7 @@ var defaults2 = {
   // current position to display. Can be a number, or "last"
   chessground: {},
   // chessground configuration https://github.com/lichess-org/chessground/blob/master/src/config.ts#L7
-  drawArrows: true,
+  drawArrows: false,
   // allow mouse users to draw volatile arrows on the board. Disable for little perf boost
   menu: {
     getPgn: {

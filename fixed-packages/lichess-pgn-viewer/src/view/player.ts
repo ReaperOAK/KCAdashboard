@@ -25,7 +25,7 @@ export default function renderPlayer(ctrl: PgnViewer, side: 'top' | 'bottom'): V
 const renderClock = (ctrl: PgnViewer, color: Color): VNode | undefined => {
   const move = ctrl.curData();
   const clock = move.clocks && move.clocks[color];
-  return typeof clock == undefined
+  return typeof clock === 'undefined'
     ? undefined
     : h('div.lpv__player__clock', { class: { active: color == move.turn } }, clockContent(clock));
 };

@@ -59,15 +59,15 @@
   "scripts": {
     "compile": "tsc --incremental",
     "format": "prettier --write --log-level warn .",
-    "bundle": "esbuild src/main.ts --bundle --format=esm --platform=browser",
-    "bundle-dev": "pnpm run bundle --outfile=demo/lichess-pgn-viewer.js",
-    "bundle-prod": "pnpm run bundle --minify --outfile=dist/lichess-pgn-viewer.min.js",
-    "sass-dev": "sass --no-source-map --update --style=expanded scss:demo",
-    "sass-prod": "sass --no-source-map --style=compressed scss:dist",
-    "prod": "pnpm run sass-prod && pnpm run bundle-prod",
-    "demo": "pnpm run sass-dev && pnpm run bundle-dev && http-server demo",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "dist": "pnpm run compile && pnpm run prod && pnpm run sass-dev && pnpm run bundle-dev"
+    "bundle": "npx esbuild src/main.ts --bundle --format=esm --platform=browser",
+    "bundle-dev": "npm run bundle -- --outfile=demo/lichess-pgn-viewer.js",
+    "bundle-prod": "npm run bundle -- --minify --outfile=dist/lichess-pgn-viewer.min.js",
+    "sass-dev": "npx sass --no-source-map --update --style=expanded scss:demo",
+    "sass-prod": "npx sass --no-source-map --style=compressed scss:dist",
+    "prod": "npm run sass-prod && npm run bundle-prod",
+    "demo": "npm run sass-dev && npm run bundle-dev && npx http-server demo",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest",
+    "dist": "npm run compile && npm run prod && npm run sass-dev && npm run bundle-dev"
   }
 }

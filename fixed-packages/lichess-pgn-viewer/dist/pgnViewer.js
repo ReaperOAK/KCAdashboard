@@ -14,13 +14,12 @@ export default class PgnViewer {
         this.curNode = () => this.game.nodeAt(this.path) || this.game.moves;
         this.curData = () => this.game.dataAt(this.path) || this.game.initial;
         this.goTo = (to, focus = true) => {
-            var _a, _b;
             const path = to == 'first'
                 ? Path.root
                 : to == 'prev'
                     ? this.path.init()
                     : to == 'next'
-                        ? (_b = (_a = this.game.nodeAt(this.path)) === null || _a === void 0 ? void 0 : _a.children[0]) === null || _b === void 0 ? void 0 : _b.data.path
+                        ? this.game.nodeAt(this.path)?.children[0]?.data.path
                         : this.game.pathAtMainlinePly('last');
             this.toPath(path || this.path, focus);
         };
@@ -34,7 +33,7 @@ export default class PgnViewer {
             if (focus)
                 this.focus();
         };
-        this.focus = () => { var _a; return (_a = this.div) === null || _a === void 0 ? void 0 : _a.focus(); };
+        this.focus = () => this.div?.focus();
         this.toggleMenu = () => {
             this.pane = this.pane == 'board' ? 'menu' : 'board';
             this.redraw();
@@ -54,9 +53,8 @@ export default class PgnViewer {
             this.redraw();
         };
         this.cgState = () => {
-            var _a;
             const data = this.curData();
-            const lastMove = isMoveData(data) ? uciToMove(data.uci) : (_a = this.opts.chessground) === null || _a === void 0 ? void 0 : _a.lastMove;
+            const lastMove = isMoveData(data) ? uciToMove(data.uci) : this.opts.chessground?.lastMove;
             return {
                 fen: data.fen,
                 orientation: this.orientation(),

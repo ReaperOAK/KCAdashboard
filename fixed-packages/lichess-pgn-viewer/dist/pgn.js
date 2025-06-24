@@ -15,7 +15,7 @@ class State {
 }
 export const parseComments = (strings) => {
     const comments = strings.map(parseComment);
-    const reduceTimes = (times) => times.reduce((last, time) => (typeof time == undefined ? last : time), undefined);
+    const reduceTimes = (times) => times.reduce((last, time) => (typeof time === 'undefined' ? last : time), undefined);
     return {
         texts: comments.map(c => c.text).filter(t => !!t),
         shapes: comments.flatMap(c => c.shapes),
@@ -24,7 +24,6 @@ export const parseComments = (strings) => {
     };
 };
 export const makeGame = (pgn, lichess = false) => {
-    var _a, _b;
     const game = parsePgn(pgn)[0] || parsePgn('*')[0];
     const start = startingPosition(game.headers).unwrap();
     const fen = makeFen(start.toSetup());
@@ -39,8 +38,8 @@ export const makeGame = (pgn, lichess = false) => {
         comments: comments.texts,
         shapes: comments.shapes,
         clocks: {
-            white: ((_a = metadata.timeControl) === null || _a === void 0 ? void 0 : _a.initial) || comments.clock,
-            black: ((_b = metadata.timeControl) === null || _b === void 0 ? void 0 : _b.initial) || comments.clock,
+            white: metadata.timeControl?.initial || comments.clock,
+            black: metadata.timeControl?.initial || comments.clock,
         },
     };
     const moves = makeMoves(start, game.moves, metadata);
@@ -97,7 +96,7 @@ function makePlayers(headers, metadata) {
             name,
             title: get(color, 'title'),
             rating: parseInt(get(color, 'elo') || '') || undefined,
-            isLichessUser: metadata.isLichess && !!(name === null || name === void 0 ? void 0 : name.match(/^[a-z0-9][a-z0-9_-]{0,28}[a-z0-9]$/i)),
+            isLichessUser: metadata.isLichess && !!name?.match(/^[a-z0-9][a-z0-9_-]{0,28}[a-z0-9]$/i),
         };
     };
     return {
@@ -106,10 +105,11 @@ function makePlayers(headers, metadata) {
     };
 }
 function makeMetadata(headers, lichess) {
-    var _a;
     const site = headers.get('chapterurl') || headers.get('gameurl') || headers.get('source') || headers.get('site');
-    const tcs = (_a = headers
-        .get('timecontrol')) === null || _a === void 0 ? void 0 : _a.split('+').map(x => parseInt(x));
+    const tcs = headers
+        .get('timecontrol')
+        ?.split('+')
+        .map(x => parseInt(x));
     const timeControl = tcs && tcs[0]
         ? {
             initial: tcs[0],
@@ -119,7 +119,7 @@ function makeMetadata(headers, lichess) {
     const orientation = headers.get('orientation');
     return {
         externalLink: site && site.match(/^https?:\/\//) ? site : undefined,
-        isLichess: !!(lichess && (site === null || site === void 0 ? void 0 : site.startsWith(lichess))),
+        isLichess: !!(lichess && site?.startsWith(lichess)),
         timeControl,
         orientation: orientation === 'white' || orientation === 'black' ? orientation : undefined,
         result: headers.get('result'),

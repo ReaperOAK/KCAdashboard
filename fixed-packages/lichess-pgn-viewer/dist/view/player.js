@@ -18,7 +18,7 @@ export default function renderPlayer(ctrl, side) {
 const renderClock = (ctrl, color) => {
     const move = ctrl.curData();
     const clock = move.clocks && move.clocks[color];
-    return typeof clock == undefined
+    return typeof clock === 'undefined'
         ? undefined
         : h('div.lpv__player__clock', { class: { active: color == move.turn } }, clockContent(clock));
 };

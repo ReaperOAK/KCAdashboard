@@ -23,13 +23,11 @@ export class Game {
                 .join('_')
                 .replace(' ', '-')
             : 'lichess-pgn-viewer';
-        this.pathAtMainlinePly = (ply) => {
-            var _a;
-            return ply == 0
-                ? Path.root
-                : ((_a = this.mainline[Math.max(0, Math.min(this.mainline.length - 1, ply == 'last' ? 9999 : ply - 1))]) === null || _a === void 0 ? void 0 : _a.path) || Path.root;
-        };
-        this.hasPlayerName = () => { var _a, _b; return !!(((_a = this.players.white) === null || _a === void 0 ? void 0 : _a.name) || ((_b = this.players.black) === null || _b === void 0 ? void 0 : _b.name)); };
+        this.pathAtMainlinePly = (ply) => ply == 0
+            ? Path.root
+            : this.mainline[Math.max(0, Math.min(this.mainline.length - 1, ply == 'last' ? 9999 : ply - 1))]
+                ?.path || Path.root;
+        this.hasPlayerName = () => !!(this.players.white?.name || this.players.black?.name);
         this.mainline = Array.from(this.moves.mainline());
     }
 }

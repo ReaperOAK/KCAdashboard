@@ -14,3 +14,4 @@ export declare class Path {
     equals: (other: Path) => boolean;
     static root: Path;
 }
+//# sourceMappingURL=path.d.ts.map

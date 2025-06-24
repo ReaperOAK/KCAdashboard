@@ -1,30 +1,31 @@
 import { Opts } from './interfaces';
 export default function (element: HTMLElement, cfg: Partial<Opts>): {
     pgn: string;
-    fen?: string;
+    fen?: string | undefined;
     chessground: import("chessground/config").Config;
-    orientation?: import("chessops").Color;
+    orientation?: "white" | "black" | undefined;
     showPlayers: import("./interfaces").ShowPlayers;
     showMoves: import("./interfaces").ShowMoves;
     showClocks: boolean;
     showControls: boolean;
-    initialPly: import("./interfaces").Ply | "last";
+    initialPly: number | "last";
     scrollToMove: boolean;
     keyboardToMove: boolean;
     drawArrows: boolean;
     menu: {
         getPgn: {
-            enabled?: boolean;
-            fileName?: string;
+            enabled?: boolean | undefined;
+            fileName?: string | undefined;
         };
         practiceWithComputer?: {
-            enabled?: boolean;
-        };
+            enabled?: boolean | undefined;
+        } | undefined;
         analysisBoard?: {
-            enabled?: boolean;
-        };
+            enabled?: boolean | undefined;
+        } | undefined;
     };
     lichess: import("./interfaces").Lichess;
-    classes?: string;
-    translate?: import("./interfaces").Translate;
+    classes?: string | undefined;
+    translate?: import("./interfaces").Translate | undefined;
 };
+//# sourceMappingURL=config.d.ts.map

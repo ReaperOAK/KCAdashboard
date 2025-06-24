@@ -37,11 +37,14 @@ export default function (element: HTMLElement, cfg: Partial<Opts>) {
   return opts;
 }
 
-function deepMerge(base: any, extend: any): void {
+function deepMerge(base: Record<string, unknown>, extend: Record<string, unknown>): void {
   for (const key in extend) {
     if (typeof extend[key] !== 'undefined') {
-      if (isPlainObject(base[key]) && isPlainObject(extend[key])) deepMerge(base[key], extend[key]);
-      else base[key] = extend[key];
+      if (isPlainObject(base[key]) && isPlainObject(extend[key])) {
+        deepMerge(base[key] as Record<string, unknown>, extend[key] as Record<string, unknown>);
+      } else {
+        base[key] = extend[key];
+      }
     }
   }
 }

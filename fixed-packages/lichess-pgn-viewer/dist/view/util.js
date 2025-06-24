@@ -12,7 +12,7 @@ export const bind = (eventName, f, redraw, passive = true) => onInsert(el => el.
     const res = f(e);
     if (res === false)
         e.preventDefault();
-    redraw === null || redraw === void 0 ? void 0 : redraw();
+    redraw?.();
     return res;
 }, { passive }));
 export function onInsert(f) {

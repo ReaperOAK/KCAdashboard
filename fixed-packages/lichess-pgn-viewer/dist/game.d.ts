@@ -13,8 +13,9 @@ export declare class Game {
     nodeAt: (path: Path) => AnyNode | undefined;
     dataAt: (path: Path) => MoveData | Initial | undefined;
     title: () => string;
-    pathAtMainlinePly: (ply: Ply | "last") => Path;
+    pathAtMainlinePly: (ply: Ply | 'last') => Path;
     hasPlayerName: () => boolean;
 }
 export declare const isMoveNode: (n: AnyNode) => n is MoveNode;
 export declare const isMoveData: (d: InitialOrMove) => d is MoveData;
+//# sourceMappingURL=game.d.ts.map

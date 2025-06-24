@@ -32,3 +32,4 @@ export default class PgnViewer {
     private redrawGround;
     private withGround;
 }
+//# sourceMappingURL=pgnViewer.d.ts.map

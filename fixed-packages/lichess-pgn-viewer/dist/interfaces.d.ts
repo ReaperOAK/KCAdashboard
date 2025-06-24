@@ -93,3 +93,4 @@ export interface Opts {
     classes?: string;
     translate?: Translate;
 }
+//# sourceMappingURL=interfaces.d.ts.map

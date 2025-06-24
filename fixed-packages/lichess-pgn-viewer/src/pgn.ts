@@ -19,7 +19,7 @@ class State {
 export const parseComments = (strings: string[]): Comments => {
   const comments = strings.map(parseComment);
   const reduceTimes = (times: Array<number | undefined>) =>
-    times.reduce<number | undefined>((last, time) => (typeof time == undefined ? last : time), undefined);
+    times.reduce<number | undefined>((last, time) => (typeof time === 'undefined' ? last : time), undefined);
   return {
     texts: comments.map(c => c.text).filter(t => !!t),
     shapes: comments.flatMap(c => c.shapes),

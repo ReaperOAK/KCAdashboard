@@ -1,4 +1,4 @@
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/types.js
+// ../chessops/dist/esm/types.js
 var FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 var RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"];
 var COLORS = ["white", "black"];
@@ -6,7 +6,7 @@ var ROLES = ["pawn", "knight", "bishop", "rook", "queen", "king"];
 var CASTLING_SIDES = ["a", "h"];
 var isDrop = (v) => "role" in v;
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/util.js
+// ../chessops/dist/esm/util.js
 var defined = (v) => v !== void 0;
 var opposite = (color) => color === "white" ? "black" : "white";
 var squareRank = (square) => square >> 3;
@@ -56,7 +56,7 @@ var makeUci = (move3) => isDrop(move3) ? `${roleToChar(move3.role).toUpperCase()
 var kingCastlesTo = (color, side) => color === "white" ? side === "a" ? 2 : 6 : side === "a" ? 58 : 62;
 var rookCastlesTo = (color, side) => color === "white" ? side === "a" ? 3 : 5 : side === "a" ? 59 : 61;
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/squareSet.js
+// ../chessops/dist/esm/squareSet.js
 var popcnt32 = (n2) => {
   n2 = n2 - (n2 >>> 1 & 1431655765);
   n2 = (n2 & 858993459) + (n2 >>> 2 & 858993459);
@@ -248,7 +248,7 @@ var SquareSet = class _SquareSet {
   }
 };
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/attacks.js
+// ../chessops/dist/esm/attacks.js
 var computeRange = (square, deltas) => {
   let range = SquareSet.empty();
   for (const delta of deltas) {
@@ -338,7 +338,7 @@ var ray = (a, b) => {
 };
 var between = (a, b) => ray(a, b).intersect(SquareSet.full().shl64(a).xor(SquareSet.full().shl64(b))).withoutFirst();
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/board.js
+// ../chessops/dist/esm/board.js
 var Board = class _Board {
   constructor() {
   }
@@ -459,7 +459,7 @@ var Board = class _Board {
   }
 };
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/setup.js
+// ../chessops/dist/esm/setup.js
 var MaterialSide = class _MaterialSide {
   constructor() {
   }
@@ -570,7 +570,7 @@ var RemainingChecks = class _RemainingChecks {
   }
 };
 
-// node_modules/.pnpm/@badrap+result@0.2.13/node_modules/@badrap/result/dist/index.modern.mjs
+// ../@badrap/result/dist/index.modern.mjs
 var r = class {
   unwrap(r2, t2) {
     const e2 = this._chain((t3) => n.ok(r2 ? r2(t3) : t3), (r3) => t2 ? n.ok(t2(r3)) : n.err(r3));
@@ -626,7 +626,7 @@ var n;
   };
 }(n || (n = {}));
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/chess.js
+// ../chessops/dist/esm/chess.js
 var IllegalSetup;
 (function(IllegalSetup2) {
   IllegalSetup2["Empty"] = "ERR_EMPTY";
@@ -1167,10 +1167,10 @@ var normalizeMove = (pos, move3) => {
   };
 };
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/compat.js
+// ../chessops/dist/esm/compat.js
 var scalachessCharPair = (move3) => isDrop(move3) ? String.fromCharCode(35 + move3.to, 35 + 64 + 8 * 5 + ["queen", "rook", "bishop", "knight", "pawn"].indexOf(move3.role)) : String.fromCharCode(35 + move3.from, move3.promotion ? 35 + 64 + 8 * ["queen", "rook", "bishop", "knight", "king"].indexOf(move3.promotion) + squareFile(move3.to) : 35 + move3.to);
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/fen.js
+// ../chessops/dist/esm/fen.js
 var INITIAL_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 var INITIAL_EPD = INITIAL_BOARD_FEN + " w KQkq -";
 var INITIAL_FEN = INITIAL_EPD + " 0 1";
@@ -1436,7 +1436,7 @@ var makeFen = (setup, opts) => [
   ...(opts === null || opts === void 0 ? void 0 : opts.epd) ? [] : [Math.max(0, Math.min(setup.halfmoves, 9999)), Math.max(1, Math.min(setup.fullmoves, 9999))]
 ].join(" ");
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/san.js
+// ../chessops/dist/esm/san.js
 var makeSanWithoutSuffix = (pos, move3) => {
   let san = "";
   if (isDrop(move3)) {
@@ -1565,7 +1565,7 @@ var parseSan = (pos, san) => {
   };
 };
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/variant.js
+// ../chessops/dist/esm/variant.js
 var Crazyhouse = class extends Position {
   constructor() {
     super("crazyhouse");
@@ -2183,7 +2183,7 @@ var setupPosition = (rules, setup) => {
   }
 };
 
-// node_modules/.pnpm/chessops@0.14.2/node_modules/chessops/dist/esm/pgn.js
+// ../chessops/dist/esm/pgn.js
 var defaultGame = (initHeaders = defaultHeaders) => ({
   headers: initHeaders(),
   moves: new Node()
@@ -2626,12 +2626,12 @@ var defaultTranslations = {
   viewOnSite: "View on site"
 };
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/types.js
+// ../chessground/dist/types.js
 var colors = ["white", "black"];
 var files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 var ranks = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/util.js
+// ../chessground/dist/util.js
 var invRanks = [...ranks].reverse();
 var allKeys = Array.prototype.concat(...files.map((c) => ranks.map((r2) => c + r2)));
 var pos2key = (pos) => allKeys[8 * pos[0] + pos[1]];
@@ -2724,21 +2724,19 @@ function computeSquareCenter(key, asWhite, bounds) {
 var Path = class _Path {
   constructor(path) {
     this.path = path;
-    this.size = () => this.path.length / 2;
-    this.head = () => this.path.slice(0, 2);
-    // returns an invalid path doesn't starting from root
-    this.tail = () => new _Path(this.path.slice(2));
-    this.init = () => new _Path(this.path.slice(0, -2));
-    this.last = () => this.path.slice(-2);
-    this.empty = () => this.path == "";
-    this.contains = (other) => this.path.startsWith(other.path);
-    this.isChildOf = (parent) => this.init() === parent;
-    this.append = (id) => new _Path(this.path + id);
-    this.equals = (other) => this.path == other.path;
   }
-  static {
-    this.root = new _Path("");
-  }
+  size = () => this.path.length / 2;
+  head = () => this.path.slice(0, 2);
+  // returns an invalid path doesn't starting from root
+  tail = () => new _Path(this.path.slice(2));
+  init = () => new _Path(this.path.slice(0, -2));
+  last = () => this.path.slice(-2);
+  empty = () => this.path == "";
+  contains = (other) => this.path.startsWith(other.path);
+  isChildOf = (parent) => this.init() === parent;
+  append = (id) => new _Path(this.path + id);
+  equals = (other) => this.path == other.path;
+  static root = new _Path("");
 };
 
 // src/game.ts
@@ -2748,22 +2746,23 @@ var Game = class {
     this.moves = moves;
     this.players = players;
     this.metadata = metadata;
-    this.nodeAt = (path) => nodeAtPathFrom(this.moves, path);
-    this.dataAt = (path) => {
-      const node = this.nodeAt(path);
-      return node ? isMoveNode(node) ? node.data : this.initial : void 0;
-    };
-    this.title = () => this.players.white.name ? [
-      this.players.white.title,
-      this.players.white.name,
-      "vs",
-      this.players.black.title,
-      this.players.black.name
-    ].filter((x) => x && !!x.trim()).join("_").replace(" ", "-") : "lichess-pgn-viewer";
-    this.pathAtMainlinePly = (ply) => ply == 0 ? Path.root : this.mainline[Math.max(0, Math.min(this.mainline.length - 1, ply == "last" ? 9999 : ply - 1))]?.path || Path.root;
-    this.hasPlayerName = () => !!(this.players.white?.name || this.players.black?.name);
     this.mainline = Array.from(this.moves.mainline());
   }
+  mainline;
+  nodeAt = (path) => nodeAtPathFrom(this.moves, path);
+  dataAt = (path) => {
+    const node = this.nodeAt(path);
+    return node ? isMoveNode(node) ? node.data : this.initial : void 0;
+  };
+  title = () => this.players.white.name ? [
+    this.players.white.title,
+    this.players.white.name,
+    "vs",
+    this.players.black.title,
+    this.players.black.name
+  ].filter((x) => x && !!x.trim()).join("_").replace(" ", "-") : "lichess-pgn-viewer";
+  pathAtMainlinePly = (ply) => ply == 0 ? Path.root : this.mainline[Math.max(0, Math.min(this.mainline.length - 1, ply == "last" ? 9999 : ply - 1))]?.path || Path.root;
+  hasPlayerName = () => !!(this.players.white?.name || this.players.black?.name);
 };
 var childById = (node, id) => node.children.find((c) => c.data.path.last() == id);
 var nodeAtPathFrom = (node, path) => {
@@ -2780,12 +2779,12 @@ var State = class _State {
     this.pos = pos;
     this.path = path;
     this.clocks = clocks;
-    this.clone = () => new _State(this.pos.clone(), this.path, { ...this.clocks });
   }
+  clone = () => new _State(this.pos.clone(), this.path, { ...this.clocks });
 };
 var parseComments = (strings) => {
   const comments = strings.map(parseComment);
-  const reduceTimes = (times) => times.reduce((last, time) => typeof time == void 0 ? last : time, void 0);
+  const reduceTimes = (times) => times.reduce((last, time) => typeof time === "undefined" ? last : time, void 0);
   return {
     texts: comments.map((c) => c.text).filter((t2) => !!t2),
     shapes: comments.flatMap((c) => c.shapes),
@@ -2895,79 +2894,84 @@ var PgnViewer = class {
   constructor(opts, redraw) {
     this.opts = opts;
     this.redraw = redraw;
-    this.flipped = false;
-    this.pane = "board";
-    this.autoScrollRequested = false;
-    this.curNode = () => this.game.nodeAt(this.path) || this.game.moves;
-    this.curData = () => this.game.dataAt(this.path) || this.game.initial;
-    this.goTo = (to, focus = true) => {
-      const path = to == "first" ? Path.root : to == "prev" ? this.path.init() : to == "next" ? this.game.nodeAt(this.path)?.children[0]?.data.path : this.game.pathAtMainlinePly("last");
-      this.toPath(path || this.path, focus);
-    };
-    this.canGoTo = (to) => to == "prev" || to == "first" ? !this.path.empty() : !!this.curNode().children[0];
-    this.toPath = (path, focus = true) => {
-      this.path = path;
-      this.pane = "board";
-      this.autoScrollRequested = true;
-      this.redrawGround();
-      this.redraw();
-      if (focus) this.focus();
-    };
-    this.focus = () => this.div?.focus();
-    this.toggleMenu = () => {
-      this.pane = this.pane == "board" ? "menu" : "board";
-      this.redraw();
-    };
-    this.togglePgn = () => {
-      this.pane = this.pane == "pgn" ? "board" : "pgn";
-      this.redraw();
-    };
-    this.orientation = () => {
-      const base = this.opts.orientation || "white";
-      return this.flipped ? opposite(base) : base;
-    };
-    this.flip = () => {
-      this.flipped = !this.flipped;
-      this.pane = "board";
-      this.redrawGround();
-      this.redraw();
-    };
-    this.cgState = () => {
-      const data = this.curData();
-      const lastMove = isMoveData(data) ? uciToMove(data.uci) : this.opts.chessground?.lastMove;
-      return {
-        fen: data.fen,
-        orientation: this.orientation(),
-        check: data.check,
-        lastMove,
-        turnColor: data.turn
-      };
-    };
-    this.analysisUrl = () => this.game.metadata.isLichess && this.game.metadata.externalLink || `https://lichess.org/analysis/${this.curData().fen.replace(" ", "_")}?color=${this.orientation()}`;
-    this.practiceUrl = () => `${this.analysisUrl()}#practice`;
-    this.setGround = (cg) => {
-      this.ground = cg;
-      this.redrawGround();
-    };
-    this.redrawGround = () => this.withGround((g) => {
-      g.set(this.cgState());
-      g.setShapes(
-        this.curData().shapes.map((s) => ({
-          orig: makeSquare(s.from),
-          dest: makeSquare(s.to),
-          brush: s.color
-        }))
-      );
-    });
-    this.withGround = (f) => this.ground && f(this.ground);
     this.game = makeGame(opts.pgn, opts.lichess);
     opts.orientation = opts.orientation || this.game.metadata.orientation;
     this.translate = translate(opts.translate);
     this.path = this.game.pathAtMainlinePly(opts.initialPly);
   }
+  game;
+  path;
+  translate;
+  ground;
+  div;
+  flipped = false;
+  pane = "board";
+  autoScrollRequested = false;
+  curNode = () => this.game.nodeAt(this.path) || this.game.moves;
+  curData = () => this.game.dataAt(this.path) || this.game.initial;
+  goTo = (to, focus = true) => {
+    const path = to == "first" ? Path.root : to == "prev" ? this.path.init() : to == "next" ? this.game.nodeAt(this.path)?.children[0]?.data.path : this.game.pathAtMainlinePly("last");
+    this.toPath(path || this.path, focus);
+  };
+  canGoTo = (to) => to == "prev" || to == "first" ? !this.path.empty() : !!this.curNode().children[0];
+  toPath = (path, focus = true) => {
+    this.path = path;
+    this.pane = "board";
+    this.autoScrollRequested = true;
+    this.redrawGround();
+    this.redraw();
+    if (focus) this.focus();
+  };
+  focus = () => this.div?.focus();
+  toggleMenu = () => {
+    this.pane = this.pane == "board" ? "menu" : "board";
+    this.redraw();
+  };
+  togglePgn = () => {
+    this.pane = this.pane == "pgn" ? "board" : "pgn";
+    this.redraw();
+  };
+  orientation = () => {
+    const base = this.opts.orientation || "white";
+    return this.flipped ? opposite(base) : base;
+  };
+  flip = () => {
+    this.flipped = !this.flipped;
+    this.pane = "board";
+    this.redrawGround();
+    this.redraw();
+  };
+  cgState = () => {
+    const data = this.curData();
+    const lastMove = isMoveData(data) ? uciToMove(data.uci) : this.opts.chessground?.lastMove;
+    return {
+      fen: data.fen,
+      orientation: this.orientation(),
+      check: data.check,
+      lastMove,
+      turnColor: data.turn
+    };
+  };
+  analysisUrl = () => this.game.metadata.isLichess && this.game.metadata.externalLink || `https://lichess.org/analysis/${this.curData().fen.replace(" ", "_")}?color=${this.orientation()}`;
+  practiceUrl = () => `${this.analysisUrl()}#practice`;
+  setGround = (cg) => {
+    this.ground = cg;
+    this.redrawGround();
+  };
+  redrawGround = () => this.withGround((g) => {
+    g.set(this.cgState());
+    g.setShapes(
+      this.curData().shapes.map((s) => ({
+        orig: makeSquare(s.from),
+        dest: makeSquare(s.to),
+        brush: s.color
+      }))
+    );
+  });
+  withGround = (f) => this.ground && f(this.ground);
 };
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/premove.js
+// ../chessground/dist/premove.js
 var diff = (a, b) => Math.abs(a - b);
 var pawn = (color) => (x1, y1, x2, y2) => diff(x1, x2) < 2 && (color === "white" ? (
   // allow 2 squares from first two ranks, for horde
@@ -3006,7 +3010,7 @@ function premove(pieces, key, canCastle) {
   return allPos.filter((pos2) => (pos[0] !== pos2[0] || pos[1] !== pos2[1]) && mobility(pos[0], pos[1], pos2[0], pos2[1])).map(pos2key);
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/board.js
+// ../chessground/dist/board.js
 function callUserFunction(f, ...args) {
   if (f)
     setTimeout(() => f(...args), 1);
@@ -3304,7 +3308,7 @@ function getSnappedKeyAtDomPos(orig, pos, asWhite, bounds) {
 }
 var whitePov = (s) => s.orientation === "white";
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/fen.js
+// ../chessground/dist/fen.js
 var initial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 var roles = {
   p: "pawn",
@@ -3376,7 +3380,7 @@ function write(pieces) {
   }).join("")).join("/").replace(/1{2,}/g, (s) => s.length.toString());
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/config.js
+// ../chessground/dist/config.js
 function applyAnimation(state, config) {
   if (config.animation) {
     deepMerge(state.animation, config.animation);
@@ -3413,12 +3417,12 @@ function configure(state, config) {
 }
 function deepMerge(base, extend) {
   for (const key in extend) {
-    if (Object.prototype.hasOwnProperty.call(extend, key)) {
-      if (Object.prototype.hasOwnProperty.call(base, key) && isPlainObject(base[key]) && isPlainObject(extend[key]))
-        deepMerge(base[key], extend[key]);
-      else
-        base[key] = extend[key];
-    }
+    if (key === "__proto__" || key === "constructor" || !Object.prototype.hasOwnProperty.call(extend, key))
+      continue;
+    if (Object.prototype.hasOwnProperty.call(base, key) && isPlainObject(base[key]) && isPlainObject(extend[key]))
+      deepMerge(base[key], extend[key]);
+    else
+      base[key] = extend[key];
   }
 }
 function isPlainObject(o) {
@@ -3428,7 +3432,7 @@ function isPlainObject(o) {
   return proto === Object.prototype || proto === null;
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/anim.js
+// ../chessground/dist/anim.js
 var anim = (mutation, state) => state.animation.enabled ? animate(mutation, state) : render(mutation, state);
 function render(mutation, state) {
   const result = mutation(state);
@@ -3519,7 +3523,7 @@ function animate(mutation, state) {
 }
 var easing = (t2) => t2 < 0.5 ? 4 * t2 * t2 * t2 : (t2 - 1) * (2 * t2 - 2) * (2 * t2 - 2) + 1;
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/draw.js
+// ../chessground/dist/draw.js
 var brushes = ["green", "red", "blue", "yellow"];
 function start(state, e2) {
   if (e2.touches && e2.touches.length > 1)
@@ -3605,7 +3609,7 @@ function onChange(drawable) {
     drawable.onChange(drawable.shapes);
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/drag.js
+// ../chessground/dist/drag.js
 function start2(s, e2) {
   if (!(s.trustAllEvents || e2.isTrusted))
     return;
@@ -3792,7 +3796,7 @@ function pieceElementByKey(s, key) {
   return;
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/explosion.js
+// ../chessground/dist/explosion.js
 function explosion(state, keys) {
   state.exploding = { stage: 1, keys };
   state.dom.redraw();
@@ -3811,7 +3815,7 @@ function setStage(state, stage) {
   }
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/api.js
+// ../chessground/dist/api.js
 function start3(state, redrawAll) {
   function toggleOrientation2() {
     toggleOrientation(state);
@@ -3902,7 +3906,7 @@ function start3(state, redrawAll) {
   };
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/state.js
+// ../chessground/dist/state.js
 function defaults() {
   return {
     pieces: read(initial),
@@ -3964,7 +3968,9 @@ function defaults() {
     events: {},
     drawable: {
       enabled: true,
+      // can draw
       visible: true,
+      // can view
       defaultSnapToValidMove: true,
       eraseOnClick: true,
       shapes: [],
@@ -3993,7 +3999,7 @@ function defaults() {
   };
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/svg.js
+// ../chessground/dist/svg.js
 var hilites = {
   hilitePrimary: { key: "hilitePrimary", color: "#3291ff", opacity: 1, lineWidth: 1 },
   hiliteWhite: { key: "hiliteWhite", color: "#ffffff", opacity: 1, lineWidth: 1 }
@@ -4302,7 +4308,7 @@ function labelCoords(from, to, slots) {
   return [from[0] - Math.cos(angle) * mag, from[1] - Math.sin(angle) * mag].map((c) => c + 0.5);
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/wrap.js
+// ../chessground/dist/wrap.js
 function renderWrap(element, s) {
   element.innerHTML = "";
   element.classList.add("cg-wrap");
@@ -4373,7 +4379,7 @@ function renderCoords(elems, className) {
   return el;
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/drop.js
+// ../chessground/dist/drop.js
 function drop(s, e2) {
   if (!s.dropmode.active)
     return;
@@ -4390,7 +4396,7 @@ function drop(s, e2) {
   s.dom.redraw();
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/events.js
+// ../chessground/dist/events.js
 function bindBoard(s, onResize) {
   const boardEl = s.dom.elements.board;
   if ("ResizeObserver" in window)
@@ -4452,7 +4458,7 @@ var dragOrDraw = (s, withDrag, withDraw) => (e2) => {
     withDrag(s, e2);
 };
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/render.js
+// ../chessground/dist/render.js
 function render2(s) {
   const asWhite = whitePov(s), posToTranslate2 = posToTranslate(s.dom.bounds()), boardEl = s.dom.elements.board, pieces = s.pieces, curAnim = s.animation.current, anims = curAnim ? curAnim.plan.anims : /* @__PURE__ */ new Map(), fadings = curAnim ? curAnim.plan.fadings : /* @__PURE__ */ new Map(), curDrag = s.draggable.current, squares = computeSquareClasses(s), samePieces = /* @__PURE__ */ new Set(), sameSquares = /* @__PURE__ */ new Set(), movedPieces = /* @__PURE__ */ new Map(), movedSquares = /* @__PURE__ */ new Map();
   let k, el, pieceAtKey, elPieceName, anim2, fading, pMvdset, pMvd, sMvdset, sMvd;
@@ -4659,7 +4665,7 @@ function appendValue(map, key, value) {
     map.set(key, [value]);
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/sync.js
+// ../chessground/dist/sync.js
 function syncShapes2(shapes, root, renderShape3) {
   const hashesInDom = /* @__PURE__ */ new Map(), toRemove = [];
   for (const sc of shapes)
@@ -4681,7 +4687,7 @@ function syncShapes2(shapes, root, renderShape3) {
   }
 }
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/autoPieces.js
+// ../chessground/dist/autoPieces.js
 function render3(state, autoPieceEl) {
   const autoPieces = state.drawable.autoShapes.filter((autoShape) => autoShape.piece);
   const autoPieceShapes = autoPieces.map((s) => {
@@ -4720,7 +4726,7 @@ var hash = (autoPiece) => {
   return [autoPiece.orig, (_a = autoPiece.piece) === null || _a === void 0 ? void 0 : _a.role, (_b = autoPiece.piece) === null || _b === void 0 ? void 0 : _b.color, (_c = autoPiece.piece) === null || _c === void 0 ? void 0 : _c.scale].join(",");
 };
 
-// node_modules/.pnpm/chessground@9.1.1/node_modules/chessground/dist/chessground.js
+// ../chessground/dist/chessground.js
 function Chessground(element, config) {
   const maybeState = defaults();
   configure(maybeState, config || {});
@@ -4770,7 +4776,7 @@ function debounceRedraw(redrawNow) {
   };
 }
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/htmldomapi.js
+// ../snabbdom/build/htmldomapi.js
 function createElement2(tagName2, options) {
   return document.createElement(tagName2, options);
 }
@@ -4885,19 +4891,19 @@ var htmlDomApi = {
   isDocumentFragment
 };
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/vnode.js
+// ../snabbdom/build/vnode.js
 function vnode(sel, data, children, text, elm) {
   const key = data === void 0 ? void 0 : data.key;
   return { sel, data, children, text, elm, key };
 }
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/is.js
+// ../snabbdom/build/is.js
 var array = Array.isArray;
 function primitive(s) {
   return typeof s === "string" || typeof s === "number" || s instanceof String || s instanceof Number;
 }
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/init.js
+// ../snabbdom/build/init.js
 function isUndef(s) {
   return s === void 0;
 }
@@ -5236,7 +5242,7 @@ function init(modules, domApi, options) {
   };
 }
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/h.js
+// ../snabbdom/build/h.js
 function addNS(data, children, sel) {
   data.ns = "http://www.w3.org/2000/svg";
   if (sel !== "foreignObject" && children !== void 0) {
@@ -5290,7 +5296,7 @@ function h(sel, b, c) {
   return vnode(sel, data, children, text, void 0);
 }
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/modules/attributes.js
+// ../snabbdom/build/modules/attributes.js
 var xlinkNS = "http://www.w3.org/1999/xlink";
 var xmlnsNS = "http://www.w3.org/2000/xmlns/";
 var xmlNS = "http://www.w3.org/XML/1998/namespace";
@@ -5340,7 +5346,7 @@ var attributesModule = {
   update: updateAttrs
 };
 
-// node_modules/.pnpm/snabbdom@3.6.2/node_modules/snabbdom/build/modules/class.js
+// ../snabbdom/build/modules/class.js
 function updateClass(oldVnode, vnode2) {
   let cur;
   let name;
@@ -5735,7 +5741,7 @@ function renderPlayer(ctrl, side) {
 var renderClock = (ctrl, color) => {
   const move3 = ctrl.curData();
   const clock = move3.clocks && move3.clocks[color];
-  return typeof clock == void 0 ? void 0 : h("div.lpv__player__clock", { class: { active: color == move3.turn } }, clockContent(clock));
+  return typeof clock === "undefined" ? void 0 : h("div.lpv__player__clock", { class: { active: color == move3.turn } }, clockContent(clock));
 };
 var clockContent = (seconds) => {
   if (!seconds && seconds !== 0) return ["-"];
@@ -5884,8 +5890,11 @@ ${opts.pgn}`;
 function deepMerge2(base, extend) {
   for (const key in extend) {
     if (typeof extend[key] !== "undefined") {
-      if (isPlainObject2(base[key]) && isPlainObject2(extend[key])) deepMerge2(base[key], extend[key]);
-      else base[key] = extend[key];
+      if (isPlainObject2(base[key]) && isPlainObject2(extend[key])) {
+        deepMerge2(base[key], extend[key]);
+      } else {
+        base[key] = extend[key];
+      }
     }
   }
 }

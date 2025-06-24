@@ -416,81 +416,7 @@ class ApiService {
   }
   
   static async getFeedbackHistory(studentId) {
-    return this.get(`/grading/get-student-feedback-history.php?student_id=${studentId}`);
-  }
-
-  // PGN Database endpoints
-  static async getTeacherPGNs(filter = 'own') {
-    try {
-      const response = await this.get(`/pgn/get-teacher-pgns.php?filter=${filter}`);
-      return response;
-    } catch (error) {
-      console.error('Failed to fetch PGNs:', error);
-      // Return a default structure with an empty array to prevent UI errors
-      return { success: false, pgns: [], message: error.message };
-    }
-  }
-
-  static async getPGNById(id) {
-    return this.get(`/pgn/get-pgn.php?id=${id}`);
-  }
-
-  static async getPublicPGNs(category = null, teacherId = null) {
-    let url = '/pgn/get-public-pgns.php';
-    const params = {};
-    
-    if (category) params.category = category;
-    if (teacherId) params.teacher_id = teacherId;
-    
-    return this.get(url, { params });
-  }
-
-  static async uploadPGN(pgnData, pgnFile = null) {
-    const formData = new FormData();
-    formData.append('data', JSON.stringify(pgnData));
-    
-    if (pgnFile) {
-      formData.append('pgn_file', pgnFile);
-    }
-    
-    return this.postFormData('/pgn/upload.php', formData);
-  }
-
-  static async updatePGN(id, pgnData) {
-    pgnData.id = id;
-    return this.put('/pgn/update.php', pgnData);
-  }
-
-  static async deletePGN(id) {
-    return this.delete(`/pgn/delete.php?id=${id}`);
-  }
-
-  static async sharePGN(pgnId, userIds, permission = 'view') {
-    return this.post('/pgn/share.php', {
-      pgn_id: pgnId,
-      user_ids: userIds,
-      permission
-    });
-  }
-
-  static async removeShare(pgnId, userId) {
-    return this.post('/pgn/remove-share.php', {
-      pgn_id: pgnId,
-      user_id: userId
-    });
-  }
-
-  static async getPGNShareUsers(pgnId) {
-    return this.get(`/pgn/get-share-users.php?pgn_id=${pgnId}`);
-  }
-
-  static async getTeachers() {
-    return this.get('/pgn/get-teachers.php');
-  }
-
-  static async validatePGN(pgnContent) {
-    return this.post('/pgn/validate.php', { pgn_content: pgnContent });
-  }
+    return this.get(`/grading/get-student-feedback-history.php?student_id=${studentId}`);  }
 
   // Resource Management endpoints
   static async getResources(category = null) {
@@ -750,36 +676,9 @@ class ApiService {
 
   // Debug endpoint for troubleshooting
   static async debugClassroom(classroomId = null) {
-    const endpoint = classroomId 
-      ? `/classroom/debug-classroom.php?id=${classroomId}`
+    const endpoint = classroomId      ? `/classroom/debug-classroom.php?id=${classroomId}`
       : '/classroom/debug-classroom.php';
     return this.get(endpoint);
-  }
-
-  static async getStudentPGNs(category = null, teacherId = null) {
-    try {
-      let url = '/pgn/get-student-pgns.php';
-      const params = {};
-      
-      if (category) params.category = category;
-      if (teacherId) params.teacher_id = teacherId;
-      
-      const response = await this.get(url, { params });
-      return response;
-    } catch (error) {
-      console.error('Failed to fetch student PGNs:', error);
-      return { success: false, pgns: [], message: error.message };
-    }
-  }
-
-  static async getStudentTeachers() {
-    try {
-      const response = await this.get('/pgn/get-student-teachers.php');
-      return response;
-    } catch (error) {
-      console.error('Failed to fetch student teachers:', error);
-      return { success: false, teachers: [], message: error.message };
-    }
   }
 }
 

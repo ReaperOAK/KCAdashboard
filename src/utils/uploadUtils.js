@@ -5,10 +5,8 @@
 export class UploadUtils {
     // Base upload path for web access
     static UPLOADS_BASE_PATH = '/uploads/';
-    
-    // Upload subdirectories
+      // Upload subdirectories
     static UPLOAD_TYPES = {
-        PGN: 'pgn/',
         RESOURCES: 'resources/',
         CLASSROOM_MATERIALS: 'classroom_materials/',
         ASSIGNMENTS: 'assignments/',

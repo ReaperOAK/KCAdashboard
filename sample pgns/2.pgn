@@ -1,0 +1,176 @@
+﻿[Event "Week 9"]
+[Site "?"]
+[Date "2024.05.08"]
+[Round "?"]
+[White "!! Warmup"]
+[Black "Tactical Motifs"]
+[Result "0-1"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "1kr2b1r/pP6/4p1Q1/1B2p3/8/2p2P2/PPP2P1P/2K5 b - - 0 13"]
+[PlyCount "3"]
+
+{[%evp 0,24,17,41,11,37,36,36,68,64,73,70,40,300,276,276,291,291,291,295,294,
+291,300,300,302,302,302] [#]} 13... Bh6+ 14. Kb1 Rcg8 $19 0-1
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.05.08"]
+[Round "?"]
+[White "!! Tactical Motifs"]
+[Black "Getting Rid"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "5k1r/p5pp/1bp2p2/7R/8/2B1rP2/PPP2P1P/2K3R1 w - - 0 1"]
+[PlyCount "7"]
+
+{[%evp 0,7,97,86,94,93,94,96,96,96] [#]} 1. Bb4+ Kf7 2. Rxg7+ $1 Kxg7 3. fxe3
+Bxe3+ 4. Bd2 $3 {[%cal Gc1d1,Gd1e2]} (4. Kd1 Rd8+ 5. Ke2 Bg5 6. Rh3 $16) 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Principles of Attack"]
+[Black "Motifs"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "2r1rbk1/1b1q1p1p/p5p1/1p3PB1/2pPp3/2N4R/PP3QPP/5RK1 w - - 0 1"]
+[PlyCount "11"]
+
+{[%evp 0,11,-37,-147,412,412,392,433,445,462,459,468,468,480] [#]} 1. Rxh7 $3
+Kxh7 2. Qh4+ Kg8 3. Bf6 {[%cal Gh4h8]} Bg7 4. Bxg7 Kxg7 5. f6+ Kg8 6. Qh6 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Warmup"]
+[Black "Alignments"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "2b3k1/7p/p3p1r1/3pRp2/3qNQ2/1P6/P1n3PP/2R4K w - - 0 1"]
+[PlyCount "5"]
+
+{[#]} 1. Nf6+ Rxf6 2. Qxd4 Nxd4 3. Rxc8+ $18 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Tactical Motifs"]
+[Black "Down the Lane"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "rnbqkb1r/pp3pp1/4p2p/2pp3n/3P1B2/2P1PN2/PP1N1PPP/R2QKB1R w KQkq - 0 1"]
+[PlyCount "7"]
+
+{[%evp 0,7,137,132,128,123,345,347,342,337] [#]} 1. Bxb8 Rxb8 2. Bb5+ Bd7 (2...
+Ke7 3. dxc5 $18) 3. Bxd7+ Qxd7 4. Ne5 $18 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Defensive Resources"]
+[Black "?"]
+[Result "1/2-1/2"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "8/8/4R3/5pkp/5p2/4pP1P/4K1P1/6r1 w - - 0 2"]
+[PlyCount "3"]
+
+{[%evp 0,3,-345,-320,-320,-357] [#] Black To Move} 2. h4+ Kxh4 3. Rg6 $11
+1/2-1/2
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Warmup"]
+[Black "Forcing Moves"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "2r2k2/3R1p2/p2r1q1p/1n1P1P2/Bpp3Q1/6P1/P5P1/4R2K w - - 0 1"]
+[PlyCount "5"]
+
+{[%evp 0,5,417,464,560,653,720,743]} 1. Bxb5 axb5 2. Rxd6 Qxd6 3. f6 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Saving Resources"]
+[Black "?"]
+[Result "0-1"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "1rbqk2r/ppn2ppp/2n5/4N3/1b6/2N3P1/3PPPBP/R1BQ1RK1 b - - 0 1"]
+[PlyCount "5"]
+
+{[%evp 0,5,-205,-206,-208,-191,-216,-208]} 1... Nxe5 2. Qa4+ Nc6 3. Bxc6+ bxc6
+0-1
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Saving Resources"]
+[Black "Opponent's Resources"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "1Q3K2/6P1/4q3/P2b4/B7/8/k7/8 w - - 0 1"]
+[PlyCount "7"]
+
+{[%evp 0,5,982,1002,1012,1012,1012,259]} 1. Qb3+ Bxb3 2. Bxb3+ Qxb3 3. g8=B (3.
+g8=Q $4 {[#]} Ka1 $3 $11) 3... Qxg8+ 4. Kxg8 $18 {[%cal Ga5a6,Ga6a7,Ga7a8]} 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Warmup"]
+[Black "Tactical Motifs"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "1Qb4r/1p1pbk1p/p2qpnp1/8/8/6PN/1B2PPBP/5RK1 w - - 0 1"]
+[PlyCount "5"]
+
+{[#]} 1. Ng5+ Kg7 2. Bxf6+ {[%csl Rd6][%cal Re7f6]} Kxf6 3. Ne4+ $18 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Identifying Motifs"]
+[Black "Piece Activity & Placements"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "5r1k/6p1/1p3r1p/3R4/p4P2/qP4P1/P2Q3P/5RK1 w - - 0 1"]
+[PlyCount "3"]
+
+{[%evp 0,3,612,619,627,640]} 1. b4 Re6 2. Rd3 1-0
+
+[Event "Week 9"]
+[Site "?"]
+[Date "2024.04.11"]
+[Round "?"]
+[White "!! Tactical Motifs"]
+[Black "Forcing Moves"]
+[Result "1-0"]
+[Annotator "ARPAN"]
+[SetUp "1"]
+[FEN "8/1n3P2/pp3r1p/k5p1/1N6/1P6/1R4P1/2K5 w - - 0 1"]
+[PlyCount "11"]
+
+{[%evp 0,11,-183,108,102,106,118,113,96,96,96,96,103,103]} 1. Rf2 Rxf2 2. Nc6+
+Kb5 3. Nd4+ Kb4 4. Nf3 Kc3 5. Kd1 g4 6. f8=Q 1-0
+

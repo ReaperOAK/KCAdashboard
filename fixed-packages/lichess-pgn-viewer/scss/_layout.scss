@@ -3,7 +3,7 @@ $grid-side-column-full-screen: minmax(232px, 1fr) !default;
 $grid-side-row: 6em !default;
 $player-height: 2em !default;
 $controls-height: 4em !default;
-$moves-auto-to-right: 500px !default;
+$moves-auto-to-right: 450px !default;
 $board-min-width: 200px !default;
 
 .lpv {
@@ -39,7 +39,7 @@ $board-min-width: 200px !default;
       'side';
     grid-template-rows: auto var(--controls-height);
     .lpv__controls {
-      border-bottom: 1px solid $lpv-border;
+      border-bottom: 1px solid var(--c-lpv-border, $lpv-border);
     }
   }
 
@@ -47,14 +47,19 @@ $board-min-width: 200px !default;
     grid-template-areas:
       'board      side'
       'controls   side';
-    grid-template-columns: minmax($board-min-width, calc(100vh - var(--controls-height))) $grid-side-column-full-screen;
+    grid-template-columns:
+      minmax($board-min-width, calc(100vh - var(--controls-height)))
+      $grid-side-column-full-screen;
     grid-template-rows: auto var(--controls-height);
     @media (max-width: #{$moves-auto-to-right}) {
       grid-template-areas:
         'board'
         'controls'
         'side';
-      grid-template-columns: minmax($board-min-width, calc(100vh - var(--controls-height) - #{$grid-side-row}));
+      grid-template-columns: minmax(
+        $board-min-width,
+        calc(100vh - var(--controls-height) - #{$grid-side-row})
+      );
       grid-template-rows: auto var(--controls-height);
     }
   }
@@ -85,9 +90,9 @@ $board-min-width: 200px !default;
         'player-bot'
         'controls'
         'side';
-      grid-template-rows: $player-height auto $player-height var(--controls-height);
+      grid-template-rows: $player-height auto $player-height var(--controls-height) $grid-side-row;
       .lpv__controls {
-        border-bottom: 1px solid $lpv-border;
+        border-bottom: 1px solid var(--c-lpv-border, $lpv-border);
       }
     }
 
@@ -97,7 +102,9 @@ $board-min-width: 200px !default;
         'board      side'
         'player-bot side'
         'controls   side';
-      grid-template-columns: minmax($board-min-width, calc(100vh - 2 * #{$player-height} - var(--controls-height))) $grid-side-column-full-screen;
+      grid-template-columns:
+        minmax($board-min-width, calc(100vh - 2 * #{$player-height} - var(--controls-height)))
+        $grid-side-column-full-screen;
       grid-template-rows: $player-height auto $player-height var(--controls-height);
       @media (max-width: #{$moves-auto-to-right}) {
         grid-template-areas:
@@ -110,7 +117,7 @@ $board-min-width: 200px !default;
           $board-min-width,
           calc(100vh - 2 * #{$player-height} - var(--controls-height) - #{$grid-side-row})
         );
-        grid-template-rows: $player-height auto $player-height var(--controls-height);
+        grid-template-rows: $player-height auto $player-height var(--controls-height) $grid-side-row;
       }
     }
   }

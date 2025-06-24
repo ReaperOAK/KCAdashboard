@@ -3,10 +3,10 @@ import PgnViewer from '../pgnViewer.js';
 import { MoveNode } from '../game.js';
 import { MoveData } from '../interfaces';
 import { Path } from '../path.js';
+import { renderNag } from './glyph.js';
 
 export const renderMoves = (ctrl: PgnViewer) =>
-  h(
-    'div.lpv__side',
+  h('div.lpv__side', [
     h(
       'div.lpv__moves',
       {
@@ -20,7 +20,7 @@ export const renderMoves = (ctrl: PgnViewer) =>
                 const path = (e.target as HTMLElement).getAttribute('p');
                 if (path) ctrl.toPath(new Path(path));
               },
-              { passive: true }
+              { passive: true },
             );
           },
           postpatch: (_, vnode) => {
@@ -31,9 +31,14 @@ export const renderMoves = (ctrl: PgnViewer) =>
           },
         },
       },
-      [...ctrl.game.initial.comments.map(commentNode), ...makeMoveNodes(ctrl)]
-    )
-  );
+      [...ctrl.game.initial.comments.map(commentNode), ...makeMoveNodes(ctrl), ...renderResultComment(ctrl)],
+    ),
+  ]);
+
+const renderResultComment = (ctrl: PgnViewer) => {
+  const res = ctrl.game.metadata.result;
+  return res && res != '*' ? [h('comment.result', ctrl.game.metadata.result)] : [];
+};
 
 const emptyMove = () => h('move.empty', '...');
 const indexNode = (turn: number) => h('index', `${turn}.`);
@@ -105,7 +110,7 @@ const renderMove = (ctrl: PgnViewer) => (move: MoveData) =>
         p: move.path.path,
       },
     },
-    move.san
+    [move.san, ...move.nags.map(renderNag)],
   );
 
 const autoScroll = (ctrl: PgnViewer, cont: HTMLElement) => {

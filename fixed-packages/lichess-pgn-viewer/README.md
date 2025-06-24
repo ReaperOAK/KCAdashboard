@@ -44,19 +44,11 @@ For these features, use an [analysis board](https://lichess.org/analysis) or [Li
 ## Build and run
 
 ```
-npm install
-npm run sass-dev
-npm run watch
-npm run demo
+pnpm install
+pnpm run demo
 ```
 
-Then run the demos in your browser.
-
-### Rebuild on code change
-
-```
-npm run watch
-```
+Then open the demo page at http://localhost:8080
 
 ## Installation
 
@@ -75,12 +67,12 @@ const lpv = LichessPgnViewer(domElement, {
   pgn: 'e4 c5 Nf3 d6 e5 Nc6 exd6 Qxd6 Nc3 Nf6',
 });
 
-// lpv is an instance of Ctrl, providing some utilities such as:
+// lpv is an instance of PgnViewer , providing some utilities such as:
 lpv.goTo('first');
 lpv.goTo('next');
 lpv.flip();
 console.log(lpv.game);
-// see more in ctrl.ts
+// see more in pgnViewer.ts
 ```
 
 ### Configuration
@@ -101,16 +93,29 @@ View more examples in `demo/index.html`
 ### SCSS (recommended)
 
 If you use [SCSS](https://sass-lang.com/), you can import the styles with:
+
 ```scss
 @import '../../node_modules/lichess-pgn-viewer/scss/lichess-pgn-viewer.lib';
 ```
+
 Customisable SCSS variables are [available](https://github.com/lichess-org/pgn-viewer/blob/master/scss/_lichess-pgn-viewer.lib.scss), see [how lichess configures lichess-pgn-viewer with SCSS](https://github.com/lichess-org/lila/blob/master/ui/common/css/component/_lichess-pgn-viewer.scss).
 
 ### CSS
 
 Alternatively you can build a CSS file with
+
 ```sh
 npm run sass-prod
 ```
+
 Then copy the `dist/lichess-pgn-viewer.css` file into your project.
 
+## Testing
+
+```bash
+pnpm test
+
+## or
+
+pnpm test:watch
+```

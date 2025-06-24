@@ -1,29 +1,36 @@
 import { h } from 'snabbdom';
-import { bind, bindMobileMousedown, onInsert } from './util';
-import { eventRepeater } from '../events';
-export const renderMenu = (ctrl) => h('div.lpv__menu.lpv__pane', [
-    h('button.lpv__menu__entry.lpv__menu__flip.lpv__fbt', {
-        hook: bind('click', ctrl.flip),
-    }, ctrl.translate('flipTheBoard')),
-    h('a.lpv__menu__entry.lpv__menu__analysis.lpv__fbt', {
-        attrs: {
-            href: ctrl.analysisUrl(),
-            target: '_blank',
-        },
-    }, ctrl.translate('analysisBoard')),
-    h('a.lpv__menu__entry.lpv__menu__practice.lpv__fbt', {
-        attrs: {
-            href: ctrl.practiceUrl(),
-            target: '_blank',
-        },
-    }, ctrl.translate('practiceWithComputer')),
-    ctrl.opts.menu.getPgn.enabled
-        ? h('button.lpv__menu__entry.lpv__menu__pgn.lpv__fbt', {
-            hook: bind('click', ctrl.togglePgn),
-        }, ctrl.translate('getPgn'))
-        : undefined,
-    renderExternalLink(ctrl),
-]);
+import { bind, bindMobileMousedown, onInsert } from './util.js';
+import { eventRepeater } from '../events.js';
+export const renderMenu = (ctrl) => {
+    var _a, _b;
+    return h('div.lpv__menu.lpv__pane', [
+        h('button.lpv__menu__entry.lpv__menu__flip.lpv__fbt', {
+            hook: bind('click', ctrl.flip),
+        }, ctrl.translate('flipTheBoard')),
+        ((_a = ctrl.opts.menu.analysisBoard) === null || _a === void 0 ? void 0 : _a.enabled)
+            ? h('a.lpv__menu__entry.lpv__menu__analysis.lpv__fbt', {
+                attrs: {
+                    href: ctrl.analysisUrl(),
+                    target: '_blank',
+                },
+            }, ctrl.translate('analysisBoard'))
+            : undefined,
+        ((_b = ctrl.opts.menu.practiceWithComputer) === null || _b === void 0 ? void 0 : _b.enabled)
+            ? h('a.lpv__menu__entry.lpv__menu__practice.lpv__fbt', {
+                attrs: {
+                    href: ctrl.practiceUrl(),
+                    target: '_blank',
+                },
+            }, ctrl.translate('practiceWithComputer'))
+            : undefined,
+        ctrl.opts.menu.getPgn.enabled
+            ? h('button.lpv__menu__entry.lpv__menu__pgn.lpv__fbt', {
+                hook: bind('click', ctrl.togglePgn),
+            }, ctrl.translate('getPgn'))
+            : undefined,
+        renderExternalLink(ctrl),
+    ]);
+};
 const renderExternalLink = (ctrl) => {
     const link = ctrl.game.metadata.externalLink;
     return (link &&

@@ -8,7 +8,11 @@ import { MoveData, Initial, Players, Player, Comments, Metadata, Clocks, Lichess
 import { Path } from './path.js';
 
 class State {
-  constructor(readonly pos: Position, public path: Path, public clocks: Clocks) {}
+  constructor(
+    readonly pos: Position,
+    public path: Path,
+    public clocks: Clocks,
+  ) {}
   clone = () => new State(this.pos.clone(), this.path, { ...this.clocks });
 }
 
@@ -113,7 +117,8 @@ function makePlayers(headers: Headers, metadata: Metadata): Players {
 }
 
 function makeMetadata(headers: Headers, lichess: Lichess): Metadata {
-  const site = headers.get('source') || headers.get('site');
+  const site =
+    headers.get('chapterurl') || headers.get('gameurl') || headers.get('source') || headers.get('site');
   const tcs = headers
     .get('timecontrol')
     ?.split('+')
@@ -131,5 +136,6 @@ function makeMetadata(headers: Headers, lichess: Lichess): Metadata {
     isLichess: !!(lichess && site?.startsWith(lichess)),
     timeControl,
     orientation: orientation === 'white' || orientation === 'black' ? orientation : undefined,
+    result: headers.get('result'),
   };
 }

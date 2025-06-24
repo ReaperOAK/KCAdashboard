@@ -1,5 +1,5 @@
 import { makeSquare, opposite } from 'chessops';
-import translator from './translation';
+import translator from './translation.js';
 import { uciToMove } from 'chessground/util';
 import { Path } from './path.js';
 import { isMoveData } from './game.js';

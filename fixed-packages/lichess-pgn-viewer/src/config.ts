@@ -8,6 +8,7 @@ const defaults: Opts = {
   showMoves: 'auto', // false | "right" | "bottom" | auto. "auto" uses media queries
   showControls: true, // show the [prev, menu, next] buttons
   scrollToMove: true, // enable scrolling through moves with a mouse wheel
+  keyboardToMove: true, // enable keyboard navigation through moves
   orientation: undefined, // orientation of the board. Undefined to use the Orientation PGN tag.
   initialPly: 0, // current position to display. Can be a number, or "last"
   chessground: {}, // chessground configuration https://github.com/lichess-org/chessground/blob/master/src/config.ts#L7
@@ -16,6 +17,12 @@ const defaults: Opts = {
     getPgn: {
       enabled: true, // enable the "Get PGN" menu entry
       fileName: undefined, // name of the file when user clicks "Download PGN". Leave empty for automatic name.
+    },
+    practiceWithComputer: {
+      enabled: true,
+    },
+    analysisBoard: {
+      enabled: true,
     },
   },
   lichess: 'https://lichess.org', // support for Lichess games, with links to the game and players. Set to false to disable.

@@ -107,7 +107,7 @@ function makePlayers(headers, metadata) {
 }
 function makeMetadata(headers, lichess) {
     var _a;
-    const site = headers.get('source') || headers.get('site');
+    const site = headers.get('chapterurl') || headers.get('gameurl') || headers.get('source') || headers.get('site');
     const tcs = (_a = headers
         .get('timecontrol')) === null || _a === void 0 ? void 0 : _a.split('+').map(x => parseInt(x));
     const timeControl = tcs && tcs[0]
@@ -122,6 +122,7 @@ function makeMetadata(headers, lichess) {
         isLichess: !!(lichess && (site === null || site === void 0 ? void 0 : site.startsWith(lichess))),
         timeControl,
         orientation: orientation === 'white' || orientation === 'black' ? orientation : undefined,
+        result: headers.get('result'),
     };
 }
 //# sourceMappingURL=pgn.js.map

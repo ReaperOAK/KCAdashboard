@@ -1,25 +1,32 @@
 import { h } from 'snabbdom';
 import { Path } from '../path.js';
-export const renderMoves = (ctrl) => h('div.lpv__side', h('div.lpv__moves', {
-    hook: {
-        insert: vnode => {
-            const el = vnode.elm;
-            if (!ctrl.path.empty())
-                autoScroll(ctrl, el);
-            el.addEventListener('mousedown', e => {
-                const path = e.target.getAttribute('p');
-                if (path)
-                    ctrl.toPath(new Path(path));
-            }, { passive: true });
+import { renderNag } from './glyph.js';
+export const renderMoves = (ctrl) => h('div.lpv__side', [
+    h('div.lpv__moves', {
+        hook: {
+            insert: vnode => {
+                const el = vnode.elm;
+                if (!ctrl.path.empty())
+                    autoScroll(ctrl, el);
+                el.addEventListener('mousedown', e => {
+                    const path = e.target.getAttribute('p');
+                    if (path)
+                        ctrl.toPath(new Path(path));
+                }, { passive: true });
+            },
+            postpatch: (_, vnode) => {
+                if (ctrl.autoScrollRequested) {
+                    autoScroll(ctrl, vnode.elm);
+                    ctrl.autoScrollRequested = false;
+                }
+            },
         },
-        postpatch: (_, vnode) => {
-            if (ctrl.autoScrollRequested) {
-                autoScroll(ctrl, vnode.elm);
-                ctrl.autoScrollRequested = false;
-            }
-        },
-    },
-}, [...ctrl.game.initial.comments.map(commentNode), ...makeMoveNodes(ctrl)]));
+    }, [...ctrl.game.initial.comments.map(commentNode), ...makeMoveNodes(ctrl), ...renderResultComment(ctrl)]),
+]);
+const renderResultComment = (ctrl) => {
+    const res = ctrl.game.metadata.result;
+    return res && res != '*' ? [h('comment.result', ctrl.game.metadata.result)] : [];
+};
 const emptyMove = () => h('move.empty', '...');
 const indexNode = (turn) => h('index', `${turn}.`);
 const commentNode = (comment) => h('comment', comment);
@@ -83,7 +90,7 @@ const renderMove = (ctrl) => (move) => h('move', {
     attrs: {
         p: move.path.path,
     },
-}, move.san);
+}, [move.san, ...move.nags.map(renderNag)]);
 const autoScroll = (ctrl, cont) => {
     const target = cont.querySelector('.current');
     if (!target) {

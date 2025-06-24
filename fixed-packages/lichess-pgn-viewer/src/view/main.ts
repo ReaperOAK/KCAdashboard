@@ -2,40 +2,41 @@ import PgnViewer from '../pgnViewer.js';
 import { Chessground } from 'chessground';
 import { Config as CgConfig } from 'chessground/config';
 import { h, VNode } from 'snabbdom';
-import { onInsert } from './util';
-import { onKeyDown, stepwiseScroll } from '../events';
-import { renderMenu, renderControls } from './menu';
-import { renderMoves } from './side';
-import renderPlayer from './player';
+import { onInsert } from './util.js';
+import { onKeyDown, stepwiseScroll } from '../events.js';
+import { renderMenu, renderControls } from './menu.js';
+import { renderMoves } from './side.js';
+import renderPlayer from './player.js';
 
 export default function view(ctrl: PgnViewer) {
   const opts = ctrl.opts,
     staticClasses = `lpv.lpv--moves-${opts.showMoves}.lpv--controls-${opts.showControls}${
       opts.classes ? '.' + opts.classes.replace(' ', '.') : ''
     }`;
+  const showPlayers = opts.showPlayers == 'auto' ? ctrl.game.hasPlayerName() : opts.showPlayers;
   return h(
     `div.${staticClasses}`,
     {
       class: {
         'lpv--menu': ctrl.pane != 'board',
-        'lpv--players': opts.showPlayers == 'auto' ? ctrl.game.hasPlayerName() : opts.showPlayers,
+        'lpv--players': showPlayers,
       },
       attrs: {
         tabindex: 0,
       },
       hook: onInsert(el => {
         ctrl.setGround(Chessground(el.querySelector('.cg-wrap') as HTMLElement, makeConfig(ctrl, el)));
-        el.addEventListener('keydown', onKeyDown(ctrl));
+        if (opts.keyboardToMove) el.addEventListener('keydown', onKeyDown(ctrl));
       }),
     },
     [
-      opts.showPlayers ? renderPlayer(ctrl, 'top') : undefined,
+      showPlayers ? renderPlayer(ctrl, 'top') : undefined,
       renderBoard(ctrl),
-      opts.showPlayers ? renderPlayer(ctrl, 'bottom') : undefined,
+      showPlayers ? renderPlayer(ctrl, 'bottom') : undefined,
       opts.showControls ? renderControls(ctrl) : undefined,
       opts.showMoves ? renderMoves(ctrl) : undefined,
       ctrl.pane == 'menu' ? renderMenu(ctrl) : ctrl.pane == 'pgn' ? renderPgnPane(ctrl) : undefined,
-    ]
+    ],
   );
 }
 
@@ -52,11 +53,11 @@ const renderBoard = (ctrl: PgnViewer): VNode =>
               e.preventDefault();
               if (e.deltaY > 0 && scroll) ctrl.goTo('next', false);
               else if (e.deltaY < 0 && scroll) ctrl.goTo('prev', false);
-            })
+            }),
           );
       }),
     },
-    h('div.cg-wrap')
+    h('div.cg-wrap'),
   );
 
 const renderPgnPane = (ctrl: PgnViewer): VNode => {
@@ -70,7 +71,7 @@ const renderPgnPane = (ctrl: PgnViewer): VNode => {
           download: ctrl.opts.menu.getPgn.fileName || `${ctrl.game.title()}.pgn`,
         },
       },
-      ctrl.translate('download')
+      ctrl.translate('download'),
     ),
     h('textarea.lpv__pgn__text', ctrl.opts.pgn),
   ]);

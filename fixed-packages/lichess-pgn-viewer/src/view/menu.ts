@@ -1,8 +1,8 @@
 import { h } from 'snabbdom';
 import PgnViewer from '../pgnViewer.js';
 import { GoTo } from '../interfaces';
-import { bind, bindMobileMousedown, onInsert } from './util';
-import { eventRepeater } from '../events';
+import { bind, bindMobileMousedown, onInsert } from './util.js';
+import { eventRepeater } from '../events.js';
 
 export const renderMenu = (ctrl: PgnViewer) =>
   h('div.lpv__menu.lpv__pane', [
@@ -11,35 +11,39 @@ export const renderMenu = (ctrl: PgnViewer) =>
       {
         hook: bind('click', ctrl.flip),
       },
-      ctrl.translate('flipTheBoard')
+      ctrl.translate('flipTheBoard'),
     ),
-    h(
-      'a.lpv__menu__entry.lpv__menu__analysis.lpv__fbt',
-      {
-        attrs: {
-          href: ctrl.analysisUrl(),
-          target: '_blank',
-        },
-      },
-      ctrl.translate('analysisBoard')
-    ),
-    h(
-      'a.lpv__menu__entry.lpv__menu__practice.lpv__fbt',
-      {
-        attrs: {
-          href: ctrl.practiceUrl(),
-          target: '_blank',
-        },
-      },
-      ctrl.translate('practiceWithComputer')
-    ),
+    ctrl.opts.menu.analysisBoard?.enabled
+      ? h(
+          'a.lpv__menu__entry.lpv__menu__analysis.lpv__fbt',
+          {
+            attrs: {
+              href: ctrl.analysisUrl(),
+              target: '_blank',
+            },
+          },
+          ctrl.translate('analysisBoard'),
+        )
+      : undefined,
+    ctrl.opts.menu.practiceWithComputer?.enabled
+      ? h(
+          'a.lpv__menu__entry.lpv__menu__practice.lpv__fbt',
+          {
+            attrs: {
+              href: ctrl.practiceUrl(),
+              target: '_blank',
+            },
+          },
+          ctrl.translate('practiceWithComputer'),
+        )
+      : undefined,
     ctrl.opts.menu.getPgn.enabled
       ? h(
           'button.lpv__menu__entry.lpv__menu__pgn.lpv__fbt',
           {
             hook: bind('click', ctrl.togglePgn),
           },
-          ctrl.translate('getPgn')
+          ctrl.translate('getPgn'),
         )
       : undefined,
     renderExternalLink(ctrl),
@@ -57,7 +61,7 @@ const renderExternalLink = (ctrl: PgnViewer) => {
           target: '_blank',
         },
       },
-      ctrl.translate(ctrl.game.metadata.isLichess ? 'viewOnLichess' : 'viewOnSite')
+      ctrl.translate(ctrl.game.metadata.isLichess ? 'viewOnLichess' : 'viewOnSite'),
     )
   );
 };
@@ -75,7 +79,7 @@ export const renderControls = (ctrl: PgnViewer) =>
         },
         hook: bind('click', ctrl.toggleMenu),
       },
-      ctrl.pane == 'board' ? undefined : 'X'
+      ctrl.pane == 'board' ? undefined : 'X',
     ),
     dirButton(ctrl, 'next', 'right-open'),
     ctrl.pane == 'board' ? undefined : dirButton(ctrl, 'last', 'step-forward'),

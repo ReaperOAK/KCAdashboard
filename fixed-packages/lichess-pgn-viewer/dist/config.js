@@ -1,22 +1,29 @@
 const defaults = {
-    pgn: '*',
-    fen: undefined,
-    showPlayers: 'auto',
-    showClocks: true,
-    showMoves: 'auto',
-    showControls: true,
-    scrollToMove: true,
-    orientation: undefined,
-    initialPly: 0,
-    chessground: {},
-    drawArrows: true,
+    pgn: '*', // the PGN to render
+    fen: undefined, // initial FEN, will append [FEN "initial FEN"] to the PGN
+    showPlayers: 'auto', // show the players above and under the board
+    showClocks: true, // show the clocks alongside the players
+    showMoves: 'auto', // false | "right" | "bottom" | auto. "auto" uses media queries
+    showControls: true, // show the [prev, menu, next] buttons
+    scrollToMove: true, // enable scrolling through moves with a mouse wheel
+    keyboardToMove: true, // enable keyboard navigation through moves
+    orientation: undefined, // orientation of the board. Undefined to use the Orientation PGN tag.
+    initialPly: 0, // current position to display. Can be a number, or "last"
+    chessground: {}, // chessground configuration https://github.com/lichess-org/chessground/blob/master/src/config.ts#L7
+    drawArrows: true, // allow mouse users to draw volatile arrows on the board. Disable for little perf boost
     menu: {
         getPgn: {
-            enabled: true,
+            enabled: true, // enable the "Get PGN" menu entry
             fileName: undefined, // name of the file when user clicks "Download PGN". Leave empty for automatic name.
         },
+        practiceWithComputer: {
+            enabled: true,
+        },
+        analysisBoard: {
+            enabled: true,
+        },
     },
-    lichess: 'https://lichess.org',
+    lichess: 'https://lichess.org', // support for Lichess games, with links to the game and players. Set to false to disable.
     classes: undefined, // CSS classes to set on the root element. Defaults to the element classes before being replaced by LPV.
 };
 export default function (element, cfg) {

@@ -1,6 +1,6 @@
 import { Api as CgApi } from 'chessground/api';
 import { makeSquare, opposite } from 'chessops';
-import translator from './translation';
+import translator from './translation.js';
 import { GoTo, InitialOrMove, Opts, Translate } from './interfaces';
 import { Config as CgConfig } from 'chessground/config';
 import { uciToMove } from 'chessground/util';
@@ -18,7 +18,10 @@ export default class PgnViewer {
   pane = 'board';
   autoScrollRequested = false;
 
-  constructor(readonly opts: Opts, readonly redraw: () => void) {
+  constructor(
+    readonly opts: Opts,
+    readonly redraw: () => void,
+  ) {
     this.game = makeGame(opts.pgn, opts.lichess);
     opts.orientation = opts.orientation || this.game.metadata.orientation;
     this.translate = translator(opts.translate);
@@ -33,10 +36,10 @@ export default class PgnViewer {
       to == 'first'
         ? Path.root
         : to == 'prev'
-        ? this.path.init()
-        : to == 'next'
-        ? this.game.nodeAt(this.path)?.children[0]?.data.path
-        : this.game.pathAtMainlinePly('last');
+          ? this.path.init()
+          : to == 'next'
+            ? this.game.nodeAt(this.path)?.children[0]?.data.path
+            : this.game.pathAtMainlinePly('last');
     this.toPath(path || this.path, focus);
   };
 
@@ -104,7 +107,7 @@ export default class PgnViewer {
           orig: makeSquare(s.from),
           dest: makeSquare(s.to),
           brush: s.color,
-        }))
+        })),
       );
     });
   private withGround = (f: (cg: CgApi) => void) => this.ground && f(this.ground);

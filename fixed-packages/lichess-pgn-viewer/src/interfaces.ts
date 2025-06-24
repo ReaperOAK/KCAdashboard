@@ -48,6 +48,7 @@ export interface Metadata {
     increment: number;
   };
   orientation?: Color;
+  result?: string;
 }
 
 export interface Player {
@@ -87,11 +88,18 @@ export interface Opts {
   showControls: boolean;
   initialPly: Ply | 'last';
   scrollToMove: boolean;
+  keyboardToMove: boolean;
   drawArrows: boolean;
   menu: {
     getPgn: {
       enabled?: boolean;
       fileName?: string;
+    };
+    practiceWithComputer?: {
+      enabled?: boolean;
+    };
+    analysisBoard?: {
+      enabled?: boolean;
     };
   };
   lichess: Lichess;

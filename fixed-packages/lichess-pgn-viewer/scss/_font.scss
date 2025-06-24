@@ -12,6 +12,21 @@
       /* Font smoothing. That was taken from TWBS */
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+
+      /* Ensure this is treated as font content, not SVG */
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 1;
+      display: inline-block;
+
+      /* Better font rendering */
+      -webkit-font-feature-settings: "liga";
+      -moz-font-feature-settings: "liga=1";
+      -moz-font-feature-settings: "liga";
+      -ms-font-feature-settings: "liga" 1;
+      font-feature-settings: "liga";
     }
 
     &-step-forward:before {
@@ -28,6 +43,23 @@
     } /* '' */
     &-ellipsis-vert:before {
       content: '\f142';
-    } /* '' */
+    } /* '' */
+
+    /* Additional safeguards to prevent SVG processing */
+    &[class*="icon-"]:before,
+    &.lpv__icon:before {
+      /* Ensure content is not interpreted as SVG path data */
+      font-family: 'lpv-fontello' !important;
+      font-style: normal !important;
+      font-weight: normal !important;
+      text-rendering: auto;
+    }
+  }
+
+  /* Global safeguard against SVG misinterpretation */
+  .lpv__icon:not(svg):not(path):not(g):before {
+    /* Force font rendering context */
+    font-synthesis: none;
+    unicode-bidi: isolate;
   }
 }

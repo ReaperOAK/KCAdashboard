@@ -3,7 +3,6 @@ import BatchManagement from '../pages/teacher/BatchManagement';
 import BatchDetail from '../pages/teacher/BatchDetail';
 import ReportsAnalytics from '../pages/teacher/ReportsAnalytics';
 import GradingFeedback from '../pages/teacher/GradingFeedback';
-import PGNDatabase from '../pages/teacher/PGNDatabase';
 import ClassroomManagement from '../pages/teacher/ClassroomManagement';
 import ClassroomDetail from '../pages/teacher/ClassroomDetail';
 import QuizManagement from '../pages/teacher/QuizManagement';
@@ -34,11 +33,6 @@ const teacherRoutes = [
     path: '/teacher/grading',
     element: GradingFeedback,
     title: 'Grading'
-  },
-  {
-    path: '/teacher/pgn',
-    element: PGNDatabase,
-    title: 'PGN Database'
   },
   {
     path: '/teacher/classroom',

@@ -97,12 +97,6 @@ Email notifications for new feedback
 The get-batch-students endpoint
 The submit-feedback endpoint
 Feedback history functionality -->
-4. **PGN Database:** Upload, manage, and share chess PGNs.
-<!-- DONE !!! The PHP endpoints for PGN management
-PGN validation and sanitization
-Integration with chess.js for move validation
-PGN sharing functionality between teachers
-Student access controls for public PGNs -->
 5. **Classroom Management:** Organize study material and schedule online/offline classes.
 <!--DONE!!!  The PHP endpoints for class scheduling
 The materials upload functionality

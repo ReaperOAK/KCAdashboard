@@ -19,16 +19,13 @@ jobs:
       - name: Install dependencies (excluding problematic packages)
         run: |
           # Create .npmrc to ignore specific packages
-          echo "lichess-pgn-viewer@*:*: --no-save" > .npmrc
-          echo "snabbdom@*:*: --no-save" >> .npmrc
+          echo "snabbdom@*:*: --no-save" > .npmrc
           npm install
 
       - name: Copy fixed packages
         run: |
           # Copy pre-fixed packages to node_modules
-          mkdir -p node_modules/lichess-pgn-viewer
           mkdir -p node_modules/snabbdom
-          cp -r fixed-packages/lichess-pgn-viewer/* node_modules/lichess-pgn-viewer/
           cp -r fixed-packages/snabbdom/* node_modules/snabbdom/
 
       - name: Build React app

@@ -8,7 +8,6 @@ import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
 import Profile from './pages/Profile';
-import PGNViewer from './pages/PGNViewer';
 import NotificationPreferences from './pages/notifications/NotificationPreferences';
 
 import adminRoutes from './routes/adminRoutes';
@@ -89,11 +88,9 @@ const AppContent = () => {
                 : 'ml-0'
             } lg:ml-64`}
           >
-            {!window.location.pathname.startsWith('/pgn-viewer') && (
-              <div className="p-8">
-                <Breadcrumbs />
-              </div>
-            )}
+            <div className="p-8">
+              <Breadcrumbs />
+            </div>
             <Routes>
               {/* Common Routes */}
               <Route path="/" element={<DashboardRedirect />} />
@@ -114,16 +111,6 @@ const AppContent = () => {
                     <NotificationPreferences />
                   </ProtectedRoute>
                 } 
-              />
-              
-              {/* PGN Viewer Standalone Route */}
-              <Route 
-                path="/pgn-viewer/:id" 
-                element={
-                  <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
-                    <PGNViewer />
-                  </ProtectedRoute>
-                }
               />
 
               {/* Role-based Routes */}

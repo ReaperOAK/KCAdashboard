@@ -30,9 +30,6 @@ module.exports = {
     fallback: {
       fs: false,
       path: false,
-    },
-    alias: {
-      'lichess-pgn-viewer': require.resolve('lichess-pgn-viewer')
     }
   },
   
@@ -40,7 +37,7 @@ module.exports = {
     rules: [
       // ... other rules ...
       
-      // Handle CSS imports from the lichess-pgn-viewer package
+      // Handle CSS imports
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']

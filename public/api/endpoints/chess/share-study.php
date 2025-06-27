@@ -4,11 +4,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Required headers
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+require_once '../../config/cors.php';
 
 // Include database and object files
 require_once '../../config/Database.php';

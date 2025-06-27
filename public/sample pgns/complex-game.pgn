@@ -1,0 +1,54 @@
+[Event "World Championship"]
+[Site "London, England"]
+[Date "2023.12.15"]
+[Round "1"]
+[White "Magnus Carlsen"]
+[Black "Ding Liren"]
+[Result "1-0"]
+[ECO "C65"]
+[Opening "Ruy Lopez: Berlin Defense"]
+[TimeControl "40/7200+30:20/3600+30:900+30"]
+[WhiteElo "2830"]
+[BlackElo "2788"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 Nf6 {The Berlin Defense, a solid choice.} 4. O-O 
+Nxe4 5. d3 Nd6 6. Bxc6 dxc6 7. dxe4 Nxe4 8. Qxd8+ Kxd8 {Black enters the 
+endgame willingly.} 9. Nxe5 Ke8 {A complex endgame begins.} 10. Nxc6 bxc6 
+11. Re1 Be6 {[%eval 0.25]} 12. Nc3 Kf8 13. f3 Nd6 14. Be3 Rb8 15. b3 f6 
+{Black creates kingside space.} 16. Rad1 g6 17. Rd4 Bg7 18. Red1 Re8 
+{Doubling on the e-file.} 19. R4d2 Kg8 20. Kf2 h5 {Preparing h4.} 21. h3 
+Kh7 22. g4 hxg4 23. hxg4 Rh8 {Sharp play begins!} 24. Rh1+ Kg8 25. Rxh8+ 
+Bxh8 26. Rd4 Bg7 27. Ra4 Rb7 {Black defends actively.} 28. Ra6 Rb6 29. Ra8+ 
+Kf7 30. Ra7 Ke8 31. g5 {White pushes forward.} f5 {$18 Counter-play.} 32. Bd4 
+Rb4 33. Bxg7 Rxd4 {Material balance changes.} 34. Be5 Rd1 35. Ra8+ Kf7 
+36. Ra7+ Ke8 37. Bxd6 cxd6 {The position simplifies.} 38. Ra8+ Kf7 39. Ra7+ 
+Kg8 {Repetition avoided.} 40. Rxd7 Rxc2+ 41. Kg3 Rxc3 {White is winning.} 
+42. Rxd6 Rxb3 43. Rxe6 Rb2 {Rook endgame.} 44. Re7 Ra2 45. g6 Ra3 46. Kf4 
+Ra4+ 47. Kxf5 Ra5+ 48. Kf6 Ra6+ 49. Ke5 Ra5+ 50. Kd4 Ra4+ 51. Kd5 Ra5+ 
+52. Kd6 Ra6+ 53. Kc7 Ra7+ 54. Kb6 Rxe7 55. g7+ {Promotion threat.} Kf7 
+56. g8=Q+ Kg6 57. Qg5+ Kf7 58. Qf5+ Kg8 59. Qa5 {Winning technique.} Re1 
+60. Qa8+ Kf7 61. Qf8+ Kg6 62. Qf6+ Kh7 63. Qh4+ Kg6 64. Qh6+ Kf7 65. Qh7+ 
+Kf8 66. Qh8+ {Checkmate is inevitable.} 1-0
+
+[Event "Casual Game"]
+[Site "Chess.com"]
+[Date "2023.12.16"]
+[Round "?"]
+[White "Player1"]
+[Black "Player2"]
+[Result "0-1"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e6 7. f3 Be7 
+8. Qd2 Qc7 9. O-O-O Nbd7 10. g4 b5 11. g5 Nh5 12. a3 O-O 13. h4 Bb7 
+14. Kb1 Rac8 15. Bh3 Nc5 16. f4 Nf6 17. gxf6 Bxf6 18. f5 exf5 19. exf5 Bxd4 
+20. Bxd4 Qxc3 {Black sacrifices the exchange.} 21. bxc3 Rxc3 22. Qf2 Ne4 
+23. Qg2 Nc5 {Black has good compensation.} 24. Be3 Rxc2 25. Qf1 Ne4 
+26. Rhg1 g6 27. fxg6 hxg6 28. Rg4 f5 29. Rg5 Nf6 {Excellent knight 
+placement.} 30. Rd4 Rc1+ 31. Qxc1 Rc8 32. Qd1 Ne4 33. Rg1 Rc2 34. Bd2 
+Nxd2+ {Material advantage.} 35. Rxd2 Rxd2 36. Qxd2 Bd5 {Bishops vs pawns 
+endgame.} 37. Ka2 Kg7 38. Kb3 Kf6 39. Kc3 Ke5 40. Kd3 f4 41. Bf1 Kf5 
+42. Ke2 Kg4 43. Kf2 Be4 {Black's pieces dominate.} 44. Bg2 Bxg2 45. Rxg2+ 
+Kf5 46. Rf2 g5 47. hxg5 Kxg5 48. Rxf4 Kg4 49. Rf8 b4 50. axb4 a5 
+51. bxa5 d5 {Passed pawns decide.} 52. a6 d4 53. a7 d3 54. a8=Q d2 
+55. Qg8+ Kf3 56. Qf8+ Ke2 57. Qe8+ Kf1 {Black promotes.} 58. Qa4 d1=Q+ 
+59. Qxd1+ {Draw offer declined.} 0-1

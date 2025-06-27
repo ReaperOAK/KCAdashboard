@@ -11,9 +11,6 @@ try {
     // Get posted data
     $data = json_decode(file_get_contents("php://input"));
     
-    // Debug logging
-    error_log("Received data: " . print_r($data, true));
-    
     // Validate input
     if (!isset($data->user_id) || !isset($data->permissions)) {
         throw new Exception('Missing required fields: user_id or permissions');

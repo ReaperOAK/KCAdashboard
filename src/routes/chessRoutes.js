@@ -3,6 +3,8 @@ import InteractiveBoard from '../pages/chess/InteractiveBoard';
 import GameArea from '../pages/chess/GameArea';
 import PlayerVsPlayer from '../pages/chess/PlayerVsPlayer';
 import ChessHome from '../pages/chess/ChessHome';
+import PGNManagementPage from '../pages/chess/PGNManagementPage';
+
 
 const chessRoutes = [
   {
@@ -38,6 +40,14 @@ const chessRoutes = [
     icon: 'trophy',
     description: 'View and manage your games and practice positions'
   },
+  {
+    path: '/chess/pgn-management',
+    element: PGNManagementPage,
+    name: 'PGN Management',
+    icon: 'folder',
+    description: 'Upload, manage and organize your PGN files'
+  },
+
   // Specific routes for ongoing games and analysis
   {
     path: '/chess/game/:id',

@@ -1,29 +1,20 @@
 <?php
 // Required headers
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+require_once '../../config/cors.php';
 
 // Include database and object files
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
 
-// Enable error logging for debugging
-error_log("Player stats endpoint accessed");
-
-try {    // Get authenticated user
+try {
+    // Get authenticated user
     $user = getAuthUser();
     
     if(!$user) {
-        error_log("Player stats - unauthorized access attempt");
         http_response_code(401);
         echo json_encode(["message" => "Unauthorized"]);
         exit;
     }
-    
-    error_log("Player stats requested for user: " . $user['id']);
     
     // Get target user_id from query parameters (defaults to current user)
     $userId = isset($_GET['user_id']) ? intval($_GET['user_id']) : $user['id'];

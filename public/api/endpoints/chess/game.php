@@ -1,10 +1,6 @@
 <?php
 // Required headers
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+require_once '../../config/cors.php';
 
 // Prevent caching to ensure fresh data
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");

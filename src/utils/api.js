@@ -1,8 +1,8 @@
 class ApiService {
-  // Change this to be dynamic based on environment
-  static API_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://dashboard.kolkatachessacademy.in/api/endpoints'
-    : '/api/endpoints';
+  // Use different configurations for development vs production
+  static API_URL = process.env.NODE_ENV === 'development' 
+    ? 'https://dashboard.kolkatachessacademy.in/api/endpoints'  // Direct call in dev to bypass proxy issues
+    : 'https://dashboard.kolkatachessacademy.in/api/endpoints';
   
   // Add method to get correct local asset URLs
   static getAssetUrl(path) {
@@ -39,8 +39,12 @@ class ApiService {
         method,
         headers,
         credentials: 'include',
+        mode: 'cors', // Explicitly set CORS mode
         body: data ? JSON.stringify(data) : null
       });
+
+      console.log('API Response status:', response.status, 'OK:', response.ok);
+      console.log('API Response headers:', response.headers);
 
       // Check for token renewal
       const tokenRenewed = response.headers.get('X-Token-Renewed');
@@ -68,12 +72,18 @@ class ApiService {
           }
         }
         return response.blob();
-      }      // Handle regular JSON responses
+      }
+
+      // Handle regular JSON responses
       const contentType = response.headers.get('content-type');
+      console.log('Content-Type:', contentType);
+      
       if (contentType && contentType.includes('application/json')) {
         try {
           // First check if the response is empty
           const text = await response.text();
+          console.log('Response text:', text.substring(0, 200) + '...');
+          
           if (!text.trim()) {
             throw new Error('Empty response from server');
           }
@@ -81,6 +91,8 @@ class ApiService {
           // Then parse the JSON
           try {
             const result = JSON.parse(text);
+            console.log('Parsed JSON result:', result);
+            
             // For non-ok responses (like 404), check if we have a proper error structure
             if (!response.ok) {
               // If it's a valid JSON response with error details, use that message
@@ -110,6 +122,14 @@ class ApiService {
         } catch (jsonError) {
           console.error('JSON processing error:', jsonError);
           throw jsonError;
+        }
+      }
+
+      // If content is not JSON, check if it's HTML (likely the React app)
+      if (contentType && contentType.includes('text/html')) {
+        const text = await response.text();
+        if (text.includes('<!DOCTYPE html>') && text.includes('React App')) {
+          throw new Error(`API endpoint not found - received React app instead of API response. Check if the endpoint ${endpoint} exists on the server.`);
         }
       }
 

@@ -18,16 +18,7 @@ ini_set('error_log', $log_dir . '/attendance_errors.log');
 error_log("--- Track Attendance Request Started: " . date('Y-m-d H:i:s') . " ---");
 
 // Set response headers
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-// Handle preflight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
+require_once '../../config/cors.php';
 
 // Define execution steps and initialize progress tracker
 $steps = [

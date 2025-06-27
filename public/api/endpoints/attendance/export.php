@@ -3,10 +3,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Add CORS headers
-header('Access-Control-Allow-Origin: https://dashboard.kolkatachessacademy.in');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
+require_once '../../config/cors.php';
 
 // Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

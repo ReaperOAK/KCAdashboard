@@ -143,23 +143,35 @@ class Quiz {
             // Calculate score
             $score = 0;
             $totalQuestions = count($questions);
-              foreach ($questions as $questionId => $questionInfo) {
+            foreach ($questions as $questionId => $questionInfo) {
                 if ($questionInfo['type'] === 'chess') {
                     // Check chess moves
                     if (isset($chessMoves->{$questionId})) {
                         $userMove = $chessMoves->{$questionId};
-                        
                         if ($questionInfo['pgn_data']) {
-                            // PGN-based question: check if sequence was completed or correct move was made
-                            if (isset($userMove->completed) && $userMove->completed) {
-                                $score++;
-                            } elseif (isset($userMove->isCorrect) && $userMove->isCorrect) {
-                                $score++;
+                            // PGN-based question: score per move
+                            $pgnMoves = [];
+                            // Parse PGN to get the correct move sequence
+                            if (!empty($questionInfo['pgn_data'])) {
+                                require_once __DIR__ . '/../utils/PGNParser.php';
+                                $pgnMoves = parse_pgn_moves($questionInfo['pgn_data']);
+                            }
+                            $userMoves = isset($userMove->moves) && is_array($userMove->moves) ? $userMove->moves : [];
+                            $numMoves = count($pgnMoves);
+                            for ($i = 0; $i < $numMoves; $i++) {
+                                if (isset($userMoves[$i])) {
+                                    if ($userMoves[$i] === $pgnMoves[$i]) {
+                                        $score += 2; // correct move
+                                    } else {
+                                        $score -= 1; // incorrect move
+                                    }
+                                } else {
+                                    // unattempted move: 0 points
+                                }
                             }
                         } elseif ($questionInfo['correct_moves']) {
                             // FEN-based question: check against correct moves
                             $correctMoves = $questionInfo['correct_moves'];
-                            
                             // Check if user move matches any correct move
                             foreach ($correctMoves as $correctMove) {
                                 if (isset($userMove->from) && isset($userMove->to) &&
@@ -177,7 +189,8 @@ class Quiz {
                         in_array($answers->{$questionId}, $questionInfo['correct_answers'])) {
                         $score++;
                     }
-                }}
+                }
+            }
             
             // Insert quiz attempt
             $query = "INSERT INTO quiz_attempts (user_id, quiz_id, score, time_taken, completed_at)

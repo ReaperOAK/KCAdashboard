@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
+import { FaStepBackward, FaStepForward, FaQuestionCircle } from 'react-icons/fa';
 import ChessEngine from '../../utils/ChessEngine';
 
 const ChessPGNBoard = ({
@@ -11,7 +12,8 @@ const ChessPGNBoard = ({
   question = '',
   disabled = false,
   className = '',
-  width = 400
+  width = 400,
+  quizMode = false // If true, restrict stepForward to only allow after student move
 }) => {
   const [game, setGame] = useState(new Chess());
   const [gameHistory, setGameHistory] = useState([]);
@@ -29,11 +31,9 @@ const ChessPGNBoard = ({
       try {
         const pgnGame = new Chess();
         pgnGame.loadPgn(pgn);
-        
         // Get the move history
         const history = pgnGame.history({ verbose: true });
         setGameHistory(history);
-        
         // Reset to starting position
         const newGame = new Chess();
         setGame(newGame);
@@ -42,10 +42,14 @@ const ChessPGNBoard = ({
         setFeedback('');
         setFeedbackType('');
       } catch (error) {
-        console.error('Error loading PGN:', error);
+        setGameHistory([]);
         setFeedback('Invalid PGN format');
         setFeedbackType('incorrect');
       }
+    } else {
+      setGameHistory([]);
+      setFeedback('');
+      setFeedbackType('');
     }
   }, [pgn]);
 
@@ -226,17 +230,58 @@ const ChessPGNBoard = ({
     }
   };
 
+  // --- Step-through controls for preview ---
+  const stepTo = (moveIdx) => {
+    if (!gameHistory.length) return;
+    const newGame = new Chess();
+    for (let i = 0; i <= moveIdx; i++) {
+      if (i < gameHistory.length) {
+        newGame.move(gameHistory[i].san);
+      }
+    }
+    setGame(newGame);
+    setCurrentMoveIndex(moveIdx);
+    setFeedback('');
+    setFeedbackType('');
+  };
+
+  const stepBackward = () => {
+    if (currentMoveIndex >= 0) {
+      stepTo(currentMoveIndex - 1);
+    }
+  };
+  const stepForward = () => {
+    if (currentMoveIndex >= gameHistory.length - 1) return;
+
+    // In quiz mode, block stepping forward if it's the student's turn and they haven't played the move
+    if (quizMode) {
+      const nextMove = gameHistory[currentMoveIndex + 1];
+      const isPlayerMove = (expectedPlayerColor === 'white' && nextMove.color === 'w') ||
+                           (expectedPlayerColor === 'black' && nextMove.color === 'b');
+      if (isPlayerMove) {
+        // Block step forward if it's the student's move
+        setFeedback('You must play the correct move to proceed.');
+        setFeedbackType('incorrect');
+        return;
+      }
+    }
+    stepTo(currentMoveIndex + 1);
+  };
+
   return (
     <div className={`chess-pgn-board ${className}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="font-semibold text-sm">PGN Visualizer</span>
+        <FaQuestionCircle className="text-blue-400 ml-1" title="Paste a PGN game. Use the arrows to step through the moves. Errors will be shown below if the PGN is invalid." />
+      </div>
       {question && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">{question}</h3>
-          <p className="text-sm text-gray-600 mt-1">
+        <div className="mb-2">
+          <h3 className="text-base font-semibold text-gray-800">{question}</h3>
+          <p className="text-xs text-gray-600 mt-1">
             Play as {expectedPlayerColor}. Follow the game line by making the correct moves.
           </p>
         </div>
       )}
-      
       <div className="relative">
         <Chessboard
           position={game.fen()}
@@ -247,8 +292,6 @@ const ChessPGNBoard = ({
           areArrowsAllowed={false}
           arePiecesDraggable={!disabled && !isWaitingForEngine}
         />
-        
-        {/* Loading overlay when waiting for engine */}
         {isWaitingForEngine && (
           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
             <div className="bg-white rounded-lg px-4 py-2 shadow-lg">
@@ -256,7 +299,6 @@ const ChessPGNBoard = ({
             </div>
           </div>
         )}
-        
         {disabled && (
           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
             <div className="bg-white rounded-lg px-4 py-2 shadow-lg">
@@ -265,7 +307,6 @@ const ChessPGNBoard = ({
           </div>
         )}
       </div>
-
       {/* Feedback message */}
       {feedback && (
         <div className={`mt-3 p-2 rounded-lg text-sm font-medium ${
@@ -276,17 +317,42 @@ const ChessPGNBoard = ({
           {feedback}
         </div>
       )}
-
-      {/* Controls */}
-      <div className="mt-3 flex gap-2">
+      {/* Step-through controls */}
+      <div className="mt-3 flex gap-2 items-center">
+        <button
+          onClick={stepBackward}
+          className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm flex items-center"
+          disabled={currentMoveIndex < 0}
+          title="Previous move"
+        >
+          <FaStepBackward />
+        </button>
+        <button
+          onClick={stepForward}
+          className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm flex items-center"
+          disabled={currentMoveIndex >= gameHistory.length - 1 || (quizMode && (() => {
+            if (currentMoveIndex < gameHistory.length - 1) {
+              const nextMove = gameHistory[currentMoveIndex + 1];
+              const isPlayerMove = (expectedPlayerColor === 'white' && nextMove.color === 'w') ||
+                                   (expectedPlayerColor === 'black' && nextMove.color === 'b');
+              return isPlayerMove;
+            }
+            return false;
+          })())}
+          title="Next move"
+        >
+          <FaStepForward />
+        </button>
+        <span className="text-xs text-gray-500 ml-2">
+          Move {currentMoveIndex + 1} of {gameHistory.length}
+        </span>
         <button
           onClick={resetPosition}
-          className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm"
+          className="ml-auto px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm"
           disabled={disabled}
         >
           Reset
         </button>
-        
         <button
           onClick={showHint}
           className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-sm"
@@ -294,10 +360,6 @@ const ChessPGNBoard = ({
         >
           Hint
         </button>
-        
-        <div className="text-xs text-gray-500 self-center ml-auto">
-          Move {currentMoveIndex + 1} of {gameHistory.length}
-        </div>
       </div>
     </div>
   );

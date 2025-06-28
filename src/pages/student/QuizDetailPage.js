@@ -243,6 +243,7 @@ const QuizDetailPage = () => {
                     onMove={(moveData) => handleChessMove(currentQuestion.id, moveData)}
                     width={400}
                     className="mx-auto"
+                    quizMode={true}
                   />
                 ) : (
                   // FEN-based chess question (original functionality)

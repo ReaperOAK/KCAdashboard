@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
@@ -73,7 +76,11 @@ const QuizCreator = () => {
       question: '',
       image_url: '',
       type: questionType,
-    };    if (questionType === 'chess') {
+    };
+    // Add hints and tags to all questions
+    newQuestion.hint = '';
+    newQuestion.tags = [];
+    if (questionType === 'chess') {
       newQuestion.chess_position = 'start';
       newQuestion.chess_orientation = 'white';
       newQuestion.correct_moves = [];
@@ -87,7 +94,7 @@ const QuizCreator = () => {
         { tempId: Date.now() + 2, answer_text: '', is_correct: false },
         { tempId: Date.now() + 3, answer_text: '', is_correct: false }
       ];
-    }    
+    }
     setQuiz(prev => ({
       ...prev,
       questions: [...prev.questions, newQuestion]
@@ -223,8 +230,29 @@ const QuizCreator = () => {
     }));
   };
 
+
   const handlePGNChange = (questionIndex, pgnData) => {
     handleQuestionChange(questionIndex, 'pgn_data', pgnData);
+  };
+
+  // PGN file upload handler for chess questions in PGN mode
+  const handlePGNUpload = (questionIndex, file) => {
+    if (!file) return;
+    const reader = new window.FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      // Optionally, validate PGN here (basic check)
+      if (!content || typeof content !== 'string' || content.trim().length < 4) {
+        toast.error('Invalid or empty PGN file.');
+        return;
+      }
+      handlePGNChange(questionIndex, content);
+      toast.success('PGN uploaded!');
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read PGN file.');
+    };
+    reader.readAsText(file);
   };
 
   const handleExpectedPlayerColorChange = (questionIndex, color) => {
@@ -292,6 +320,70 @@ const QuizCreator = () => {
       setSaving(false);
     }
   };
+  // --- TagInput component for tags field ---
+// Simple multi-tag input with suggestions
+const TagInput = ({ value, onChange, suggestions }) => {
+  const [input, setInput] = React.useState('');
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const filteredSuggestions = suggestions.filter(
+    tag => tag.toLowerCase().includes(input.toLowerCase()) && !value.includes(tag)
+  );
+  return (
+    <div className="relative">
+      <div className="flex flex-wrap gap-1 mb-1">
+        {value.map(tag => (
+          <span key={tag} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs flex items-center">
+            {tag}
+            <button
+              type="button"
+              className="ml-1 text-blue-500 hover:text-red-500"
+              onClick={() => onChange(value.filter(t => t !== tag))}
+              aria-label={`Remove tag ${tag}`}
+            >×</button>
+          </span>
+        ))}
+      </div>
+      <input
+        type="text"
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+        placeholder="Add tag..."
+        value={input}
+        onChange={e => {
+          setInput(e.target.value);
+          setShowSuggestions(true);
+        }}
+        onFocus={() => setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && input.trim()) {
+            if (!value.includes(input.trim())) {
+              onChange([...value, input.trim()]);
+            }
+            setInput('');
+            setShowSuggestions(false);
+          }
+        }}
+      />
+      {showSuggestions && filteredSuggestions.length > 0 && (
+        <div className="absolute z-10 bg-white border rounded shadow mt-1 w-full max-h-32 overflow-auto">
+          {filteredSuggestions.map(tag => (
+            <div
+              key={tag}
+              className="px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm"
+              onMouseDown={() => {
+                onChange([...value, tag]);
+                setInput('');
+                setShowSuggestions(false);
+              }}
+            >
+              {tag}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
   const handlePublish = async () => {
     const validationError = validateQuiz();
@@ -521,8 +613,39 @@ const QuizCreator = () => {
                       </label>
                     </div>                  </div>
                   
+                  {/* Hints and Tags fields for all question types */}
+                  <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        Hint (optional)
+                        <span className="ml-1 text-xs text-gray-400" title="This hint will be shown to students if they get the question wrong or request a hint.">?</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={question.hint || ''}
+                        onChange={e => handleQuestionChange(questionIndex, 'hint', e.target.value)}
+                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#461fa3] focus:border-transparent"
+                        placeholder="Enter a hint for this question"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        Tags
+                        <span className="ml-1 text-xs text-gray-400" title="Add tags to help categorize this question (e.g. tactic, endgame, fork, mate in 2)">?</span>
+                      </label>
+                      <TagInput
+                        value={question.tags || []}
+                        onChange={tags => handleQuestionChange(questionIndex, 'tags', tags)}
+                        suggestions={["tactic", "endgame", "opening", "fork", "skewer", "mate in 2", "pin", "discovered attack", "deflection", "zugzwang"]}
+                      />
+                    </div>
+                  </div>
                   {/* Conditional rendering based on question type */}
                   {question.type === 'multiple_choice' ? (
+
+
+
+
                     <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Answers</label>
                       <p className="text-sm text-gray-500 mb-2">Select the correct answer</p>
@@ -695,12 +818,35 @@ const QuizCreator = () => {
                         </div>
                       ) : (
                         /* PGN Mode Interface */
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">PGN Data</label>
                             <p className="text-sm text-gray-500 mb-3">
-                              Enter the PGN game sequence. Students will play the moves for their assigned color.
+                              Enter the PGN game sequence or upload a PGN file. Students will play the moves for their assigned color.
                             </p>
+                            <div className="flex items-center gap-3 mb-2">
+                              <input
+                                type="file"
+                                accept=".pgn,.txt"
+                                id={`pgn-upload-${questionIndex}`}
+                                style={{ display: 'none' }}
+                                onChange={e => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handlePGNUpload(questionIndex, e.target.files[0]);
+                                    e.target.value = '';
+                                  }
+                                }}
+                              />
+                              <label htmlFor={`pgn-upload-${questionIndex}`}
+                                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 cursor-pointer text-sm border border-blue-200"
+                              >
+                                <FaFileAlt className="inline mr-1" /> Upload PGN
+                              </label>
+                              {question.pgn_data && question.pgn_data.length > 0 && (
+                                <span className="text-green-700 text-xs ml-2">PGN loaded</span>
+                              )}
+                            </div>
                             <textarea
                               value={question.pgn_data || ''}
                               onChange={(e) => handlePGNChange(questionIndex, e.target.value)}
@@ -709,8 +855,10 @@ const QuizCreator = () => {
                               placeholder="1. e4 e5 2. Nf3 Nc6 3. Bb5 a6..."
                             />
                             <p className="text-xs text-gray-500 mt-1">
-                              Paste a complete PGN game sequence here
+                              Paste a complete PGN game sequence here or use the upload button above.
                             </p>
+                            {/* Debug: show current PGN data for this question */}
+                            <div className="text-xs text-blue-600 break-all mt-2">PGN state: {JSON.stringify(question.pgn_data)}</div>
                           </div>
                           
                           <div className="space-y-4">

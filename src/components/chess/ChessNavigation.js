@@ -11,10 +11,6 @@ const ChessNavigation = () => {
       icon: 'chess-knight'
     },
     {
-      path: '/chess/studies',
-      name: 'Study Collection',
-      icon: 'book'
-    },    {
       path: '/chess/board',
       name: 'Analysis Board',
       icon: 'chess-board'

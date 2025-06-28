@@ -511,32 +511,7 @@ class ApiService {
     return `${this.API_URL}/resources/download.php?id=${resourceId}`;
   }
   // Chess API endpoints
-  static async getChessStudies() {
-    return this.get('/chess/studies.php');
-  }
-
-  static async getSharedChessStudies() {
-    return this.get('/chess/shared-studies.php');
-  }
-
-  static async getStudyDetails(id) {
-    return this.get(`/chess/study.php?id=${id}`);
-  }
-
-  static async createChessStudy(studyData) {
-    return this.post('/chess/create-study.php', studyData);
-  }
-
-  static async updateChessStudy(id, studyData) {
-    return this.put(`/chess/update-study.php?id=${id}`, studyData);
-  }
-
-  static async shareChessStudy(id, userIds) {
-    return this.post('/chess/share-study.php', {
-      study_id: id,
-      user_ids: userIds
-    });
-  }
+  // Chess studies endpoints removed
 
   static async getChessGames(status = 'all') {
     return this.get(`/chess/games.php?status=${status}`);

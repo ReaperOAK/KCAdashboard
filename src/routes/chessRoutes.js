@@ -1,4 +1,3 @@
-import ChessStudies from '../pages/chess/ChessStudies';
 import InteractiveBoard from '../pages/chess/InteractiveBoard';
 import GameArea from '../pages/chess/GameArea';
 import PlayerVsPlayer from '../pages/chess/PlayerVsPlayer';
@@ -12,13 +11,6 @@ const chessRoutes = [
     element: ChessHome,
     name: 'Chess Home',
     hideInMenu: true // Hide this route from navigation menus
-  },
-  {
-    path: '/chess/studies',
-    element: ChessStudies,
-    name: 'Chess Studies',
-    icon: 'book',
-    description: 'Create and analyze chess positions, share studies with others'
   },
   {
     path: '/chess/play',

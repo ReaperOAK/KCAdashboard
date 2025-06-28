@@ -52,7 +52,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { label: 'Play Chess', path: '/chess/play', icon: '♟️' },
     { label: 'Chess Studies', path: '/chess/studies', icon: '📚' },
     { label: 'Interactive Board', path: '/chess/board', icon: '🎮' },
-    { label: 'Game Area', path: '/chess/games', icon: '🏆' }
+    { label: 'Game Area', path: '/chess/games', icon: '🏆' },
+    { label: 'PGN Management', path: '/chess/pgn-management', icon: '📁' }
   ];
 
   // Add effect to update active menu item based on current path

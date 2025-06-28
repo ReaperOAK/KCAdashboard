@@ -1,4 +1,6 @@
+
 <?php
+require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../utils/Mailer.php';
 

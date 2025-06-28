@@ -83,7 +83,7 @@ const QuizManagement = () => {
 
   const handlePublishQuiz = async (quiz) => {
     try {
-      await ApiService.post('/quiz/publish.php', { quiz_id: quiz.id });
+      await ApiService.post('/quiz/publish.php', { id: quiz.id });
       toast.success('Quiz published successfully');
       fetchQuizzes();
     } catch (error) {
@@ -184,7 +184,8 @@ const QuizManagement = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">                <thead>
+              <table className="w-full">
+                <thead>
                   <tr className="bg-gray-50">
                     <th className="p-4 text-left">Title</th>
                     <th className="p-4 text-left">Status</th>
@@ -195,55 +196,54 @@ const QuizManagement = () => {
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
-                <tbody>                  {filteredQuizzes.map((quiz) => (
-                    <tr key={quiz.id} className="border-t hover:bg-gray-50">
-                      <td className="p-4">
-                        <div className="font-medium text-[#461fa3]">{quiz.title}</div>
-                        <div className="text-xs text-gray-500 mt-1 line-clamp-1">{quiz.description}</div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusClass(quiz.status)}`}>
-                          {quiz.status}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs ${getDifficultyClass(quiz.difficulty)}`}>
-                          {quiz.difficulty}
-                        </span>
-                      </td>
-                      <td className="p-4">{quiz.question_count || "-"}</td>
-                      <td className="p-4">{quiz.time_limit} mins</td>
-                      <td className="p-4">{new Date(quiz.created_at).toLocaleDateString()}</td>
-                      <td className="p-4">
-                        <div className="flex space-x-2">
+                <tbody>{filteredQuizzes.map((quiz) => (
+                  <tr key={quiz.id} className="border-t hover:bg-gray-50">
+                    <td className="p-4">
+                      <div className="font-medium text-[#461fa3]">{quiz.title}</div>
+                      <div className="text-xs text-gray-500 mt-1 line-clamp-1">{quiz.description}</div>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusClass(quiz.status)}`}>
+                        {quiz.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getDifficultyClass(quiz.difficulty)}`}>
+                        {quiz.difficulty}
+                      </span>
+                    </td>
+                    <td className="p-4">{quiz.question_count || "-"}</td>
+                    <td className="p-4">{quiz.time_limit} mins</td>
+                    <td className="p-4">{new Date(quiz.created_at).toLocaleDateString()}</td>
+                    <td className="p-4">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => navigate(`/teacher/quiz/edit/${quiz.id}`)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                          aria-label="Edit quiz"
+                        >
+                          <FaEdit />
+                        </button>
+                        {quiz.status === 'draft' && (
                           <button
-                            onClick={() => navigate(`/teacher/quiz/edit/${quiz.id}`)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                            aria-label="Edit quiz"
+                            onClick={() => handlePublishQuiz(quiz)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded"
+                            aria-label="Publish quiz"
                           >
-                            <FaEdit />
+                            <FaEye />
                           </button>
-                          {quiz.status === 'draft' && (
-                            <button
-                              onClick={() => handlePublishQuiz(quiz)}
-                              className="p-2 text-green-600 hover:bg-green-50 rounded"
-                              aria-label="Publish quiz"
-                            >
-                              <FaEye />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteClick(quiz)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded"
-                            aria-label="Delete quiz"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                        )}
+                        <button
+                          onClick={() => handleDeleteClick(quiz)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          aria-label="Delete quiz"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}</tbody>
               </table>
             </div>
           )}

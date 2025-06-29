@@ -1,15 +1,11 @@
 <?php
-// Load environment variables from .env file if not already loaded
-if (!getenv('SMTP_HOST')) {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-    $dotenv->load();
-}
+// Production-safe: Only use getenv(), do not require .env file
 
 $config = [
     'smtp_host' => getenv('SMTP_HOST') ?: 'smtp.hostinger.com',
     'smtp_port' => getenv('SMTP_PORT') ?: 465,
-    'smtp_username' => getenv('SMTP_USERNAME') ?: 'no-reply@kolkatachessacademy.in',
-    'smtp_password' => getenv('SMTP_PASSWORD'),
+    'smtp_username' => getenv('SMTP_USERNAME') ?: 'admin@kolkatachessacademy.in',
+    'smtp_password' => getenv('SMTP_PASSWORD') ?: 'admin123@KCA',
     'from_email' => getenv('MAIL_FROM_ADDRESS') ?: 'no-reply@kolkatachessacademy.in',
     'from_name' => getenv('MAIL_FROM_NAME') ?: 'Kolkata Chess Academy',
     'smtp_secure' => getenv('SMTP_SECURE') ?: 'ssl'

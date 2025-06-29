@@ -51,12 +51,25 @@ try {
             $_SERVER['REMOTE_ADDR'] ?? null
         ]);
 
+
         // Delete user permissions first
         $stmt = $db->prepare("DELETE FROM user_permissions WHERE user_id = ?");
         $stmt->execute([$data->user_id]);
 
         // Delete user's activity logs
         $stmt = $db->prepare("DELETE FROM activity_logs WHERE user_id = ?");
+        $stmt->execute([$data->user_id]);
+
+        // Delete from auth_tokens
+        $stmt = $db->prepare("DELETE FROM auth_tokens WHERE user_id = ?");
+        $stmt->execute([$data->user_id]);
+
+        // Delete from email_verifications
+        $stmt = $db->prepare("DELETE FROM email_verifications WHERE user_id = ?");
+        $stmt->execute([$data->user_id]);
+
+        // Delete from password_resets
+        $stmt = $db->prepare("DELETE FROM password_resets WHERE user_id = ?");
         $stmt->execute([$data->user_id]);
 
         // Delete the user

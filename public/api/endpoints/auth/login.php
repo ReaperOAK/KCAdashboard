@@ -2,9 +2,11 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../models/User.php';
+require_once 'rate_limit.php';
 
 try {
     $database = new Database();
@@ -14,8 +16,17 @@ try {
         throw new Exception('Database connection failed');
     }
     
+
     $user = new User($db);
     $data = json_decode(file_get_contents("php://input"));
+
+    // Rate limit by IP
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    if (!rate_limit_check($ip, 'login')) {
+        http_response_code(429);
+        echo json_encode(["message" => "Too many login attempts. Please try again later."]);
+        exit();
+    }
 
     error_log("Login attempt for email: " . $data->email);
 
@@ -26,7 +37,7 @@ try {
             if (!isset($userData['status']) || $userData['status'] !== 'active') {
                 error_log("Login blocked: user status is not active");
                 http_response_code(403);
-                echo json_encode(["message" => "Account is not active. Please contact support."]);
+                echo json_encode(["message" => "Account is not active. Please verify your email before logging in."]);
                 exit();
             }
             error_log("User found, verifying password");

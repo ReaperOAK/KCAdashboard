@@ -20,9 +20,9 @@ class User {
     public function create() {
         try {
             $query = "INSERT INTO " . $this->table_name . "
-                    (email, password, role, full_name, google_id, profile_picture)
+                    (email, password, role, full_name, google_id, profile_picture, status, is_active)
                     VALUES
-                    (:email, :password, :role, :full_name, :google_id, :profile_picture)";
+                    (:email, :password, :role, :full_name, :google_id, :profile_picture, :status, :is_active)";
 
             $stmt = $this->conn->prepare($query);
 
@@ -31,6 +31,10 @@ class User {
             $this->role = htmlspecialchars(strip_tags($this->role));
             $this->full_name = htmlspecialchars(strip_tags($this->full_name));
 
+            // Set default status and is_active for new users
+            $status = 'inactive';
+            $is_active = 0;
+
             // Bind values
             $stmt->bindParam(":email", $this->email);
             $stmt->bindParam(":password", $this->password);
@@ -38,6 +42,8 @@ class User {
             $stmt->bindParam(":full_name", $this->full_name);
             $stmt->bindParam(":google_id", $this->google_id);
             $stmt->bindParam(":profile_picture", $this->profile_picture);
+            $stmt->bindParam(":status", $status);
+            $stmt->bindParam(":is_active", $is_active, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 return true;
@@ -146,12 +152,14 @@ class User {
 
     public function updateStatus($userId, $status) {
         try {
+            $is_active = ($status === 'active') ? 1 : 0;
             $query = "UPDATE " . $this->table_name . "
-                     SET status = :status
+                     SET status = :status, is_active = :is_active
                      WHERE id = :id";
 
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":status", $status);
+            $stmt->bindParam(":is_active", $is_active, PDO::PARAM_INT);
             $stmt->bindParam(":id", $userId);
 
             if ($stmt->execute()) {

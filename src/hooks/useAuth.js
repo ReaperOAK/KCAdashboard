@@ -51,6 +51,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await ApiService.post('/auth/register.php', userData);
+      // Show alert if registration was successful and email verification is required
+      if (response && response.message && response.message.toLowerCase().includes('verify your email')) {
+        window.alert('Registration successful! Please check your email and verify your account before logging in.');
+      }
       return response;
     } catch (error) {
       console.error('Registration error:', error);

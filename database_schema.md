@@ -35,6 +35,19 @@
 | created_at | timestamp   | YES  |     | CURRENT_TIMESTAMP |      |
 | used_at    | timestamp   | YES  |     | NULL    |                |
 
+### email_verifications
+| Column     | Type         | Null | Key | Default | Extra           |
+|------------|-------------|------|-----|---------|-----------------|
+| id         | int(11)     | NO   | PRI | NULL    | auto_increment |
+| user_id    | int(11)     | NO   | MUL | NULL    |                |
+| token      | varchar(255)| NO   | UNI | NULL    |                |
+| expires_at | timestamp   | NO   |     | NULL    |                |
+| used_at    | timestamp   | YES  |     | NULL    |                |
+| created_at | timestamp   | YES  |     | CURRENT_TIMESTAMP |      |
+
+- `user_id` references `users(id)` ON DELETE CASCADE
+- `token` is unique and used for email verification links
+
 ## Educational Content
 ### classrooms
 | Column      | Type                            | Null | Key | Default | Extra           |
@@ -1105,4 +1118,55 @@ The resource system implements a comprehensive access control mechanism:
 
 ### resource_access
 - `resource_id` references `resources(id)` ON DELETE CASCADE
--
+- `user_id` references `users(id)` ON DELETE CASCADE
+
+### resource_bookmarks
+- `user_id` references `users(id)` ON DELETE CASCADE
+- `resource_id` references `resources(id)` ON DELETE CASCADE
+
+## Foreign Key Relationships for Chess Tables
+
+### chess_studies
+- `owner_id` references `users(id)` ON DELETE CASCADE
+
+### chess_study_shares
+- `study_id` references `chess_studies(id)` ON DELETE CASCADE
+- `user_id` references `users(id)` ON DELETE CASCADE
+
+### chess_games
+- `white_player_id` references `users(id)`
+- `black_player_id` references `users(id)`
+
+### chess_game_moves
+- `game_id` references `chess_games(id)` ON DELETE CASCADE
+- `made_by_id` references `users(id)`
+
+### chess_challenges
+- `challenger_id` references `users(id)` ON DELETE CASCADE
+- `recipient_id` references `users(id)` ON DELETE CASCADE
+
+### chess_practice_positions
+- `created_by` references `users(id)` ON DELETE CASCADE
+
+### chess_player_stats
+- `user_id` references `users(id)` ON DELETE CASCADE
+
+## Foreign Key Relationships for PGN Tables
+
+### pgn_files
+- `teacher_id` references `users(id)` ON DELETE CASCADE
+
+### pgn_shares
+- `pgn_id` references `pgn_files(id)` ON DELETE CASCADE
+- `user_id` references `users(id)` ON DELETE CASCADE
+
+### pgn_views
+- `pgn_id` references `pgn_files(id)` ON DELETE CASCADE
+- `user_id` references `users(id)` ON DELETE SET NULL
+
+### pgn_annotations
+- `pgn_id` references `pgn_files(id)` ON DELETE CASCADE
+- `author_id` references `users(id)` ON DELETE SET NULL
+
+### user_pgn_preferences
+- `user_id` references `users(id)` ON DELETE CASCADE

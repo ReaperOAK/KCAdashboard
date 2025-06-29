@@ -4,9 +4,12 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
+
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../models/User.php';
+require_once 'send_verification.php';
+require_once '../../models/EmailVerification.php';
 
 try {
     // Log incoming request data
@@ -51,9 +54,17 @@ try {
     $user->google_id = $data->google_id ?? null;
     $user->profile_picture = $data->profile_picture ?? null;
 
+
     if ($user->create()) {
+        // Generate and store verification token
+        $verify_token = bin2hex(random_bytes(32));
+        $expires_at = date('Y-m-d H:i:s', strtotime('+1 day'));
+        $user_id = $db->lastInsertId();
+        $ev = new EmailVerification($db);
+        $ev->create($user_id, $verify_token, $expires_at);
+        send_verification_email($user->email, $verify_token);
         http_response_code(201);
-        echo json_encode(["message" => "User created successfully"]);
+        echo json_encode(["message" => "User created successfully. Please check your email to verify your account."]);
     } else {
         throw new Exception('Failed to create user record');
     }

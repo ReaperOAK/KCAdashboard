@@ -11,17 +11,18 @@ class EmailService {
     
     public function __construct() {
         $this->mailer = new PHPMailer(true);
-        $this->fromEmail = 'notifications@kolkatachessacademy.in';
-        $this->fromName = 'Kolkata Chess Academy';
-        
+        // Load config
+        $config = require __DIR__ . '/../config/mail.php';
+        $this->fromEmail = $config['from_email'];
+        $this->fromName = $config['from_name'];
         // Configure SMTP settings
         $this->mailer->isSMTP();
-        $this->mailer->Host = 'smtp.gmail.com'; // Or your SMTP server
+        $this->mailer->Host = $config['smtp_host'];
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = 'notifications@kolkatachessacademy.in';
-        $this->mailer->Password = 'your-email-password'; // Use environment variables in production
-        $this->mailer->SMTPSecure = 'tls';
-        $this->mailer->Port = 587;
+        $this->mailer->Username = $config['smtp_username'];
+        $this->mailer->Password = $config['smtp_password'];
+        $this->mailer->SMTPSecure = $config['smtp_secure'];
+        $this->mailer->Port = $config['smtp_port'];
         $this->mailer->setFrom($this->fromEmail, $this->fromName);
     }
     

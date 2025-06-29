@@ -95,12 +95,20 @@ const InteractiveBoard = () => {
 
   // Helper to fetch PGN (for download button)
   const [pgn, setPgn] = useState('');
+  const [moveHistory, setMoveHistory] = useState([]);
+  const [fenHistory, setFenHistory] = useState([]);
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
+
+  // Fetch move history, PGN, and FEN history from backend
   const fetchMoveHistory = useCallback(async (gameId) => {
     if (!gameId) return;
     try {
       const res = await ApiService.getMoveHistory(gameId);
-      if (res && res.success && res.pgn) {
-        setPgn(res.pgn);
+      if (res && res.success) {
+        setPgn(res.pgn || '');
+        setMoveHistory(res.moves || []);
+        setFenHistory(res.fen_history || []);
+        setCurrentMoveIndex((res.moves && res.moves.length > 0) ? res.moves.length - 1 : -1);
       }
     } catch (err) {
       console.error('Failed to fetch move history:', err);
@@ -209,6 +217,28 @@ const InteractiveBoard = () => {
     }
   };
   
+  // Handle move selection from MoveHistory (jump to move)
+  const handleGoToMove = (moveIndex) => {
+    if (!fenHistory || fenHistory.length === 0) return;
+    // fenHistory[0] is the initial position, so moveIndex+1
+    const fen = fenHistory[moveIndex + 1] || fenHistory[fenHistory.length - 1];
+    setCurrentMoveIndex(moveIndex);
+    setPosition(fen);
+  };
+
+  // Helper to format date/time in IST
+  const formatIST = (dateString) => {
+    try {
+      let s = dateString;
+      if (s && !s.includes('T')) s = s.replace(' ', 'T');
+      if (s && !s.endsWith('Z')) s += 'Z';
+      const d = new Date(s);
+      return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+    } catch {
+      return dateString;
+    }
+  };
+
   if (error === 'redirected-to-lobby') {
     return null;
   }
@@ -288,6 +318,10 @@ const InteractiveBoard = () => {
           playMode={id ? 'vs-human' : 'analysis'}
           width={600}
           gameId={id}
+          backendMoveHistory={moveHistory}
+          fenHistory={fenHistory}
+          currentMoveIndex={currentMoveIndex}
+          goToMove={handleGoToMove}
         />
       </div>
       {gameData && (
@@ -309,7 +343,12 @@ const InteractiveBoard = () => {
             <p><strong className="text-gray-700">Turn:</strong> <span className={`font-semibold ${gameData.yourTurn ? "text-green-600" : "text-blue-600"}`}>
               {gameData.yourTurn ? 'Your move' : "Opponent's move"}
             </span></p>
-            {lastMoveAt && <p><strong className="text-gray-700">Last Move:</strong> <span className="text-gray-900">{new Date(lastMoveAt).toLocaleString()}</span></p>}
+            {lastMoveAt && (
+              <p>
+                <strong className="text-gray-700">Last Move:</strong> 
+                <span className="text-gray-900">{formatIST(lastMoveAt)}</span>
+              </p>
+            )}
           </div>
         </div>
       )}

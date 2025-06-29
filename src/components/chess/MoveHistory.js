@@ -8,6 +8,20 @@ const MoveHistory = ({ history, currentMove, goToMove }) => {
     }
   };
 
+  // Helper to format time in IST
+  const formatIST = (dateString) => {
+    if (!dateString) return '';
+    try {
+      let s = dateString;
+      if (s && !s.includes('T')) s = s.replace(' ', 'T');
+      if (s && !s.endsWith('Z')) s += 'Z';
+      const d = new Date(s);
+      return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm">
       <h3 className="text-lg font-semibold text-purple-900 mb-3">Move History</h3>
@@ -21,6 +35,7 @@ const MoveHistory = ({ history, currentMove, goToMove }) => {
                 <th className="px-2 py-1 text-left text-gray-700 font-medium">#</th>
                 <th className="px-2 py-1 text-left text-gray-700 font-medium">White</th>
                 <th className="px-2 py-1 text-left text-gray-700 font-medium">Black</th>
+                <th className="px-2 py-1 text-left text-gray-700 font-medium">Time</th>
               </tr>
             </thead>
             <tbody>
@@ -42,6 +57,14 @@ const MoveHistory = ({ history, currentMove, goToMove }) => {
                     onClick={() => moveItem.black && handleMoveClick(index * 2 + 1)}
                   >
                     {moveItem.black ? moveItem.black.san : ''}
+                  </td>
+                  <td className="px-2 py-1 text-gray-500 font-mono">
+                    {/* Show time for white or black move if available */}
+                    {moveItem.white && moveItem.white.created_at
+                      ? formatIST(moveItem.white.created_at)
+                      : moveItem.black && moveItem.black.created_at
+                      ? formatIST(moveItem.black.created_at)
+                      : ''}
                   </td>
                 </tr>
               ))}

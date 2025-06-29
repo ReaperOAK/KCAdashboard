@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatDistanceToNow } from 'date-fns';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
 
@@ -71,8 +70,12 @@ const GameArea = () => {
   // Format date for display
   const formatDate = (dateString) => {
     try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-    } catch (error) {
+      let s = dateString;
+      if (s && !s.includes('T')) s = s.replace(' ', 'T');
+      if (s && !s.endsWith('Z')) s += 'Z';
+      const d = new Date(s);
+      return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+    } catch {
       return dateString;
     }
   };

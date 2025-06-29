@@ -11,7 +11,7 @@ const ChessBoard = ({
   orientation = 'white',
   allowMoves = true,
   showNotation = true,
-  showHistory = true,
+  showHistory = false,
   showAnalysis = false,
   onMove = null,
   engineLevel = 10,
@@ -23,6 +23,8 @@ const ChessBoard = ({
   useOnlineAPI = false, // New prop for using Stockfish online API
   gameId = null, // New prop for resign
   onResign = null, // Optional callback after resign
+  backendMoveHistory = null, // New prop for backend move history
+  currentMoveIndex = null, // New prop for initial move index
 }) => {
   const navigate = useNavigate();
   // Resign handler
@@ -261,26 +263,41 @@ const ChessBoard = ({
     }
   }, [gameOverState]);
 
-  // Record move history
+  // Update move history from backend or local
   useEffect(() => {
-    const moveHistory = [];
-    const history = game.history({ verbose: true });
-    
-    for (let i = 0; i < history.length; i += 2) {
-      const moveNumber = Math.floor(i / 2) + 1;
-      const whiteMove = history[i];
-      const blackMove = history[i + 1];
-      
-      moveHistory.push({
-        moveNumber,
-        white: whiteMove ? { from: whiteMove.from, to: whiteMove.to, san: whiteMove.san } : null,
-        black: blackMove ? { from: blackMove.from, to: blackMove.to, san: blackMove.san } : null
-      });
+    if (backendMoveHistory && Array.isArray(backendMoveHistory)) {
+      // Convert backend move list to table format for MoveHistory, include created_at
+      const moveHistory = [];
+      for (let i = 0; i < backendMoveHistory.length; i += 2) {
+        const moveNumber = Math.floor(i / 2) + 1;
+        const whiteMove = backendMoveHistory[i];
+        const blackMove = backendMoveHistory[i + 1];
+        moveHistory.push({
+          moveNumber,
+          white: whiteMove ? { san: whiteMove.move_san, created_at: whiteMove.created_at } : null,
+          black: blackMove ? { san: blackMove.move_san, created_at: blackMove.created_at } : null
+        });
+      }
+      setHistory(moveHistory);
+      setCurrentMove(currentMoveIndex != null ? currentMoveIndex : (backendMoveHistory.length - 1));
+    } else {
+      // Fallback to local chess.js history
+      const moveHistory = [];
+      const localHistory = game.history({ verbose: true });
+      for (let i = 0; i < localHistory.length; i += 2) {
+        const moveNumber = Math.floor(i / 2) + 1;
+        const whiteMove = localHistory[i];
+        const blackMove = localHistory[i + 1];
+        moveHistory.push({
+          moveNumber,
+          white: whiteMove ? { from: whiteMove.from, to: whiteMove.to, san: whiteMove.san } : null,
+          black: blackMove ? { from: blackMove.from, to: blackMove.to, san: blackMove.san } : null
+        });
+      }
+      setHistory(moveHistory);
+      setCurrentMove(localHistory.length - 1);
     }
-    
-    setHistory(moveHistory);
-    setCurrentMove(history.length - 1);
-  }, [game]);
+  }, [backendMoveHistory, currentMoveIndex, game]);
 
   // Get possible moves for a square
   function getMoveOptions(square) {

@@ -532,6 +532,29 @@ const PGNLibrary = ({
                   </div>
                 )}
                 
+                {/* PGN Download Button */}
+                {selectedGamePGN && (
+                  <div className="mb-4 flex justify-end">
+                    <button
+                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors font-semibold"
+                      onClick={() => {
+                        const blob = new Blob([selectedGamePGN], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `game-${selectedGame?.id || 'pgn'}.pgn`;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(() => {
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
+                        }, 100);
+                      }}
+                    >
+                      Download PGN
+                    </button>
+                  </div>
+                )}
                 <PGNViewer
                   initialPgn={selectedGamePGN}
                   width={300}

@@ -511,6 +511,11 @@ class ApiService {
     return `${this.API_URL}/resources/download.php?id=${resourceId}`;
   }
   // Chess API endpoints
+  // Get move history, PGN, and FEN history for a chess game
+  static async getMoveHistory(gameId) {
+    return this.get(`/chess/get-move-history.php?id=${gameId}`);
+  }
+  
   // Chess studies endpoints removed
 
   static async getChessGames(status = 'all') {

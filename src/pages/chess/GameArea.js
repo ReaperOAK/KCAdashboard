@@ -42,9 +42,30 @@ const GameArea = () => {
     loadData();
   }, [activeTab, gameStatus]);
 
-  // Handle game selection
-  const handleSelectGame = (gameId) => {
-    navigate(`/chess/game/${gameId}`);
+  // Handle game selection and PGN download for completed games
+  const handleSelectGame = async (game) => {
+    if (game.status === 'completed') {
+      try {
+        const res = await ApiService.getMoveHistory(game.id);
+        if (res && res.success && res.pgn) {
+          const blob = new Blob([res.pgn], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `game-${game.id}.pgn`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+        }
+      } catch (err) {
+        alert('Failed to download PGN.');
+      }
+    } else {
+      navigate(`/chess/game/${game.id}`);
+    }
   };
 
   // Format date for display
@@ -127,7 +148,9 @@ const GameArea = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {games.map(game => (
-                <div key={game.id} className="bg-white rounded-lg overflow-hidden shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onClick={() => handleSelectGame(game.id)}>                  <div className="h-36 bg-purple-50 flex items-center justify-center border-b border-gray-200">
+                <div key={game.id} className="bg-white rounded-lg overflow-hidden shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:shadow-xl"
+                  onClick={() => handleSelectGame(game)}>
+                  <div className="h-36 bg-purple-50 flex items-center justify-center border-b border-gray-200">
                     <div className="w-30 h-30 bg-gray-200 bg-contain bg-center bg-no-repeat border border-gray-300" style={{ backgroundImage: game.preview_url ? `url(${game.preview_url})` : '' }}></div>
                   </div>
                   <div className="p-4">
@@ -139,7 +162,8 @@ const GameArea = () => {
                     <div className="flex justify-between items-center mb-3 text-sm text-gray-600">
                       <span>{game.time_control || 'Standard'}</span>
                       <span>{formatDate(game.last_move_at)}</span>
-                    </div>                    <div className="flex justify-between items-center">
+                    </div>
+                    <div className="flex justify-between items-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         game.status === 'active' ? 'bg-green-100 text-green-800' : 
                         game.status === 'completed' ? 'bg-gray-100 text-gray-800' : 

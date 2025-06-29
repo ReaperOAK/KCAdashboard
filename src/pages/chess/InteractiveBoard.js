@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
+// import MoveHistory from '../../components/chess/MoveHistory';
+// import PGNViewer from '../../components/chess/PGNViewer';
 import ApiService from '../../utils/api';
 
 const InteractiveBoard = () => {
@@ -15,6 +18,8 @@ const InteractiveBoard = () => {
   const [lastMoveAt, setLastMoveAt] = useState(null);
   // Simul/active games state
   const [activeGames, setActiveGames] = useState([]);
+
+  // PGN is tracked in the backend, no need to keep in state here
 
   // Fetch active games for switcher (simul support)
   useEffect(() => {
@@ -87,26 +92,39 @@ const InteractiveBoard = () => {
     }
   }, [id, position, navigate]);
 
-  // Load game data when ID is provided
+
+  // Helper to fetch PGN (for download button)
+  const [pgn, setPgn] = useState('');
+  const fetchMoveHistory = useCallback(async (gameId) => {
+    if (!gameId) return;
+    try {
+      const res = await ApiService.getMoveHistory(gameId);
+      if (res && res.success && res.pgn) {
+        setPgn(res.pgn);
+      }
+    } catch (err) {
+      console.error('Failed to fetch move history:', err);
+    }
+  }, []);
+
+  // Load game data and move history when ID is provided
   useEffect(() => {
     let pollInterval = null;
-    
     if (id) {
       // Initial game load
       const loadGame = async () => {
         try {
           setLoading(true);
           const response = await ApiService.getGameDetails(id);
-          
           if (response.success && response.game) {
             setGameData(response.game);
             setPosition(response.game.position || 'start');
             setLastMoveAt(response.game.lastMove);
-            
-            // Set orientation based on player color
             if (response.game.yourColor === 'black') {
               setOrientation('black');
             }
+            // Fetch move history/PGN/FEN
+            fetchMoveHistory(id);
           } else {
             setError('Failed to load game data');
           }
@@ -117,21 +135,20 @@ const InteractiveBoard = () => {
           setLoading(false);
         }
       };
-      
-      // Load the game initially
       loadGame();
-      
       // Set up polling for opponent's moves every 2 seconds
-      pollInterval = setInterval(pollGameUpdates, 2000);
+      pollInterval = setInterval(() => {
+        pollGameUpdates();
+        fetchMoveHistory(id);
+      }, 2000);
     }
-    
     // Clean up interval on unmount
     return () => {
       if (pollInterval) {
         clearInterval(pollInterval);
       }
     };
-  }, [id, pollGameUpdates]);
+  }, [id, pollGameUpdates, fetchMoveHistory]);
   
   // Check if a challenge has been accepted (only run when not viewing a game)
   useEffect(() => {
@@ -173,27 +190,17 @@ const InteractiveBoard = () => {
   // Handle move submission
   const handleMove = async (move, fen) => {
     if (!id) {
-      // Just update local position for analysis board
       setPosition(fen);
       return;
     }
-    
     try {
-      // Update UI immediately for a responsive feel
       setPosition(fen);
-      setGameData(prev => ({
-        ...prev,
-        yourTurn: false
-      }));
-      
-      // Send move to server
+      setGameData(prev => ({ ...prev, yourTurn: false }));
       await ApiService.makeGameMove(id, move, fen);
-      
-      // No need to poll right away - the regular polling will handle it
+      // Fetch move history after move
+      fetchMoveHistory(id);
     } catch (error) {
       console.error('Failed to submit move:', error);
-      
-      // Revert to last known good state on error
       const response = await ApiService.getGameDetails(id);
       if (response.success && response.game) {
         setGameData(response.game);
@@ -201,6 +208,7 @@ const InteractiveBoard = () => {
       }
     }
   };
+  
   if (error === 'redirected-to-lobby') {
     return null;
   }
@@ -245,6 +253,30 @@ const InteractiveBoard = () => {
         </div>
       )}
 
+      {/* PGN Download Button */}
+      {id && pgn && (
+        <div className="mb-4 flex justify-end">
+          <button
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors font-semibold"
+            onClick={() => {
+              const blob = new Blob([pgn], { type: 'text/plain' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `game-${id}.pgn`;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }, 100);
+            }}
+          >
+            Download PGN
+          </button>
+        </div>
+      )}
+
       <div className="flex justify-center mb-6">
         <ChessBoard 
           position={position}
@@ -283,6 +315,6 @@ const InteractiveBoard = () => {
       )}
     </div>
   );
-};
+}
 
 export default InteractiveBoard;

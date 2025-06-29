@@ -6,10 +6,7 @@ const AttendanceSettings = () => {
         minAttendancePercent: 75,
         lateThreshold: 15,
         autoMarkAbsent: 30,
-        reminderBefore: 60,
-        zoom_api_key: '',
-        zoom_api_secret: '',
-        google_meet_credentials: ''
+        reminderBefore: 60
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -20,7 +17,13 @@ const AttendanceSettings = () => {
             try {
                 const response = await ApiService.get('/attendance/get-settings.php');
                 if (response.success && response.settings) {
-                    setSettings(response.settings);
+                    // Defensive: map backend snake_case to frontend camelCase, provide defaults for undefined
+                    setSettings({
+                        minAttendancePercent: response.settings.min_attendance_percent ?? 75,
+                        lateThreshold: response.settings.late_threshold_minutes ?? 15,
+                        autoMarkAbsent: response.settings.auto_mark_absent_after_minutes ?? 30,
+                        reminderBefore: response.settings.reminder_before_minutes ?? 60
+                    });
                 }
             } catch (error) {
                 setError('Failed to load settings');
@@ -127,35 +130,7 @@ const AttendanceSettings = () => {
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Zoom API Key
-                        </label>
-                        <input
-                            type="password"
-                            value={settings.zoom_api_key}
-                            onChange={(e) => setSettings({
-                                ...settings,
-                                zoom_api_key: e.target.value
-                            })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Zoom API Secret
-                        </label>
-                        <input
-                            type="password"
-                            value={settings.zoom_api_secret}
-                            onChange={(e) => setSettings({
-                                ...settings,
-                                zoom_api_secret: e.target.value
-                            })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#461fa3]"
-                        />
-                    </div>
+                    {/* Zoom/Meet fields removed as not present in DB */}
                 </div>
 
                 <div className="mt-6">

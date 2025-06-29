@@ -11,13 +11,15 @@ try {
     // Get batch filter from query params
     $batch_id = isset($_GET['batch']) && $_GET['batch'] !== 'all' ? $_GET['batch'] : null;
 
+
     $result = $attendance->getAttendanceData($batch_id);
 
     http_response_code(200);
     header('Content-Type: application/json');
     echo json_encode([
         "status" => "success",
-        "attendance" => $result
+        "attendance_data" => $result['attendance_data'],
+        "settings" => $result['settings']
     ]);
 
 } catch (Exception $e) {

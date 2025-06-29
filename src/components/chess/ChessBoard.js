@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
@@ -23,6 +24,7 @@ const ChessBoard = ({
   gameId = null, // New prop for resign
   onResign = null, // Optional callback after resign
 }) => {
+  const navigate = useNavigate();
   // Resign handler
   const [resignLoading, setResignLoading] = useState(false);
   const handleResign = async () => {
@@ -35,7 +37,15 @@ const ChessBoard = ({
     try {
       await ApiService.resignGame(gameId);
       setGameOver({ isOver: true, result: '0-1', reason: 'resigned' });
+      // Save result to backend for stats
+      try {
+        await ApiService.saveGameResult(gameId, '0-1');
+      } catch (e) {
+        // Ignore error, already resigned
+      }
       if (onResign) onResign();
+      // Redirect to lobby after short delay
+      setTimeout(() => navigate('/chess/play'), 1200);
     } catch (e) {
       alert('Failed to resign: ' + (e.message || e));
     } finally {
@@ -203,41 +213,46 @@ const ChessBoard = ({
     setFen(game.fen());
     setIsChecked(game.inCheck());
     const currentTurn = game.turn();
-    
     // Check for game over conditions
-    if (game.isGameOver()) {
+    if (game.isGameOver() && !gameOver.isOver) {
       const result = { isOver: true };
-      
+      let saveResult = null;
       if (game.isCheckmate()) {
         result.reason = 'checkmate';
+        // If it's white's turn and checkmate, black won (0-1), else white won (1-0)
         result.result = currentTurn === 'w' ? '0-1' : '1-0';
+        saveResult = result.result;
       } else if (game.isDraw()) {
         result.reason = game.isStalemate() ? 'stalemate' : 
                         game.isThreefoldRepetition() ? 'repetition' : 
                         game.isInsufficientMaterial() ? 'insufficient material' : 'fifty-move rule';
-        result.result = '½-½';
+        result.result = '1/2-1/2';
+        saveResult = '1/2-1/2';
       }
-      
       setGameOver(result);
+      // Save result to backend for stats if in vs-human mode
+      if (playMode === 'vs-human' && gameId && saveResult) {
+        ApiService.saveGameResult(gameId, saveResult).finally(() => {
+          setTimeout(() => navigate('/chess/play'), 1200);
+        });
+      }
     } else {
       // Reset game over state if we're continuing a game (e.g. when stepping through history)
       if (gameOver.isOver) {
         setGameOver({ isOver: false, result: '', reason: '' });
       }
     }
-
     // Analyze position with engine if analysis is shown
     if (showAnalysis && engineRef.current && !isThinking) {
       analyzeCurrentPosition();
     }
-    
     // If it's AI's turn in vs-ai mode, make the AI move
     if (playMode === 'vs-ai' && !gameOver.isOver && 
         ((orientation_.charAt(0) === 'w' && currentTurn === 'b') || 
          (orientation_.charAt(0) === 'b' && currentTurn === 'w'))) {
       makeEngineMove();
     }
-  }, [game, showAnalysis, playMode, orientation_, gameOver.isOver, analyzeCurrentPosition, makeEngineMove, isThinking]);
+  }, [game, showAnalysis, playMode, orientation_, gameOver.isOver, analyzeCurrentPosition, makeEngineMove, isThinking, gameId, navigate]);
 
   // Apply external game over state if provided
   useEffect(() => {

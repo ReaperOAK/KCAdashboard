@@ -68,6 +68,7 @@ const InteractiveBoard = () => {
           // Optionally, show a message before redirecting
           alert('Game over: ' + (response.game.reason || response.game.status) + '\nYou will be redirected to the game lobby.');
           navigate('/chess/play');
+          setError('redirected-to-lobby');
           return;
         }
         // Only update if the position has changed
@@ -200,10 +201,12 @@ const InteractiveBoard = () => {
       }
     }
   };
+  if (error === 'redirected-to-lobby') {
+    return null;
+  }
   if (loading) {
     return <div className="flex justify-center items-center min-h-96 text-purple-700 font-bold text-lg">Loading chess board...</div>;
   }
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-96 space-y-4">

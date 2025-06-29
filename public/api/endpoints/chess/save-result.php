@@ -5,6 +5,7 @@ require_once '../../config/cors.php';
 // Include database and object files
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
+require_once '../../models/ChessStats.php';
 
 try {
     // Get authenticated user
@@ -86,56 +87,42 @@ try {
         $updateStmt->bindParam(':game_id', $data->game_id);
         $updateStmt->execute();
 
-        // Update player statistics
-        // First determine winner and loser
+        // Update player statistics and ratings using ChessStats model
+        
         $whiteId = $game['white_id'];
         $blackId = $game['black_id'];
-        
-        $whiteWin = $data->result === '1-0';
-        $blackWin = $data->result === '0-1';
-        $draw = $data->result === '1/2-1/2';
-        
-        // Update white player stats
-        $updateWhiteStats = "INSERT INTO chess_player_stats 
-                           (user_id, games_played, games_won, games_lost, games_drawn)
-                           VALUES (:user_id, 1, :won, :lost, :drawn)
-                           ON DUPLICATE KEY UPDATE
-                           games_played = games_played + 1,
-                           games_won = games_won + :won,
-                           games_lost = games_lost + :lost,
-                           games_drawn = games_drawn + :drawn";
-        
-        $whiteWon = $whiteWin ? 1 : 0;
-        $whiteLost = $blackWin ? 1 : 0;
-        $whiteDrawn = $draw ? 1 : 0;
-        
-        $whiteStmt = $db->prepare($updateWhiteStats);
-        $whiteStmt->bindParam(':user_id', $whiteId);
-        $whiteStmt->bindParam(':won', $whiteWon);
-        $whiteStmt->bindParam(':lost', $whiteLost);
-        $whiteStmt->bindParam(':drawn', $whiteDrawn);
-        $whiteStmt->execute();
-        
-        // Update black player stats
-        $updateBlackStats = "INSERT INTO chess_player_stats 
-                           (user_id, games_played, games_won, games_lost, games_drawn)
-                           VALUES (:user_id, 1, :won, :lost, :drawn)
-                           ON DUPLICATE KEY UPDATE
-                           games_played = games_played + 1,
-                           games_won = games_won + :won,
-                           games_lost = games_lost + :lost,
-                           games_drawn = games_drawn + :drawn";
-        
-        $blackWon = $blackWin ? 1 : 0;
-        $blackLost = $whiteWin ? 1 : 0;
-        $blackDrawn = $draw ? 1 : 0;
-        
-        $blackStmt = $db->prepare($updateBlackStats);
-        $blackStmt->bindParam(':user_id', $blackId);
-        $blackStmt->bindParam(':won', $blackWon);
-        $blackStmt->bindParam(':lost', $blackLost);
-        $blackStmt->bindParam(':drawn', $blackDrawn);
-        $blackStmt->execute();
+
+        $whiteStats = new ChessStats($db);
+        $whiteStats->user_id = $whiteId;
+        $blackStats = new ChessStats($db);
+        $blackStats->user_id = $blackId;
+
+        // Read current ratings
+        $whiteStats->read();
+        $blackStats->read();
+
+        if ($data->result === '1-0') {
+            $whiteUpdate = $whiteStats->updateFromGameResult('win', $blackStats->rating);
+            $blackUpdate = $blackStats->updateFromGameResult('loss', $whiteStats->rating);
+            error_log("[save-result] White stats after win: " . json_encode($whiteStats));
+            error_log("[save-result] Black stats after loss: " . json_encode($blackStats));
+            error_log("[save-result] White save result: " . var_export($whiteUpdate, true));
+            error_log("[save-result] Black save result: " . var_export($blackUpdate, true));
+        } elseif ($data->result === '0-1') {
+            $whiteUpdate = $whiteStats->updateFromGameResult('loss', $blackStats->rating);
+            $blackUpdate = $blackStats->updateFromGameResult('win', $whiteStats->rating);
+            error_log("[save-result] White stats after loss: " . json_encode($whiteStats));
+            error_log("[save-result] Black stats after win: " . json_encode($blackStats));
+            error_log("[save-result] White save result: " . var_export($whiteUpdate, true));
+            error_log("[save-result] Black save result: " . var_export($blackUpdate, true));
+        } else {
+            $whiteUpdate = $whiteStats->updateFromGameResult('draw', $blackStats->rating);
+            $blackUpdate = $blackStats->updateFromGameResult('draw', $whiteStats->rating);
+            error_log("[save-result] White stats after draw: " . json_encode($whiteStats));
+            error_log("[save-result] Black stats after draw: " . json_encode($blackStats));
+            error_log("[save-result] White save result: " . var_export($whiteUpdate, true));
+            error_log("[save-result] Black save result: " . var_export($blackUpdate, true));
+        }
 
         // Create notifications for both players
         $notifyQuery = "INSERT INTO notifications 

@@ -137,7 +137,10 @@ const BatchManagement = () => {
                     >
                         <CreateBatchForm
                             onClose={() => setShowCreateModal(false)}
-                            onSuccess={handleCreateSuccess}
+                            onSubmit={async (data) => {
+                                await ApiService.createBatch(data);
+                                handleCreateSuccess();
+                            }}
                         />
                     </Modal>
                 )}

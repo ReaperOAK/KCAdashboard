@@ -197,23 +197,34 @@ class Batch {
         } catch (PDOException $e) {
             throw new Exception("Error fetching batch details: " . $e->getMessage());
         }
-    }    public function update($id) {
+    }
+    public function update($id, $user) {
         try {
-            // Start transaction to ensure both batch and classroom are updated together
             $this->conn->beginTransaction();
-            
-            // Update the batch
-            $query = "UPDATE " . $this->table_name . "
-                    SET name = :name,
-                        description = :description,
-                        level = :level,
-                        schedule = :schedule,
-                        max_students = :max_students,
-                        status = :status
-                    WHERE id = :id AND teacher_id = :teacher_id";
+
+            // Admin can update any batch, teacher can only update their own
+            if ($user['role'] === 'admin') {
+                $query = "UPDATE " . $this->table_name . "
+                        SET name = :name,
+                            description = :description,
+                            level = :level,
+                            schedule = :schedule,
+                            max_students = :max_students,
+                            status = :status,
+                            teacher_id = :teacher_id
+                        WHERE id = :id";
+            } else {
+                $query = "UPDATE " . $this->table_name . "
+                        SET name = :name,
+                            description = :description,
+                            level = :level,
+                            schedule = :schedule,
+                            max_students = :max_students,
+                            status = :status
+                        WHERE id = :id AND teacher_id = :teacher_id";
+            }
 
             $stmt = $this->conn->prepare($query);
-            
             $stmt->bindParam(':name', $this->name);
             $stmt->bindParam(':description', $this->description);
             $stmt->bindParam(':level', $this->level);
@@ -226,22 +237,22 @@ class Batch {
             if (!$stmt->execute()) {
                 throw new Exception("Failed to update batch");
             }
-              // Update corresponding classroom (classrooms table doesn't have level column)
+
+            // Update corresponding classroom
             $classroom_query = "UPDATE classrooms 
                               SET name = :name,
                                   description = :description,
                                   schedule = :schedule,
-                                  status = :status
-                              WHERE teacher_id = :teacher_id 
-                              AND (name = :old_name OR id = :id)";
-            
-            // We need to get the old name first
+                                  status = :status,
+                                  teacher_id = :teacher_id
+                              WHERE (name = :old_name OR id = :id)";
+
             $old_name_query = "SELECT name FROM " . $this->table_name . " WHERE id = :id";
             $old_name_stmt = $this->conn->prepare($old_name_query);
             $old_name_stmt->bindParam(':id', $id);
             $old_name_stmt->execute();
             $old_batch = $old_name_stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             $classroom_stmt = $this->conn->prepare($classroom_query);
             $classroom_stmt->bindParam(':name', $this->name);
             $classroom_stmt->bindParam(':description', $this->description);
@@ -250,21 +261,21 @@ class Batch {
             $classroom_stmt->bindParam(':teacher_id', $this->teacher_id);
             $classroom_stmt->bindParam(':old_name', $old_batch['name']);
             $classroom_stmt->bindParam(':id', $id);
-            
+
             $classroom_stmt->execute();
-            
-            // Commit transaction
+
             $this->conn->commit();
             return true;
-            
+
         } catch (PDOException $e) {
-            // Rollback transaction on error
             if ($this->conn->inTransaction()) {
                 $this->conn->rollback();
             }
             throw new Exception("Error updating batch: " . $e->getMessage());
         }
-    }    public function delete($id, $teacherId) {
+    }
+
+    public function delete($id, $teacherId) {
         try {
             // Start transaction to ensure all related data is deleted together
             $this->conn->beginTransaction();

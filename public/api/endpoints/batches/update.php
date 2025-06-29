@@ -5,7 +5,7 @@ require_once '../../models/Batch.php';
 require_once '../../utils/authorize.php';
 
 try {
-    $user = authorize(['teacher']);
+    $user = authorize(['teacher', 'admin']);
     $data = json_decode(file_get_contents("php://input"));
     $id = isset($_GET['id']) ? $_GET['id'] : die();
     
@@ -23,9 +23,14 @@ try {
     $batch->schedule = $data->schedule;
     $batch->max_students = $data->max_students ?? 10;
     $batch->status = $data->status ?? 'active';
-    $batch->teacher_id = $user['id'];
+    // Allow admin to set teacher_id, otherwise use current user
+    if ($user['role'] === 'admin' && isset($data->teacher_id)) {
+        $batch->teacher_id = $data->teacher_id;
+    } else {
+        $batch->teacher_id = $user['id'];
+    }
     
-    if($batch->update($id)) {
+    if($batch->update($id, $user)) {
         echo json_encode(['success' => true, 'message' => 'Batch updated successfully']);
     } else {
         throw new Exception('Failed to update batch');

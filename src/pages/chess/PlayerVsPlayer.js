@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChallengeList from '../../components/chess/ChallengeList';
 import PlayerList from '../../components/chess/PlayerList';
@@ -6,6 +6,7 @@ import ChessNavigation from '../../components/chess/ChessNavigation';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ApiService from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
+import AcceptedGamesModal from '../../components/chess/AcceptedGamesModal';
 
 const PlayerVsPlayer = () => {
   const { user } = useAuth();
@@ -20,6 +21,9 @@ const PlayerVsPlayer = () => {
   const [engineLevel, setEngineLevel] = useState(10);
   const [engineColor, setEngineColor] = useState('black');
   const [useOnlineAPI, setUseOnlineAPI] = useState(false);
+  const [acceptedGames, setAcceptedGames] = useState([]);
+  const [showAcceptedGamesModal, setShowAcceptedGamesModal] = useState(false);
+  const lastAcceptedGameIds = useRef(new Set());
   
   // Get online players
   const fetchOnlinePlayers = async () => {
@@ -50,16 +54,24 @@ const PlayerVsPlayer = () => {
     }
   };
   
-  // Load challenges
+  // Load challenges and check for accepted outgoing games
   const fetchChallenges = useCallback(async () => {
     try {
-      // Get challenges directly from the dedicated endpoint
       const challengesResponse = await ApiService.getChallenges();
-      
       if (challengesResponse && challengesResponse.success) {
         setChallenges(challengesResponse.challenges || []);
+        // Find accepted outgoing challenges with gameId
+        const accepted = (challengesResponse.challenges || []).filter(
+          c => c.direction === 'outgoing' && c.status === 'accepted' && c.gameId
+        );
+        // Only show new accepted games not seen before
+        const newAccepted = accepted.filter(g => !lastAcceptedGameIds.current.has(g.gameId));
+        if (newAccepted.length > 0) {
+          setAcceptedGames(newAccepted);
+          setShowAcceptedGamesModal(true);
+          newAccepted.forEach(g => lastAcceptedGameIds.current.add(g.gameId));
+        }
       } else {
-        // Fallback to extracting challenges from player stats
         if (playerStats && playerStats.challenges) {
           setChallenges(playerStats.challenges);
         }
@@ -70,6 +82,26 @@ const PlayerVsPlayer = () => {
       setIsLoading(false);
     }
   }, [playerStats]);
+  // Resign (decline) an accepted game (delete the challenge)
+  const handleResignAcceptedGame = async (gameId) => {
+    try {
+      const response = await ApiService.resignGame(gameId);
+      if (response.success) {
+        setAcceptedGames(games => games.filter(g => g.gameId !== gameId));
+        fetchChallenges();
+      } else {
+        alert(response.message || 'Failed to resign game.');
+      }
+    } catch (e) {
+      alert('Failed to resign game.');
+    }
+  };
+
+  // Join accepted game
+  const handleJoinAcceptedGame = (gameId) => {
+    setShowAcceptedGamesModal(false);
+    navigate(`/chess/game/${gameId}`);
+  };
   
   // Load initial data
   useEffect(() => {
@@ -170,6 +202,14 @@ const PlayerVsPlayer = () => {
   }
   return (
     <div className="max-w-6xl mx-auto px-5 pb-10">
+      {showAcceptedGamesModal && acceptedGames.length > 0 && (
+        <AcceptedGamesModal
+          games={acceptedGames}
+          onJoin={handleJoinAcceptedGame}
+          onResign={handleResignAcceptedGame}
+          onClose={() => setShowAcceptedGamesModal(false)}
+        />
+      )}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-purple-900 m-0">Play Chess</h1>
         <div className="bg-purple-700 text-white px-4 py-2 rounded-full font-bold text-base">

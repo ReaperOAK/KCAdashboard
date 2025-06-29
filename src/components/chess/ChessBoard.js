@@ -4,8 +4,7 @@ import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
 import ChessEngineFactory from '../../utils/ChessEngineFactory';
-
-
+import ApiService from '../../utils/api';
 const ChessBoard = ({
   position = 'start',
   orientation = 'white',
@@ -21,7 +20,28 @@ const ChessBoard = ({
   width = 560,
   gameOverState = null,
   useOnlineAPI = false, // New prop for using Stockfish online API
+  gameId = null, // New prop for resign
+  onResign = null, // Optional callback after resign
 }) => {
+  // Resign handler
+  const [resignLoading, setResignLoading] = useState(false);
+  const handleResign = async () => {
+    if (!gameId) {
+      alert('Game ID not found. Cannot resign.');
+      return;
+    }
+    if (!window.confirm('Are you sure you want to resign this game?')) return;
+    setResignLoading(true);
+    try {
+      await ApiService.resignGame(gameId);
+      setGameOver({ isOver: true, result: '0-1', reason: 'resigned' });
+      if (onResign) onResign();
+    } catch (e) {
+      alert('Failed to resign: ' + (e.message || e));
+    } finally {
+      setResignLoading(false);
+    }
+  };
   const [game, setGame] = useState(new Chess(position !== 'start' ? position : undefined));
   const [fen, setFen] = useState(game.fen());
   const [moveFrom, setMoveFrom] = useState('');
@@ -400,21 +420,47 @@ const ChessBoard = ({
       }
     } : {})
   };
+  // Export PGN for the current game
+  const exportPGN = () => {
+    try {
+      const pgn = game.pgn();
+      const blob = new Blob([pgn], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chess-game-${Date.now()}.pgn`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Failed to export PGN.');
+    }
+  };
+
   // Render the chess board with controls
   return (
     <div className="flex flex-col space-y-4">
       {engineLoadError && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-          <p className="text-yellow-800 mb-3">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
-          <div className="flex gap-2">
-            <button 
-              className="px-3 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors"
-              onClick={() => window.open('/stockfish/test.html', '_blank')}
-            >
-              Run Engine Test
-            </button>
+        <>
+          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+            <p className="text-yellow-800 mb-3">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
+            <div className="flex gap-2">
+              <button 
+                className="px-3 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors"
+                onClick={() => window.open('/stockfish/test.html', '_blank')}
+              >
+                Run Engine Test
+              </button>
+            </div>
           </div>
-        </div>
+          <button
+            onClick={exportPGN}
+            className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition-colors mt-2"
+          >
+            Export PGN
+          </button>
+        </>
       )}
       
       {useOnlineAPI && (
@@ -451,7 +497,13 @@ const ChessBoard = ({
           <button onClick={resetBoard} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isThinking}>
             Reset Board
           </button>
-          
+          <button
+            onClick={handleResign}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isThinking || gameOver.isOver || resignLoading || !gameId}
+          >
+            {resignLoading ? 'Resigning...' : 'Resign'}
+          </button>
           {gameOver.isOver && (
             <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
               <div className="text-blue-900 font-semibold">Game Over: {gameOver.result}</div>

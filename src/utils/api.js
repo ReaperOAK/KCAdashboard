@@ -516,7 +516,9 @@ class ApiService {
   static async getChessGames(status = 'all') {
     return this.get(`/chess/games.php?status=${status}`);
   }
-
+  static async savePGN(gameId, pgn) {
+    return this.post('/chess/save-pgn.php', { game_id: gameId, pgn });
+  }
   static async getGameDetails(id) {
     return this.get(`/chess/game.php?id=${id}`);
   }
@@ -545,6 +547,10 @@ class ApiService {
 
   static async getOnlinePlayers() {
     return this.get('/chess/online-players.php');
+  }
+  
+  static async resignGame(gameId) {
+    return this.post('/chess/resign-game.php', { game_id: gameId });
   }
 
   static async getPracticePositions(type = 'all') {

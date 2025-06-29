@@ -13,23 +13,69 @@ const InteractiveBoard = () => {
   const [gameData, setGameData] = useState(null);
   const [orientation, setOrientation] = useState('white');
   const [lastMoveAt, setLastMoveAt] = useState(null);
+  // Simul/active games state
+  const [activeGames, setActiveGames] = useState([]);
 
-  // Simple function to poll for game updates
+  // Fetch active games for switcher (simul support)
+  useEffect(() => {
+    ApiService.getChessGames('active').then(res => {
+      if (res.success && Array.isArray(res.games)) {
+        // Try to get user ID from localStorage (if stored as 'user' object)
+        let userId = null;
+        try {
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            const userObj = JSON.parse(userStr);
+            userId = userObj.id || userObj.user_id || userObj._id;
+          }
+        } catch {}
+
+        // Fallback: try to infer from first game if not found
+        if (!userId && res.games.length > 0) {
+          // If you are always white or black in all games, this will not work for all users
+          // but it's a fallback for single-user dev
+          userId = res.games[0].white_player?.id;
+        }
+
+        // Attach opponent name and your color to each game
+        const gamesWithOpponent = res.games.map(game => {
+          let yourColor = '';
+          let opponent = { name: 'Unknown' };
+          if (userId) {
+            if (game.white_player && String(game.white_player.id) === String(userId)) {
+              yourColor = 'white';
+              opponent = game.black_player || { name: 'Unknown' };
+            } else if (game.black_player && String(game.black_player.id) === String(userId)) {
+              yourColor = 'black';
+              opponent = game.white_player || { name: 'Unknown' };
+            }
+          }
+          return { ...game, yourColor, opponent };
+        });
+        setActiveGames(gamesWithOpponent);
+      }
+    });
+  }, []);
+
+  // Simple function to poll for game updates and handle game over
   const pollGameUpdates = useCallback(async () => {
     if (!id) return;
-    
     try {
       const response = await ApiService.getGameDetails(id);
-      
       if (response.success && response.game) {
+        // If game is no longer active, redirect both players
+        if (response.game.status && response.game.status !== 'active') {
+          // Optionally, show a message before redirecting
+          alert('Game over: ' + (response.game.reason || response.game.status) + '\nYou will be redirected to the game lobby.');
+          navigate('/chess/play');
+          return;
+        }
         // Only update if the position has changed
         if (response.game.position !== position) {
           console.log("Game updated with opponent's move:", {
             newPosition: response.game.position,
             lastMoveAt: response.game.lastMove
           });
-          
-          // Update the board with the new position
           setGameData(response.game);
           setPosition(response.game.position);
           setLastMoveAt(response.game.lastMove);
@@ -38,7 +84,7 @@ const InteractiveBoard = () => {
     } catch (err) {
       console.error("Error polling for game updates:", err);
     }
-  }, [id, position]);
+  }, [id, position, navigate]);
 
   // Load game data when ID is provided
   useEffect(() => {
@@ -175,10 +221,29 @@ const InteractiveBoard = () => {
   return (
     <div className="max-w-6xl mx-auto px-5 pb-10">
       <h1 className="text-3xl font-bold text-purple-900 mb-5">{id ? 'Game Board' : 'Analysis Board'}</h1>
-      
       <ChessNavigation />
-      
-      <div className="flex justify-center mb-6">        <ChessBoard 
+
+      {/* Simul/Active Games Switcher */}
+      {activeGames.length > 1 && id && (
+        <div className="mb-6 flex items-center gap-2">
+          <span className="font-semibold">Switch Game:</span>
+          <select
+            value={id}
+            onChange={e => navigate(`/chess/game/${e.target.value}`)}
+            className="border rounded px-2 py-1"
+          >
+            {activeGames.map(game => (
+              <option key={game.id} value={game.id}>
+                vs {game.opponent?.name || 'Unknown'} ({game.yourColor})
+                {game.status === 'active' ? '' : ' (ended)'}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div className="flex justify-center mb-6">
+        <ChessBoard 
           position={position}
           orientation={orientation}
           allowMoves={id ? (gameData && gameData.yourTurn && gameData.status === 'active') : true}
@@ -187,12 +252,12 @@ const InteractiveBoard = () => {
           onMove={handleMove}
           playMode={id ? 'vs-human' : 'analysis'}
           width={600}
+          gameId={id}
         />
       </div>
-        {gameData && (
+      {gameData && (
         <div className="bg-white rounded-lg p-6 shadow-sm max-w-2xl mx-auto">
           <h2 className="text-xl font-bold text-purple-700 mb-4">Game Information</h2>
-          
           {gameData.status === 'abandoned' && (
             <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-4">
               <div className="text-orange-800 font-semibold">Game Expired</div>
@@ -202,7 +267,6 @@ const InteractiveBoard = () => {
               </div>
             </div>
           )}
-          
           <div className="space-y-2">
             <p><strong className="text-gray-700">Opponent:</strong> <span className="text-gray-900">{gameData.opponent && gameData.opponent.name}</span></p>
             <p><strong className="text-gray-700">Your Color:</strong> <span className="text-gray-900 capitalize">{gameData.yourColor}</span></p>

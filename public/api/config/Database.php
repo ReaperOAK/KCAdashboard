@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Kolkata');
 class Database {
     private $host = "localhost";
     private $database_name = "u703958259_dashboard";

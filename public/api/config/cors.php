@@ -1,5 +1,6 @@
 <?php
 // Allow from any origin
+date_default_timezone_set('Asia/Kolkata');
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
     header('Access-Control-Allow-Credentials: true');

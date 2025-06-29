@@ -19,7 +19,6 @@ try {
         'totalStudents' => 0,
         'totalTeachers' => 0,
         'activeClasses' => 0,
-        'monthlyRevenue' => 0,
         'totalBatches' => 0,
         'attendanceRate' => 0
     ];
@@ -68,8 +67,7 @@ try {
         error_log("Error fetching attendance rate: " . $e->getMessage());
     }
 
-    // Set a fixed monthly revenue for now
-    $stats['monthlyRevenue'] = 50000;
+    // Monthly revenue removed (no calculation available)
 
     http_response_code(200);
     echo json_encode([

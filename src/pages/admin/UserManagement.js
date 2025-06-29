@@ -49,13 +49,16 @@ const UserManagement = () => {
 
     const handleStatusChange = async (userId, status) => {
         try {
+            setLoading(true);
             await ApiService.post('/users/update-status.php', {
                 user_id: userId,
                 status: status
             });
-            fetchUsers();
+            await fetchUsers();
         } catch (error) {
             setError('Failed to update user status');
+        } finally {
+            setLoading(false);
         }
     };
 

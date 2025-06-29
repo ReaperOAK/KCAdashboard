@@ -21,13 +21,18 @@ try {
 
     if(!empty($data->email) && !empty($data->password)) {
         $userData = $user->findByEmail($data->email);
-        
         if($userData) {
+            // Check user status
+            if (!isset($userData['status']) || $userData['status'] !== 'active') {
+                error_log("Login blocked: user status is not active");
+                http_response_code(403);
+                echo json_encode(["message" => "Account is not active. Please contact support."]);
+                exit();
+            }
             error_log("User found, verifying password");
             if(password_verify($data->password, $userData['password'])) {
                 $user->id = $userData['id'];
                 $token = $user->generateAuthToken();
-                
                 http_response_code(200);
                 echo json_encode([
                     "token" => $token,

@@ -14,8 +14,11 @@ try {
     $db = $database->getConnection();
     $user = new User($db);
 
-    $status = $data->status === 'active' ? 1 : 0;
-    
+    $validStatuses = ['active', 'inactive', 'suspended'];
+    $status = $data->status;
+    if (!in_array($status, $validStatuses)) {
+        throw new Exception('Invalid status value');
+    }
     $result = $user->updateStatus($data->user_id, $status);
 
     if ($result) {

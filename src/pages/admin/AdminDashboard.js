@@ -9,7 +9,6 @@ const AdminDashboard = () => {
     totalStudents: 0,
     totalTeachers: 0,
     activeClasses: 0,
-    monthlyRevenue: 0,
     totalBatches: 0,
     attendanceRate: 0
   });
@@ -91,7 +90,6 @@ const AdminDashboard = () => {
         <StatCard title="Total Students" value={stats.totalStudents} icon="👨‍🎓" />
         <StatCard title="Total Teachers" value={stats.totalTeachers} icon="👨‍🏫" />
         <StatCard title="Active Classes" value={stats.activeClasses} icon="🏫" />
-        <StatCard title="Monthly Revenue" value={`₹${stats.monthlyRevenue}`} icon="💰" />
         <StatCard title="Total Batches" value={stats.totalBatches} icon="📚" />
         <StatCard title="Attendance Rate" value={`${stats.attendanceRate}%`} icon="📊" />
       </div>

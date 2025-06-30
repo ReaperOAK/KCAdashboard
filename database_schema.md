@@ -1,4 +1,21 @@
+
 # KCA Dashboard Database Schema
+### report_cards
+| Column       | Type          | Null | Key | Default           | Extra           |
+|--------------|---------------|------|-----|-------------------|-----------------|
+| id           | int(11)       | NO   | PRI | NULL              | auto_increment  |
+| student_id   | int(11)       | NO   | MUL | NULL              |                 |
+| file_name    | varchar(255)  | NO   |     | NULL              |                 |
+| uploaded_by  | int(11)       | NO   | MUL | NULL              |                 |
+| uploaded_at  | timestamp     | YES  |     | CURRENT_TIMESTAMP |                 |
+| description  | varchar(255)  | YES  |     | NULL              |                 |
+
+**Foreign Keys:**
+- `student_id` references `users(id)` ON DELETE CASCADE
+- `uploaded_by` references `users(id)` ON DELETE SET NULL
+
+**Purpose:**
+- Stores report card uploads for students. Allows multiple report cards per student, with upload history and metadata.
 
 ## Authentication & Users
 ### users

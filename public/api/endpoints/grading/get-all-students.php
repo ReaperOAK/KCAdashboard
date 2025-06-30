@@ -49,6 +49,16 @@ try {
 
     $students = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        // Fetch latest report card for this student
+        $reportCardStmt = $db->prepare('SELECT file_name FROM report_cards WHERE student_id = :student_id ORDER BY uploaded_at DESC LIMIT 1');
+        $reportCardStmt->bindParam(':student_id', $row['id']);
+        $reportCardStmt->execute();
+        $reportCard = $reportCardStmt->fetch(PDO::FETCH_ASSOC);
+        if ($reportCard && !empty($reportCard['file_name'])) {
+            $row['report_card_url'] = '/uploads/report_cards/' . $reportCard['file_name'];
+        } else {
+            $row['report_card_url'] = null;
+        }
         $students[] = $row;
     }
 

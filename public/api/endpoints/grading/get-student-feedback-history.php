@@ -9,14 +9,16 @@ try {
     $userId = validateToken();
     $user = getAuthUser();
 
-    // Check if student ID is provided
-    if (!isset($_GET['student_id'])) {
+    // If student, use their own ID. If teacher/admin, allow ?student_id=...
+    if ($user['role'] === 'student') {
+        $studentId = $user['id'];
+    } else if (isset($_GET['student_id'])) {
+        $studentId = intval($_GET['student_id']);
+    } else {
         http_response_code(400);
         echo json_encode(["success" => false, "message" => "Student ID is required"]);
         exit;
     }
-
-    $studentId = $_GET['student_id'];
 
     // Create DB connection
     $database = new Database();

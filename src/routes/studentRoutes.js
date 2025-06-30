@@ -9,6 +9,8 @@ import QuizResultsPage from '../pages/student/QuizResultsPage';
 import QuizHistoryPage from '../pages/student/QuizHistoryPage';
 import LeaderboardPage from '../pages/student/LeaderboardPage';
 import TournamentsPage from '../pages/student/TournamentsPage';
+import ReportCard from '../pages/student/ReportCard';
+import FeedbackHistory from '../pages/student/FeedbackHistory';
 
 const studentRoutes = [
   {
@@ -65,6 +67,16 @@ const studentRoutes = [
     path: '/student/tournaments',
     element: TournamentsPage,
     title: 'Tournaments'
+  },
+  {
+    path: '/student/report-card',
+    element: ReportCard,
+    title: 'Report Cards'
+  },
+  {
+    path: '/student/feedback-history',
+    element: FeedbackHistory,
+    title: 'Feedback & Grading'
   }
 ];
 

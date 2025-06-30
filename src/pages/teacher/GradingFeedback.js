@@ -314,6 +314,52 @@ const GradingFeedback = () => {
                                                     >
                                                         Performance
                                                     </button>
+                                                    {/* Report Card Upload */}
+                                                    <form
+                                                        onSubmit={async (e) => {
+                                                            e.preventDefault();
+                                                            const formData = new FormData();
+                                                            formData.append('student_id', student.id);
+                                                            if (e.target.report_card.files[0]) {
+                                                                formData.append('report_card', e.target.report_card.files[0]);
+                                                            } else {
+                                                                alert('Please select a file to upload.');
+                                                                return;
+                                                            }
+                                                            try {
+                                                                await ApiService.postFormData('/grading/upload-report-card.php', formData);
+                                                                alert('Report card uploaded successfully!');
+                                                                // Optionally refresh student data to show download link
+                                                                fetchStudents();
+                                                            } catch (err) {
+                                                                alert('Failed to upload report card: ' + (err.message || err));
+                                                            }
+                                                        }}
+                                                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                                    >
+                                                        <input
+                                                            type="file"
+                                                            name="report_card"
+                                                            accept="application/pdf,image/*"
+                                                            style={{ display: 'none' }}
+                                                            id={`report-card-upload-${student.id}`}
+                                                        />
+                                                        <label htmlFor={`report-card-upload-${student.id}`} className="cursor-pointer text-[#461fa3] hover:text-[#7646eb] text-xs border px-2 py-1 rounded bg-gray-50">
+                                                            Upload Report Card
+                                                        </label>
+                                                        <button type="submit" className="text-xs px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700 ml-1">Upload</button>
+                                                    </form>
+                                                    {/* Download link if report card exists */}
+                                                    {student.report_card_url && (
+                                                        <a
+                                                            href={student.report_card_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-xs text-blue-600 hover:underline ml-2"
+                                                        >
+                                                            View Report Card
+                                                        </a>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

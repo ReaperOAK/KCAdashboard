@@ -45,7 +45,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       { label: 'My Classes', path: '/student/classes', icon: '📚' },
       { label: 'Resources', path: '/student/resources', icon: '📖' },
       { label: 'Quiz', path: '/student/quiz', icon: '✏️' },
-      { label: 'Tournaments', path: '/student/tournaments', icon: '🏆' }
+      { label: 'Tournaments', path: '/student/tournaments', icon: '🏆' },
+      { label: 'Report Cards', path: '/student/report-card', icon: '📄' },
+      { label: 'Feedback & Grading', path: '/student/feedback-history', icon: '📝' }
     ]
   }), []); // Empty dependency array since this object is static  // Common chess links available to all roles
   const chessLinks = [

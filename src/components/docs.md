@@ -1,0 +1,74 @@
+# KCAdashboard Frontend – Components Folder Documentation
+
+## Overview
+
+The `components` folder contains reusable React UI components that form the building blocks of the KCAdashboard frontend. Components are organized by feature and responsibility, making it easy to maintain and extend the user interface. This folder includes both general-purpose UI elements and feature-specific components, grouped into subfolders for clarity.
+
+---
+
+## File Structure
+
+```
+components/
+  Breadcrumbs.js         # Navigation breadcrumbs
+  ErrorBoundary.js       # Error boundary for catching UI errors
+  ExportButton.js        # Button for exporting data
+  NotificationBell.js    # Notification bell icon and logic
+  ResourcePreview.js     # Resource preview UI
+  Sidebar.js             # Sidebar navigation
+  TopNavbar.js           # Top navigation bar
+  ...                   # Feature-specific subfolders (batches, chess, classroom, etc.)
+```
+
+---
+
+## File Explanations
+
+- **Breadcrumbs.js**  
+  Displays navigation breadcrumbs to help users understand their location in the app.
+
+- **ErrorBoundary.js**  
+  Catches and displays errors in the UI, preventing the entire app from crashing.
+
+- **ExportButton.js**  
+  Provides a button for exporting data (e.g., CSV, Excel) from tables or reports.
+
+- **NotificationBell.js**  
+  Shows a notification bell icon and manages notification logic for alerts and messages.
+
+- **ResourcePreview.js**  
+  Previews resources (documents, images, etc.) in the UI before download or sharing.
+
+- **Sidebar.js**  
+  Renders the sidebar navigation menu for quick access to main sections.
+
+- **TopNavbar.js**  
+  Displays the top navigation bar with links, user info, and actions.
+
+---
+
+## How Components Work
+
+- Components are imported and used in pages and other components to build the UI.
+- Feature-specific components are grouped in subfolders (e.g., `batches/`, `chess/`, `classroom/`).
+- Components are designed to be reusable and composable for a consistent user experience.
+
+---
+
+## Example Usage
+
+- The main layout uses `Sidebar.js` and `TopNavbar.js` for navigation.
+- Pages use `Breadcrumbs.js` for navigation context and `ErrorBoundary.js` for error handling.
+- Data tables and reports use `ExportButton.js` for exporting data.
+
+---
+
+## Best Practices
+
+- Keep components focused and reusable.
+- Use subfolders to organize feature-specific components.
+- Document component props and usage for maintainability.
+
+---
+
+For more details on feature-specific components, see the `docs.md` files in each subfolder.

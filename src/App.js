@@ -81,12 +81,14 @@ const AppContent = React.memo(function AppContent() {
                 'transition-all duration-300 pt-16',
                 'lg:ml-64',
                 isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0',
+                'min-h-[calc(100vh-4rem)]', // 4rem = 64px navbar
+                'overflow-x-auto',
               ].join(' ')
             }
             role="main"
             tabIndex={-1}
           >
-            <div className="p-8">
+            <div className="px-2 py-4 sm:px-4 md:px-6 lg:px-8">
               <Breadcrumbs />
             </div>
             <Routes>

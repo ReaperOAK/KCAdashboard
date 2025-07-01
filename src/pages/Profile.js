@@ -93,8 +93,8 @@ export default function Profile() {
   }, [updateProfile]);
 
   return (
-    <div className="min-h-screen bg-background-light py-8">
-      <div className="max-w-2xl mx-auto bg-white  rounded-xl shadow-lg p-8">
+    <div className="min-h-screen bg-background-light py-4 sm:py-8 px-2 sm:px-0">
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-8">
         <h1 className="text-3xl font-bold text-primary mb-6">Profile</h1>
         <MessageBanner message={message} type={message?.toLowerCase().includes('success') ? 'info' : 'error'} />
         <Formik

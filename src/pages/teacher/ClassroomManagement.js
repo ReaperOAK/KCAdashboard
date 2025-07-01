@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ApiService from '../../utils/api';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
@@ -252,9 +251,9 @@ function ClassroomManagement() {
   // --- Render ---
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary">Classroom Management</h1>
+      <div className="p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Classroom Management</h1>
         </div>
 
         {loading ? (
@@ -263,7 +262,7 @@ function ClassroomManagement() {
           <ErrorAlert message={error} onClose={handleCloseError} />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {classrooms.map((classroom) => (
                 <ClassroomCard
                   key={classroom.id}
@@ -285,9 +284,9 @@ function ClassroomManagement() {
             </div>
 
             {selectedClass && (
-              <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-                  <h2 className="text-2xl font-bold text-primary">{selectedClass.name}</h2>
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary">{selectedClass.name}</h2>
                   <ViewSwitcher currentView={currentView} onSwitch={setCurrentView} />
                 </div>
                 {currentView === 'calendar' && (
@@ -313,8 +312,8 @@ function ClassroomManagement() {
             )}
 
             {!selectedClass && classrooms.length > 0 && (
-              <div className="text-center p-8 bg-white rounded-xl shadow-lg">
-                <p className="text-lg text-gray-600">
+              <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-lg">
+                <p className="text-base sm:text-lg text-gray-600">
                   Select a classroom to view its calendar and materials.
                 </p>
               </div>

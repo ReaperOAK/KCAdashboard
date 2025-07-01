@@ -402,10 +402,10 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   // --- Render ---
   return (
-    <div className={`pgn-library ${className}`}>
+    <div className={`pgn-library w-full max-w-full px-2 sm:px-0 ${className}`}>
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Games list */}
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-2 w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-primary mb-4">PGN Library</h2>
             <div className="space-y-4">
@@ -448,7 +448,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           )}
           {!loading && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 {games.map((game) => (
                   <GameCard
                     key={game.id}
@@ -482,7 +482,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           )}
         </div>
         {showViewer && selectedGamePGN && (
-          <div className="xl:col-span-1">
+          <div className="xl:col-span-1 w-full max-w-full">
             <GameViewerPanel selectedGame={selectedGame} selectedGamePGN={selectedGamePGN} onClose={handleCloseViewer} />
           </div>
         )}

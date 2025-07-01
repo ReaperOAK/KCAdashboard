@@ -29,15 +29,15 @@ const TournamentRow = React.memo(({ tournament, onEdit, onDelete, onViewRegistra
   }, [tournament.status]);
   return (
     <tr className="border-t hover:bg-gray-light focus-within:bg-gray-light" tabIndex={0}>
-      <td className="py-3 px-4 text-text-dark">{tournament.title}</td>
-      <td className="py-3 px-4 text-text-dark">{new Date(tournament.date_time).toLocaleString()}</td>
-      <td className="py-3 px-4 capitalize text-text-dark">{tournament.type}</td>
-      <td className="py-3 px-4">
+      <td className="py-2 px-2 sm:py-3 sm:px-4 text-text-dark">{tournament.title}</td>
+      <td className="py-2 px-2 sm:py-3 sm:px-4 text-text-dark">{new Date(tournament.date_time).toLocaleString()}</td>
+      <td className="py-2 px-2 sm:py-3 sm:px-4 capitalize text-text-dark">{tournament.type}</td>
+      <td className="py-2 px-2 sm:py-3 sm:px-4">
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusClass}`}>{tournament.status}</span>
       </td>
-      <td className="py-3 px-4">{tournament.entry_fee > 0 ? `₹${tournament.entry_fee}` : 'Free'}</td>
-      <td className="py-3 px-4">{tournament.participant_count || 0}{tournament.max_participants ? `/${tournament.max_participants}` : ''}</td>
-      <td className="py-3 px-4 space-x-2">
+      <td className="py-2 px-2 sm:py-3 sm:px-4">{tournament.entry_fee > 0 ? `₹${tournament.entry_fee}` : 'Free'}</td>
+      <td className="py-2 px-2 sm:py-3 sm:px-4">{tournament.participant_count || 0}{tournament.max_participants ? `/${tournament.max_participants}` : ''}</td>
+      <td className="py-2 px-2 sm:py-3 sm:px-4 space-x-2">
         <button
           onClick={() => onViewRegistrations(tournament.id)}
           className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
@@ -70,13 +70,13 @@ const TournamentTable = React.memo(({ tournaments, onEdit, onDelete, onViewRegis
     <table className="min-w-full bg-white rounded-lg overflow-hidden shadow-lg" aria-label="Tournaments">
       <thead className="bg-primary">
         <tr>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Title</th>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Date & Time</th>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Type</th>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Status</th>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Entry Fee</th>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Participants</th>
-          <th className="py-3 px-4 text-left text-white text-sm uppercase">Actions</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Title</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Date & Time</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Type</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Status</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Entry Fee</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Participants</th>
+          <th className="py-2 px-2 sm:py-3 sm:px-4 text-left text-white text-xs sm:text-sm uppercase">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -106,7 +106,7 @@ const TournamentModal = React.memo(({ open, onClose, onSubmit, formData, onInput
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black opacity-50" onClick={onClose} />
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl relative z-10">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl relative z-10">
         <h2 className="text-xl font-bold mb-4 text-primary">{editingTournament ? 'Edit Tournament' : 'Create New Tournament'}</h2>
         <form onSubmit={onSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -376,12 +376,12 @@ const TournamentManagement = React.memo(function TournamentManagement() {
   }, []);
 
   return (
-    <div className="p-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-primary">Tournament Management</h1>
+    <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Tournament Management</h1>
         <button
           onClick={() => handleOpenModal()}
-          className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none"
+          className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none w-full sm:w-auto"
         >
           Create Tournament
         </button>

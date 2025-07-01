@@ -267,10 +267,10 @@ const QuizHistoryPage = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary flex items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center">
             <FaHistory className="mr-3" aria-hidden="true" /> Quiz History
           </h1>
           <button
@@ -284,15 +284,17 @@ const QuizHistoryPage = () => {
         </div>
         {stats && <StatsCards stats={stats} />}
         <FilterBar filter={filter} onFilterChange={handleFilterChange} />
-        <HistoryTable
-          history={sortedHistory}
-          loading={loading}
-          error={error}
-          onRetry={handleRetry}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onSort={handleSort}
-        />
+        <div className="mt-6">
+          <HistoryTable
+            history={sortedHistory}
+            loading={loading}
+            error={error}
+            onRetry={handleRetry}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
+          />
+        </div>
       </div>
     </div>
   );

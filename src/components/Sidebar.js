@@ -191,7 +191,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
             </svg>
           </button>
         </div>
-        <div className="space-y-2 p-4">
+        <div className="space-y-2 p-4 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
           {links.map((link) => {
             const isActive = location.pathname.startsWith(link.path);
             const expanded = expandedItem === link.label;

@@ -28,24 +28,24 @@ const TABS = [
 
 const FeatureHighlights = React.memo(() => (
   <section aria-label="Feature highlights" className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div className="bg-blue-50  p-4 rounded-lg">
-      <h3 className="font-semibold text-blue-900  mb-2">Advanced PGN Support</h3>
-      <p className="text-sm text-blue-700 ">Handle complex PGNs with multiple games, variations, comments, and NAGs</p>
+    <div className="bg-blue-50 p-4 sm:p-6 rounded-lg">
+      <h3 className="font-semibold text-blue-900 mb-2 text-base sm:text-lg">Advanced PGN Support</h3>
+      <p className="text-sm sm:text-base text-blue-700">Handle complex PGNs with multiple games, variations, comments, and NAGs</p>
     </div>
-    <div className="bg-green-50  p-4 rounded-lg">
-      <h3 className="font-semibold text-green-900  mb-2">Interactive Analysis</h3>
-      <p className="text-sm text-green-700 ">Navigate through games with autoplay, annotations, and variation exploration</p>
+    <div className="bg-green-50 p-4 sm:p-6 rounded-lg">
+      <h3 className="font-semibold text-green-900 mb-2 text-base sm:text-lg">Interactive Analysis</h3>
+      <p className="text-sm sm:text-base text-green-700">Navigate through games with autoplay, annotations, and variation exploration</p>
     </div>
-    <div className="bg-purple-50  p-4 rounded-lg">
-      <h3 className="font-semibold text-purple-900  mb-2">Game Management</h3>
-      <p className="text-sm text-purple-700 ">Organize, search, and share your chess game collection</p>
+    <div className="bg-purple-50 p-4 sm:p-6 rounded-lg">
+      <h3 className="font-semibold text-purple-900 mb-2 text-base sm:text-lg">Game Management</h3>
+      <p className="text-sm sm:text-base text-purple-700">Organize, search, and share your chess game collection</p>
     </div>
   </section>
 ));
 
 const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
-  <div className="border-b border-gray-200 " role="tablist" aria-label="PGN management tabs">
-    <nav className="-mb-px flex space-x-8">
+  <div className="border-b border-gray-200" role="tablist" aria-label="PGN management tabs">
+    <nav className="-mb-px flex overflow-x-auto no-scrollbar space-x-4 sm:space-x-8">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         return (
@@ -58,10 +58,10 @@ const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
             tabIndex={activeTab === tab.id ? 0 : -1}
             onClick={() => onTabChange(tab.id)}
             className={
-              `group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ` +
+              `group inline-flex items-center py-3 sm:py-4 px-2 sm:px-4 border-b-2 font-medium text-sm sm:text-base transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent whitespace-nowrap ` +
               (activeTab === tab.id
                 ? 'border-accent text-accent '
-                : 'border-transparent text-gray-500  hover:text-gray-700  hover:border-gray-300')
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300')
             }
           >
             <Icon className="w-5 h-5 mr-2" aria-hidden="true" />
@@ -70,8 +70,8 @@ const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
         );
       })}
     </nav>
-    <div className="mt-4">
-      <p className="text-sm text-gray-600 ">
+    <div className="mt-3 sm:mt-4">
+      <p className="text-sm text-gray-600">
         {tabs.find(tab => tab.id === activeTab)?.description}
       </p>
     </div>
@@ -79,26 +79,26 @@ const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
 ));
 
 const QuickActions = React.memo(({ onLoadSample, onUploadClick }) => (
-  <section aria-label="Quick actions" className="bg-white  rounded-lg shadow p-6 mb-6">
-    <h2 className="text-xl font-semibold text-gray-900 ">Quick Start</h2>
+  <section aria-label="Quick actions" className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
+    <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Quick Start</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <button
         type="button"
         onClick={onLoadSample}
-        className="p-4 border border-gray-light  rounded-lg hover:bg-gray-light/30  transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-3 sm:p-4 border border-gray-light rounded-lg hover:bg-gray-light/30 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Load sample game"
       >
-        <div className="font-medium text-gray-900 ">Load Sample Game</div>
-        <div className="text-sm text-gray-600 ">Fischer vs Spassky - World Championship 1972</div>
+        <div className="font-medium text-gray-900">Load Sample Game</div>
+        <div className="text-sm text-gray-600">Fischer vs Spassky - World Championship 1972</div>
       </button>
       <button
         type="button"
         onClick={onUploadClick}
-        className="p-4 border border-gray-light  rounded-lg hover:bg-gray-light/30  transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-3 sm:p-4 border border-gray-light rounded-lg hover:bg-gray-light/30 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Upload your PGN"
       >
-        <div className="font-medium text-gray-900 ">Upload Your PGN</div>
-        <div className="text-sm text-gray-600 ">Upload files from your computer</div>
+        <div className="font-medium text-gray-900">Upload Your PGN</div>
+        <div className="text-sm text-gray-600">Upload files from your computer</div>
       </button>
     </div>
   </section>
@@ -161,51 +161,55 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background-light  py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="mb-8" aria-label="Page header">
-          <h1 className="text-3xl font-bold text-primary mb-4">Chess PGN Manager</h1>
-          <p className="text-lg text-text-dark  mb-6">
+    <div className="min-h-screen bg-background-light py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+        <header className="mb-6 sm:mb-8" aria-label="Page header">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-4">Chess PGN Manager</h1>
+          <p className="text-base sm:text-lg text-text-dark mb-4 sm:mb-6">
             Upload, analyze, and manage your chess game collection with support for complex PGNs, variations, comments, and annotations.
           </p>
           <FeatureHighlights />
         </header>
-        <section className="mb-8">
+        <section className="mb-6 sm:mb-8">
           <TabNav activeTab={activeTab} onTabChange={handleTabChange} tabs={tabs} />
         </section>
         <section className="tab-content" id={`tabpanel-${activeTab}`} role="tabpanel" aria-labelledby={activeTab}>
           {activeTab === 'viewer' && (
             <>
               <QuickActions onLoadSample={handleLoadSample} onUploadClick={handleUploadClick} />
-              <PGNViewer
-                initialPgn={selectedPGN}
-                width={500}
-                height={500}
-                showControls
-                showHeaders
-                showMoveList
-                autoPlay={false}
-                theme="light"
-                className="bg-white  shadow-lg"
-              />
+              <div className="w-full max-w-full sm:max-w-2xl mx-auto">
+                <PGNViewer
+                  initialPgn={selectedPGN}
+                  width={undefined}
+                  height={undefined}
+                  showControls
+                  showHeaders
+                  showMoveList
+                  autoPlay={false}
+                  theme="light"
+                  className="bg-white shadow-lg w-full h-auto"
+                />
+              </div>
             </>
           )}
           {activeTab === 'upload' && (
-            <>
+            <div className="w-full max-w-full sm:max-w-2xl mx-auto">
               <PGNUpload
                 onPGNParsed={handlePGNParsed}
                 onUploadComplete={handleUploadComplete}
-                className="bg-white  shadow-lg"
+                className="bg-white shadow-lg w-full h-auto"
               />
               <UploadHelpSection />
-            </>
+            </div>
           )}
           {activeTab === 'library' && (
-            <PGNLibrary
-              onGameSelect={handleGameSelect}
-              showViewer
-              className="bg-white  shadow-lg rounded-lg p-6"
-            />
+            <div className="w-full max-w-full sm:max-w-3xl mx-auto">
+              <PGNLibrary
+                onGameSelect={handleGameSelect}
+                showViewer
+                className="bg-white shadow-lg rounded-lg p-4 sm:p-6 w-full h-auto"
+              />
+            </div>
           )}
         </section>
       </div>

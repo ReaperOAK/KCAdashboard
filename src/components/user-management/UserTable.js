@@ -55,6 +55,7 @@ const UserTable = React.memo(function UserTable({ users, selectedUsers, setSelec
               onDelete={onDelete}
               onRoleChange={onRoleChange}
               onStatusChange={onStatusChange}
+              compact={true}
             />
           ))}
         </tbody>

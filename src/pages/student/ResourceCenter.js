@@ -516,11 +516,11 @@ const ResourceCenter = () => {
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary">Resource Center</h1>
-          <div className="flex items-center space-x-4">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Resource Center</h1>
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={handleToggleBookmarks}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent ${showBookmarksOnly ? 'bg-secondary text-white' : 'bg-white text-secondary hover:bg-secondary hover:text-white'}`}
@@ -555,7 +555,7 @@ const ResourceCenter = () => {
             difficultyLevels={DIFFICULTY_LEVELS}
           />
         )}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <SearchBar value={searchTerm} onChange={handleSearchTermChange} onSubmit={handleSearchSubmit} />
         </div>
         {!showBookmarksOnly && !searchTerm && (
@@ -573,7 +573,7 @@ const ResourceCenter = () => {
         ) : resources.length === 0 ? (
           <EmptyState showBookmarksOnly={showBookmarksOnly} searchTerm={searchTerm} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {resources.map(resource => (
               <ResourceCard
                 key={resource.id}

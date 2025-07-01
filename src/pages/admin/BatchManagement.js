@@ -25,12 +25,12 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
 const BatchTableRow = React.memo(function BatchTableRow({ batch, onEdit }) {
   return (
     <tr>
-      <td className="px-6 py-4">{batch.name}</td>
-      <td className="px-6 py-4">{batch.teacher_name}</td>
-      <td className="px-6 py-4 capitalize">{batch.level}</td>
-      <td className="px-6 py-4">{batch.current_students}/{batch.max_students}</td>
-      <td className="px-6 py-4"><StatusBadge status={batch.status} /></td>
-      <td className="px-6 py-4">
+      <td className="px-2 py-2 sm:px-4 sm:py-3">{batch.name}</td>
+      <td className="px-2 py-2 sm:px-4 sm:py-3">{batch.teacher_name}</td>
+      <td className="px-2 py-2 sm:px-4 sm:py-3 capitalize">{batch.level}</td>
+      <td className="px-2 py-2 sm:px-4 sm:py-3">{batch.current_students}/{batch.max_students}</td>
+      <td className="px-2 py-2 sm:px-4 sm:py-3"><StatusBadge status={batch.status} /></td>
+      <td className="px-2 py-2 sm:px-4 sm:py-3">
         <button
           onClick={() => onEdit(batch)}
           className="text-secondary hover:text-accent mr-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -53,12 +53,12 @@ const BatchTable = React.memo(function BatchTable({ batches, onEdit }) {
       <table className="min-w-full divide-y divide-gray-light">
         <thead className="bg-background-light">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase">Teacher</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase">Level</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase">Students</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase">Actions</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-dark uppercase">Name</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-dark uppercase">Teacher</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-dark uppercase">Level</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-dark uppercase">Students</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-dark uppercase">Status</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-dark uppercase">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-light">
@@ -143,12 +143,12 @@ function BatchManagement() {
   }, [selectedBatch, fetchBatches]);
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary">Batch Management</h1>
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-4 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary">Batch Management</h1>
         <button
           onClick={handleCreate}
-          className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full sm:w-auto"
           aria-label="Create new batch"
         >
           Create New Batch

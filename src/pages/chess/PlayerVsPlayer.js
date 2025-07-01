@@ -212,26 +212,28 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
           onClose={() => setShowAcceptedGamesModal(false)}
         />
       )}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary m-0">Play Chess</h1>
-        <div className="bg-accent text-white px-4 py-2 rounded-full font-bold text-base">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary m-0">Play Chess</h1>
+        <div className="bg-accent text-white px-4 py-2 rounded-full font-bold text-base w-full sm:w-auto text-center">
           Your Rating: {playerStats ? playerStats.rating : 1200}
         </div>
       </div>
       <ChessNavigation />
-      <div className="flex border-b border-gray-dark mb-6" role="tablist" aria-label="Chess Tabs">
-        <TabButton isActive={activeTab === 'players'} onClick={() => setActiveTab('players')} ariaLabel="Online Players Tab">
-          Online Players
-        </TabButton>
-        <TabButton isActive={activeTab === 'challenges'} onClick={() => setActiveTab('challenges')} ariaLabel="Challenges Tab" badge={challengesBadge}>
-          Challenges
-        </TabButton>
-        <TabButton isActive={activeTab === 'computer'} onClick={() => setActiveTab('computer')} ariaLabel="Play Computer Tab">
-          Play Computer
-        </TabButton>
-        <TabButton isActive={activeTab === 'stats'} onClick={() => setActiveTab('stats')} ariaLabel="My Stats Tab">
-          My Stats
-        </TabButton>
+      <div className="flex overflow-x-auto border-b border-gray-dark mb-6 no-scrollbar" role="tablist" aria-label="Chess Tabs">
+        <div className="flex min-w-full sm:min-w-0">
+          <TabButton isActive={activeTab === 'players'} onClick={() => setActiveTab('players')} ariaLabel="Online Players Tab">
+            Online Players
+          </TabButton>
+          <TabButton isActive={activeTab === 'challenges'} onClick={() => setActiveTab('challenges')} ariaLabel="Challenges Tab" badge={challengesBadge}>
+            Challenges
+          </TabButton>
+          <TabButton isActive={activeTab === 'computer'} onClick={() => setActiveTab('computer')} ariaLabel="Play Computer Tab">
+            Play Computer
+          </TabButton>
+          <TabButton isActive={activeTab === 'stats'} onClick={() => setActiveTab('stats')} ariaLabel="My Stats Tab">
+            My Stats
+          </TabButton>
+        </div>
       </div>
       <div className="min-h-96">
         {activeTab === 'players' && (
@@ -250,19 +252,19 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
           />
         )}
         {activeTab === 'computer' && (
-          <div className="flex gap-6">
-            <div className="flex-1 space-y-6">
-              <div className="bg-background-light p-6 rounded-lg">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="w-full lg:flex-1 space-y-6">
+              <div className="bg-background-light p-4 sm:p-6 rounded-lg">
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-primary mb-2">Engine Level</label>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3">
                     <input
                       type="range"
                       min="1"
                       max="20"
                       value={engineLevel}
                       onChange={e => setEngineLevel(parseInt(e.target.value))}
-                      className="flex-1 h-2 bg-gray-light rounded-lg appearance-none cursor-pointer slider:bg-accent"
+                      className="flex-1 h-2 bg-gray-light rounded-lg appearance-none cursor-pointer slider:bg-accent min-w-0"
                       aria-label="Engine Level"
                     />
                     <span className="min-w-[24px] text-center font-bold text-primary">{engineLevel}</span>
@@ -270,7 +272,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-primary mb-2">Play as</label>
-                  <div className="flex gap-5">
+                  <div className="flex flex-col xs:flex-row gap-3 xs:gap-5">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
@@ -314,7 +316,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                 </div>
               </div>
             </div>
-            <div className="flex-shrink-0">
+            <div className="w-full max-w-full sm:max-w-[420px] mx-auto lg:mx-0 flex-shrink-0">
               <ChessBoard
                 position="start"
                 orientation={engineColor === 'black' ? 'white' : 'black'}
@@ -323,8 +325,9 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                 showAnalysis={false}
                 engineLevel={engineLevel}
                 playMode="vs-ai"
-                width={560}
+                width={undefined}
                 useOnlineAPI={useOnlineAPI}
+                className="w-full h-auto max-w-full"
               />
             </div>
           </div>
@@ -339,7 +342,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                   <div className="bg-background-light rounded-lg p-4 text-center shadow-sm">
                     <div className="text-3xl font-bold text-primary mb-2">{playerStats.rating || 1200}</div>
                     <div className="text-gray-dark">Rating</div>
@@ -357,7 +360,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                     <div className="text-gray-dark">Rank</div>
                   </div>
                 </div>
-                <div className="flex justify-between bg-gray-light rounded-lg p-4 mb-8 shadow-sm">
+                <div className="flex flex-col xs:flex-row justify-between bg-gray-light rounded-lg p-4 mb-8 shadow-sm gap-4 xs:gap-0">
                   <div className="flex flex-col items-center flex-1">
                     <div className="text-2xl font-bold text-green-600 mb-1">{playerStats.games_won || 0}</div>
                     <div className="text-gray-dark">Wins</div>

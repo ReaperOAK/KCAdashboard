@@ -22,7 +22,7 @@ const FilterSelect = React.memo(function FilterSelect({ value, onChange }) {
 // Activity list item (memoized)
 const ActivityListItem = React.memo(function ActivityListItem({ activity }) {
   return (
-    <li className="px-6 py-4" tabIndex={0} aria-label={`Activity by ${activity.user_name || 'Unknown User'}`}> 
+    <li className="px-2 py-2 sm:px-4 sm:py-3" tabIndex={0} aria-label={`Activity by ${activity.user_name || 'Unknown User'}`}> 
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-primary">{activity.user_name || 'Unknown User'}</p>
@@ -59,7 +59,7 @@ const Pagination = React.memo(function Pagination({ page, setPage, hasNext }) {
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), [setPage]);
   const handleNext = useCallback(() => setPage((p) => p + 1), [setPage]);
   return (
-    <div className="px-6 py-4 flex justify-between items-center border-t border-gray-light">
+    <div className="px-2 py-2 sm:px-4 sm:py-3 flex justify-between items-center border-t border-gray-light">
       <button
         onClick={handlePrev}
         disabled={page === 1}
@@ -127,10 +127,10 @@ function UserActivityPage() {
   const handleFilterChange = useCallback((e) => setFilter(e.target.value), []);
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary">User Activity Logs</h1>
-        <div className="mt-4">
+    <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">User Activity Logs</h1>
+        <div className="mt-2 sm:mt-4">
           <FilterSelect value={filter} onChange={handleFilterChange} />
         </div>
       </div>

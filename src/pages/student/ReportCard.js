@@ -19,21 +19,21 @@ const ErrorState = React.memo(({ message }) => (
 
 // Table for report cards
 const ReportCardTable = React.memo(({ reportCards }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6">
-    <table className="min-w-full divide-y divide-gray-light" aria-label="Report Cards Table">
+  <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-x-auto">
+    <table className="min-w-full divide-y divide-gray-light text-sm" aria-label="Report Cards Table">
       <thead className="bg-gray-light">
         <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Uploaded At</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Description</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">File</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Uploaded At</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Description</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">File</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-light">
         {reportCards.map(card => (
           <tr key={card.id}>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{new Date(card.uploaded_at).toLocaleString()}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{card.description || '-'}</td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{new Date(card.uploaded_at).toLocaleString()}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{card.description || '-'}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
               <a
                 href={card.url}
                 target="_blank"
@@ -88,8 +88,8 @@ export const ReportCard = React.memo(() => {
   }, [loading, error, reportCards]);
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
-      <h1 className="text-3xl font-bold text-primary mb-6">My Report Cards</h1>
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6 md:mb-8">My Report Cards</h1>
       {content}
     </div>
   );

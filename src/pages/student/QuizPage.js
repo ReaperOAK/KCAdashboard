@@ -162,13 +162,13 @@ export default function QuizPage() {
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary">Chess Quizzes</h1>
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Chess Quizzes</h1>
           <ActionButtons onHistory={handleHistory} onLeaderboard={handleLeaderboard} />
         </div>
-        <div className="flex flex-col md:flex-row justify-between mb-6 gap-4">
+        <div className="flex flex-col md:flex-row justify-between mb-4 sm:mb-6 gap-4">
           <SearchBar value={searchQuery} onChange={handleSearchChange} />
           <FilterTabs filters={FILTERS} activeFilter={activeFilter} onChange={handleFilterChange} />
         </div>
@@ -179,7 +179,7 @@ export default function QuizPage() {
         ) : filteredQuizzes.length === 0 ? (
           <EmptyState searchQuery={searchQuery} onClear={handleClearSearch} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredQuizzes.map((quiz) => (
               <QuizCard key={quiz.id} quiz={quiz} />
             ))}

@@ -187,23 +187,27 @@ export const StudentDashboard = React.memo(() => {
   if (error) return <ErrorState error={error} onRetry={fetchDashboardData} />;
 
   return (
-    <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <h1 className="text-3xl font-bold text-primary mb-6">Welcome, {user.full_name}!</h1>
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6 md:mb-8">Welcome, {user.full_name}!</h1>
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">
           {statCards.map((card, idx) => (
             <StatCard key={card.title} title={card.title} value={card.value}>{card.children}</StatCard>
           ))}
         </div>
         {/* Additional Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">
           {extraStatCards.map((card, idx) => (
             <StatCard key={card.title} title={card.title} value={card.value}>{card.children}</StatCard>
           ))}
         </div>
         {/* Recent Activities */}
-        {recentActivities.length > 0 && <RecentActivities activities={recentActivities} />}
+        {recentActivities.length > 0 && (
+          <div className="mt-6 sm:mt-8">
+            <RecentActivities activities={recentActivities} />
+          </div>
+        )}
       </div>
     </div>
   );

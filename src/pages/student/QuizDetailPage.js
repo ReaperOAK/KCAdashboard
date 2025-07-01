@@ -400,9 +400,9 @@ const QuizDetailPage = () => {
   const currentQuestion = quiz.questions ? quiz.questions[currentQuestionIndex] : null;
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
       <TimerBar quizTitle={quiz.title} timeLeft={timeLeft} />
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-8">
         {currentQuestion ? (
           <>
             <QuestionCard

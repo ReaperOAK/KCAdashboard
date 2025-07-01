@@ -520,12 +520,12 @@ const ChessBoard = ({
 
   // Render the chess board with controls
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 w-full max-w-full">
       {engineLoadError && <EngineErrorBanner />}
       {engineLoadError && <PGNExportButton onExport={exportPGN} />}
       {useOnlineAPI && <OnlineAPIBanner />}
-      <div className="flex gap-6">
-        <div className="relative" style={{ width }}>
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="relative w-full max-w-[95vw] md:max-w-[560px] mx-auto md:mx-0">
           <Chessboard
             id="chess-board"
             position={fen}
@@ -538,17 +538,17 @@ const ChessBoard = ({
           />
           {isThinking && <LoadingSpinner label="Thinking..." />}
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto justify-center md:justify-start">
           <button
             onClick={flipBoard}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full md:w-auto"
             type="button"
           >
             Flip Board
           </button>
           <button
             onClick={resetBoard}
-            className="px-4 py-2 bg-gray-dark text-gray-light rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="px-4 py-2 bg-gray-dark text-gray-light rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full md:w-auto"
             disabled={isThinking}
             type="button"
           >
@@ -556,7 +556,7 @@ const ChessBoard = ({
           </button>
           <button
             onClick={handleResign}
-            className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full md:w-auto"
             disabled={isThinking || gameOver.isOver || resignLoading || !gameId}
             type="button"
           >
@@ -565,7 +565,7 @@ const ChessBoard = ({
           {gameOver.isOver && <GameOverBanner result={gameOver.result} reason={gameOver.reason} />}
         </div>
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 w-full">
         {showHistory && <MoveHistory history={history} currentMove={currentMove} goToMove={goToMove} />}
         {showAnalysis && <EngineAnalysis engineEvaluation={engineEvaluation} />}
       </div>

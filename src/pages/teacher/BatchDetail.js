@@ -296,9 +296,9 @@ export const BatchDetail = () => {
   if (!batch) return <NotFound onBack={handleBack} />;
 
   return (
-    <div className="min-h-screen bg-background-light p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-background-light p-2 sm:p-6">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <div>
             <button
               onClick={handleBack}
@@ -310,18 +310,18 @@ export const BatchDetail = () => {
               </svg>
               Back to Batches
             </button>
-            <h1 className="text-3xl font-bold text-primary">{batch.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary break-words">{batch.name}</h1>
           </div>
-          <div className="space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 w-full sm:w-auto">
             <button
               onClick={() => setShowEditModal(true)}
-              className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
+              className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full sm:w-auto"
             >
               Edit Batch
             </button>
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 w-full sm:w-auto"
             >
               Delete Batch
             </button>
@@ -329,8 +329,8 @@ export const BatchDetail = () => {
         </div>
         <BatchInfoCard batch={batch} />
         <div className="bg-white rounded-xl shadow-md border border-gray-light overflow-hidden">
-          <div className="p-6">
-            <h2 className="text-xl font-bold text-primary mb-4">Students</h2>
+          <div className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-primary mb-4">Students</h2>
             <StudentsTable students={students} />
           </div>
         </div>

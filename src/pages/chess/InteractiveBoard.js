@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ChessBoard from '../../components/chess/ChessBoard';
@@ -34,7 +33,7 @@ const ErrorState = React.memo(({ message, onReload }) => (
 
 // --- Simul/Active Games Switcher ---
 const GameSwitcher = React.memo(({ activeGames, currentId, onSwitch }) => (
-  <div className="mb-6 flex items-center gap-2">
+  <div className="mb-6 flex flex-col xs:flex-row items-start xs:items-center gap-2">
     <span className="font-semibold">Switch Game:</span>
     <label htmlFor="game-switcher" className="sr-only">Select active game</label>
     <select
@@ -84,8 +83,8 @@ const PGNDownloadButton = React.memo(({ id, pgn }) => {
 
 // --- Game Info Card ---
 const GameInfoCard = React.memo(({ gameData, lastMoveAt, formatIST }) => (
-  <div className="bg-white rounded-lg p-6 shadow-sm max-w-2xl mx-auto mt-6">
-    <h2 className="text-xl font-bold text-primary mb-4">Game Information</h2>
+  <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm max-w-2xl mx-auto mt-6">
+    <h2 className="text-lg sm:text-xl font-bold text-primary mb-3 sm:mb-4">Game Information</h2>
     {gameData.status === 'abandoned' && (
       <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-4">
         <div className="text-orange-800 font-semibold">Game Expired</div>
@@ -307,14 +306,14 @@ const InteractiveBoard = React.memo(() => {
   if (error) return <ErrorState message={error} onReload={() => window.location.reload()} />;
 
   return (
-    <div className="max-w-6xl mx-auto px-5 pb-10">
-      <h1 className="text-3xl font-bold text-primary mb-5">{id ? 'Game Board' : 'Analysis Board'}</h1>
+    <div className="max-w-6xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10">
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-5">{id ? 'Game Board' : 'Analysis Board'}</h1>
       <ChessNavigation />
       {canShowGameSwitcher && (
         <GameSwitcher activeGames={activeGames} currentId={id} onSwitch={e => navigate(`/chess/game/${e.target.value}`)} />
       )}
       {id && pgn && <PGNDownloadButton id={id} pgn={pgn} />}
-      <div className="flex justify-center mb-6">
+      <div className="w-full max-w-full sm:max-w-2xl mx-auto flex justify-center mb-6">
         <ChessBoard
           position={position}
           orientation={orientation}
@@ -323,12 +322,13 @@ const InteractiveBoard = React.memo(() => {
           showAnalysis={!id}
           onMove={handleMove}
           playMode={id ? 'vs-human' : 'analysis'}
-          width={600}
+          width={undefined}
           gameId={id}
           backendMoveHistory={moveHistory}
           fenHistory={fenHistory}
           currentMoveIndex={currentMoveIndex}
           goToMove={handleGoToMove}
+          className="w-full h-auto"
         />
       </div>
       {gameData && (

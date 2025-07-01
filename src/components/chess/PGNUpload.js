@@ -502,51 +502,53 @@ export const PGNUpload = React.memo(function PGNUpload({
   };
 
   return (
-    <div className={`pgn-upload p-6 bg-background-light  rounded-lg shadow-md ${className}`}>
+    <div className={`pgn-upload p-4 sm:p-6 bg-background-light rounded-lg shadow-md w-full max-w-full ${className}`}>
       <HeaderSection />
       <UploadMethodSelector uploadMethod={uploadMethod} setUploadMethod={setUploadMethod} />
-      {uploadMethod === 'file' && (
-        <PGNFileDrop
-          isDragging={isDragging}
-          handleDragOver={handleDragOver}
-          handleDragLeave={handleDragLeave}
-          handleDrop={handleDrop}
-          allowedFormats={allowedFormats}
-          maxFileSize={maxFileSize}
-          handleFileInputChange={handleFileInputChange}
-        />
-      )}
-      {uploadMethod === 'text' && (
-        <PGNTextInput
-          pgnText={pgnText}
-          handleTextChange={handleTextChange}
-          handleParseText={handleParseText}
-        />
-      )}
-      <PGNStatusMessage uploadStatus={uploadStatus} statusMessage={statusMessage} onClose={handleStatusClose} />
-      <PGNParsingResults parsedGames={parsedGames} metadata={metadata} formatFileSize={formatFileSize} />
-      {parsedGames.length > 0 && (
-        <PGNUploadDetailsForm
-          uploadTitle={uploadTitle}
-          setUploadTitle={setUploadTitle}
-          uploadCategory={uploadCategory}
-          setUploadCategory={setUploadCategory}
-          uploadDescription={uploadDescription}
-          setUploadDescription={setUploadDescription}
-          isPublic={isPublic}
-          setIsPublic={setIsPublic}
-        />
-      )}
-      {parsedGames.length > 0 && (
-        <PGNUploadActions
-          handleClear={handleClear}
-          handleUploadToBackend={handleUploadToBackend}
-          isUploading={isUploading}
-          validGames={metadata.validGames}
-          totalGames={metadata.totalGames}
-          gamesWithErrors={metadata.gamesWithErrors}
-        />
-      )}
+      <div className="flex flex-col gap-4">
+        {uploadMethod === 'file' && (
+          <PGNFileDrop
+            isDragging={isDragging}
+            handleDragOver={handleDragOver}
+            handleDragLeave={handleDragLeave}
+            handleDrop={handleDrop}
+            allowedFormats={allowedFormats}
+            maxFileSize={maxFileSize}
+            handleFileInputChange={handleFileInputChange}
+          />
+        )}
+        {uploadMethod === 'text' && (
+          <PGNTextInput
+            pgnText={pgnText}
+            handleTextChange={handleTextChange}
+            handleParseText={handleParseText}
+          />
+        )}
+        <PGNStatusMessage uploadStatus={uploadStatus} statusMessage={statusMessage} onClose={handleStatusClose} />
+        <PGNParsingResults parsedGames={parsedGames} metadata={metadata} formatFileSize={formatFileSize} />
+        {parsedGames.length > 0 && (
+          <PGNUploadDetailsForm
+            uploadTitle={uploadTitle}
+            setUploadTitle={setUploadTitle}
+            uploadCategory={uploadCategory}
+            setUploadCategory={setUploadCategory}
+            uploadDescription={uploadDescription}
+            setUploadDescription={setUploadDescription}
+            isPublic={isPublic}
+            setIsPublic={setIsPublic}
+          />
+        )}
+        {parsedGames.length > 0 && (
+          <PGNUploadActions
+            handleClear={handleClear}
+            handleUploadToBackend={handleUploadToBackend}
+            isUploading={isUploading}
+            validGames={metadata.validGames}
+            totalGames={metadata.totalGames}
+            gamesWithErrors={metadata.gamesWithErrors}
+          />
+        )}
+      </div>
     </div>
   );
 });

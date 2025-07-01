@@ -47,7 +47,7 @@ function Modal({ title, children, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -55,7 +55,7 @@ function Modal({ title, children, onClose }) {
     >
       <div
         id="modal-root"
-        className="bg-white rounded-xl shadow-xl w-full max-w-md animate-fade-in focus:outline-none"
+        className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto animate-fade-in focus:outline-none"
         onClick={handleModalClick}
         tabIndex={-1}
       >

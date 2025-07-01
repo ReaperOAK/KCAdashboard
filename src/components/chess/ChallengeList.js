@@ -46,12 +46,12 @@ const ChallengeCard = React.memo(function ChallengeCard({ challenge, type, onAcc
     : `You play as: ${challenge.color}`;
   return (
     <div
-      className={`bg-white border-l-4 ${borderColor} p-4 rounded-lg shadow-sm flex justify-between items-start`}
+      className={`bg-white border-l-4 ${borderColor} p-4 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4`}
       role="region"
       aria-label={isIncoming ? `Challenge from ${challenge.challenger.name}` : `Challenge to ${challenge.recipient.name}`}
       tabIndex={0}
     >
-      <div className="flex-1">
+      <div className="flex-1 w-full">
         <div className="font-semibold text-primary mb-1">
           {isIncoming ? challenge.challenger.name : `To: ${challenge.recipient.name}`}
         </div>
@@ -59,7 +59,7 @@ const ChallengeCard = React.memo(function ChallengeCard({ challenge, type, onAcc
         <div className="text-xs text-gray-dark">{playerLabel}</div>
         <div className="text-xs text-gray-dark">{formatTimeAgo(challenge.created_at)}</div>
       </div>
-      <div className="flex gap-2 ml-4">
+      <div className="flex gap-2 ml-0 sm:ml-4 w-full sm:w-auto justify-end sm:justify-start">
         {isIncoming ? (
           <>
             <ChallengeActionButton

@@ -102,17 +102,19 @@ const FenModeSection = React.memo(function FenModeSection({
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div>
+      <div className="w-full max-w-full">
         <label className="block text-sm font-medium text-text-dark mb-2">Setup Chess Position</label>
         <p className="text-sm text-gray-dark mb-3">
           Drag pieces to set up the position. Use the controls to reset or clear the board.
         </p>
-        <ChessPositionEditor
-          initialPosition={question.chess_position || 'start'}
-          orientation={question.chess_orientation || 'white'}
-          onPositionChange={fen => handleChessPositionChange(questionIndex, fen)}
-          width={350}
-        />
+        <div className="w-full max-w-[350px] mx-auto">
+          <ChessPositionEditor
+            initialPosition={question.chess_position || 'start'}
+            orientation={question.chess_orientation || 'white'}
+            onPositionChange={fen => handleChessPositionChange(questionIndex, fen)}
+            width={Math.min(window.innerWidth - 48, 350)}
+          />
+        </div>
       </div>
       <div className="space-y-4">
         <div>
@@ -187,7 +189,7 @@ const PgnModeSection = React.memo(function PgnModeSection({
   }, [handlePGNUpload, questionIndex]);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div>
+      <div className="w-full max-w-full">
         <label className="block text-sm font-medium text-text-dark mb-2">PGN Data</label>
         <p className="text-sm text-gray-dark mb-3">
           Enter the PGN game sequence or upload a PGN file. Students will play the moves for their assigned color.
@@ -214,7 +216,7 @@ const PgnModeSection = React.memo(function PgnModeSection({
         <textarea
           value={question.pgn_data || ''}
           onChange={e => handlePGNChange(questionIndex, e.target.value)}
-          className="w-full p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm font-mono"
+          className="w-full p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm font-mono min-h-[120px]"
           rows="10"
           placeholder="1. e4 e5 2. Nf3 Nc6 3. Bb5 a6..."
           aria-label="PGN data"
@@ -251,13 +253,13 @@ const PgnModeSection = React.memo(function PgnModeSection({
           </select>
         </div>
         {question.pgn_data && (
-          <div>
+          <div className="w-full max-w-[300px] mx-auto">
             <label className="block text-sm font-medium text-text-dark mb-2">Preview</label>
             <ChessPGNBoard
               pgn={question.pgn_data}
               expectedPlayerColor={question.expected_player_color || 'white'}
               orientation={question.chess_orientation || 'white'}
-              width={300}
+              width={Math.min(window.innerWidth - 48, 300)}
               disabled={true}
             />
           </div>
@@ -335,14 +337,14 @@ export const ChessQuestionEditor = React.memo(function ChessQuestionEditor({
       )}
       <div>
         <label className="block text-sm font-medium text-text-dark mb-2">Question Preview</label>
-        <div className="border border-gray-light rounded-lg p-4 bg-background-light">
+        <div className="border border-gray-light rounded-lg p-4 bg-background-light w-full max-w-[300px] mx-auto">
           <ChessQuizBoard
             initialPosition={question.chess_position || 'start'}
             orientation={question.chess_orientation || 'white'}
             correctMoves={question.correct_moves || []}
             question={question.question}
             allowMoves={false}
-            width={300}
+            width={Math.min(window.innerWidth - 48, 300)}
           />
         </div>
       </div>

@@ -193,16 +193,16 @@ export const ClassroomDetails = React.memo(() => {
   if (error) return <ErrorState error={error} />;
 
   return (
-    <div className="min-h-screen bg-background-light">
-      <div className="p-8">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="max-w-5xl mx-auto">
         {classroom && (
           <>
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-              <h1 className="text-3xl font-bold text-primary mb-2">{classroom.name}</h1>
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">{classroom.name}</h1>
               <p className="text-gray-dark mb-4">{classroom.description}</p>
-              <div className="flex items-center text-sm text-gray-dark">
-                <span className="mr-4"><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</span>
-                <span className="mr-4"><span className="font-semibold">Schedule:</span> {classroom.schedule}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-dark gap-2 sm:gap-4">
+                <span><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</span>
+                <span><span className="font-semibold">Schedule:</span> {classroom.schedule}</span>
                 <StatusBadge status={classroom.status} />
               </div>
             </div>
@@ -210,7 +210,7 @@ export const ClassroomDetails = React.memo(() => {
               <div className="border-b">
                 <TabNav activeTab={activeTab} onTabChange={handleTabChange} />
               </div>
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {/* Overview Tab */}
                 {activeTab === 'overview' && (
                   <div>

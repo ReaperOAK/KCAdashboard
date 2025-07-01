@@ -29,12 +29,12 @@ const AssignmentsErrorAlert = React.memo(({ error }) => (
 
 // Assignment Card
 const AssignmentCard = React.memo(({ assignment, onViewSubmissions }) => (
-  <div className="bg-white border border-gray-light rounded-lg p-6 hover:shadow-md transition-shadow">
-    <div className="flex justify-between items-start">
-      <div className="flex-1">
-        <h3 className="text-lg font-medium text-secondary mb-2">{assignment.title}</h3>
-        <p className="text-gray-dark mb-3">{assignment.description}</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+  <div className="bg-white border border-gray-light rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+      <div className="flex-1 w-full">
+        <h3 className="text-base sm:text-lg font-medium text-secondary mb-1 sm:mb-2">{assignment.title}</h3>
+        <p className="text-xs sm:text-sm text-gray-dark mb-2 sm:mb-3">{assignment.description}</p>
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
           <div>
             <span className="font-medium text-gray-dark">Due Date:</span>
             <p className="text-gray-dark">{new Date(assignment.due_date).toLocaleDateString()}</p>
@@ -53,11 +53,11 @@ const AssignmentCard = React.memo(({ assignment, onViewSubmissions }) => (
           </div>
         </div>
       </div>
-      <div className="ml-4">
+      <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
         <button
           type="button"
           onClick={onViewSubmissions}
-          className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full sm:w-auto"
           aria-label={`View submissions for ${assignment.title}`}
         >
           View Submissions

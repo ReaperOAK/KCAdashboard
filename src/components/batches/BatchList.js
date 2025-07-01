@@ -28,15 +28,15 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
 const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManageStudents }) {
   return (
     <div className="bg-background-light rounded-xl shadow-md border border-gray-light flex flex-col h-full" role="region" aria-labelledby={`batch-title-${batch.id}`}> 
-      <div className="p-6 flex-1 flex flex-col">
-        <div className="flex justify-between items-start mb-4">
-          <h3 id={`batch-title-${batch.id}`} className="text-xl font-semibold text-primary" tabIndex={0}>
+      <div className="p-4 sm:p-6 flex-1 flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 sm:mb-4 gap-2">
+          <h3 id={`batch-title-${batch.id}`} className="text-base sm:text-xl font-semibold text-primary" tabIndex={0}>
             {batch.name}
           </h3>
           <StatusBadge status={batch.status} />
         </div>
-        <p className="text-gray-dark mb-4 line-clamp-2" aria-label="Batch description">{batch.description}</p>
-        <dl className="space-y-2 text-sm text-gray-dark">
+        <p className="text-xs sm:text-sm text-gray-dark mb-2 sm:mb-4 line-clamp-2" aria-label="Batch description">{batch.description}</p>
+        <dl className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-dark">
           <div>
             <dt className="inline font-semibold">Level:</dt>{' '}
             <dd className="inline" aria-label="Batch level">{batch.level}</dd>
@@ -51,11 +51,11 @@ const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManage
           </div>
         </dl>
       </div>
-      <div className="px-6 py-4 bg-gray-light/40 border-t border-gray-light flex justify-between gap-2">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-light/40 border-t border-gray-light flex flex-col sm:flex-row justify-between gap-2">
         <button
           type="button"
           onClick={onViewDetails}
-          className="bg-transparent text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 font-medium transition-colors"
+          className="bg-transparent text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 font-medium transition-colors w-full sm:w-auto"
           aria-label={`View details for ${batch.name}`}
         >
           View Details
@@ -63,7 +63,7 @@ const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManage
         <button
           type="button"
           onClick={onManageStudents}
-          className="bg-transparent text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 font-medium transition-colors"
+          className="bg-transparent text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 font-medium transition-colors w-full sm:w-auto"
           aria-label={`Manage students for ${batch.name}`}
         >
           Manage Students
@@ -108,7 +108,7 @@ export const BatchList = React.memo(function BatchList({ batches, onManageStuden
 
   return (
     <section
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
       aria-label="Batch list"
       role="list"
     >

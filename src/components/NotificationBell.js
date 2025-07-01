@@ -142,7 +142,7 @@ const NotificationPanel = React.memo(function NotificationPanel({
 }) {
   if (!isOpen) return null;
   return (
-    <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] flex flex-col border border-gray-light">
+    <div className="absolute right-0 left-0 mx-auto mt-2 w-full max-w-xs sm:w-80 md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] flex flex-col border border-gray-light">
       <div className="p-4 border-b flex justify-between items-center">
         <h3 className="text-lg font-semibold text-primary">Notifications</h3>
         {unreadCount > 0 && (

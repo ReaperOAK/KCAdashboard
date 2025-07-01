@@ -302,18 +302,18 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
   );
 
   const Actions = ({ isSubmitting }) => (
-    <div className="flex justify-end space-x-3 pt-4">
+    <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-3 pt-2 sm:pt-4">
       <button
         type="button"
         onClick={onClose}
-        className="px-4 py-2 border border-gray-light rounded-md text-primary hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent"
+        className="px-4 py-2 border border-gray-light rounded-md text-primary hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent w-full sm:w-auto"
       >
         Cancel
       </button>
       <button
         type="submit"
         disabled={isSubmitting || externalLoading}
-        className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+        className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50 w-full sm:w-auto"
         aria-busy={isSubmitting || externalLoading}
       >
         {isSubmitting || externalLoading
@@ -331,11 +331,11 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
       enableReinitialize
     >
       {({ values, isSubmitting, setFieldValue }) => (
-        <Form className="space-y-4" aria-label="Create or edit batch form">
+        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4" aria-label="Create or edit batch form">
           <ErrorAlert error={error} />
           <NameField />
           <DescriptionField />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4">
             <LevelField />
             <MaxStudentsField />
           </div>

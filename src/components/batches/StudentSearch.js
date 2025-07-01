@@ -92,27 +92,27 @@ export const StudentSearch = React.memo(function StudentSearch({ onSelectStudent
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="relative">
         <input
           type="text"
           placeholder="Search for students by name or email"
           value={search}
           onChange={handleInputChange}
-          className="w-full px-4 py-2 border border-gray-light rounded-md focus:border-secondary focus:ring-secondary"
+          className="w-full px-3 sm:px-4 py-2 border border-gray-light rounded-md focus:border-secondary focus:ring-secondary text-xs sm:text-sm"
           aria-label="Search for students by name or email"
         />
         {loading && (
-          <div className="absolute right-3 top-3"><Spinner /></div>
+          <div className="absolute right-2 sm:right-3 top-2 sm:top-3"><Spinner /></div>
         )}
       </div>
-      {error && <div className="text-red-600 text-sm" role="alert">{error}</div>}
+      {error && <div className="text-red-600 text-xs sm:text-sm" role="alert">{error}</div>}
       {search.length < 2 && (
-        <div className="text-gray-dark text-sm">Type at least 2 characters to search</div>
+        <div className="text-gray-dark text-xs sm:text-sm">Type at least 2 characters to search</div>
       )}
-      <div className="max-h-60 overflow-y-auto border border-gray-light rounded-md" role="listbox" aria-label="Student search results">
+      <div className="max-h-60 overflow-y-auto border border-gray-light rounded-md mt-1" role="listbox" aria-label="Student search results">
         {students.length === 0 && search.length >= 2 && !loading ? (
-          <div className="p-3 text-gray-dark text-center">No students found</div>
+          <div className="p-2 sm:p-3 text-gray-dark text-center text-xs sm:text-sm">No students found</div>
         ) : (
           <ul className="divide-y divide-gray-light">
             {students.map(student => (

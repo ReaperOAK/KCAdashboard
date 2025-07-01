@@ -147,10 +147,10 @@ function AttendanceModal({ session, onClose, onAttendanceSubmitted }) {
   )), [students, attendanceRecords, handleStatusChange, handleNotesChange]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]" role="dialog" aria-modal="true" aria-label="Attendance Modal">
-      <div className="bg-white rounded-xl p-6 max-w-4xl w-full h-3/4 flex flex-col">
-        <h2 className="text-2xl font-bold text-primary mb-4">Take Attendance: {session.title}</h2>
-        <p className="text-gray-dark mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-[9999]" role="dialog" aria-modal="true" aria-label="Attendance Modal">
+      <div className="bg-white rounded-xl p-2 sm:p-6 max-w-full sm:max-w-4xl w-full h-[90vh] sm:h-3/4 flex flex-col">
+        <h2 className="text-xl sm:text-2xl font-bold text-primary mb-2 sm:mb-4">Take Attendance: {session.title}</h2>
+        <p className="text-gray-dark mb-2 sm:mb-4 text-xs sm:text-base">
           {new Date(session.start).toLocaleString()} - {session.type === 'online' ? 'Online' : 'In Person'}
         </p>
         {error && <AttendanceErrorAlert message={error} />}
@@ -158,21 +158,23 @@ function AttendanceModal({ session, onClose, onAttendanceSubmitted }) {
           {loading ? (
             <AttendanceLoadingSkeleton />
           ) : (
-            <table className="w-full" aria-label="Attendance table">
-              <thead className="bg-gray-light sticky top-0">
-                <tr>
-                  <th className="px-4 py-2 text-left">Student</th>
-                  <th className="px-4 py-2 text-left">Status</th>
-                  <th className="px-4 py-2 text-left">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-light">
-                {studentRows}
-              </tbody>
-            </table>
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[480px] w-full" aria-label="Attendance table">
+                <thead className="bg-gray-light sticky top-0">
+                  <tr>
+                    <th className="px-2 sm:px-4 py-2 text-left">Student</th>
+                    <th className="px-2 sm:px-4 py-2 text-left">Status</th>
+                    <th className="px-2 sm:px-4 py-2 text-left">Notes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-light">
+                  {studentRows}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-        <div className="flex justify-end space-x-3 mt-6">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-3 mt-4 sm:mt-6">
           <button
             type="button"
             onClick={onClose}

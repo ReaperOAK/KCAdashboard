@@ -174,10 +174,10 @@ export const ClassroomPage = React.memo(() => {
   if (error) return <ErrorState error={error} />;
 
   return (
-    <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-primary">My Classes</h1>
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 md:mb-8 gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">My Classes</h1>
           <button
             onClick={handleShowAvailable}
             className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
@@ -188,11 +188,11 @@ export const ClassroomPage = React.memo(() => {
         </div>
         {/* Enrolled Classes */}
         {classes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {enrolledClassCards}
           </div>
         ) : (
-          <div className="bg-white p-6 rounded-xl shadow-md text-center">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md text-center">
             <p className="text-gray-dark mb-4">You are not enrolled in any classes yet.</p>
             <button
               onClick={handleShowAvailableTrue}
@@ -205,10 +205,10 @@ export const ClassroomPage = React.memo(() => {
         )}
         {/* Available Classes for Enrollment */}
         {showAvailable && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-primary mb-6">Available Classes</h2>
+          <div className="mt-8 sm:mt-12">
+            <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4 sm:mb-6">Available Classes</h2>
             {availableClasses.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                 {availableClassCards}
               </div>
             ) : (

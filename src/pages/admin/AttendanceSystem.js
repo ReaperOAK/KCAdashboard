@@ -299,17 +299,16 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
       start: item.session_date,
       backgroundColor: item.attendance_percentage >= settings.minAttendancePercent ? '#32CD32' : '#FF6B6B',
     })), [attendanceData, settings.minAttendancePercent]);
-
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
+      <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8">
         {loading ? (
           <AttendanceSkeleton />
         ) : (
           <>
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-              <h1 className="text-3xl font-bold text-primary">Attendance System</h1>
-              <div className="flex flex-col md:flex-row md:space-x-4 gap-2 md:gap-0">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-primary">Attendance System</h1>
+              <div className="flex flex-col sm:flex-row sm:space-x-4 gap-2 w-full sm:w-auto">
                 <BatchSelect
                   batches={batches}
                   selectedBatch={selectedBatch}
@@ -326,14 +325,14 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
                 <button
                   type="button"
                   onClick={() => setShowSettingsModal(true)}
-                  className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full sm:w-auto"
                   aria-label="Open attendance settings"
                 >
                   Settings
                 </button>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
               <Calendar
                 plugins={[dayGridPlugin, timeGridPlugin]}
                 initialView="timeGridWeek"

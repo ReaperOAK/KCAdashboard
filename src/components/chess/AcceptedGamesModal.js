@@ -26,13 +26,13 @@ const GameListItem = memo(function GameListItem({ game, onJoin, onResign }) {
   }, [onResign, game.gameId]);
 
   return (
-    <li className="py-3 flex justify-between items-center" >
+    <li className="py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3" >
       <div>
         <div className="font-semibold text-primary">Opponent: {game.recipient?.name || game.challenger?.name || 'Unknown'}</div>
         <div className="text-sm text-gray-dark">Time Control: {game.time_control}</div>
         <div className="text-xs text-gray-dark">Color: {game.color}</div>
       </div>
-      <div className="flex gap-2 ml-4">
+      <div className="flex gap-2 ml-0 sm:ml-4 w-full sm:w-auto justify-end sm:justify-start">
         <ActionButton
           label="Join"
           onClick={handleJoin}

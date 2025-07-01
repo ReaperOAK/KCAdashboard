@@ -20,7 +20,7 @@ const AnswerOption = React.memo(function AnswerOption({
   }, [handleAnswerChange, questionIndex, answerIndex]);
 
   return (
-    <div className="flex items-center mb-2" role="listitem">
+    <div className="flex flex-col sm:flex-row items-center gap-2 mb-2" role="listitem">
       <button
         type="button"
         className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center border-2 focus:outline-none focus:ring-2 focus:ring-accent ${

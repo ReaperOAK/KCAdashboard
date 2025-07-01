@@ -199,7 +199,7 @@ const QuizResultsPage = () => {
   if (!resultData) return null;
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
       <div className="max-w-4xl mx-auto">
         <ResultCard
           quizTitle={quizTitle}
@@ -211,7 +211,9 @@ const QuizResultsPage = () => {
           onViewHistory={handleViewHistory}
           onBackToQuizzes={handleBackToQuizzes}
         />
-        <LeaderboardTable leaderboard={leaderboard} resultData={resultData} />
+        <div className="mt-8">
+          <LeaderboardTable leaderboard={leaderboard} resultData={resultData} />
+        </div>
       </div>
     </div>
   );

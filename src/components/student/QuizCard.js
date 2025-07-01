@@ -24,20 +24,20 @@ const DifficultyBadge = React.memo(({ difficulty }) => {
 });
 
 const QuizMeta = React.memo(({ quiz }) => (
-  <div className="grid grid-cols-2 gap-2 mb-4">
-    <div className="flex items-center text-sm text-gray-500" aria-label={`Time limit: ${quiz.time_limit} minutes`}>
+  <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 mb-4">
+    <div className="flex items-center text-xs sm:text-sm text-gray-500" aria-label={`Time limit: ${quiz.time_limit} minutes`}>
       <FaClock className="mr-1" aria-hidden="true" />
       {quiz.time_limit} mins
     </div>
-    <div className="flex items-center text-sm text-gray-500" aria-label={`Questions: ${quiz.questions ? quiz.questions.length : '?'}`}> 
+    <div className="flex items-center text-xs sm:text-sm text-gray-500" aria-label={`Questions: ${quiz.questions ? quiz.questions.length : '?'}`}> 
       <FaChess className="mr-1" aria-hidden="true" />
       {quiz.questions ? quiz.questions.length : '?'} Questions
     </div>
-    <div className="flex items-center text-sm text-gray-500" aria-label={`Highest score: ${quiz.highest_score ? quiz.highest_score + '%' : 'No attempts'}`}> 
+    <div className="flex items-center text-xs sm:text-sm text-gray-500" aria-label={`Highest score: ${quiz.highest_score ? quiz.highest_score + '%' : 'No attempts'}`}> 
       <FaTrophy className="mr-1" aria-hidden="true" />
       {quiz.highest_score ? `${quiz.highest_score}%` : 'No attempts'}
     </div>
-    <div className="flex items-center text-sm text-gray-500 truncate" aria-label={`Created by: ${quiz.creator_name}`}> 
+    <div className="flex items-center text-xs sm:text-sm text-gray-500 truncate" aria-label={`Created by: ${quiz.creator_name}`}> 
       <FaUser className="mr-1" aria-hidden="true" />
       {quiz.creator_name}
     </div>
@@ -53,23 +53,23 @@ const QuizCard = React.memo(function QuizCard({ quiz }) {
 
   return (
     <section
-      className="bg-background-light  rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-light"
+      className="bg-background-light rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-light"
       aria-label={`Quiz card: ${quiz.title}`}
       tabIndex={0}
     >
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xl font-semibold text-primary truncate" title={quiz.title}>
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-3 gap-2">
+          <h3 className="text-base sm:text-xl font-semibold text-primary truncate" title={quiz.title}>
             {quiz.title}
           </h3>
           <DifficultyBadge difficulty={quiz.difficulty} />
         </div>
-        <p className="text-gray-dark mb-4 line-clamp-2" title={quiz.description}>
+        <p className="text-xs sm:text-gray-dark mb-2 sm:mb-4 line-clamp-2" title={quiz.description}>
           {quiz.description}
         </p>
         <QuizMeta quiz={quiz} />
       </div>
-      <div className="px-6 py-4 bg-gray-light/40 border-t border-gray-light">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-light/40 border-t border-gray-light">
         <button
           type="button"
           onClick={handleStartQuiz}

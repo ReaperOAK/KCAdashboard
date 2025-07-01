@@ -39,7 +39,7 @@ const UserSection = React.memo(function UserSection({ user, onLogout }) {
   return (
     <div className="flex items-center space-x-4">
       <NotificationBell />
-      <span className="hidden sm:inline text-text-light" aria-label="User name">{user?.full_name}</span>
+      <span className="hidden sm:inline text-text-white" aria-label="User name">{user?.full_name}</span>
       <button
         onClick={onLogout}
         className="px-3 py-2 rounded-md bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent text-white font-medium"

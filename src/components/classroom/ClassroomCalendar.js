@@ -80,23 +80,25 @@ function ClassroomCalendar({ classroomId, onEventClick, onDateSelect, refreshTri
   }), []);
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-md">
+    <div className="bg-white p-2 sm:p-4 rounded-xl shadow-md overflow-x-auto">
       {loading && <CalendarLoadingSkeleton />}
       {error && <CalendarErrorAlert message={error} />}
-      <FullCalendar
-        plugins={calendarPlugins}
-        initialView="dayGridMonth"
-        headerToolbar={headerToolbar}
-        events={events}
-        eventClick={handleEventClick}
-        dateClick={handleDateClick}
-        height="auto"
-        selectable
-        selectMirror
-        dayMaxEvents
-        weekends
-        eventTimeFormat={eventTimeFormat}
-      />
+      <div className="min-w-[320px] sm:min-w-0">
+        <FullCalendar
+          plugins={calendarPlugins}
+          initialView="dayGridMonth"
+          headerToolbar={headerToolbar}
+          events={events}
+          eventClick={handleEventClick}
+          dateClick={handleDateClick}
+          height="auto"
+          selectable
+          selectMirror
+          dayMaxEvents
+          weekends
+          eventTimeFormat={eventTimeFormat}
+        />
+      </div>
     </div>
   );
 }

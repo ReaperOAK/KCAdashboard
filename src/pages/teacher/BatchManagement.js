@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
 import BatchList from '../../components/batches/BatchList';
@@ -195,14 +194,14 @@ export default function BatchManagement() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background-light p-6">
+    <div className="min-h-screen bg-background-light p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary">Batch Management</h1>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Batch Management</h1>
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
+            className="px-3 sm:px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base w-full sm:w-auto"
           >
             Create New Batch
           </button>

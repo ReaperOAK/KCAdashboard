@@ -259,7 +259,7 @@ const PerformanceModal = React.memo(function PerformanceModal({ open, student, p
             </div>
             <div className="space-y-8">
               {/* Quiz Performance Chart */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-lg w-full overflow-x-auto">
                 <h3 className="text-lg font-medium text-primary mb-4">Quiz Performance</h3>
                 {quizChartData && quizChartData.labels && quizChartData.labels.length > 0 ? (
                   <div className="h-64"><Bar data={quizChartData} options={chartOptions} /></div>
@@ -268,7 +268,7 @@ const PerformanceModal = React.memo(function PerformanceModal({ open, student, p
                 )}
               </div>
               {/* Monthly Attendance Chart */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-lg w-full overflow-x-auto">
                 <h3 className="text-lg font-medium text-primary mb-4">Monthly Attendance Trend</h3>
                 {attendanceChartData && attendanceChartData.labels && attendanceChartData.labels.length > 0 ? (
                   <div className="h-64"><Line data={attendanceChartData} options={attendanceChartOptions} /></div>
@@ -277,7 +277,7 @@ const PerformanceModal = React.memo(function PerformanceModal({ open, student, p
                 )}
               </div>
               {/* Attendance Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-lg font-medium text-primary mb-4">Attendance Summary</h3>
                   {performanceData.attendance ? (
@@ -323,7 +323,7 @@ const PerformanceModal = React.memo(function PerformanceModal({ open, student, p
                 </div>
               </div>
               {/* Recent Quiz Results */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-lg w-full overflow-x-auto">
                 <h3 className="text-lg font-medium text-primary mb-4">Recent Quiz Results</h3>
                 {performanceData.quiz_performance && performanceData.quiz_performance.detailed && performanceData.quiz_performance.detailed.length > 0 ? (
                   <div className="overflow-x-auto">
@@ -355,7 +355,7 @@ const PerformanceModal = React.memo(function PerformanceModal({ open, student, p
                 )}
               </div>
               {/* Recent Feedback */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-lg w-full overflow-x-auto">
                 <h3 className="text-lg font-medium text-primary mb-4">Recent Teacher Feedback</h3>
                 {performanceData.feedback && performanceData.feedback.length > 0 ? (
                   <div className="space-y-4">
@@ -482,13 +482,13 @@ export const GradingFeedback = () => {
   // --- Render ---
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-primary">Student Grading & Feedback</h1>
+      <div className="p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Student Grading & Feedback</h1>
           <select
             value={selectedBatch}
             onChange={e => setSelectedBatch(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
+            className="px-3 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary text-sm w-full sm:w-auto"
             aria-label="Select batch"
           >
             <option value="all">All Batches</option>
@@ -499,36 +499,36 @@ export const GradingFeedback = () => {
         </div>
         {error && <ErrorAlert error={error} />}
         {loading ? <LoadingSpinner /> : (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="bg-white rounded-xl shadow-lg overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Grade</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Feedback</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Grade</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Feedback</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {students.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">No students found</td>
+                    <td colSpan="5" className="px-3 sm:px-6 py-4 text-center text-gray-500">No students found</td>
                   </tr>
                 ) : students.map(student => (
                   <tr key={student.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                      <div className="text-sm text-gray-500">{student.email}</div>
+                      <div className="text-xs sm:text-sm text-gray-500">{student.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.batch_name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">{student.batch_name}</td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                       {student.last_rating ? (
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRatingColor(student.last_rating)}`}>{student.last_rating}/5</span>
                       ) : <span className="text-gray-400">Not rated</span>}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.last_feedback_date ? formatDate(student.last_feedback_date) : 'No feedback yet'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">{student.last_feedback_date ? formatDate(student.last_feedback_date) : 'No feedback yet'}</td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"

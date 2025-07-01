@@ -13,10 +13,10 @@ import ChessQuestionEditor from './components/ChessQuestionEditor';
 // Quiz Details Form
 const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormChange }) {
   return (
-    <div className="bg-white rounded-lg shadow-md mb-8">
-      <div className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Quiz Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="bg-white rounded-lg shadow-md mb-6 sm:mb-8">
+      <div className="p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Quiz Details</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-text-dark mb-1">Quiz Title</label>
             <input
@@ -24,7 +24,7 @@ const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormCh
               name="title"
               value={quiz.title}
               onChange={handleFormChange}
-              className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+              className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
               placeholder="Enter quiz title"
             />
           </div>
@@ -34,7 +34,7 @@ const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormCh
               name="difficulty"
               value={quiz.difficulty}
               onChange={handleFormChange}
-              className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+              className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
             >
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
@@ -50,18 +50,18 @@ const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormCh
               onChange={handleFormChange}
               min="1"
               max="120"
-              className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+              className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
             />
           </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           <label className="block text-sm font-medium text-text-dark mb-1">Description</label>
           <textarea
             name="description"
             value={quiz.description || ''}
             onChange={handleFormChange}
             rows="3"
-            className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+            className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
             placeholder="Enter quiz description"
           ></textarea>
         </div>
@@ -103,10 +103,10 @@ const QuestionCard = React.memo(function QuestionCard({
   // Question text change handler
   const handleTextChange = useCallback(e => handleQuestionChange(questionIndex, 'question', e.target.value), [handleQuestionChange, questionIndex]);
   return (
-    <div className="p-6 border-b">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <h3 className="font-semibold">Question {questionIndex + 1}</h3>
+    <div className="p-4 sm:p-6 border-b">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <h3 className="font-semibold text-base sm:text-lg">Question {questionIndex + 1}</h3>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
             question.type === 'chess'
               ? 'bg-blue-100 text-blue-800'
@@ -164,7 +164,7 @@ const QuestionCard = React.memo(function QuestionCard({
           </label>
         </div>
       </div>
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium text-text-dark mb-1 flex items-center">
             Hint (optional)
@@ -256,16 +256,16 @@ const QuestionsList = React.memo(function QuestionsList(props) {
 // Add Question Buttons
 const AddQuestionButtons = React.memo(function AddQuestionButtons({ handleAddQuestion }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <button
         onClick={() => handleAddQuestion('multiple_choice')}
-        className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent flex items-center text-sm"
+        className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent flex items-center text-sm w-full sm:w-auto"
       >
         <FaPlus className="mr-2" /> Add Multiple Choice
       </button>
       <button
         onClick={() => handleAddQuestion('chess')}
-        className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-secondary flex items-center text-sm"
+        className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-secondary flex items-center text-sm w-full sm:w-auto"
       >
         <FaChess className="mr-2" /> Add Chess Question
       </button>
@@ -637,24 +637,24 @@ const QuizCreator = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-background-light p-8">
+    <div className="min-h-screen bg-background-light p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6 flex items-center">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <button
             onClick={() => navigate('/teacher/quizzes')}
-            className="mr-4 p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-accent"
+            className="p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-accent"
             aria-label="Back to Quiz Management"
           >
             <FaArrowLeft />
           </button>
-          <h1 className="text-3xl font-bold text-primary">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">
             {isEditing ? 'Edit Quiz' : 'Create New Quiz'}
           </h1>
         </div>
         <QuizDetailsForm quiz={quiz} handleFormChange={handleFormChange} />
-        <div className="bg-white rounded-lg shadow-md mb-8">
-          <div className="p-6 border-b flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Questions</h2>
+        <div className="bg-white rounded-lg shadow-md mb-6 sm:mb-8">
+          <div className="p-4 sm:p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold">Questions</h2>
             <AddQuestionButtons handleAddQuestion={handleAddQuestion} />
           </div>
           <QuestionsList
@@ -674,23 +674,23 @@ const QuizCreator = () => {
             removeCorrectMove={removeCorrectMove}
             handleAddQuestion={handleAddQuestion}
           />
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <AddQuestionButtons handleAddQuestion={handleAddQuestion} />
           </div>
         </div>
-        <div className="mt-8 flex justify-between items-center">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
           <button
             onClick={() => navigate('/teacher/quizzes')}
-            className="px-4 py-2 text-gray-dark hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent flex items-center"
+            className="px-4 py-2 text-gray-dark hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent flex items-center justify-center text-sm sm:text-base"
           >
             <FaArrowLeft className="mr-2" />
             Back to Quizzes
           </button>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={handleSaveDraft}
               disabled={saving}
-              className={`px-6 py-3 bg-gray-dark text-gray-light rounded-lg flex items-center ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 bg-gray-dark text-gray-light rounded-lg flex items-center justify-center text-sm sm:text-base ${
                 saving ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-600'
               }`}
             >
@@ -700,7 +700,7 @@ const QuizCreator = () => {
             <button
               onClick={handlePublish}
               disabled={saving}
-              className={`px-6 py-3 bg-secondary text-white rounded-lg flex items-center ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 bg-secondary text-white rounded-lg flex items-center justify-center text-sm sm:text-base ${
                 saving ? 'opacity-70 cursor-not-allowed' : 'hover:bg-accent'
               }`}
             >

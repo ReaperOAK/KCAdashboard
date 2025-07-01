@@ -19,8 +19,8 @@ const ActivitySkeleton = React.memo(function ActivitySkeleton() {
 const UserDetailsCard = React.memo(function UserDetailsCard({ user }) {
   if (!user) return null;
   return (
-    <section className="bg-white p-4 rounded-lg shadow-md mb-4" aria-label="User details">
-      <h2 className="text-xl font-semibold text-primary">{user.full_name}</h2>
+    <section className="bg-white px-2 sm:px-4 py-3 sm:py-4 rounded-lg shadow-md mb-4" aria-label="User details">
+      <h2 className="text-lg sm:text-xl font-semibold text-primary">{user.full_name}</h2>
       <p className="text-gray-dark">{user.email}</p>
     </section>
   );
@@ -94,14 +94,14 @@ function UserActivity({ userId: propUserId }) {
   if (error) return <div className="text-red-600 py-4" role="alert">{error}</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2 sm:px-4 md:px-8 py-4 sm:py-8">
       {/* Show user details only in standalone mode */}
       {userData && <UserDetailsCard user={userData} />}
       <section className="bg-white rounded-lg shadow-md" aria-label="User activity history">
-        <header className="p-4 border-b border-gray-light">
-          <h3 className="text-lg font-medium text-primary">Activity History</h3>
+        <header className="px-2 sm:px-4 py-3 sm:py-4 border-b border-gray-light">
+          <h3 className="text-base sm:text-lg font-medium text-primary">Activity History</h3>
         </header>
-        <div className="p-4">
+        <div className="px-2 sm:px-4 py-3 sm:py-4">
           <ActivityList activities={activities} />
         </div>
       </section>

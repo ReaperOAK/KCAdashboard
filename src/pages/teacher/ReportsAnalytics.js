@@ -57,8 +57,8 @@ const ErrorAlert = ({ error, onRetry }) => (
 // Chart card wrapper
 const ChartCard = React.memo(function ChartCard({ title, children }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-light">
-      <h2 className="text-xl font-semibold text-secondary mb-4">{title}</h2>
+    <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-light">
+      <h2 className="text-lg sm:text-xl font-semibold text-secondary mb-3 sm:mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -68,22 +68,22 @@ const ChartCard = React.memo(function ChartCard({ title, children }) {
 const QuickStats = React.memo(function QuickStats({ summaryStats }) {
   return (
     <ChartCard title="Quick Stats">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="text-center p-4 bg-gray-light/40 rounded-lg">
-          <p className="text-sm text-gray-dark">Average Attendance</p>
-          <p className="text-2xl font-bold text-primary">{summaryStats?.avgAttendance || 0}%</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div className="text-center p-3 sm:p-4 bg-gray-light/40 rounded-lg">
+          <p className="text-xs sm:text-sm text-gray-dark">Average Attendance</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{summaryStats?.avgAttendance || 0}%</p>
         </div>
-        <div className="text-center p-4 bg-gray-light/40 rounded-lg">
-          <p className="text-sm text-gray-dark">Active Students</p>
-          <p className="text-2xl font-bold text-primary">{summaryStats?.activeStudents || 0}</p>
+        <div className="text-center p-3 sm:p-4 bg-gray-light/40 rounded-lg">
+          <p className="text-xs sm:text-sm text-gray-dark">Active Students</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{summaryStats?.activeStudents || 0}</p>
         </div>
-        <div className="text-center p-4 bg-gray-light/40 rounded-lg">
-          <p className="text-sm text-gray-dark">Avg Quiz Score</p>
-          <p className="text-2xl font-bold text-primary">{summaryStats?.avgQuizScore || 0}%</p>
+        <div className="text-center p-3 sm:p-4 bg-gray-light/40 rounded-lg">
+          <p className="text-xs sm:text-sm text-gray-dark">Avg Quiz Score</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{summaryStats?.avgQuizScore || 0}%</p>
         </div>
-        <div className="text-center p-4 bg-gray-light/40 rounded-lg">
-          <p className="text-sm text-gray-dark">Classes This Month</p>
-          <p className="text-2xl font-bold text-primary">{summaryStats?.classesThisMonth || 0}</p>
+        <div className="text-center p-3 sm:p-4 bg-gray-light/40 rounded-lg">
+          <p className="text-xs sm:text-sm text-gray-dark">Classes This Month</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{summaryStats?.classesThisMonth || 0}</p>
         </div>
       </div>
     </ChartCard>
@@ -244,14 +244,14 @@ export const ReportsAnalytics = () => {
 
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-primary">Reports & Analytics</h1>
-          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+      <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Reports & Analytics</h1>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto">
             <select
               value={selectedBatch}
               onChange={e => setSelectedBatch(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
+              className="px-3 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary w-full md:w-auto"
               aria-label="Select batch"
             >
               <option value="all">All Batches</option>
@@ -261,13 +261,13 @@ export const ReportsAnalytics = () => {
             </select>
             <button
               onClick={handleRefresh}
-              className="px-4 py-2 rounded-lg bg-secondary text-white hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
+              className="px-3 py-2 rounded-lg bg-secondary text-white hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full md:w-auto"
             >
               Refresh
             </button>
             <button
               onClick={() => setShowExportModal(true)}
-              className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 flex items-center focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 flex items-center justify-center w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -287,7 +287,7 @@ export const ReportsAnalytics = () => {
         ) : error ? (
           <ErrorAlert error={error} onRetry={handleRefresh} />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
             <ChartCard title="Attendance Overview">
               {stats.attendanceData && stats.attendanceData.labels && stats.attendanceData.labels.length > 0 ? (
                 <Line data={stats.attendanceData} options={chartOptions} />

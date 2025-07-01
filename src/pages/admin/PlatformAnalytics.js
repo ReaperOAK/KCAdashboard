@@ -163,9 +163,9 @@ const PlatformAnalytics = React.memo(function PlatformAnalytics() {
 
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-primary">Platform Analytics</h1>
+      <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Platform Analytics</h1>
           <TimeRangeSelect value={timeRange} onChange={setTimeRange} />
         </div>
         {loading ? (
@@ -173,7 +173,7 @@ const PlatformAnalytics = React.memo(function PlatformAnalytics() {
         ) : error ? (
           <ErrorAlert message={error} />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <UserGrowthChart userStats={analytics.userStats} />
             <UserActivityChart activityStats={analytics.activityStats} />
             <PerformanceMetricsChart performanceStats={analytics.performanceStats} />

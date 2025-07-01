@@ -13,22 +13,22 @@ const StudentAttendanceHistorySkeleton = React.memo(function StudentAttendanceHi
 
 const AttendanceStats = React.memo(function AttendanceStats({ stats }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-      <div className="p-4 bg-green-100 rounded-lg">
-        <div className="text-sm text-green-800">Present</div>
-        <div className="text-2xl font-bold text-green-900">{stats.present}</div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+      <div className="p-4 sm:p-3 bg-green-100 rounded-lg flex flex-col items-start">
+        <div className="text-sm sm:text-xs text-green-800">Present</div>
+        <div className="text-2xl sm:text-xl font-bold text-green-900">{stats.present}</div>
       </div>
-      <div className="p-4 bg-red-100 rounded-lg">
-        <div className="text-sm text-red-800">Absent</div>
-        <div className="text-2xl font-bold text-red-900">{stats.absent}</div>
+      <div className="p-4 sm:p-3 bg-red-100 rounded-lg flex flex-col items-start">
+        <div className="text-sm sm:text-xs text-red-800">Absent</div>
+        <div className="text-2xl sm:text-xl font-bold text-red-900">{stats.absent}</div>
       </div>
-      <div className="p-4 bg-yellow-100 rounded-lg">
-        <div className="text-sm text-yellow-800">Late</div>
-        <div className="text-2xl font-bold text-yellow-900">{stats.late}</div>
+      <div className="p-4 sm:p-3 bg-yellow-100 rounded-lg flex flex-col items-start">
+        <div className="text-sm sm:text-xs text-yellow-800">Late</div>
+        <div className="text-2xl sm:text-xl font-bold text-yellow-900">{stats.late}</div>
       </div>
-      <div className="p-4 bg-accent/20 rounded-lg">
-        <div className="text-sm text-accent">Attendance %</div>
-        <div className="text-2xl font-bold text-accent">{stats.attendancePercentage}%</div>
+      <div className="p-4 sm:p-3 bg-accent/20 rounded-lg flex flex-col items-start">
+        <div className="text-sm sm:text-xs text-accent">Attendance %</div>
+        <div className="text-2xl sm:text-xl font-bold text-accent">{stats.attendancePercentage}%</div>
       </div>
     </div>
   );
@@ -36,26 +36,26 @@ const AttendanceStats = React.memo(function AttendanceStats({ stats }) {
 
 const AttendanceTable = React.memo(function AttendanceTable({ attendanceData }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-light">
+    <div className="overflow-x-auto w-full">
+      <table className="min-w-full divide-y divide-gray-light text-sm sm:text-xs md:text-sm">
         <thead className="bg-primary">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Date</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Batch</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Notes</th>
+            <th className="px-4 sm:px-2 py-3 text-left text-xs font-medium text-white uppercase">Date</th>
+            <th className="px-4 sm:px-2 py-3 text-left text-xs font-medium text-white uppercase">Batch</th>
+            <th className="px-4 sm:px-2 py-3 text-left text-xs font-medium text-white uppercase">Status</th>
+            <th className="px-4 sm:px-2 py-3 text-left text-xs font-medium text-white uppercase">Notes</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-light">
           {attendanceData.map((record) => (
             <tr key={record.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">
+              <td className="px-4 sm:px-2 py-4 whitespace-nowrap text-text-dark">
                 {new Date(record.session_date).toLocaleDateString()}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">
+              <td className="px-4 sm:px-2 py-4 whitespace-nowrap text-text-dark">
                 {record.batch_name}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 sm:px-2 py-4 whitespace-nowrap">
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                   record.status === 'present' ? 'bg-green-100 text-green-800' :
                   record.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
@@ -64,7 +64,7 @@ const AttendanceTable = React.memo(function AttendanceTable({ attendanceData }) 
                   {record.status}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-4 sm:px-2 py-4 whitespace-nowrap text-gray-500">
                 {record.notes || '-'}
               </td>
             </tr>
@@ -123,13 +123,13 @@ const StudentAttendanceHistory = React.memo(function StudentAttendanceHistory() 
   }, [studentId]);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-lg">
+    <div className="p-4 sm:p-6 bg-white rounded-xl shadow-lg w-full max-w-5xl mx-auto my-4">
       {loading ? (
         <StudentAttendanceHistorySkeleton />
       ) : (
         <>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-primary">
+            <h2 className="text-xl sm:text-2xl font-bold text-primary break-words">
               Attendance History: {studentInfo?.full_name}
             </h2>
             <AttendanceStats stats={stats} />

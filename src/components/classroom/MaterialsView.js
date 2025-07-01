@@ -26,16 +26,16 @@ const MaterialCard = React.memo(function MaterialCard({ material, onOpen, getFil
       onClick={() => onOpen(material)}
       aria-label={`Open material: ${material.title}`}
     >
-      <div className="flex items-start mb-4">
-        <div className="bg-background-light p-4 rounded-lg mr-4">
+      <div className="flex flex-col sm:flex-row items-start mb-4 gap-3 sm:gap-0">
+        <div className="bg-background-light p-4 rounded-lg sm:mr-4 mb-3 sm:mb-0 flex-shrink-0">
           <i className={`${getFileIcon(material.type)} text-secondary text-xl`} aria-hidden="true"></i>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-primary mb-1">{material.title}</h3>
-          <p className="text-sm text-gray-dark">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
+          <h3 className="text-base sm:text-lg font-semibold text-primary mb-1">{material.title}</h3>
+          <p className="text-xs sm:text-sm text-gray-dark">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
         </div>
       </div>
-      <div className="text-xs text-gray-dark flex justify-between">
+      <div className="text-xs text-gray-dark flex flex-col sm:flex-row justify-between gap-1 sm:gap-0">
         <span>Added by: {material.created_by_name}</span>
         <span>{material.created_at_formatted}</span>
       </div>
@@ -101,13 +101,13 @@ function MaterialsView({ classroomId, refreshTrigger = 0 }) {
   if (error) return <MaterialsErrorAlert message={error} />;
   if (materials.length === 0) {
     return (
-      <div className="bg-background-light p-6 text-center rounded-lg">
-        <p className="text-gray-dark">No materials have been added to this classroom yet.</p>
+      <div className="bg-background-light p-4 sm:p-6 text-center rounded-lg">
+        <p className="text-gray-dark text-sm sm:text-base">No materials have been added to this classroom yet.</p>
       </div>
     );
   }
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {materialCards}
     </div>
   );

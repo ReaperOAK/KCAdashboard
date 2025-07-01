@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
@@ -174,28 +173,28 @@ export const ClassroomDetail = () => {
 
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <h1 className="text-3xl font-bold text-primary">{classroom.name}</h1>
+      <div className="p-4 sm:p-8">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">{classroom.name}</h1>
           <button
             type="button"
             onClick={handleBack}
-            className="px-4 py-2 bg-gray-light rounded-md text-primary hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent"
+            className="px-3 sm:px-4 py-2 bg-gray-light rounded-md text-primary hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base"
             aria-label="Back to All Classrooms"
           >
             Back to All Classrooms
           </button>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-          <div className="mb-6">
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="mb-4 sm:mb-6">
             <p className="text-gray-dark">{classroom.description}</p>
-            <div className="mt-4 text-sm text-gray-dark">
+            <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-dark">
               <p><span className="font-semibold">Students:</span> {classroom.student_count}</p>
               <p><span className="font-semibold">Created:</span> {new Date(classroom.created_at).toLocaleDateString()}</p>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-            <h2 className="text-2xl font-bold text-primary">Classroom Content</h2>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-2xl font-bold text-primary">Classroom Content</h2>
             <ViewSwitcher currentView={currentView} onSwitch={handleSwitchView} />
           </div>
           <div id={`view-panel-${currentView}`} role="tabpanel" className="mt-2">

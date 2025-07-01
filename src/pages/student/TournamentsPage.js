@@ -315,10 +315,10 @@ export const TournamentsPage = React.memo(() => {
   ), [tournaments, getRegistrationStatus, handleRegister, handleCancelRegistration]);
 
   return (
-    <div className="min-h-screen bg-background-light">
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary">Chess Tournaments</h1>
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Chess Tournaments</h1>
           <TournamentFilterBar filters={filters} activeFilter={activeFilter} onFilterChange={id => () => setActiveFilter(id)} />
         </div>
         {loading ? (
@@ -326,7 +326,7 @@ export const TournamentsPage = React.memo(() => {
         ) : error ? (
           <ErrorState message={error} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{tournamentCards}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{tournamentCards}</div>
         )}
       </div>
       <PaymentModal

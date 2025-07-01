@@ -43,24 +43,24 @@ const AttendanceTable = React.memo(function AttendanceTable({ students, onViewDe
       <table className="min-w-full divide-y divide-gray-light">
         <thead className="bg-primary">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Student Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Batch</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Present</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Absent</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Late</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Attendance %</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Actions</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Student Name</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Batch</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Present</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Absent</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Late</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Attendance %</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-white uppercase">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-light">
           {students.map((student) => (
             <tr key={student.id} className="hover:bg-gray-light cursor-pointer">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{student.full_name}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{student.batch_name}</td>
-              <td className="px-6 py-4 whitespace-nowrap"><span className="text-green-600">{student.present_count}</span></td>
-              <td className="px-6 py-4 whitespace-nowrap"><span className="text-red-600">{student.absent_count}</span></td>
-              <td className="px-6 py-4 whitespace-nowrap"><span className="text-yellow-600">{student.late_count}</span></td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-text-dark">{student.full_name}</td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-text-dark">{student.batch_name}</td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap"><span className="text-green-600">{student.present_count}</span></td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap"><span className="text-red-600">{student.absent_count}</span></td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap"><span className="text-yellow-600">{student.late_count}</span></td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap">
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                   student.attendance_percentage >= 75 ? 'bg-green-100 text-green-800' :
                   student.attendance_percentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
@@ -69,7 +69,7 @@ const AttendanceTable = React.memo(function AttendanceTable({ students, onViewDe
                   {student.attendance_percentage}%
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap">
                 <button
                   type="button"
                   onClick={() => onViewDetails(student.id)}
@@ -130,9 +130,9 @@ const StudentAttendanceList = React.memo(function StudentAttendanceList() {
   );
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-lg">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-primary">Student Attendance Records</h2>
+    <div className="px-2 sm:px-4 md:px-6 py-4 sm:py-6 bg-white rounded-xl shadow-lg">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-primary">Student Attendance Records</h2>
         <SearchAndBatchFilter
           searchTerm={searchTerm}
           onSearch={handleSearch}

@@ -118,17 +118,17 @@ const UserDetailsForm = memo(function UserDetailsForm({ user, setUser, onSubmit,
       {error && (
         <div className="text-red-600 text-sm" role="alert">{error}</div>
       )}
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-2">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 border border-gray-light rounded-md shadow-sm text-sm font-medium text-gray-dark hover:bg-gray-light focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="px-4 py-2 border border-gray-light rounded-md shadow-sm text-sm font-medium text-gray-dark hover:bg-gray-light focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full sm:w-auto"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full sm:w-auto"
         >
           Save Changes
         </button>

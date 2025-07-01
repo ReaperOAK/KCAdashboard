@@ -178,15 +178,15 @@ const LeaderboardPage = () => {
   const leaderboardData = useMemo(() => leaderboards[activeQuiz] || [], [leaderboards, activeQuiz]);
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
       <div className="max-w-5xl mx-auto">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-primary mb-2 flex items-center justify-center">
+        <header className="mb-4 sm:mb-8 text-center">
+          <h1 className="text-2xl sm:text-4xl font-bold text-primary mb-2 flex items-center justify-center">
             <FaTrophy className="text-yellow-500 mr-3" aria-hidden="true" /> Chess Quiz Leaderboards
           </h1>
           <p className="text-gray-dark">Compare your performance with other students</p>
         </header>
-        <section className="bg-white rounded-lg shadow mb-6 overflow-hidden" aria-label="Quiz filter">
+        <section className="bg-white rounded-lg shadow mb-4 sm:mb-6 overflow-hidden" aria-label="Quiz filter">
           <div className="p-4 border-b bg-gray-light flex items-center">
             <FaFilter className="text-secondary mr-2" aria-hidden="true" />
             <h2 className="text-lg font-semibold">Select Quiz</h2>
@@ -194,8 +194,8 @@ const LeaderboardPage = () => {
           <QuizFilterBar quizzes={quizzes} activeQuiz={activeQuiz} onQuizChange={handleQuizChange} />
         </section>
         <section className="bg-white rounded-lg shadow overflow-hidden" aria-label="Leaderboard table">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-bold text-primary">
+          <div className="p-4 sm:p-6 border-b">
+            <h2 className="text-lg sm:text-xl font-bold text-primary">
               {activeQuiz === 'overall'
                 ? 'Overall Student Ranking'
                 : `Leaderboard: ${quizzes.find((q) => q.id === activeQuiz)?.title || ''}`}
@@ -206,7 +206,7 @@ const LeaderboardPage = () => {
           ) : error ? (
             <ErrorState message={error} />
           ) : leaderboardData.length === 0 ? (
-            <div className="p-6 text-center">
+            <div className="p-4 sm:p-6 text-center">
               <p className="text-gray-dark">No leaderboard data available yet.</p>
             </div>
           ) : (

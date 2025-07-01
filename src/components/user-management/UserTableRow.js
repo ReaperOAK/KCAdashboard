@@ -51,7 +51,7 @@ const MobileMenuActions = memo(function MobileMenuActions({ user, onEdit, onPerm
           leaveFrom="transform scale-100 opacity-100"
           leaveTo="transform scale-95 opacity-0"
         >
-          <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+          <Menu.Items className="absolute left-0 right-0 mx-auto mt-2 w-full max-w-xs sm:w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
             <Menu.Item>
               {({ active }) => (
                 <button
@@ -112,8 +112,8 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
   const handleStatusChange = useCallback((e) => onStatusChange(user.id, e.target.value), [onStatusChange, user.id]);
 
   return (
-    <tr className="hover:bg-gray-light focus-within:bg-gray-light">
-      <td className="px-3 py-4">
+    <tr className="hover:bg-gray-light focus-within:bg-gray-light align-top">
+      <td className="px-2 py-2 sm:px-3 sm:py-4 align-middle">
         <input
           type="checkbox"
           checked={selectedUsers.includes(user.id)}
@@ -122,18 +122,18 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
           aria-label={`Select ${user.full_name}`}
         />
       </td>
-      <td className="px-3 py-4">
-        <div className="text-sm font-medium text-text-dark">{user.full_name}</div>
-        <div className="text-sm text-gray-dark md:hidden">{user.email}</div>
+      <td className="px-2 py-2 sm:px-3 sm:py-4 align-middle">
+        <div className="text-sm font-medium text-text-dark break-words max-w-[120px] sm:max-w-none">{user.full_name}</div>
+        <div className="text-xs sm:text-sm text-gray-dark md:hidden break-words max-w-[120px] sm:max-w-none">{user.email}</div>
       </td>
-      <td className="px-3 py-4 hidden md:table-cell">
-        <div className="text-sm text-gray-dark">{user.email}</div>
+      <td className="px-2 py-2 hidden md:table-cell sm:px-3 sm:py-4 align-middle">
+        <div className="text-xs sm:text-sm text-gray-dark break-words max-w-[120px] sm:max-w-none">{user.email}</div>
       </td>
-      <td className="px-3 py-4">
+      <td className="px-2 py-2 sm:px-3 sm:py-4 align-middle">
         <select
           value={user.role}
           onChange={handleRoleChange}
-          className="text-sm text-text-dark rounded-md border-gray-light focus:ring-accent w-full sm:w-auto"
+          className="text-xs sm:text-sm text-text-dark rounded-md border-gray-light focus:ring-accent w-full"
           aria-label={`Change role for ${user.full_name}`}
         >
           <option value="student">Student</option>
@@ -141,11 +141,11 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
           <option value="admin">Admin</option>
         </select>
       </td>
-      <td className="px-3 py-4 hidden sm:table-cell">
+      <td className="px-2 py-2 hidden sm:table-cell sm:px-3 sm:py-4 align-middle">
         <select
           value={user.status}
           onChange={handleStatusChange}
-          className="text-sm rounded-md border-gray-light focus:ring-accent w-full sm:w-auto"
+          className="text-xs sm:text-sm rounded-md border-gray-light focus:ring-accent w-full"
           aria-label={`Change status for ${user.full_name}`}
         >
           <option value="active">Active</option>
@@ -153,9 +153,11 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
           <option value="suspended">Suspended</option>
         </select>
       </td>
-      <td className="px-3 py-4 text-right text-sm font-medium">
-        <RowActions user={user} onEdit={handleEdit} onPermissions={handlePermissions} onDelete={handleDelete} />
-        <MobileMenuActions user={user} onEdit={handleEdit} onPermissions={handlePermissions} onDelete={handleDelete} />
+      <td className="px-2 py-2 sm:px-3 sm:py-4 text-right text-xs sm:text-sm font-medium align-middle">
+        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-end sm:items-center justify-end">
+          <RowActions user={user} onEdit={handleEdit} onPermissions={handlePermissions} onDelete={handleDelete} />
+          <MobileMenuActions user={user} onEdit={handleEdit} onPermissions={handlePermissions} onDelete={handleDelete} />
+        </div>
       </td>
     </tr>
   );

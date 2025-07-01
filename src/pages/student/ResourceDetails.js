@@ -284,8 +284,8 @@ export default function ResourceDetails() {
     );
   }
   return (
-    <div className="min-h-screen bg-background-light p-8">
-      <div className="mb-6">
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <div className="mb-4 sm:mb-6 md:mb-8">
         <button
           onClick={handleBack}
           className="flex items-center text-secondary hover:text-accent transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded"

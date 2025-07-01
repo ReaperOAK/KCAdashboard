@@ -19,27 +19,27 @@ const ErrorState = React.memo(({ message }) => (
 
 // Table for feedback
 const FeedbackTable = React.memo(({ feedback }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6">
-    <table className="min-w-full divide-y divide-gray-light" aria-label="Feedback Table">
+  <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-x-auto">
+    <table className="min-w-full divide-y divide-gray-light text-sm" aria-label="Feedback Table">
       <thead className="bg-gray-light">
         <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Date</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Teacher</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Rating</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Comment</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Strengths</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Areas for Improvement</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Date</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Teacher</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Rating</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Comment</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Strengths</th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-dark uppercase tracking-wider">Areas for Improvement</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-light">
         {feedback.map(item => (
           <tr key={item.id}>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{new Date(item.created_at).toLocaleString()}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.teacher_name}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.rating}/5</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.comment || '-'}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.strengths || '-'}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.areas_of_improvement || '-'}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{new Date(item.created_at).toLocaleString()}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{item.teacher_name}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{item.rating}/5</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{item.comment || '-'}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{item.strengths || '-'}</td>
+            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">{item.areas_of_improvement || '-'}</td>
           </tr>
         ))}
       </tbody>
@@ -84,8 +84,8 @@ export const FeedbackHistory = React.memo(() => {
   }, [loading, error, feedback]);
 
   return (
-    <div className="min-h-screen bg-background-light p-8">
-      <h1 className="text-3xl font-bold text-primary mb-6">My Feedback & Grading History</h1>
+    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6 md:mb-8">My Feedback & Grading History</h1>
       {content}
     </div>
   );

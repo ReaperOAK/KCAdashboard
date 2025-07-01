@@ -70,38 +70,40 @@ const ErrorState = React.memo(({ message }) => (
 
 // --- Tab Navigation ---
 const TabNav = React.memo(({ activeTab, onTabChange, onFindOpponents }) => (
-  <nav className="flex border-b border-gray-dark mb-6" aria-label="Chess area tabs">
-    <button
-      type="button"
-      className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-        activeTab === 'games'
-          ? 'text-primary font-bold after:content-[] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-primary'
-          : 'text-gray-dark hover:bg-background-light'
-      }`}
-      aria-current={activeTab === 'games' ? 'page' : undefined}
-      onClick={onTabChange('games')}
-    >
-      My Games
-    </button>
-    <button
-      type="button"
-      className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-        activeTab === 'practice'
-          ? 'text-primary font-bold after:content-[] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-primary'
-          : 'text-gray-dark hover:bg-background-light'
-      }`}
-      aria-current={activeTab === 'practice' ? 'page' : undefined}
-      onClick={onTabChange('practice')}
-    >
-      Practice Positions
-    </button>
-    <button
-      type="button"
-      className="px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative text-gray-dark hover:bg-background-light focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      onClick={onFindOpponents}
-    >
-      Find Opponents
-    </button>
+  <nav className="flex overflow-x-auto no-scrollbar border-b border-gray-dark mb-6" aria-label="Chess area tabs">
+    <div className="flex min-w-full sm:min-w-0">
+      <button
+        type="button"
+        className={`px-4 sm:px-6 py-2 sm:py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent whitespace-nowrap ${
+          activeTab === 'games'
+            ? 'text-primary font-bold after:content-[] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-primary'
+            : 'text-gray-dark hover:bg-background-light'
+        }`}
+        aria-current={activeTab === 'games' ? 'page' : undefined}
+        onClick={onTabChange('games')}
+      >
+        My Games
+      </button>
+      <button
+        type="button"
+        className={`px-4 sm:px-6 py-2 sm:py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent whitespace-nowrap ${
+          activeTab === 'practice'
+            ? 'text-primary font-bold after:content-[] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-primary'
+            : 'text-gray-dark hover:bg-background-light'
+        }`}
+        aria-current={activeTab === 'practice' ? 'page' : undefined}
+        onClick={onTabChange('practice')}
+      >
+        Practice Positions
+      </button>
+      <button
+        type="button"
+        className="px-4 sm:px-6 py-2 sm:py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative text-gray-dark hover:bg-background-light focus:outline-none focus-visible:ring-2 focus-visible:ring-accent whitespace-nowrap"
+        onClick={onFindOpponents}
+      >
+        Find Opponents
+      </button>
+    </div>
   </nav>
 ));
 
@@ -263,8 +265,8 @@ function GameArea() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-5 pb-10">
-      <h1 className="text-3xl font-bold text-primary mb-5">Chess Game Area</h1>
+    <div className="max-w-6xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10">
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-5">Chess Game Area</h1>
       <ChessNavigation />
       <TabNav
         activeTab={activeTab}
@@ -274,13 +276,13 @@ function GameArea() {
 
       {activeTab === 'games' && (
         <section aria-labelledby="games-heading">
-          <div className="flex justify-end mb-5">
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3 mb-5">
             <label htmlFor="game-status" className="sr-only">Game Status</label>
             <select
               id="game-status"
               value={gameStatus}
               onChange={handleGameStatusChange}
-              className="px-3 py-2 border border-gray-light rounded text-base bg-white min-w-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="px-2 sm:px-3 py-2 border border-gray-light rounded text-base bg-white min-w-32 sm:min-w-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <option value="active">Active Games</option>
               <option value="completed">Completed Games</option>
@@ -294,7 +296,7 @@ function GameArea() {
           ) : games.length === 0 ? (
             <EmptyState message="No games found. Challenge someone to play!" actionLabel="Find Opponents" onAction={handleFindOpponents} />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" role="list" aria-label="Game list">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" role="list" aria-label="Game list">
               {gameCards}
             </div>
           )}
@@ -310,7 +312,7 @@ function GameArea() {
           ) : practicePositions.length === 0 ? (
             <EmptyState message="No practice positions found." />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" role="list" aria-label="Practice positions">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" role="list" aria-label="Practice positions">
               {practiceCards}
             </div>
           )}

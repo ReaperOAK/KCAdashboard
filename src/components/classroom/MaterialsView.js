@@ -1,114 +1,116 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ApiService from '../../utils/api';
 import UploadUtils from '../../utils/uploadUtils';
 
-const MaterialsView = ({ classroomId, refreshTrigger = 0 }) => {
+// --- Loading Skeleton ---
+const MaterialsLoadingSkeleton = React.memo(() => (
+  <div className="flex justify-center items-center p-8" aria-busy="true" aria-label="Loading materials">
+    <div className="h-6 w-1/3 bg-gray-light rounded animate-pulse" />
+  </div>
+));
+
+// --- Error Alert ---
+const MaterialsErrorAlert = React.memo(({ message }) => (
+  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4" role="alert">
+    <span className="font-semibold">Error:</span> {message}
+  </div>
+));
+
+const MaterialCard = React.memo(function MaterialCard({ material, onOpen, getFileIcon }) {
+  return (
+    <button
+      type="button"
+      key={material.id}
+      className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-accent"
+      onClick={() => onOpen(material)}
+      aria-label={`Open material: ${material.title}`}
+    >
+      <div className="flex items-start mb-4">
+        <div className="bg-background-light p-4 rounded-lg mr-4">
+          <i className={`${getFileIcon(material.type)} text-secondary text-xl`} aria-hidden="true"></i>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-primary mb-1">{material.title}</h3>
+          <p className="text-sm text-gray-dark">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
+        </div>
+      </div>
+      <div className="text-xs text-gray-dark flex justify-between">
+        <span>Added by: {material.created_by_name}</span>
+        <span>{material.created_at_formatted}</span>
+      </div>
+    </button>
+  );
+});
+
+function MaterialsView({ classroomId, refreshTrigger = 0 }) {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
-    const fetchMaterials = async () => {
+    let isMounted = true;
+    async function fetchMaterials() {
       try {
         setLoading(true);
         setError(null);
-        
         const response = await ApiService.get(`/classroom/get-materials.php?classroom_id=${classroomId}`);
-        
+        if (!isMounted) return;
         if (response.success) {
           setMaterials(response.materials);
         } else {
           setError(response.message || 'Failed to fetch materials');
         }
       } catch (err) {
-        setError('Error loading materials: ' + err.message);
+        if (isMounted) setError('Error loading materials: ' + err.message);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
-    };
-    
-    if (classroomId) {
-      fetchMaterials();
     }
+    if (classroomId) fetchMaterials();
+    return () => { isMounted = false; };
   }, [classroomId, refreshTrigger]);
-  
-  const getFileIcon = (type) => {
+
+  // Memoized icon getter
+  const getFileIcon = useCallback((type) => {
     switch (type) {
-      case 'document':
-        return 'far fa-file-alt';
-      case 'video':
-        return 'far fa-file-video';
-      case 'assignment':
-        return 'far fa-clipboard';
-      default:
-        return 'far fa-file';
+      case 'document': return 'far fa-file-alt';
+      case 'video': return 'far fa-file-video';
+      case 'assignment': return 'far fa-clipboard';
+      default: return 'far fa-file';
     }
-  };
-  
-  const handleOpenResource = (material) => {
+  }, []);
+
+  // Memoized open handler
+  const handleOpenResource = useCallback((material) => {
     if (material.type === 'video') {
       window.open(material.url, '_blank');
+    } else if (material.url && (material.url.startsWith('http://') || material.url.startsWith('https://'))) {
+      window.open(material.url, '_blank');
     } else {
-      // For documents and other file types, construct the proper URL path
-      // If URL already contains http:// or https://, use it directly
-      if (material.url && (material.url.startsWith('http://') || material.url.startsWith('https://'))) {
-        window.open(material.url, '_blank');
-      } else {        // Otherwise, construct the full URL with the uploads directory
-        window.open(UploadUtils.getMaterialUrl(material.url), '_blank');
-      }
+      window.open(UploadUtils.getMaterialUrl(material.url), '_blank');
     }
-  };
-  
-  if (loading) {
-    return <div className="flex justify-center items-center p-8">Loading materials...</div>;
-  }
-  
-  if (error) {
-    return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        <p>{error}</p>
-      </div>
-    );
-  }
-  
+  }, []);
+
+  // Memoize material cards
+  const materialCards = useMemo(() => materials.map(material => (
+    <MaterialCard key={material.id} material={material} onOpen={handleOpenResource} getFileIcon={getFileIcon} />
+  )), [materials, handleOpenResource, getFileIcon]);
+
+  if (loading) return <MaterialsLoadingSkeleton />;
+  if (error) return <MaterialsErrorAlert message={error} />;
   if (materials.length === 0) {
     return (
-      <div className="bg-gray-50 p-6 text-center rounded-lg">
-        <p className="text-gray-500">No materials have been added to this classroom yet.</p>
+      <div className="bg-background-light p-6 text-center rounded-lg">
+        <p className="text-gray-dark">No materials have been added to this classroom yet.</p>
       </div>
     );
   }
-  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {materials.map((material) => (
-        <div 
-          key={material.id} 
-          className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer"
-          onClick={() => handleOpenResource(material)}
-        >
-          <div className="flex items-start mb-4">
-            <div className="bg-[#f3f1f9] p-4 rounded-lg mr-4">
-              <i className={`${getFileIcon(material.type)} text-[#461fa3] text-xl`} aria-hidden="true"></i>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[#200e4a] mb-1">
-                {material.title}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {material.type.charAt(0).toUpperCase() + material.type.slice(1)}
-              </p>
-            </div>
-          </div>
-          
-          <div className="text-xs text-gray-500 flex justify-between">
-            <span>Added by: {material.created_by_name}</span>
-            <span>{material.created_at_formatted}</span>
-          </div>
-        </div>
-      ))}
+      {materialCards}
     </div>
   );
-};
+}
 
-export default MaterialsView;
+export default React.memo(MaterialsView);

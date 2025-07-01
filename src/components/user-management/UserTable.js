@@ -1,34 +1,49 @@
-import React from 'react';
+
+import React, { useCallback, useMemo } from 'react';
 import UserTableRow from './UserTableRow';
 
-const UserTable = ({ users, selectedUsers, setSelectedUsers, onEdit, onPermissions, onDelete, onRoleChange, onStatusChange }) => {
+// Memoized Table Header for accessibility and clarity
+const TableHeader = React.memo(function TableHeader({ allSelected, onSelectAll, usersLength }) {
+  return (
+    <thead className="bg-background-light">
+      <tr>
+        <th className="px-3 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">
+          <input
+            type="checkbox"
+            aria-label="Select all users"
+            onChange={onSelectAll}
+            checked={allSelected && usersLength > 0}
+            className="rounded border-gray-light focus:ring-accent"
+          />
+        </th>
+        <th className="px-3 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Name</th>
+        <th className="px-3 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider hidden md:table-cell">Email</th>
+        <th className="px-3 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Role</th>
+        <th className="px-3 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider hidden sm:table-cell">Status</th>
+        <th className="px-3 py-3 text-right text-xs font-medium text-gray-dark uppercase tracking-wider">Actions</th>
+      </tr>
+    </thead>
+  );
+});
+
+const UserTable = React.memo(function UserTable({ users, selectedUsers, setSelectedUsers, onEdit, onPermissions, onDelete, onRoleChange, onStatusChange }) {
+  // Memoize select all handler
+  const handleSelectAll = useCallback((e) => {
+    if (e.target.checked) {
+      setSelectedUsers(users.map((user) => user.id));
+    } else {
+      setSelectedUsers([]);
+    }
+  }, [setSelectedUsers, users]);
+
+  // Memoize allSelected for performance
+  const allSelected = useMemo(() => selectedUsers.length === users.length && users.length > 0, [selectedUsers, users]);
+
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <input
-                type="checkbox"
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedUsers(users.map(user => user.id));
-                  } else {
-                    setSelectedUsers([]);
-                  }
-                }}
-                checked={selectedUsers.length === users.length}
-                className="rounded border-gray-300"
-              />
-            </th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Email</th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Status</th>
-            <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+      <table className="min-w-full divide-y divide-gray-light" role="table" aria-label="User list">
+        <TableHeader allSelected={allSelected} onSelectAll={handleSelectAll} usersLength={users.length} />
+        <tbody className="bg-white divide-y divide-gray-light">
           {users.map((user) => (
             <UserTableRow
               key={user.id}
@@ -46,6 +61,7 @@ const UserTable = ({ users, selectedUsers, setSelectedUsers, onEdit, onPermissio
       </table>
     </div>
   );
-};
+});
 
+export { UserTable };
 export default UserTable;

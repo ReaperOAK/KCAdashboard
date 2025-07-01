@@ -1,70 +1,94 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import ApiService from '../../utils/api';
 
-const FeedbackHistory = () => {
+// Spinner for loading state
+const LoadingSpinner = React.memo(() => (
+  <div className="flex flex-col items-center justify-center py-8" role="status" aria-live="polite">
+    <div className="animate-spin w-10 h-10 border-4 border-secondary border-t-transparent rounded-full mb-4" />
+    <span className="text-gray-dark">Loading feedback...</span>
+  </div>
+));
+
+// Error state
+const ErrorState = React.memo(({ message }) => (
+  <div className="bg-red-50 text-red-700 border border-red-200 rounded p-4 text-center mb-6" role="alert">
+    <span>{message}</span>
+  </div>
+));
+
+// Table for feedback
+const FeedbackTable = React.memo(({ feedback }) => (
+  <div className="bg-white rounded-xl shadow-lg p-6">
+    <table className="min-w-full divide-y divide-gray-light" aria-label="Feedback Table">
+      <thead className="bg-gray-light">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Date</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Teacher</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Rating</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Comment</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Strengths</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Areas for Improvement</th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-light">
+        {feedback.map(item => (
+          <tr key={item.id}>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{new Date(item.created_at).toLocaleString()}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.teacher_name}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.rating}/5</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.comment || '-'}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.strengths || '-'}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-dark">{item.areas_of_improvement || '-'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+));
+
+// Main component
+export const FeedbackHistory = React.memo(() => {
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await ApiService.get('/grading/get-student-feedback-history.php');
-        if (response.success) {
-          setFeedback(response.feedback);
-        } else {
-          setError(response.message || 'Failed to fetch feedback');
-        }
-      } catch (err) {
-        setError(err.message || 'Failed to fetch feedback');
-      } finally {
-        setLoading(false);
+  const fetchFeedback = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await ApiService.get('/grading/get-student-feedback-history.php');
+      if (response.success) {
+        setFeedback(response.feedback);
+      } else {
+        setError(response.message || 'Failed to fetch feedback');
       }
-    };
-    fetchFeedback();
+    } catch (err) {
+      setError(err.message || 'Failed to fetch feedback');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchFeedback();
+  }, [fetchFeedback]);
+
+  const content = useMemo(() => {
+    if (loading) return <LoadingSpinner />;
+    if (error) return <ErrorState message={error} />;
+    if (feedback.length === 0) {
+      return <div className="text-gray-dark text-center py-8">No feedback available.</div>;
+    }
+    return <FeedbackTable feedback={feedback} />;
+  }, [loading, error, feedback]);
+
   return (
-    <div className="min-h-screen bg-[#f3f1f9] p-8">
-      <h1 className="text-3xl font-bold text-[#200e4a] mb-6">My Feedback & Grading History</h1>
-      {loading ? (
-        <div className="text-center py-8">Loading...</div>
-      ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">{error}</div>
-      ) : feedback.length === 0 ? (
-        <div className="text-gray-500 text-center py-8">No feedback available.</div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strengths</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Areas for Improvement</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {feedback.map(item => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{new Date(item.created_at).toLocaleString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.teacher_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.rating}/5</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.comment || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.strengths || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.areas_of_improvement || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+    <div className="min-h-screen bg-background-light p-8">
+      <h1 className="text-3xl font-bold text-primary mb-6">My Feedback & Grading History</h1>
+      {content}
     </div>
   );
-};
+});
 
 export default FeedbackHistory;

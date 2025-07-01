@@ -1,76 +1,87 @@
-import React from 'react';
+
+import React, { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaClock, FaChess, FaTrophy, FaUser } from 'react-icons/fa';
 
-const QuizCard = ({ quiz }) => {
-  const navigate = useNavigate();
-
-  const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
-      case 'beginner':
-        return {
-          bg: 'bg-green-100',
-          text: 'text-green-800'
-        };
-      case 'intermediate':
-        return {
-          bg: 'bg-yellow-100',
-          text: 'text-yellow-800'
-        };
-      case 'advanced':
-        return {
-          bg: 'bg-red-100',
-          text: 'text-red-800'
-        };
-      default:
-        return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-800'
-        };
-    }
-  };
-
-  const difficultyStyles = getDifficultyColor(quiz.difficulty);
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xl font-semibold text-[#461fa3]">
-            {quiz.title}
-          </h3>
-          <span className={`px-3 py-1 rounded-full text-xs ${difficultyStyles.bg} ${difficultyStyles.text}`}>
-            {quiz.difficulty}
-          </span>
-        </div>
-        
-        <p className="text-gray-600 mb-4 line-clamp-2">{quiz.description}</p>
-        
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="flex items-center text-sm text-gray-500">
-            <FaClock className="mr-1" /> {quiz.time_limit} mins
-          </div>
-          <div className="flex items-center text-sm text-gray-500">
-            <FaChess className="mr-1" /> {quiz.questions ? quiz.questions.length : '?'} Questions
-          </div>
-          <div className="flex items-center text-sm text-gray-500">
-            <FaTrophy className="mr-1" /> {quiz.highest_score ? `${quiz.highest_score}%` : 'No attempts'}
-          </div>
-          <div className="flex items-center text-sm text-gray-500 truncate">
-            <FaUser className="mr-1" /> {quiz.creator_name}
-          </div>
-        </div>
-      </div>
-      <div className="px-6 py-4 bg-gray-50 border-t">
-        <button 
-          onClick={() => navigate(`/student/quiz/${quiz.id}`)}
-          className="w-full text-center text-[#461fa3] hover:text-[#7646eb] font-medium flex items-center justify-center"
-        >
-          Start Quiz <span className="ml-2">→</span>
-        </button>
-      </div>
-    </div>
-  );
+// Accessibility: ARIA label for the card, button, and semantic structure
+const DIFFICULTY_STYLES = {
+  beginner: { bg: 'bg-green-100', text: 'text-green-800' },
+  intermediate: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
+  advanced: { bg: 'bg-red-100', text: 'text-red-800' },
+  default: { bg: 'bg-gray-100', text: 'text-gray-800' },
 };
 
+const DifficultyBadge = React.memo(({ difficulty }) => {
+  const { bg, text } = useMemo(() => DIFFICULTY_STYLES[difficulty] || DIFFICULTY_STYLES.default, [difficulty]);
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${bg} ${text}`}
+      aria-label={`Difficulty: ${difficulty}`}
+    >
+      {difficulty}
+    </span>
+  );
+});
+
+const QuizMeta = React.memo(({ quiz }) => (
+  <div className="grid grid-cols-2 gap-2 mb-4">
+    <div className="flex items-center text-sm text-gray-500" aria-label={`Time limit: ${quiz.time_limit} minutes`}>
+      <FaClock className="mr-1" aria-hidden="true" />
+      {quiz.time_limit} mins
+    </div>
+    <div className="flex items-center text-sm text-gray-500" aria-label={`Questions: ${quiz.questions ? quiz.questions.length : '?'}`}> 
+      <FaChess className="mr-1" aria-hidden="true" />
+      {quiz.questions ? quiz.questions.length : '?'} Questions
+    </div>
+    <div className="flex items-center text-sm text-gray-500" aria-label={`Highest score: ${quiz.highest_score ? quiz.highest_score + '%' : 'No attempts'}`}> 
+      <FaTrophy className="mr-1" aria-hidden="true" />
+      {quiz.highest_score ? `${quiz.highest_score}%` : 'No attempts'}
+    </div>
+    <div className="flex items-center text-sm text-gray-500 truncate" aria-label={`Created by: ${quiz.creator_name}`}> 
+      <FaUser className="mr-1" aria-hidden="true" />
+      {quiz.creator_name}
+    </div>
+  </div>
+));
+
+const QuizCard = React.memo(function QuizCard({ quiz }) {
+  const navigate = useNavigate();
+
+  const handleStartQuiz = useCallback(() => {
+    navigate(`/student/quiz/${quiz.id}`);
+  }, [navigate, quiz.id]);
+
+  return (
+    <section
+      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-light"
+      aria-label={`Quiz card: ${quiz.title}`}
+      tabIndex={0}
+    >
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xl font-semibold text-primary truncate" title={quiz.title}>
+            {quiz.title}
+          </h3>
+          <DifficultyBadge difficulty={quiz.difficulty} />
+        </div>
+        <p className="text-gray-dark mb-4 line-clamp-2" title={quiz.description}>
+          {quiz.description}
+        </p>
+        <QuizMeta quiz={quiz} />
+      </div>
+      <div className="px-6 py-4 bg-gray-light/40 border-t border-gray-light">
+        <button
+          type="button"
+          onClick={handleStartQuiz}
+          className="w-full text-center text-secondary hover:text-accent font-medium flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 transition-colors rounded-md py-2"
+          aria-label={`Start quiz: ${quiz.title}`}
+        >
+          Start Quiz <span className="ml-2" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+  );
+});
+
+export { QuizCard };
 export default QuizCard;

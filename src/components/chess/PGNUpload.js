@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { parse } from '@mliebelt/pgn-parser';
-import { 
-  ArrowUpTrayIcon, 
-  DocumentPlusIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
 import ApiService from '../../utils/api';
+import UploadMethodSelector from './PGNUploadMethodSelector';
+import PGNFileDrop from './PGNFileDrop';
+import PGNTextInput from './PGNTextInput';
+import PGNStatusMessage from './PGNStatusMessage';
+import PGNParsingResults from './PGNParsingResults';
+import PGNUploadDetailsForm from './PGNUploadDetailsForm';
+import PGNUploadActions from './PGNUploadActions';
 
 /**
  * PGN Upload Component
@@ -19,27 +19,31 @@ import ApiService from '../../utils/api';
  * - Metadata extraction
  * - Upload to backend
  */
-const PGNUpload = ({ 
+
+/**
+ * PGNUpload - Main upload component for PGN files/text.
+ * @param {function} onPGNParsed
+ * @param {function} onUploadComplete
+ * @param {string} className
+ * @param {number} maxFileSize
+ * @param {string[]} allowedFormats
+ */
+export const PGNUpload = React.memo(function PGNUpload({
   onPGNParsed = null,
   onUploadComplete = null,
   className = '',
-  maxFileSize = 10 * 1024 * 1024, // 10MB
+  maxFileSize = 10 * 1024 * 1024,
   allowedFormats = ['.pgn', '.txt']
-}) => {
+}) {
+  // State
   const [pgnText, setPgnText] = useState('');
-  const [uploadMethod, setUploadMethod] = useState('file'); // 'file' or 'text'
+  const [uploadMethod, setUploadMethod] = useState('file');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
+  const [uploadStatus, setUploadStatus] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [parsedGames, setParsedGames] = useState([]);
-  const [metadata, setMetadata] = useState({
-    totalGames: 0,
-    gamesWithErrors: 0,
-    estimatedSize: 0
-  });
-  
-  // Form fields for upload metadata
+  const [metadata, setMetadata] = useState({ totalGames: 0, gamesWithErrors: 0, estimatedSize: 0 });
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
   const [uploadCategory, setUploadCategory] = useState('strategy');
@@ -498,309 +502,69 @@ const PGNUpload = ({
   };
 
   return (
-    <div className={`pgn-upload p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg ${className}`}>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Upload PGN Files
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Upload chess games in PGN format. Supports multiple games, variations, comments, and annotations.
-        </p>
-      </div>
-
-      {/* Upload method selector */}
-      <div className="mb-6">
-        <div className="flex space-x-4">
-          <button
-            onClick={() => setUploadMethod('file')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              uploadMethod === 'file'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            <ArrowUpTrayIcon className="w-5 h-5 inline mr-2" />
-            Upload File
-          </button>
-          <button
-            onClick={() => setUploadMethod('text')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              uploadMethod === 'text'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            <DocumentPlusIcon className="w-5 h-5 inline mr-2" />
-            Paste Text
-          </button>
-        </div>
-      </div>
-
-      {/* File upload */}
+    <div className={`pgn-upload p-6 bg-background-light dark:bg-background-dark rounded-lg shadow-md ${className}`}>
+      <HeaderSection />
+      <UploadMethodSelector uploadMethod={uploadMethod} setUploadMethod={setUploadMethod} />
       {uploadMethod === 'file' && (
-        <div className="mb-6">
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragging
-                ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-            }`}
-          >
-            <ArrowUpTrayIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-            <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Drop your PGN file here
-            </p>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              or click to browse
-            </p>
-            <input
-              type="file"
-              accept={allowedFormats.join(',')}
-              onChange={handleFileInputChange}
-              className="hidden"
-              id="pgn-file-input"
-            />
-            <label
-              htmlFor="pgn-file-input"
-              className="inline-block px-6 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
-            >
-              Choose File
-            </label>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Max size: {Math.round(maxFileSize / 1024 / 1024)}MB | Formats: {allowedFormats.join(', ')}
-            </p>
-          </div>
-        </div>
+        <PGNFileDrop
+          isDragging={isDragging}
+          handleDragOver={handleDragOver}
+          handleDragLeave={handleDragLeave}
+          handleDrop={handleDrop}
+          allowedFormats={allowedFormats}
+          maxFileSize={maxFileSize}
+          handleFileInputChange={handleFileInputChange}
+        />
       )}
-
-      {/* Text input */}
       {uploadMethod === 'text' && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            PGN Content
-          </label>
-          <textarea
-            value={pgnText}
-            onChange={handleTextChange}
-            placeholder="Paste your PGN content here..."
-            className="w-full h-64 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm resize-vertical focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <div className="flex justify-between items-center mt-2">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {pgnText.length} characters
-            </p>
-            <button
-              onClick={handleParseText}
-              disabled={!pgnText.trim()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Parse PGN
-            </button>
-          </div>
-        </div>
+        <PGNTextInput
+          pgnText={pgnText}
+          handleTextChange={handleTextChange}
+          handleParseText={handleParseText}
+        />
       )}
-
-      {/* Status messages */}
-      {uploadStatus && (
-        <div className={`mb-6 p-4 rounded-lg flex items-center ${
-          uploadStatus === 'success'
-            ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200'
-            : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200'
-        }`}>
-          {uploadStatus === 'success' ? (
-            <CheckCircleIcon className="w-5 h-5 mr-2" />
-          ) : (
-            <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-          )}
-          <span>{statusMessage}</span>
-          <button
-            onClick={() => setUploadStatus(null)}
-            className="ml-auto"
-          >
-            <XMarkIcon className="w-5 h-5" />
-          </button>
-        </div>
-      )}
-
-      {/* Parsing results */}
+      <PGNStatusMessage uploadStatus={uploadStatus} statusMessage={statusMessage} onClose={handleStatusClose} />
+      <PGNParsingResults parsedGames={parsedGames} metadata={metadata} formatFileSize={formatFileSize} />
       {parsedGames.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Parsing Results
-          </h3>
-          
-          {/* Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {metadata.totalGames}
-              </div>
-              <div className="text-sm text-blue-600 dark:text-blue-400">
-                Total Games
-              </div>
-            </div>
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {metadata.validGames || metadata.totalGames - metadata.gamesWithErrors}
-              </div>
-              <div className="text-sm text-green-600 dark:text-green-400">
-                Valid Games
-              </div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                {formatFileSize(metadata.estimatedSize)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                File Size
-              </div>
-            </div>
-          </div>
-
-          {/* Game list */}
-          <div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-4 py-2 text-left">#</th>
-                  <th className="px-4 py-2 text-left">White</th>
-                  <th className="px-4 py-2 text-left">Black</th>
-                  <th className="px-4 py-2 text-left">Date</th>
-                  <th className="px-4 py-2 text-left">Moves</th>
-                  <th className="px-4 py-2 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {parsedGames.map((game, index) => (
-                  <tr
-                    key={index}
-                    className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <td className="px-4 py-2">{index + 1}</td>
-                    <td className="px-4 py-2">{game.headers.White || 'Unknown'}</td>
-                    <td className="px-4 py-2">{game.headers.Black || 'Unknown'}</td>
-                    <td className="px-4 py-2">{game.headers.Date || 'Unknown'}</td>
-                    <td className="px-4 py-2">{game.moveCount}</td>
-                    <td className="px-4 py-2">
-                      {game.isValid ? (
-                        <span className="text-green-600 dark:text-green-400">✓ Valid</span>
-                      ) : (
-                        <span className="text-red-600 dark:text-red-400" title={game.errors.join(', ')}>
-                          ✗ Invalid
-                        </span>
-                      )}
-                      {game.warnings && game.warnings.length > 0 && (
-                        <span className="ml-2 text-yellow-600 dark:text-yellow-400" title={game.warnings.join(', ')}>
-                          ⚠ Warning
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <PGNUploadDetailsForm
+          uploadTitle={uploadTitle}
+          setUploadTitle={setUploadTitle}
+          uploadCategory={uploadCategory}
+          setUploadCategory={setUploadCategory}
+          uploadDescription={uploadDescription}
+          setUploadDescription={setUploadDescription}
+          isPublic={isPublic}
+          setIsPublic={setIsPublic}
+        />
       )}
-
-      {/* Upload metadata form */}
       {parsedGames.length > 0 && (
-        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Upload Details
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Title *
-              </label>
-              <input
-                type="text"
-                value={uploadTitle}
-                onChange={(e) => setUploadTitle(e.target.value)}
-                placeholder="Enter PGN title..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category
-              </label>
-              <select
-                value={uploadCategory}
-                onChange={(e) => setUploadCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="opening">Opening</option>
-                <option value="middlegame">Middlegame</option>
-                <option value="endgame">Endgame</option>
-                <option value="tactics">Tactics</option>
-                <option value="strategy">Strategy</option>
-              </select>
-            </div>
-
-            {/* Description */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Description
-              </label>
-              <textarea
-                value={uploadDescription}
-                onChange={(e) => setUploadDescription(e.target.value)}
-                placeholder="Optional description..."
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            {/* Privacy setting */}
-            <div className="md:col-span-2">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Make this PGN public (visible to all users)
-                </span>
-              </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {isPublic ? 'Anyone can view this PGN' : 'Only you can view this PGN'}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Action buttons */}
-      {parsedGames.length > 0 && (
-        <div className="flex justify-between items-center">
-          <button
-            onClick={handleClear}
-            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-          >
-            Clear
-          </button>
-          <button
-            onClick={handleUploadToBackend}
-            disabled={isUploading || metadata.validGames === 0}
-            className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isUploading ? 'Uploading...' : `Upload ${metadata.validGames || metadata.totalGames - metadata.gamesWithErrors} Game(s)`}
-          </button>
-        </div>
+        <PGNUploadActions
+          handleClear={handleClear}
+          handleUploadToBackend={handleUploadToBackend}
+          isUploading={isUploading}
+          validGames={metadata.validGames}
+          totalGames={metadata.totalGames}
+          gamesWithErrors={metadata.gamesWithErrors}
+        />
       )}
     </div>
   );
-};
+});
+
+function HeaderSection() {
+  return (
+    <div className="mb-6">
+      <h2 className="text-2xl font-bold text-primary mb-2">Upload PGN Files</h2>
+      <p className="text-gray-dark dark:text-gray-light">
+        Upload chess games in PGN format. Supports multiple games, variations, comments, and annotations.
+      </p>
+    </div>
+  );
+}
+
+function handleStatusClose() {
+  // For accessibility: clear status on close
+  this?.setUploadStatus?.(null);
+}
 
 export default PGNUpload;

@@ -1,31 +1,135 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
-// import MoveHistory from '../../components/chess/MoveHistory';
-// import PGNViewer from '../../components/chess/PGNViewer';
 import ApiService from '../../utils/api';
 
-const InteractiveBoard = () => {
+// --- Loading Spinner ---
+const LoadingSpinner = React.memo(({ label }) => (
+  <div className="flex justify-center items-center min-h-96 text-primary font-bold text-lg" role="status" aria-live="polite">
+    <svg className="animate-spin h-8 w-8 text-accent mr-3" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+    </svg>
+    <span>{label}</span>
+  </div>
+));
+
+// --- Error State ---
+const ErrorState = React.memo(({ message, onReload }) => (
+  <div className="flex flex-col items-center justify-center min-h-96 space-y-4" role="alert">
+    <div className="text-red-700 font-bold text-center">{message}</div>
+    {onReload && (
+      <button
+        type="button"
+        onClick={onReload}
+        className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Reload Page
+      </button>
+    )}
+  </div>
+));
+
+// --- Simul/Active Games Switcher ---
+const GameSwitcher = React.memo(({ activeGames, currentId, onSwitch }) => (
+  <div className="mb-6 flex items-center gap-2">
+    <span className="font-semibold">Switch Game:</span>
+    <label htmlFor="game-switcher" className="sr-only">Select active game</label>
+    <select
+      id="game-switcher"
+      value={currentId}
+      onChange={onSwitch}
+      className="border border-gray-light rounded px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      {activeGames.map(game => (
+        <option key={game.id} value={game.id}>
+          vs {game.opponent?.name || 'Unknown'} ({game.yourColor})
+          {game.status === 'active' ? '' : ' (ended)'}
+        </option>
+      ))}
+    </select>
+  </div>
+));
+
+// --- PGN Download Button ---
+const PGNDownloadButton = React.memo(({ id, pgn }) => {
+  const handleDownload = useCallback(() => {
+    const blob = new Blob([pgn], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `game-${id}.pgn`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }, [id, pgn]);
+  return (
+    <div className="mb-4 flex justify-end">
+      <button
+        type="button"
+        className="px-4 py-2 bg-accent text-white rounded hover:bg-secondary transition-colors font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        onClick={handleDownload}
+        aria-label="Download PGN file"
+      >
+        Download PGN
+      </button>
+    </div>
+  );
+});
+
+// --- Game Info Card ---
+const GameInfoCard = React.memo(({ gameData, lastMoveAt, formatIST }) => (
+  <div className="bg-white rounded-lg p-6 shadow-sm max-w-2xl mx-auto mt-6">
+    <h2 className="text-xl font-bold text-primary mb-4">Game Information</h2>
+    {gameData.status === 'abandoned' && (
+      <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-4">
+        <div className="text-orange-800 font-semibold">Game Expired</div>
+        <div className="text-orange-700 text-sm">
+          This game was automatically expired due to inactivity.
+          {gameData.reason === 'inactivity timeout' && ' No moves were made for an extended period.'}
+        </div>
+      </div>
+    )}
+    <div className="space-y-2">
+      <p><strong className="text-gray-dark">Opponent:</strong> <span className="text-gray-900">{gameData.opponent && gameData.opponent.name}</span></p>
+      <p><strong className="text-gray-dark">Your Color:</strong> <span className="text-gray-900 capitalize">{gameData.yourColor}</span></p>
+      <p><strong className="text-gray-dark">Time Control:</strong> <span className="text-gray-900">{gameData.timeControl || 'Standard'}</span></p>
+      <p><strong className="text-gray-dark">Turn:</strong> <span className={`font-semibold ${gameData.yourTurn ? 'text-green-600' : 'text-blue-600'}`}>{gameData.yourTurn ? 'Your move' : "Opponent's move"}</span></p>
+      {lastMoveAt && (
+        <p>
+          <strong className="text-gray-dark">Last Move:</strong>
+          <span className="text-gray-900">{formatIST(lastMoveAt)}</span>
+        </p>
+      )}
+    </div>
+  </div>
+));
+
+
+const InteractiveBoard = React.memo(() => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [position, setPosition] = useState('start');
-  const [loading, setLoading] = useState(id ? true : false);
+  const [loading, setLoading] = useState(!!id);
   const [error, setError] = useState(null);
   const [gameData, setGameData] = useState(null);
   const [orientation, setOrientation] = useState('white');
   const [lastMoveAt, setLastMoveAt] = useState(null);
-  // Simul/active games state
   const [activeGames, setActiveGames] = useState([]);
-
-  // PGN is tracked in the backend, no need to keep in state here
+  const [pgn, setPgn] = useState('');
+  const [moveHistory, setMoveHistory] = useState([]);
+  const [fenHistory, setFenHistory] = useState([]);
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
 
   // Fetch active games for switcher (simul support)
   useEffect(() => {
     ApiService.getChessGames('active').then(res => {
       if (res.success && Array.isArray(res.games)) {
-        // Try to get user ID from localStorage (if stored as 'user' object)
         let userId = null;
         try {
           const userStr = localStorage.getItem('user');
@@ -34,15 +138,9 @@ const InteractiveBoard = () => {
             userId = userObj.id || userObj.user_id || userObj._id;
           }
         } catch {}
-
-        // Fallback: try to infer from first game if not found
         if (!userId && res.games.length > 0) {
-          // If you are always white or black in all games, this will not work for all users
-          // but it's a fallback for single-user dev
           userId = res.games[0].white_player?.id;
         }
-
-        // Attach opponent name and your color to each game
         const gamesWithOpponent = res.games.map(game => {
           let yourColor = '';
           let opponent = { name: 'Unknown' };
@@ -62,42 +160,28 @@ const InteractiveBoard = () => {
     });
   }, []);
 
-  // Simple function to poll for game updates and handle game over
+  // Poll for game updates and handle game over
   const pollGameUpdates = useCallback(async () => {
     if (!id) return;
     try {
       const response = await ApiService.getGameDetails(id);
       if (response.success && response.game) {
-        // If game is no longer active, redirect both players
         if (response.game.status && response.game.status !== 'active') {
-          // Optionally, show a message before redirecting
           alert('Game over: ' + (response.game.reason || response.game.status) + '\nYou will be redirected to the game lobby.');
           navigate('/chess/play');
           setError('redirected-to-lobby');
           return;
         }
-        // Only update if the position has changed
         if (response.game.position !== position) {
-          console.log("Game updated with opponent's move:", {
-            newPosition: response.game.position,
-            lastMoveAt: response.game.lastMove
-          });
           setGameData(response.game);
           setPosition(response.game.position);
           setLastMoveAt(response.game.lastMove);
         }
       }
     } catch (err) {
-      console.error("Error polling for game updates:", err);
+      // Log error, but don't break polling
     }
   }, [id, position, navigate]);
-
-
-  // Helper to fetch PGN (for download button)
-  const [pgn, setPgn] = useState('');
-  const [moveHistory, setMoveHistory] = useState([]);
-  const [fenHistory, setFenHistory] = useState([]);
-  const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
 
   // Fetch move history, PGN, and FEN history from backend
   const fetchMoveHistory = useCallback(async (gameId) => {
@@ -110,16 +194,13 @@ const InteractiveBoard = () => {
         setFenHistory(res.fen_history || []);
         setCurrentMoveIndex((res.moves && res.moves.length > 0) ? res.moves.length - 1 : -1);
       }
-    } catch (err) {
-      console.error('Failed to fetch move history:', err);
-    }
+    } catch {}
   }, []);
 
   // Load game data and move history when ID is provided
   useEffect(() => {
     let pollInterval = null;
     if (id) {
-      // Initial game load
       const loadGame = async () => {
         try {
           setLoading(true);
@@ -131,72 +212,54 @@ const InteractiveBoard = () => {
             if (response.game.yourColor === 'black') {
               setOrientation('black');
             }
-            // Fetch move history/PGN/FEN
             fetchMoveHistory(id);
           } else {
             setError('Failed to load game data');
           }
-        } catch (err) {
-          console.error('Error loading game:', err);
+        } catch {
           setError('Failed to load game. Please refresh the page.');
         } finally {
           setLoading(false);
         }
       };
       loadGame();
-      // Set up polling for opponent's moves every 2 seconds
       pollInterval = setInterval(() => {
         pollGameUpdates();
         fetchMoveHistory(id);
       }, 2000);
     }
-    // Clean up interval on unmount
     return () => {
-      if (pollInterval) {
-        clearInterval(pollInterval);
-      }
+      if (pollInterval) clearInterval(pollInterval);
     };
   }, [id, pollGameUpdates, fetchMoveHistory]);
-  
+
   // Check if a challenge has been accepted (only run when not viewing a game)
   useEffect(() => {
     let checkChallengeInterval = null;
-    
     if (!id) {
       const checkForAcceptedChallenges = async () => {
         try {
           const response = await ApiService.getChallenges();
-          
           if (response.success && response.challenges) {
-            // Find an accepted challenge with a game ID
             const acceptedChallenge = response.challenges.find(
               c => c.direction === 'outgoing' && c.gameId && c.status === 'accepted'
             );
-            
             if (acceptedChallenge) {
-              // Navigate to the game
               navigate(`/chess/game/${acceptedChallenge.gameId}`);
             }
           }
-        } catch (err) {
-          console.error("Error checking challenges:", err);
-        }
+        } catch {}
       };
-      
-      // Check immediately and then every 3 seconds
       checkForAcceptedChallenges();
       checkChallengeInterval = setInterval(checkForAcceptedChallenges, 3000);
     }
-    
     return () => {
-      if (checkChallengeInterval) {
-        clearInterval(checkChallengeInterval);
-      }
+      if (checkChallengeInterval) clearInterval(checkChallengeInterval);
     };
   }, [id, navigate]);
-  
+
   // Handle move submission
-  const handleMove = async (move, fen) => {
+  const handleMove = useCallback(async (move, fen) => {
     if (!id) {
       setPosition(fen);
       return;
@@ -205,29 +268,26 @@ const InteractiveBoard = () => {
       setPosition(fen);
       setGameData(prev => ({ ...prev, yourTurn: false }));
       await ApiService.makeGameMove(id, move, fen);
-      // Fetch move history after move
       fetchMoveHistory(id);
-    } catch (error) {
-      console.error('Failed to submit move:', error);
+    } catch {
       const response = await ApiService.getGameDetails(id);
       if (response.success && response.game) {
         setGameData(response.game);
         setPosition(response.game.position);
       }
     }
-  };
-  
+  }, [id, fetchMoveHistory]);
+
   // Handle move selection from MoveHistory (jump to move)
-  const handleGoToMove = (moveIndex) => {
+  const handleGoToMove = useCallback((moveIndex) => {
     if (!fenHistory || fenHistory.length === 0) return;
-    // fenHistory[0] is the initial position, so moveIndex+1
     const fen = fenHistory[moveIndex + 1] || fenHistory[fenHistory.length - 1];
     setCurrentMoveIndex(moveIndex);
     setPosition(fen);
-  };
+  }, [fenHistory]);
 
   // Helper to format date/time in IST
-  const formatIST = (dateString) => {
+  const formatIST = useCallback((dateString) => {
     try {
       let s = dateString;
       if (s && !s.includes('T')) s = s.replace(' ', 'T');
@@ -237,78 +297,25 @@ const InteractiveBoard = () => {
     } catch {
       return dateString;
     }
-  };
+  }, []);
 
-  if (error === 'redirected-to-lobby') {
-    return null;
-  }
-  if (loading) {
-    return <div className="flex justify-center items-center min-h-96 text-purple-700 font-bold text-lg">Loading chess board...</div>;
-  }
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-96 space-y-4">
-        <div className="text-red-600 font-bold text-center">{error}</div>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-purple-700 text-white border-none rounded cursor-pointer hover:bg-purple-800 transition-colors"
-        >
-          Reload Page
-        </button>
-      </div>
-    );
-  }
+  // Memoized values for rendering
+  const canShowGameSwitcher = useMemo(() => activeGames.length > 1 && id, [activeGames.length, id]);
+
+  if (error === 'redirected-to-lobby') return null;
+  if (loading) return <LoadingSpinner label="Loading chess board..." />;
+  if (error) return <ErrorState message={error} onReload={() => window.location.reload()} />;
 
   return (
     <div className="max-w-6xl mx-auto px-5 pb-10">
-      <h1 className="text-3xl font-bold text-purple-900 mb-5">{id ? 'Game Board' : 'Analysis Board'}</h1>
+      <h1 className="text-3xl font-bold text-primary mb-5">{id ? 'Game Board' : 'Analysis Board'}</h1>
       <ChessNavigation />
-
-      {/* Simul/Active Games Switcher */}
-      {activeGames.length > 1 && id && (
-        <div className="mb-6 flex items-center gap-2">
-          <span className="font-semibold">Switch Game:</span>
-          <select
-            value={id}
-            onChange={e => navigate(`/chess/game/${e.target.value}`)}
-            className="border rounded px-2 py-1"
-          >
-            {activeGames.map(game => (
-              <option key={game.id} value={game.id}>
-                vs {game.opponent?.name || 'Unknown'} ({game.yourColor})
-                {game.status === 'active' ? '' : ' (ended)'}
-              </option>
-            ))}
-          </select>
-        </div>
+      {canShowGameSwitcher && (
+        <GameSwitcher activeGames={activeGames} currentId={id} onSwitch={e => navigate(`/chess/game/${e.target.value}`)} />
       )}
-
-      {/* PGN Download Button */}
-      {id && pgn && (
-        <div className="mb-4 flex justify-end">
-          <button
-            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors font-semibold"
-            onClick={() => {
-              const blob = new Blob([pgn], { type: 'text/plain' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `game-${id}.pgn`;
-              document.body.appendChild(a);
-              a.click();
-              setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }, 100);
-            }}
-          >
-            Download PGN
-          </button>
-        </div>
-      )}
-
+      {id && pgn && <PGNDownloadButton id={id} pgn={pgn} />}
       <div className="flex justify-center mb-6">
-        <ChessBoard 
+        <ChessBoard
           position={position}
           orientation={orientation}
           allowMoves={id ? (gameData && gameData.yourTurn && gameData.status === 'active') : true}
@@ -325,35 +332,10 @@ const InteractiveBoard = () => {
         />
       </div>
       {gameData && (
-        <div className="bg-white rounded-lg p-6 shadow-sm max-w-2xl mx-auto">
-          <h2 className="text-xl font-bold text-purple-700 mb-4">Game Information</h2>
-          {gameData.status === 'abandoned' && (
-            <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-4">
-              <div className="text-orange-800 font-semibold">Game Expired</div>
-              <div className="text-orange-700 text-sm">
-                This game was automatically expired due to inactivity. 
-                {gameData.reason === 'inactivity timeout' && ' No moves were made for an extended period.'}
-              </div>
-            </div>
-          )}
-          <div className="space-y-2">
-            <p><strong className="text-gray-700">Opponent:</strong> <span className="text-gray-900">{gameData.opponent && gameData.opponent.name}</span></p>
-            <p><strong className="text-gray-700">Your Color:</strong> <span className="text-gray-900 capitalize">{gameData.yourColor}</span></p>
-            <p><strong className="text-gray-700">Time Control:</strong> <span className="text-gray-900">{gameData.timeControl || 'Standard'}</span></p>
-            <p><strong className="text-gray-700">Turn:</strong> <span className={`font-semibold ${gameData.yourTurn ? "text-green-600" : "text-blue-600"}`}>
-              {gameData.yourTurn ? 'Your move' : "Opponent's move"}
-            </span></p>
-            {lastMoveAt && (
-              <p>
-                <strong className="text-gray-700">Last Move:</strong> 
-                <span className="text-gray-900">{formatIST(lastMoveAt)}</span>
-              </p>
-            )}
-          </div>
-        </div>
+        <GameInfoCard gameData={gameData} lastMoveAt={lastMoveAt} formatIST={formatIST} />
       )}
     </div>
   );
-}
+});
 
 export default InteractiveBoard;

@@ -1,112 +1,133 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ApiService from '../../utils/api';
 
-const StudentSearch = ({ onSelectStudent, maxStudents, currentCount }) => {
-    const [search, setSearch] = useState('');
-    const [students, setStudents] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [selectedStudent, setSelectedStudent] = useState(null);
+// Loading spinner (accessible, theme color)
+const Spinner = React.memo(function Spinner() {
+  return (
+    <span className="inline-block animate-spin h-4 w-4 border-2 border-secondary rounded-full border-t-transparent align-middle" aria-label="Loading" />
+  );
+});
 
-    // Memoize the searchStudents function with useCallback
-    const searchStudents = useCallback(async () => {
-        if (search.length < 2) return;
-        
-        try {
-            setLoading(true);
-            const response = await ApiService.get(`/users/search-students.php?q=${search}`);
-            if (response.success) {
-                setStudents(response.students || []);
-            } else {
-                setError(response.message || 'Failed to search students');
-            }
-        } catch (err) {
-            setError('Error searching students');
-        } finally {
-            setLoading(false);
+// Student list item (memoized, accessible)
+const StudentListItem = React.memo(function StudentListItem({ student, isSelected, onSelect }) {
+  const handleClick = useCallback(() => onSelect(student), [onSelect, student]);
+  return (
+    <li
+      className={
+        `p-3 flex justify-between items-center cursor-pointer transition-colors ` +
+        (isSelected ? 'bg-accent/10' : 'hover:bg-gray-light')
+      }
+      tabIndex={0}
+      role="option"
+      aria-selected={isSelected}
+      onClick={handleClick}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
         }
-    }, [search]); // Include search as a dependency
+      }}
+    >
+      <div>
+        <p className="font-medium text-primary">{student.full_name}</p>
+        <p className="text-sm text-gray-dark">{student.email}</p>
+      </div>
+      {isSelected && <span className="text-accent font-semibold ml-2">Selected</span>}
+    </li>
+  );
+});
 
-    useEffect(() => {
-        if (search.length >= 2) {
-            // Create a debounce effect to avoid too many API calls
-            const timer = setTimeout(() => {
-                searchStudents();
-            }, 300);
-            
-            return () => clearTimeout(timer);
-        } else {
-            setStudents([]);
-        }
-    }, [search, searchStudents]); // Now include searchStudents in the dependency array
+// Main search component
+export const StudentSearch = React.memo(function StudentSearch({ onSelectStudent, maxStudents, currentCount }) {
+  const [search, setSearch] = useState('');
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
-    const handleSelect = (student) => {
-        setSelectedStudent(student);
-        onSelectStudent(student);
-    };
+  const isBatchFull = useMemo(() => currentCount >= maxStudents, [currentCount, maxStudents]);
 
-    const isBatchFull = currentCount >= maxStudents;
+  // Debounced search
+  const searchStudents = useCallback(async (query) => {
+    if (query.length < 2) return;
+    setLoading(true);
+    setError('');
+    try {
+      const response = await ApiService.get(`/users/search-students.php?q=${query}`);
+      if (response.success) {
+        setStudents(response.students || []);
+      } else {
+        setError(response.message || 'Failed to search students');
+      }
+    } catch (err) {
+      setError('Error searching students');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
+    if (search.length >= 2) {
+      const timer = setTimeout(() => searchStudents(search), 300);
+      return () => clearTimeout(timer);
+    } else {
+      setStudents([]);
+    }
+  }, [search, searchStudents]);
+
+  const handleInputChange = useCallback(e => setSearch(e.target.value), []);
+  const handleSelect = useCallback(student => {
+    setSelectedStudent(student);
+    onSelectStudent(student);
+  }, [onSelectStudent]);
+
+  // Render
+  if (isBatchFull) {
     return (
-        <div className="space-y-4">
-            {isBatchFull ? (
-                <div className="bg-yellow-50 text-yellow-700 p-3 rounded-md">
-                    This batch is full ({currentCount}/{maxStudents} students).
-                </div>
-            ) : (
-                <>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search for students by name or email"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:border-[#461fa3] focus:ring-[#461fa3]"
-                        />
-                        {loading && (
-                            <div className="absolute right-3 top-3">
-                                <div className="animate-spin h-4 w-4 border-2 border-[#461fa3] rounded-full border-t-transparent"></div>
-                            </div>
-                        )}
-                    </div>
-
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
-
-                    {search.length < 2 && (
-                        <div className="text-gray-500 text-sm">Type at least 2 characters to search</div>
-                    )}
-
-                    <div className="max-h-60 overflow-y-auto border rounded-md">
-                        {students.length === 0 && search.length >= 2 ? (
-                            <div className="p-3 text-gray-500 text-center">No students found</div>
-                        ) : (
-                            <ul className="divide-y">
-                                {students.map(student => (
-                                    <li
-                                        key={student.id}
-                                        className={`p-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer ${
-                                            selectedStudent?.id === student.id ? 'bg-blue-50' : ''
-                                        }`}
-                                        onClick={() => handleSelect(student)}
-                                    >
-                                        <div>
-                                            <p className="font-medium">{student.full_name}</p>
-                                            <p className="text-sm text-gray-500">{student.email}</p>
-                                        </div>
-                                        <div>
-                                            {selectedStudent?.id === student.id && (
-                                                <span className="text-[#461fa3]">Selected</span>
-                                            )}
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </>
-            )}
-        </div>
+      <div className="bg-yellow-50 text-yellow-700 p-3 rounded-md" role="alert">
+        This batch is full ({currentCount}/{maxStudents} students).
+      </div>
     );
-};
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search for students by name or email"
+          value={search}
+          onChange={handleInputChange}
+          className="w-full px-4 py-2 border border-gray-light rounded-md focus:border-secondary focus:ring-secondary"
+          aria-label="Search for students by name or email"
+        />
+        {loading && (
+          <div className="absolute right-3 top-3"><Spinner /></div>
+        )}
+      </div>
+      {error && <div className="text-red-600 text-sm" role="alert">{error}</div>}
+      {search.length < 2 && (
+        <div className="text-gray-dark text-sm">Type at least 2 characters to search</div>
+      )}
+      <div className="max-h-60 overflow-y-auto border border-gray-light rounded-md" role="listbox" aria-label="Student search results">
+        {students.length === 0 && search.length >= 2 && !loading ? (
+          <div className="p-3 text-gray-dark text-center">No students found</div>
+        ) : (
+          <ul className="divide-y divide-gray-light">
+            {students.map(student => (
+              <StudentListItem
+                key={student.id}
+                student={student}
+                isSelected={selectedStudent?.id === student.id}
+                onSelect={handleSelect}
+              />
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+});
 
 export default StudentSearch;

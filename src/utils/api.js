@@ -1,154 +1,103 @@
+// ApiService: Centralized API utility for all HTTP requests and endpoints
 class ApiService {
-  // Use different configurations for development vs production
-  static API_URL = process.env.NODE_ENV === 'development' 
-    ? 'https://dashboard.kolkatachessacademy.in/api/endpoints'  // Direct call in dev to bypass proxy issues
+  static API_URL = process.env.NODE_ENV === 'development'
+    ? 'https://dashboard.kolkatachessacademy.in/api/endpoints'
     : 'https://dashboard.kolkatachessacademy.in/api/endpoints';
-  
-  // Add method to get correct local asset URLs
+
   static getAssetUrl(path) {
-    // Always use absolute paths for local assets
-    if (path.startsWith('/')) {
-      return path;
-    }
+    if (path.startsWith('/')) return path;
     return `/${path}`;
   }
 
   static async request(endpoint, method = 'GET', data = null, options = {}) {
     const token = localStorage.getItem('token');
     let url = endpoint.startsWith('http') ? endpoint : `${this.API_URL}${endpoint}`;
-    
     if (options.params) {
       const queryParams = new URLSearchParams(options.params).toString();
       url = `${url}${url.includes('?') ? '&' : '?'}${queryParams}`;
     }
-    
-    console.log('Making API request to:', url);
-    
     const headers = {
       'Authorization': token ? `Bearer ${token}` : '',
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...options.headers,
     };
-
-    if (options.headers) {
-      Object.assign(headers, options.headers);
-    }
-
     try {
       const response = await fetch(url, {
         method,
         headers,
         credentials: 'include',
-        mode: 'cors', // Explicitly set CORS mode
-        body: data ? JSON.stringify(data) : null
+        mode: 'cors',
+        body: data ? JSON.stringify(data) : null,
       });
-
-      console.log('API Response status:', response.status, 'OK:', response.ok);
-      console.log('API Response headers:', response.headers);
-
-      // Check for token renewal
+      // Token renewal
       const tokenRenewed = response.headers.get('X-Token-Renewed');
       if (tokenRenewed === 'true') {
         const newExpiry = response.headers.get('X-Token-Expires');
         if (newExpiry) {
-          // Update token expiry in localStorage
           const tokenData = {
             token: localStorage.getItem('token'),
-            expires_at: newExpiry
+            expires_at: newExpiry,
           };
           localStorage.setItem('tokenData', JSON.stringify(tokenData));
         }
       }
-
-      // Special handling for blob responses
+      // Blob response
       if (options.responseType === 'blob') {
         if (!response.ok) {
           const text = await response.text();
           try {
             const error = JSON.parse(text);
             throw new Error(error.message || 'Failed to download file');
-          } catch (e) {
+          } catch {
             throw new Error('Failed to download file');
           }
         }
         return response.blob();
       }
-
-      // Handle regular JSON responses
+      // JSON response
       const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
-      
       if (contentType && contentType.includes('application/json')) {
+        const text = await response.text();
+        if (!text.trim()) throw new Error('Empty response from server');
         try {
-          // First check if the response is empty
-          const text = await response.text();
-          console.log('Response text:', text.substring(0, 200) + '...');
-          
-          if (!text.trim()) {
-            throw new Error('Empty response from server');
+          const result = JSON.parse(text);
+          if (!response.ok) {
+            if (result && result.message) throw new Error(result.message);
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-          
-          // Then parse the JSON
-          try {
-            const result = JSON.parse(text);
-            console.log('Parsed JSON result:', result);
-            
-            // For non-ok responses (like 404), check if we have a proper error structure
-            if (!response.ok) {
-              // If it's a valid JSON response with error details, use that message
-              if (result && result.message) {
-                throw new Error(result.message);
-              }
-              throw new Error(`HTTP error! status: ${response.status}`);
+          return result;
+        } catch (parseError) {
+          if (parseError instanceof SyntaxError) {
+            if (text.includes('<!DOCTYPE html>') || text.includes('<br />')) {
+              const errorMatch = text.match(/Fatal error:(.*?)in/);
+              const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned HTML instead of JSON';
+              throw new Error(`Server error: ${errorMessage}`);
             }
-            return result;
-          } catch (parseError) {
-            // If parsing fails and it's not a valid JSON error, check for HTML content
-            if (parseError instanceof SyntaxError) {
-              console.error('JSON parse error:', parseError);
-              // If the response contains HTML (likely an error page)
-              if (text.includes('<!DOCTYPE html>') || text.includes('<br />')) {
-                // Extract error message from PHP error if possible
-                const errorMatch = text.match(/Fatal error:(.*?)in/);
-                const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned HTML instead of JSON';
-                throw new Error(`Server error: ${errorMessage}`);
-              }
-              throw new Error(`Failed to parse JSON response: ${text.substring(0, 100)}...`);
-            } else {
-              // Re-throw the original error (like Error messages from result.message)
-              throw parseError;
-            }
+            throw new Error(`Failed to parse JSON response: ${text.substring(0, 100)}...`);
           }
-        } catch (jsonError) {
-          console.error('JSON processing error:', jsonError);
-          throw jsonError;
+          throw parseError;
         }
       }
-
-      // If content is not JSON, check if it's HTML (likely the React app)
+      // HTML error
       if (contentType && contentType.includes('text/html')) {
         const text = await response.text();
         if (text.includes('<!DOCTYPE html>') && text.includes('React App')) {
           throw new Error(`API endpoint not found - received React app instead of API response. Check if the endpoint ${endpoint} exists on the server.`);
         }
       }
-
       if (!response.ok) {
         const text = await response.text();
         throw new Error(text || 'Network response was not ok');
       }
-
       return response;
     } catch (error) {
-      console.error('API Error:', error);
-      
-      // If token is expired, clear auth data and redirect to login
+      // Token expired/invalid
       if (error.message.includes('expired') || error.message.includes('invalid token')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
-      
       throw error;
     }
   }
@@ -156,56 +105,34 @@ class ApiService {
   static async postFormData(endpoint, formData) {
     const token = localStorage.getItem('token');
     const url = endpoint.startsWith('http') ? endpoint : `${this.API_URL}${endpoint}`;
-    
     try {
-      console.log('Making FormData API request to:', url);
-      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
-          // Don't set Content-Type for FormData, browser will set it with boundary
         },
         credentials: 'include',
-        body: formData
+        body: formData,
       });
-      
       const contentType = response.headers.get('content-type');
-      
-      // First get response as text
       const text = await response.text();
-      
-      // Check if response contains PHP error
       if (text.includes('Fatal error') || text.includes('<br />')) {
-        console.error('PHP Error in response:', text);
-        // Extract the error message from PHP error output
         const errorMatch = text.match(/Fatal error:(.*?)in/);
         const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned an error';
         throw new Error(`PHP Error: ${errorMessage}`);
       }
-      
-      // Parse as JSON if it looks like JSON - fix operator precedence with parentheses
-      if ((contentType && contentType.includes('application/json')) || 
-          (text.startsWith('{') && text.endsWith('}'))) {
+      if ((contentType && contentType.includes('application/json')) || (text.startsWith('{') && text.endsWith('}'))) {
         try {
           const result = JSON.parse(text);
-          if (!response.ok) {
-            throw new Error(result.message || `HTTP error! status: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(result.message || `HTTP error! status: ${response.status}`);
           return result;
-        } catch (jsonError) {
-          console.error('JSON parsing error:', jsonError, 'Response text:', text);
+        } catch {
           throw new Error('Invalid JSON response from server');
         }
       }
-      
-      if (!response.ok) {
-        throw new Error(text || `HTTP error! status: ${response.status}`);
-      }
-      
+      if (!response.ok) throw new Error(text || `HTTP error! status: ${response.status}`);
       return { success: true, message: 'Operation completed successfully' };
     } catch (error) {
-      console.error('API FormData Error:', error);
       throw error;
     }
   }

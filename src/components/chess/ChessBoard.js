@@ -6,6 +6,60 @@ import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
 import ChessEngineFactory from '../../utils/ChessEngineFactory';
 import ApiService from '../../utils/api';
+
+// --- Loading Spinner ---
+const LoadingSpinner = React.memo(({ label }) => (
+  <div className="flex items-center justify-center py-8 text-primary font-semibold" role="status" aria-live="polite">
+    <svg className="animate-spin h-6 w-6 text-accent mr-3" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+    </svg>
+    <span>{label}</span>
+  </div>
+));
+
+// --- Game Over Banner ---
+const GameOverBanner = React.memo(({ result, reason }) => (
+  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mt-2" role="status" aria-live="polite">
+    <div className="text-blue-900 font-semibold">Game Over: {result}</div>
+    <div className="text-blue-700 text-sm">Reason: {reason}</div>
+  </div>
+));
+
+// --- Engine Error Banner ---
+const EngineErrorBanner = React.memo(() => (
+  <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-2">
+    <p className="text-yellow-800 mb-3">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
+    <div className="flex gap-2">
+      <button 
+        className="px-3 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        onClick={() => window.open('/stockfish/test.html', '_blank')}
+        type="button"
+      >
+        Run Engine Test
+      </button>
+    </div>
+  </div>
+));
+
+// --- Online API Banner ---
+const OnlineAPIBanner = React.memo(() => (
+  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-2">
+    <p className="text-blue-800">Using Stockfish Online API for analysis</p>
+  </div>
+));
+
+// --- PGN Export Button ---
+const PGNExportButton = React.memo(({ onExport }) => (
+  <button
+    onClick={onExport}
+    className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition-colors mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    type="button"
+    aria-label="Export PGN"
+  >
+    Export PGN
+  </button>
+));
 const ChessBoard = ({
   position = 'start',
   orientation = 'white',
@@ -29,7 +83,7 @@ const ChessBoard = ({
   const navigate = useNavigate();
   // Resign handler
   const [resignLoading, setResignLoading] = useState(false);
-  const handleResign = async () => {
+  const handleResign = useCallback(async () => {
     if (!gameId) {
       alert('Game ID not found. Cannot resign.');
       return;
@@ -39,21 +93,15 @@ const ChessBoard = ({
     try {
       await ApiService.resignGame(gameId);
       setGameOver({ isOver: true, result: '0-1', reason: 'resigned' });
-      // Save result to backend for stats
-      try {
-        await ApiService.saveGameResult(gameId, '0-1');
-      } catch (e) {
-        // Ignore error, already resigned
-      }
+      try { await ApiService.saveGameResult(gameId, '0-1'); } catch {}
       if (onResign) onResign();
-      // Redirect to lobby after short delay
       setTimeout(() => navigate('/chess/play'), 1200);
     } catch (e) {
       alert('Failed to resign: ' + (e.message || e));
     } finally {
       setResignLoading(false);
     }
-  };
+  }, [gameId, navigate, onResign]);
   const [game, setGame] = useState(new Chess(position !== 'start' ? position : undefined));
   const [fen, setFen] = useState(game.fen());
   const [moveFrom, setMoveFrom] = useState('');
@@ -453,7 +501,7 @@ const ChessBoard = ({
     } : {})
   };
   // Export PGN for the current game
-  const exportPGN = () => {
+  const exportPGN = useCallback(() => {
     try {
       const pgn = game.pgn();
       const blob = new Blob([pgn], { type: 'text/plain;charset=utf-8' });
@@ -468,83 +516,55 @@ const ChessBoard = ({
     } catch (e) {
       alert('Failed to export PGN.');
     }
-  };
+  }, [game]);
 
   // Render the chess board with controls
   return (
     <div className="flex flex-col space-y-4">
-      {engineLoadError && (
-        <>
-          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-            <p className="text-yellow-800 mb-3">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
-            <div className="flex gap-2">
-              <button 
-                className="px-3 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors"
-                onClick={() => window.open('/stockfish/test.html', '_blank')}
-              >
-                Run Engine Test
-              </button>
-            </div>
-          </div>
-          <button
-            onClick={exportPGN}
-            className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition-colors mt-2"
-          >
-            Export PGN
-          </button>
-        </>
-      )}
-      
-      {useOnlineAPI && (
-        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-          <p className="text-blue-800">Using Stockfish Online API for analysis</p>
-        </div>
-      )}
-      
+      {engineLoadError && <EngineErrorBanner />}
+      {engineLoadError && <PGNExportButton onExport={exportPGN} />}
+      {useOnlineAPI && <OnlineAPIBanner />}
       <div className="flex gap-6">
         <div className="relative" style={{ width }}>
           <Chessboard
             id="chess-board"
-            position={fen}            onSquareClick={onSquareClick}
+            position={fen}
+            onSquareClick={onSquareClick}
             onSquareRightClick={onSquareRightClick}
             customSquareStyles={squareStyles}
             boardOrientation={orientation_}
             arePiecesDraggable={allowMoves && !isThinking}
             showBoardNotation={showNotation}
           />
-          {isThinking && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-              <div className="bg-white rounded-lg p-4 flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-purple-900 font-medium">Thinking...</span>
-              </div>
-            </div>
-          )}
+          {isThinking && <LoadingSpinner label="Thinking..." />}
         </div>
-        
         <div className="flex flex-col gap-2">
-          <button onClick={flipBoard} className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition-colors">
+          <button
+            onClick={flipBoard}
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            type="button"
+          >
             Flip Board
           </button>
-          <button onClick={resetBoard} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isThinking}>
+          <button
+            onClick={resetBoard}
+            className="px-4 py-2 bg-gray-dark text-gray-light rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            disabled={isThinking}
+            type="button"
+          >
             Reset Board
           </button>
           <button
             onClick={handleResign}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             disabled={isThinking || gameOver.isOver || resignLoading || !gameId}
+            type="button"
           >
             {resignLoading ? 'Resigning...' : 'Resign'}
           </button>
-          {gameOver.isOver && (
-            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-              <div className="text-blue-900 font-semibold">Game Over: {gameOver.result}</div>
-              <div className="text-blue-700 text-sm">Reason: {gameOver.reason}</div>
-            </div>
-          )}
+          {gameOver.isOver && <GameOverBanner result={gameOver.result} reason={gameOver.reason} />}
         </div>
       </div>
-      
       <div className="min-w-0 flex-1">
         {showHistory && <MoveHistory history={history} currentMove={currentMove} goToMove={goToMove} />}
         {showAnalysis && <EngineAnalysis engineEvaluation={engineEvaluation} />}

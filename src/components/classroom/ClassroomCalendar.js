@@ -1,39 +1,40 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ApiService from '../../utils/api';
 
-const ClassroomCalendar = ({ 
-  classroomId, 
-  onEventClick, 
-  onDateSelect,
-  refreshTrigger = 0 
-}) => {
+// --- Loading Skeleton ---
+const CalendarLoadingSkeleton = React.memo(() => (
+  <div className="flex flex-col items-center justify-center py-8" aria-busy="true" aria-label="Loading calendar">
+    <div className="h-6 w-1/3 bg-gray-light rounded mb-4 animate-pulse" />
+    <div className="h-4 w-1/2 bg-gray-light rounded animate-pulse" />
+  </div>
+));
+
+// --- Error Alert ---
+const CalendarErrorAlert = React.memo(({ message }) => (
+  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4" role="alert">
+    <span className="font-semibold">Error:</span> {message}
+  </div>
+));
+
+function ClassroomCalendar({ classroomId, onEventClick, onDateSelect, refreshTrigger = 0 }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const fetchEvents = useCallback(async (info) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      
       const startDate = info?.startStr || new Date().toISOString().split('T')[0];
       const endDate = info?.endStr || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      
-      const params = {
-        start: startDate,
-        end: endDate
-      };
-      
-      if (classroomId) {
-        params.classroom_id = classroomId;
-      }
-      
+      const params = { start: startDate, end: endDate };
+      if (classroomId) params.classroom_id = classroomId;
       const response = await ApiService.get('/classroom/get-sessions.php', { params });
-      
       if (response.success) {
         setEvents(response.events);
       } else {
@@ -45,65 +46,59 @@ const ClassroomCalendar = ({
       setLoading(false);
     }
   }, [classroomId]);
-  
+
+  // Only fetch on mount and when classroomId/refreshTrigger changes
   useEffect(() => {
     fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchEvents, refreshTrigger]);
-  
-  const handleDateClick = (info) => {
-    if (onDateSelect) {
-      onDateSelect(info);
-    }
-  };
-  
-  const handleEventClick = (info) => {
+
+  // Memoize event handlers for calendar
+  const handleDateClick = useCallback((info) => {
+    if (onDateSelect) onDateSelect(info);
+  }, [onDateSelect]);
+
+  const handleEventClick = useCallback((info) => {
     if (onEventClick) {
       const eventId = Number(info.event.id);
       const eventObj = events.find(e => e.id === eventId);
       onEventClick(eventObj, info.event);
     }
-  };
-  
+  }, [onEventClick, events]);
+
+  // Memoize calendar plugins and options
+  const calendarPlugins = useMemo(() => [dayGridPlugin, timeGridPlugin, interactionPlugin], []);
+  const headerToolbar = useMemo(() => ({
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay',
+  }), []);
+  const eventTimeFormat = useMemo(() => ({
+    hour: 'numeric',
+    minute: '2-digit',
+    meridiem: 'short',
+  }), []);
+
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      {loading && (
-        <div className="text-center py-4">
-          <div className="spinner-border text-[#461fa3]" role="status">
-            <span className="sr-only">Loading...</span>
-          </div>
-        </div>
-      )}
-      
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
-          {error}
-        </div>
-      )}
-      
+    <div className="bg-white p-4 rounded-xl shadow-md">
+      {loading && <CalendarLoadingSkeleton />}
+      {error && <CalendarErrorAlert message={error} />}
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        plugins={calendarPlugins}
         initialView="dayGridMonth"
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        }}
+        headerToolbar={headerToolbar}
         events={events}
         eventClick={handleEventClick}
         dateClick={handleDateClick}
         height="auto"
-        selectable={true}
-        selectMirror={true}
-        dayMaxEvents={true}
-        weekends={true}
-        eventTimeFormat={{
-          hour: 'numeric',
-          minute: '2-digit',
-          meridiem: 'short'
-        }}
+        selectable
+        selectMirror
+        dayMaxEvents
+        weekends
+        eventTimeFormat={eventTimeFormat}
       />
     </div>
   );
-};
+}
 
-export default ClassroomCalendar;
+export default React.memo(ClassroomCalendar);

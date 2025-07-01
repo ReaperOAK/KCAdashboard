@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './pages/auth/Login';
@@ -10,122 +10,111 @@ import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
 import Profile from './pages/Profile';
 import NotificationPreferences from './pages/notifications/NotificationPreferences';
+import { adminRoutes } from './routes/adminRoutes';
+import { teacherRoutes } from './routes/teacherRoutes';
+import { studentRoutes } from './routes/studentRoutes';
+import chessRoutes from './routes/chessRoutes';
 
-import adminRoutes from './routes/adminRoutes';
-import teacherRoutes from './routes/teacherRoutes';
-import studentRoutes from './routes/studentRoutes';
-import chessRoutes from './routes/chessRoutes'; // Add this import
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+
+function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
-  }
-
+  if (!user) return <Navigate to="/login" replace />;
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
+}
+
+
+const DASHBOARD_ROUTES = {
+  student: '/student-dashboard',
+  teacher: '/teacher-dashboard',
+  admin: '/admin-dashboard',
 };
 
-const DashboardRedirect = () => {
+const DashboardRedirect = React.memo(function DashboardRedirect() {
   const { user } = useAuth();
-  
   if (!user) return <Navigate to="/login" />;
-  
-  const dashboardRoutes = {
-    student: '/student-dashboard',
-    teacher: '/teacher-dashboard',
-    admin: '/admin-dashboard'
-  };
-  
-  return <Navigate to={dashboardRoutes[user.role]} />;
-};
+  return <Navigate to={DASHBOARD_ROUTES[user.role]} />;
+});
 
-const AppContent = () => {
+
+
+const PUBLIC_ROUTES = ['/login', '/register', '/reset-password'];
+
+const renderProtectedRoutes = (routes, allowedRoles) =>
+  routes.map(route => (
+    <Route
+      key={route.path}
+      path={route.path}
+      element={
+        <ProtectedRoute allowedRoles={allowedRoles}>
+          <route.element />
+        </ProtectedRoute>
+      }
+    />
+  ));
+
+const AppContent = React.memo(function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
-  const publicRoutes = ['/login', '/register', '/reset-password'];
   const location = useLocation();
 
-  // Effect to handle route changes
+  // Only close sidebar on mobile when route changes
   useEffect(() => {
-    // Close sidebar on mobile when route changes
-    if (window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
-    }
+    if (window.innerWidth < 1024) setIsSidebarOpen(false);
   }, [location.pathname]);
 
-  const renderRoutes = (routes, allowedRoles) => {
-    return routes.map(route => (
-      <Route
-        key={route.path}
-        path={route.path}
-        element={
-          <ProtectedRoute allowedRoles={allowedRoles}>
-            <route.element />
-          </ProtectedRoute>
-        }
-      />
-    ));
-  };
+  const handleToggleSidebar = useCallback(() => {
+    setIsSidebarOpen(prev => !prev);
+  }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
+  // Accessibility: main content area has role and tabIndex
   return (
-    <div className="min-h-screen bg-[#f3f1f9]">
-      {user && !publicRoutes.includes(window.location.pathname) && (
+    <div className="min-h-screen bg-background-light">
+      {user && !PUBLIC_ROUTES.includes(window.location.pathname) ? (
         <>
-          <TopNavbar toggleSidebar={toggleSidebar} />
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-          <div 
-            className={`transition-all duration-300 pt-16 ${
-              isSidebarOpen 
-                ? 'ml-0 md:ml-64' 
-                : 'ml-0'
-            } lg:ml-64`}
+          <TopNavbar toggleSidebar={handleToggleSidebar} />
+          <Sidebar isOpen={isSidebarOpen} toggleSidebar={handleToggleSidebar} />
+          <main
+            className={
+              [
+                'transition-all duration-300 pt-16',
+                'lg:ml-64',
+                isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0',
+              ].join(' ')
+            }
+            role="main"
+            tabIndex={-1}
           >
             <div className="p-8">
               <Breadcrumbs />
             </div>
             <Routes>
-              {/* Common Routes */}
               <Route path="/" element={<DashboardRedirect />} />
-              <Route 
-                path="/profile" 
+              <Route
+                path="/profile"
                 element={
                   <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
                     <Profile />
                   </ProtectedRoute>
-                } 
+                }
               />
-              
-              {/* Add Notification Preferences Route */}
-              <Route 
-                path="/notifications/preferences" 
+              <Route
+                path="/notifications/preferences"
                 element={
                   <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
                     <NotificationPreferences />
                   </ProtectedRoute>
-                } 
+                }
               />
-
-              {/* Role-based Routes */}
-              {renderRoutes(adminRoutes, ['admin'])}
-              {renderRoutes(teacherRoutes, ['teacher'])}
-              {renderRoutes(studentRoutes, ['student'])}
-              
-              {/* Chess Routes - available to all user roles */}
-              {renderRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
+              {renderProtectedRoutes(adminRoutes, ['admin'])}
+              {renderProtectedRoutes(teacherRoutes, ['teacher'])}
+              {renderProtectedRoutes(studentRoutes, ['student'])}
+              {renderProtectedRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
             </Routes>
-          </div>
+          </main>
         </>
-      )}
-      {(!user || publicRoutes.includes(window.location.pathname)) && (
+      ) : (
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -136,9 +125,10 @@ const AppContent = () => {
       )}
     </div>
   );
-};
+});
 
-const App = () => {
+
+const App = React.memo(function App() {
   return (
     <AuthProvider>
       <Router>
@@ -146,6 +136,6 @@ const App = () => {
       </Router>
     </AuthProvider>
   );
-};
+});
 
 export default App;

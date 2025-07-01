@@ -26,9 +26,26 @@ import {
  * - Header information display
  * - Move list with current move highlighting
  */
-const PGNViewer = ({ 
-  initialPgn = '', 
-  width = 400, 
+
+/**
+ * PGNViewer - Chess PGN viewer with board, move list, and controls.
+ * @param {string} initialPgn
+ * @param {number} width
+ * @param {number} height
+ * @param {boolean} autoPlay
+ * @param {number} autoPlayDelay
+ * @param {string} theme
+ * @param {string} orientation
+ * @param {boolean} showHeaders
+ * @param {boolean} showMoveList
+ * @param {boolean} showControls
+ * @param {function} onGameChange
+ * @param {function} onMoveChange
+ * @param {string} className
+ */
+export const PGNViewer = React.memo(function PGNViewer({
+  initialPgn = '',
+  width = 400,
   height = 400,
   autoPlay = false,
   autoPlayDelay = 1000,
@@ -40,7 +57,7 @@ const PGNViewer = ({
   onGameChange = null,
   onMoveChange = null,
   className = ''
-}) => {
+}) {
   // Core game state
   const [games, setGames] = useState([]);
   const [currentGameIndex, setCurrentGameIndex] = useState(0);
@@ -48,7 +65,6 @@ const PGNViewer = ({
   const [gameHistory, setGameHistory] = useState([]);
   const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
   const [position, setPosition] = useState(currentGame.fen());
-
   // UI state
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -57,8 +73,6 @@ const PGNViewer = ({
   const [gameHeaders, setGameHeaders] = useState({});
   const [variations, setVariations] = useState({});
   const [error, setError] = useState('');
-
-  // Refs for intervals
   const autoPlayRef = useRef(null);
 
   /**
@@ -373,97 +387,31 @@ const PGNViewer = ({
     };
   }, []);
 
-  const themeClasses = localTheme === 'dark' 
-    ? 'bg-gray-900 text-white border-gray-700' 
-    : 'bg-white text-gray-900 border-gray-300';
+  const themeClasses = localTheme === 'dark'
+    ? 'bg-background-dark text-text-light border-gray-dark'
+    : 'bg-background-light text-text-dark border-gray-light';
 
   const currentGameData = games[currentGameIndex];
 
   return (
     <div className={`pgn-viewer p-4 rounded-lg border ${themeClasses} ${className}`}>
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-      
-      {/* Header with controls */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">PGN Viewer</h2>
-        <div className="flex items-center space-x-2">
-          {/* File upload */}
-          <label className="cursor-pointer p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-            <ArrowUpTrayIcon className="w-5 h-5" />
-            <input
-              type="file"
-              accept=".pgn,.txt"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </label>
-          
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            {localTheme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
-          </button>
-          
-          {/* Settings */}
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <Cog6ToothIcon className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Game selector for multiple games */}
+      {error && <ErrorBanner error={error} />}
+      <ViewerHeader
+        localTheme={localTheme}
+        toggleTheme={toggleTheme}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        handleFileUpload={handleFileUpload}
+      />
       {games.length > 1 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Select Game:</label>
-          <select
-            value={currentGameIndex}
-            onChange={(e) => selectGame(parseInt(e.target.value))}
-            className={`w-full p-2 border rounded ${localTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'}`}
-          >
-            {games.map((game, index) => {
-              // Safely handle header values that might be objects
-              const whitePlayer = typeof game.headers.White === 'object' ? 
-                (game.headers.White?.value || 'Unknown') : 
-                (game.headers.White || 'Unknown');
-              const blackPlayer = typeof game.headers.Black === 'object' ? 
-                (game.headers.Black?.value || 'Unknown') : 
-                (game.headers.Black || 'Unknown');
-              
-              let gameDate = '';
-              if (game.headers.Date) {
-                if (typeof game.headers.Date === 'object') {
-                  if (game.headers.Date.value) {
-                    gameDate = game.headers.Date.value;
-                  } else if (game.headers.Date.year && game.headers.Date.month && game.headers.Date.day) {
-                    gameDate = `${game.headers.Date.year}.${String(game.headers.Date.month).padStart(2, '0')}.${String(game.headers.Date.day).padStart(2, '0')}`;
-                  }
-                } else {
-                  gameDate = String(game.headers.Date);
-                }
-              }
-              
-              return (
-                <option key={index} value={index}>
-                  Game {index + 1}: {whitePlayer} vs {blackPlayer}
-                  {gameDate && ` (${gameDate})`}
-                </option>
-              );
-            })}
-          </select>
-        </div>
+        <GameSelector
+          games={games}
+          currentGameIndex={currentGameIndex}
+          selectGame={selectGame}
+          localTheme={localTheme}
+        />
       )}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Chessboard */}
         <div className="flex flex-col">
           <div className="mb-4">
             {currentGameData && (
@@ -471,163 +419,267 @@ const PGNViewer = ({
                 position={position}
                 boardWidth={width}
                 boardOrientation={orientation}
-                customBoardStyle={{
-                  borderRadius: '4px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
+                customBoardStyle={{ borderRadius: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
                 customDarkSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#4a4a4a' : '#b58863' }}
                 customLightSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#6a6a6a' : '#f0d9b5' }}
               />
             )}
           </div>
-
-          {/* Navigation controls */}
           {showControls && (
-            <div className="flex items-center justify-center space-x-2">
-              <button
-                onClick={goToFirst}
-                disabled={currentMoveIndex <= -1}
-                className="p-2 rounded disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <ChevronDoubleLeftIcon className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={goToPrevious}
-                disabled={currentMoveIndex <= -1}
-                className="p-2 rounded disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <BackwardIcon className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={toggleAutoPlay}
-                disabled={gameHistory.length === 0}
-                className="p-2 rounded disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
-              </button>
-              
-              <button
-                onClick={goToNext}
-                disabled={currentMoveIndex >= gameHistory.length - 1}
-                className="p-2 rounded disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <ForwardIcon className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={goToLast}
-                disabled={currentMoveIndex >= gameHistory.length - 1}
-                className="p-2 rounded disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <ChevronDoubleRightIcon className="w-5 h-5" />
-              </button>
-            </div>
+            <NavigationControls
+              goToFirst={goToFirst}
+              goToPrevious={goToPrevious}
+              toggleAutoPlay={toggleAutoPlay}
+              goToNext={goToNext}
+              goToLast={goToLast}
+              isPlaying={isPlaying}
+              currentMoveIndex={currentMoveIndex}
+              gameHistoryLength={gameHistory.length}
+            />
           )}
         </div>
-
-        {/* Game info and move list */}
         <div className="flex flex-col space-y-4">
-          {/* Game headers */}
           {showHeaders && currentGameData && (
-            <div className={`p-3 border rounded ${localTheme === 'dark' ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
-              <h3 className="font-semibold mb-2">Game Information</h3>
-              <div className="space-y-1 text-sm">
-                {Object.entries(gameHeaders).map(([key, value]) => {
-                  // Ensure value is a string - handle objects safely
-                  let displayValue = value;
-                  if (typeof value === 'object' && value !== null) {
-                    if (value.value) {
-                      displayValue = value.value;
-                    } else if (value.year && value.month && value.day) {
-                      displayValue = `${value.year}.${String(value.month).padStart(2, '0')}.${String(value.day).padStart(2, '0')}`;
-                    } else {
-                      displayValue = JSON.stringify(value);
-                    }
-                  }
-                  
-                  return (
-                    <div key={key} className="flex justify-between">
-                      <span className="font-medium">{key}:</span>
-                      <span>{String(displayValue)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <GameHeadersPanel gameHeaders={gameHeaders} localTheme={localTheme} />
           )}
-
-          {/* Move list */}
           {showMoveList && (
-            <div className={`p-3 border rounded ${localTheme === 'dark' ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
-              <h3 className="font-semibold mb-2">Moves</h3>
-              <div className="max-h-96 overflow-y-auto">
-                <div className="grid grid-cols-2 gap-1 text-sm">
-                  {gameHistory.map((move, index) => {
-                    const moveNumber = Math.ceil((index + 1) / 2);
-                    const isWhiteMove = index % 2 === 0;
-                    const isCurrentMove = index === currentMoveIndex;
-                    
-                    return (
-                      <React.Fragment key={index}>
-                        {isWhiteMove && (
-                          <div className="font-medium text-gray-600 dark:text-gray-400">
-                            {moveNumber}.
-                          </div>
-                        )}
-                        <button
-                          onClick={() => goToMove(index)}
-                          className={`text-left px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                            isCurrentMove ? 'bg-blue-200 dark:bg-blue-800' : ''
-                          }`}
-                        >
-                          {move.san}
-                          {moveAnnotations[index] && (
-                            <span className="ml-1 text-xs text-blue-600 dark:text-blue-400">
-                              💬
-                            </span>
-                          )}
-                          {variations[index] && (
-                            <span className="ml-1 text-xs text-green-600 dark:text-green-400">
-                              🌳
-                            </span>
-                          )}
-                        </button>
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-                
-                {/* Current move annotation */}
-                {moveAnnotations[currentMoveIndex] && (
-                  <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900 rounded text-sm">
-                    <strong>Comment:</strong> {moveAnnotations[currentMoveIndex]}
-                  </div>
-                )}
-              </div>
-            </div>
+            <MoveListPanel
+              gameHistory={gameHistory}
+              currentMoveIndex={currentMoveIndex}
+              goToMove={goToMove}
+              moveAnnotations={moveAnnotations}
+              variations={variations}
+              localTheme={localTheme}
+            />
           )}
         </div>
       </div>
-
-      {/* Progress indicator */}
       {gameHistory.length > 0 && (
-        <div className="mt-4">
-          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-            <span>Move {currentMoveIndex + 1} of {gameHistory.length}</span>
-            <span>{Math.round(((currentMoveIndex + 1) / gameHistory.length) * 100)}%</span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentMoveIndex + 1) / gameHistory.length) * 100}%` }}
-            />
-          </div>
-        </div>
+        <ProgressIndicator currentMoveIndex={currentMoveIndex} gameHistoryLength={gameHistory.length} />
       )}
     </div>
   );
-};
+});
+
+function ErrorBanner({ error }) {
+  return (
+    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded" role="alert">
+      {error}
+    </div>
+  );
+}
+
+function ViewerHeader({ localTheme, toggleTheme, showSettings, setShowSettings, handleFileUpload }) {
+  return (
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-xl font-bold">PGN Viewer</h2>
+      <div className="flex items-center space-x-2">
+        <label className="cursor-pointer p-2 rounded hover:bg-gray-light dark:hover:bg-gray-dark">
+          <ArrowUpTrayIcon className="w-5 h-5" />
+          <input
+            type="file"
+            accept=".pgn,.txt"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </label>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded hover:bg-gray-light dark:hover:bg-gray-dark"
+          aria-label="Toggle theme"
+        >
+          {localTheme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
+        </button>
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="p-2 rounded hover:bg-gray-light dark:hover:bg-gray-dark"
+          aria-label="Show settings"
+        >
+          <Cog6ToothIcon className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function GameSelector({ games, currentGameIndex, selectGame, localTheme }) {
+  return (
+    <div className="mb-4">
+      <label className="block text-sm font-medium mb-2">Select Game:</label>
+      <select
+        value={currentGameIndex}
+        onChange={e => selectGame(parseInt(e.target.value))}
+        className={`w-full p-2 border rounded ${localTheme === 'dark' ? 'bg-gray-dark border-gray-dark' : 'bg-background-light border-gray-light'}`}
+        aria-label="Select game"
+      >
+        {games.map((game, index) => {
+          const whitePlayer = typeof game.headers.White === 'object' ? (game.headers.White?.value || 'Unknown') : (game.headers.White || 'Unknown');
+          const blackPlayer = typeof game.headers.Black === 'object' ? (game.headers.Black?.value || 'Unknown') : (game.headers.Black || 'Unknown');
+          let gameDate = '';
+          if (game.headers.Date) {
+            if (typeof game.headers.Date === 'object') {
+              if (game.headers.Date.value) {
+                gameDate = game.headers.Date.value;
+              } else if (game.headers.Date.year && game.headers.Date.month && game.headers.Date.day) {
+                gameDate = `${game.headers.Date.year}.${String(game.headers.Date.month).padStart(2, '0')}.${String(game.headers.Date.day).padStart(2, '0')}`;
+              }
+            } else {
+              gameDate = String(game.headers.Date);
+            }
+          }
+          return (
+            <option key={index} value={index}>
+              Game {index + 1}: {whitePlayer} vs {blackPlayer}{gameDate && ` (${gameDate})`}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+}
+
+function NavigationControls({
+  goToFirst,
+  goToPrevious,
+  toggleAutoPlay,
+  goToNext,
+  goToLast,
+  isPlaying,
+  currentMoveIndex,
+  gameHistoryLength
+}) {
+  return (
+    <div className="flex items-center justify-center space-x-2 mt-1">
+      <button
+        onClick={goToFirst}
+        disabled={currentMoveIndex <= -1}
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        aria-label="First move"
+      >
+        <ChevronDoubleLeftIcon className="w-5 h-5" />
+      </button>
+      <button
+        onClick={goToPrevious}
+        disabled={currentMoveIndex <= -1}
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        aria-label="Previous move"
+      >
+        <BackwardIcon className="w-5 h-5" />
+      </button>
+      <button
+        onClick={toggleAutoPlay}
+        disabled={gameHistoryLength === 0}
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        aria-label={isPlaying ? 'Pause autoplay' : 'Play autoplay'}
+      >
+        {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
+      </button>
+      <button
+        onClick={goToNext}
+        disabled={currentMoveIndex >= gameHistoryLength - 1}
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        aria-label="Next move"
+      >
+        <ForwardIcon className="w-5 h-5" />
+      </button>
+      <button
+        onClick={goToLast}
+        disabled={currentMoveIndex >= gameHistoryLength - 1}
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        aria-label="Last move"
+      >
+        <ChevronDoubleRightIcon className="w-5 h-5" />
+      </button>
+    </div>
+  );
+}
+
+function GameHeadersPanel({ gameHeaders, localTheme }) {
+  return (
+    <div className={`p-3 border rounded ${localTheme === 'dark' ? 'border-gray-dark bg-gray-dark' : 'border-gray-light bg-background-light'}`}>
+      <h3 className="font-semibold mb-2">Game Information</h3>
+      <div className="space-y-1 text-sm">
+        {Object.entries(gameHeaders).map(([key, value]) => {
+          let displayValue = value;
+          if (typeof value === 'object' && value !== null) {
+            if (value.value) {
+              displayValue = value.value;
+            } else if (value.year && value.month && value.day) {
+              displayValue = `${value.year}.${String(value.month).padStart(2, '0')}.${String(value.day).padStart(2, '0')}`;
+            } else {
+              displayValue = JSON.stringify(value);
+            }
+          }
+          return (
+            <div key={key} className="flex justify-between">
+              <span className="font-medium">{key}:</span>
+              <span>{String(displayValue)}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotations, variations, localTheme }) {
+  return (
+    <div className={`p-3 border rounded ${localTheme === 'dark' ? 'border-gray-dark bg-gray-dark' : 'border-gray-light bg-background-light'}`}>
+      <h3 className="font-semibold mb-2">Moves</h3>
+      <div className="max-h-96 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-1 text-sm">
+          {gameHistory.map((move, index) => {
+            const moveNumber = Math.ceil((index + 1) / 2);
+            const isWhiteMove = index % 2 === 0;
+            const isCurrentMove = index === currentMoveIndex;
+            return (
+              <React.Fragment key={index}>
+                {isWhiteMove && (
+                  <div className="font-medium text-gray-dark dark:text-gray-light">{moveNumber}.</div>
+                )}
+                <button
+                  onClick={() => goToMove(index)}
+                  className={`text-left px-2 py-1 rounded hover:bg-accent/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${isCurrentMove ? 'bg-accent/20 dark:bg-accent/30' : ''}`}
+                  aria-label={`Go to move ${index + 1}`}
+                >
+                  {move.san}
+                  {moveAnnotations[index] && (
+                    <span className="ml-1 text-xs text-accent">💬</span>
+                  )}
+                  {variations[index] && (
+                    <span className="ml-1 text-xs text-green-600 dark:text-green-400">🌳</span>
+                  )}
+                </button>
+              </React.Fragment>
+            );
+          })}
+        </div>
+        {moveAnnotations[currentMoveIndex] && (
+          <div className="mt-3 p-2 bg-accent/10 dark:bg-accent/20 rounded text-sm">
+            <strong>Comment:</strong> {moveAnnotations[currentMoveIndex]}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProgressIndicator({ currentMoveIndex, gameHistoryLength }) {
+  const percent = Math.round(((currentMoveIndex + 1) / gameHistoryLength) * 100);
+  return (
+    <div className="mt-4">
+      <div className="flex justify-between text-sm text-gray-dark dark:text-gray-light mb-1">
+        <span>Move {currentMoveIndex + 1} of {gameHistoryLength}</span>
+        <span>{percent}%</span>
+      </div>
+      <div className="w-full bg-gray-light dark:bg-gray-dark rounded-full h-2">
+        <div
+          className="bg-accent h-2 rounded-full transition-all duration-300"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default PGNViewer;

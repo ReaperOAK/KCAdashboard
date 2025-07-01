@@ -1,20 +1,36 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ChessHome = () => {
+/**
+ * ChessHome
+ * Redirects to /chess/play on mount. Shows fallback UI for accessibility and slow navigation.
+ */
+const ChessHome = React.memo(function ChessHome() {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Redirect to the Player vs Player page
-    navigate('/chess/play');
+
+  // Named handler for navigation (for clarity and future extensibility)
+  const handleRedirect = useCallback(() => {
+    navigate('/chess/play', { replace: true });
   }, [navigate]);
-    // This is just a fallback in case the redirect doesn't happen immediately
+
+  useEffect(() => {
+    handleRedirect();
+    // No dependencies except navigate (memoized)
+  }, [handleRedirect]);
+
+  // Fallback UI for screen readers and slow navigation
   return (
-    <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-      <h1 className="text-purple-900 mb-4 text-3xl font-bold">Chess Dashboard</h1>
-      <p className="text-gray-600 text-lg">Redirecting to chess player interface...</p>
-    </div>
+    <section
+      className="flex flex-col items-center justify-center h-[60vh] text-center bg-background-light"
+      aria-live="polite"
+      aria-label="Chess dashboard redirect"
+      role="status"
+    >
+      <h1 className="text-3xl font-bold text-primary mb-4">Chess Dashboard</h1>
+      <p className="text-lg text-gray-dark">Redirecting to chess player interface...</p>
+    </section>
   );
-};
+});
 
 export default ChessHome;

@@ -1,46 +1,80 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-const VerifyEmail = () => {
+const getStatusColor = status => {
+  switch (status) {
+    case 'success':
+      return 'text-green-700';
+    case 'error':
+      return 'text-red-700';
+    default:
+      return 'text-gray-dark';
+  }
+};
+
+const MessageBanner = React.memo(function MessageBanner({ status, message }) {
+  const colorClass = getStatusColor(status);
+  return (
+    <div className={`my-6 text-base font-medium ${colorClass}`} role="status" aria-live="polite">
+      {message}
+    </div>
+  );
+});
+
+const GoToLoginLink = React.memo(function GoToLoginLink() {
+  return (
+    <a
+      href="/login"
+      className="inline-block mt-4 text-accent underline font-semibold focus:outline-none focus:ring-2 focus:ring-accent rounded"
+      tabIndex={0}
+      aria-label="Go to Login"
+    >
+      Go to Login
+    </a>
+  );
+});
+
+function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState('pending');
   const [message, setMessage] = useState('Verifying your email...');
 
-  useEffect(() => {
-    const token = searchParams.get('token');
+  const token = useMemo(() => searchParams.get('token'), [searchParams]);
+
+  const verify = useCallback(async () => {
     if (!token) {
       setStatus('error');
       setMessage('Verification token is missing.');
       return;
     }
-    fetch(`/api/endpoints/auth/verify-email.php?token=${token}`)
-      .then(async (res) => {
-        const data = await res.json();
-        if (res.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Email verified successfully! You may now log in.');
-        } else {
-          setStatus('error');
-          setMessage(data.message || 'Verification failed.');
-        }
-      })
-      .catch(() => {
+    try {
+      const res = await fetch(`/api/endpoints/auth/verify-email.php?token=${token}`);
+      const data = await res.json();
+      if (res.ok) {
+        setStatus('success');
+        setMessage(data.message || 'Email verified successfully! You may now log in.');
+      } else {
         setStatus('error');
-        setMessage('An error occurred while verifying your email.');
-      });
-  }, [searchParams]);
+        setMessage(data.message || 'Verification failed.');
+      }
+    } catch {
+      setStatus('error');
+      setMessage('An error occurred while verifying your email.');
+    }
+  }, [token]);
+
+  useEffect(() => {
+    verify();
+  }, [verify]);
 
   return (
-    <div style={{ maxWidth: 400, margin: '60px auto', padding: 24, border: '1px solid #eee', borderRadius: 8, textAlign: 'center' }}>
-      <h2>Email Verification</h2>
-      <div style={{ margin: '24px 0', color: status === 'success' ? 'green' : status === 'error' ? 'red' : '#333' }}>
-        {message}
-      </div>
-      {status === 'success' && (
-        <a href="/login" style={{ color: '#1976d2', textDecoration: 'underline' }}>Go to Login</a>
-      )}
+    <div className="max-w-md mx-auto mt-20 p-8 border border-gray-light rounded-xl bg-white shadow-md text-center" role="form" aria-labelledby="verify-email-title">
+      <h2 id="verify-email-title" className="text-2xl font-bold text-primary mb-2">Email Verification</h2>
+      <MessageBanner status={status} message={message} />
+      {status === 'success' && <GoToLoginLink />}
     </div>
   );
-};
+}
 
-export default VerifyEmail;
+export default React.memo(VerifyEmail);

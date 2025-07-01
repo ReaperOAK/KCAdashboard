@@ -1,29 +1,22 @@
-/**
- * Chess Engine Factory
- * Creates appropriate chess engine instances based on configuration
- */
+
+// ChessEngineFactory - Clean, composable, testable engine factory
 import LocalChessEngine from './ChessEngine';
 import OnlineChessEngine from './OnlineChessEngine';
 
-const ChessEngineFactory = {
-  /**
-   * Create a chess engine instance
-   * @param {Object} options - Engine configuration
-   * @param {boolean} options.useOnlineAPI - Whether to use the online API
-   * @param {number} options.skillLevel - Engine skill level
-   * @returns {Object} - Chess engine instance
-   */
-  createEngine(options = {}) {
-    const { useOnlineAPI = false, skillLevel = 10 } = options;
-    
-    if (useOnlineAPI) {
-      console.log('Creating Stockfish Online API engine instance');
-      return new OnlineChessEngine(skillLevel);
-    } else {
-      console.log('Creating local chess engine instance');
-      return new LocalChessEngine(skillLevel);
-    }
-  }
-};
+/**
+ * Create a chess engine instance
+ * @param {Object} options
+ * @param {boolean} options.useOnlineAPI
+ * @param {number} options.skillLevel
+ * @returns {Object} Chess engine instance
+ */
+export function createChessEngine(options = {}) {
+  const { useOnlineAPI = false, skillLevel = 10 } = options;
+  return useOnlineAPI
+    ? new OnlineChessEngine(skillLevel)
+    : new LocalChessEngine(skillLevel);
+}
 
+// For backward compatibility if needed
+const ChessEngineFactory = { createEngine: createChessEngine };
 export default ChessEngineFactory;

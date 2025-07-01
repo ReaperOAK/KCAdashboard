@@ -13,8 +13,8 @@ function FileDropArea({
     () =>
       `border-2 border-dashed rounded-lg p-8 text-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent ${
         isDragging
-          ? 'border-accent bg-accent/10 dark:bg-accent/20'
-          : 'border-gray-light dark:border-gray-dark hover:border-accent dark:hover:border-accent'
+          ? 'border-accent bg-accent/10'
+          : 'border-gray-light  hover:border-accent '
       }`,
     [isDragging]
   );
@@ -83,10 +83,10 @@ export const PGNFileDrop = React.memo(function PGNFileDrop({
         handleDrop={handleDrop}
       >
         <ArrowUpTrayIcon className="w-12 h-12 mx-auto text-gray-light mb-4" aria-hidden="true" />
-        <p className="text-lg font-medium text-text-dark dark:text-text-light mb-2">
+        <p className="text-lg font-medium text-text-dark  mb-2">
           Drop your PGN file here
         </p>
-        <p className="text-gray-dark dark:text-gray-light mb-4">or click to browse</p>
+        <p className="text-gray-dark  mb-4">or click to browse</p>
         <FileInput allowedFormats={allowedFormats} handleFileInputChange={handleFileInputChange} id={fileInputId} />
         <label
           htmlFor={fileInputId}
@@ -97,7 +97,7 @@ export const PGNFileDrop = React.memo(function PGNFileDrop({
         >
           Choose File
         </label>
-        <p className="text-xs text-gray-dark dark:text-gray-light mt-2">
+        <p className="text-xs text-gray-dark  mt-2">
           Max size: {Math.round(maxFileSize / 1024 / 1024)}MB | Formats: {allowedFormats.join(', ')}
         </p>
       </FileDropArea>

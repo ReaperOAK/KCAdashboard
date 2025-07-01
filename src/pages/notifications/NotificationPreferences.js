@@ -200,7 +200,7 @@ export default function NotificationPreferences() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white dark:bg-background-dark shadow-md rounded-lg overflow-hidden">
+      <div className="bg-white  shadow-md rounded-lg overflow-hidden">
         <div className="p-6 bg-primary text-white">
           <h1 className="text-2xl font-bold">Notification Preferences</h1>
           <p className="text-gray-light mt-2">Customize how you want to receive notifications</p>
@@ -216,7 +216,7 @@ export default function NotificationPreferences() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Email</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-light">
+              <tbody className="bg-white  divide-y divide-gray-light">
                 {preferences.map((pref, index) => (
                   <PreferenceRow key={pref.category} pref={pref} index={index} onToggle={handleToggle} />
                 ))}

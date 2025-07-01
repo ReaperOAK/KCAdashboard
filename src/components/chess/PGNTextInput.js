@@ -27,7 +27,7 @@ export const PGNTextInput = React.memo(function PGNTextInput({
 
   return (
     <div className="mb-6">
-      <label htmlFor="pgn-textarea" className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">
+      <label htmlFor="pgn-textarea" className="block text-sm font-medium text-text-dark  mb-2">
         PGN Content
       </label>
       <textarea
@@ -37,10 +37,10 @@ export const PGNTextInput = React.memo(function PGNTextInput({
         placeholder="Paste your PGN content here..."
         aria-label="PGN Content Input"
         aria-required="true"
-        className="w-full h-64 p-3 border border-gray-light dark:border-gray-dark rounded-lg bg-background-light dark:bg-background-dark text-text-dark dark:text-text-light font-mono text-sm resize-vertical focus:ring-2 focus:ring-accent focus:border-accent"
+        className="w-full h-64 p-3 border border-gray-light  rounded-lg bg-background-light  text-text-dark  font-mono text-sm resize-vertical focus:ring-2 focus:ring-accent focus:border-accent"
       />
       <div className="flex justify-between items-center mt-2">
-        <p className="text-xs text-gray-dark dark:text-gray-light" aria-live="polite">
+        <p className="text-xs text-gray-dark " aria-live="polite">
           {charCount} characters
         </p>
         <button

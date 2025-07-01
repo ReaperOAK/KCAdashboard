@@ -15,7 +15,7 @@ export const PGNUploadMethodSelector = React.memo(function PGNUploadMethodSelect
           className={`px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
             uploadMethod === 'file'
               ? 'bg-primary text-white hover:bg-secondary'
-              : 'bg-gray-light dark:bg-gray-dark text-text-dark dark:text-text-light hover:bg-gray-200 dark:hover:bg-gray-700'
+              : 'bg-gray-light  text-text-dark  hover:bg-gray-200 '
           }`}
           aria-checked={uploadMethod === 'file'}
           role="radio"
@@ -29,7 +29,7 @@ export const PGNUploadMethodSelector = React.memo(function PGNUploadMethodSelect
           className={`px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
             uploadMethod === 'text'
               ? 'bg-primary text-white hover:bg-secondary'
-              : 'bg-gray-light dark:bg-gray-dark text-text-dark dark:text-text-light hover:bg-gray-200 dark:hover:bg-gray-700'
+              : 'bg-gray-light  text-text-dark  hover:bg-gray-200 '
           }`}
           aria-checked={uploadMethod === 'text'}
           role="radio"

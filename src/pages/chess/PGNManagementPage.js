@@ -28,23 +28,23 @@ const TABS = [
 
 const FeatureHighlights = React.memo(() => (
   <section aria-label="Feature highlights" className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-      <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Advanced PGN Support</h3>
-      <p className="text-sm text-blue-700 dark:text-blue-300">Handle complex PGNs with multiple games, variations, comments, and NAGs</p>
+    <div className="bg-blue-50  p-4 rounded-lg">
+      <h3 className="font-semibold text-blue-900  mb-2">Advanced PGN Support</h3>
+      <p className="text-sm text-blue-700 ">Handle complex PGNs with multiple games, variations, comments, and NAGs</p>
     </div>
-    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-      <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Interactive Analysis</h3>
-      <p className="text-sm text-green-700 dark:text-green-300">Navigate through games with autoplay, annotations, and variation exploration</p>
+    <div className="bg-green-50  p-4 rounded-lg">
+      <h3 className="font-semibold text-green-900  mb-2">Interactive Analysis</h3>
+      <p className="text-sm text-green-700 ">Navigate through games with autoplay, annotations, and variation exploration</p>
     </div>
-    <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-      <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">Game Management</h3>
-      <p className="text-sm text-purple-700 dark:text-purple-300">Organize, search, and share your chess game collection</p>
+    <div className="bg-purple-50  p-4 rounded-lg">
+      <h3 className="font-semibold text-purple-900  mb-2">Game Management</h3>
+      <p className="text-sm text-purple-700 ">Organize, search, and share your chess game collection</p>
     </div>
   </section>
 ));
 
 const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
-  <div className="border-b border-gray-200 dark:border-gray-700" role="tablist" aria-label="PGN management tabs">
+  <div className="border-b border-gray-200 " role="tablist" aria-label="PGN management tabs">
     <nav className="-mb-px flex space-x-8">
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -60,8 +60,8 @@ const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
             className={
               `group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ` +
               (activeTab === tab.id
-                ? 'border-accent text-accent dark:text-accent'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600')
+                ? 'border-accent text-accent '
+                : 'border-transparent text-gray-500  hover:text-gray-700  hover:border-gray-300')
             }
           >
             <Icon className="w-5 h-5 mr-2" aria-hidden="true" />
@@ -71,7 +71,7 @@ const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
       })}
     </nav>
     <div className="mt-4">
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-sm text-gray-600 ">
         {tabs.find(tab => tab.id === activeTab)?.description}
       </p>
     </div>
@@ -79,38 +79,38 @@ const TabNav = React.memo(({ activeTab, onTabChange, tabs }) => (
 ));
 
 const QuickActions = React.memo(({ onLoadSample, onUploadClick }) => (
-  <section aria-label="Quick actions" className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Start</h2>
+  <section aria-label="Quick actions" className="bg-white  rounded-lg shadow p-6 mb-6">
+    <h2 className="text-xl font-semibold text-gray-900 ">Quick Start</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <button
         type="button"
         onClick={onLoadSample}
-        className="p-4 border border-gray-light dark:border-gray-dark rounded-lg hover:bg-gray-light/30 dark:hover:bg-gray-dark/30 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-4 border border-gray-light  rounded-lg hover:bg-gray-light/30  transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Load sample game"
       >
-        <div className="font-medium text-gray-900 dark:text-white mb-1">Load Sample Game</div>
-        <div className="text-sm text-gray-600 dark:text-gray-400">Fischer vs Spassky - World Championship 1972</div>
+        <div className="font-medium text-gray-900 ">Load Sample Game</div>
+        <div className="text-sm text-gray-600 ">Fischer vs Spassky - World Championship 1972</div>
       </button>
       <button
         type="button"
         onClick={onUploadClick}
-        className="p-4 border border-gray-light dark:border-gray-dark rounded-lg hover:bg-gray-light/30 dark:hover:bg-gray-dark/30 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-4 border border-gray-light  rounded-lg hover:bg-gray-light/30  transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Upload your PGN"
       >
-        <div className="font-medium text-gray-900 dark:text-white mb-1">Upload Your PGN</div>
-        <div className="text-sm text-gray-600 dark:text-gray-400">Upload files from your computer</div>
+        <div className="font-medium text-gray-900 ">Upload Your PGN</div>
+        <div className="text-sm text-gray-600 ">Upload files from your computer</div>
       </button>
     </div>
   </section>
 ));
 
 const UploadHelpSection = React.memo(() => (
-  <section aria-label="PGN format help" className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+  <section aria-label="PGN format help" className="bg-blue-50  border border-blue-200  rounded-lg p-6">
     <div className="flex items-start">
       <InformationCircleIcon className="w-6 h-6 text-blue-500 mr-3 mt-0.5" aria-hidden="true" />
       <div>
-        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">PGN Format Help</h3>
-        <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+        <h3 className="text-lg font-semibold text-blue-900 ">PGN Format Help</h3>
+        <div className="text-sm text-blue-800  space-y-2">
           <p><strong>Supported features:</strong> Multiple games, variations, comments, NAGs, headers</p>
           <p><strong>File formats:</strong> .pgn, .txt files up to 10MB</p>
           <p><strong>Comments:</strong> Use {'{}'} for annotations, variations supported with parentheses</p>
@@ -161,11 +161,11 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark py-8">
+    <div className="min-h-screen bg-background-light  py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-8" aria-label="Page header">
           <h1 className="text-3xl font-bold text-primary mb-4">Chess PGN Manager</h1>
-          <p className="text-lg text-text-dark dark:text-text-light mb-6">
+          <p className="text-lg text-text-dark  mb-6">
             Upload, analyze, and manage your chess game collection with support for complex PGNs, variations, comments, and annotations.
           </p>
           <FeatureHighlights />
@@ -186,7 +186,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
                 showMoveList
                 autoPlay={false}
                 theme="light"
-                className="bg-white dark:bg-gray-800 shadow-lg"
+                className="bg-white  shadow-lg"
               />
             </>
           )}
@@ -195,7 +195,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
               <PGNUpload
                 onPGNParsed={handlePGNParsed}
                 onUploadComplete={handleUploadComplete}
-                className="bg-white dark:bg-gray-800 shadow-lg"
+                className="bg-white  shadow-lg"
               />
               <UploadHelpSection />
             </>
@@ -204,7 +204,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
             <PGNLibrary
               onGameSelect={handleGameSelect}
               showViewer
-              className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
+              className="bg-white  shadow-lg rounded-lg p-6"
             />
           )}
         </section>

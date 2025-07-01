@@ -19,8 +19,8 @@ export const PGNStatusMessage = React.memo(function PGNStatusMessage({ uploadSta
   // Memoize color classes for status
   const statusClasses = useMemo(() =>
     uploadStatus === 'success'
-      ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700'
-      : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700',
+      ? 'bg-green-50  text-green-800  border border-green-200'
+      : 'bg-red-50  text-red-800  border border-red-200',
     [uploadStatus]
   );
 
@@ -43,7 +43,7 @@ export const PGNStatusMessage = React.memo(function PGNStatusMessage({ uploadSta
       <button
         type="button"
         onClick={handleClose}
-        className="ml-auto p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 hover:bg-gray-light/40 dark:hover:bg-gray-dark/40 transition-colors"
+        className="ml-auto p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 hover:bg-gray-light/40 /40 transition-colors"
         aria-label="Close status message"
       >
         <XMarkIcon className="w-5 h-5" aria-hidden="true" />

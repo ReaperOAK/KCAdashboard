@@ -43,21 +43,21 @@ const SearchBar = React.memo(({ value, onChange }) => (
       placeholder="Search games by title or description..."
       value={value}
       onChange={onChange}
-      className="w-full pl-10 pr-4 py-2 border border-gray-light dark:border-gray-dark rounded-lg bg-white dark:bg-gray-800 text-text-dark dark:text-text-light focus:ring-2 focus:ring-accent focus:border-accent"
+      className="w-full pl-10 pr-4 py-2 border border-gray-light  rounded-lg bg-white  text-text-dark  focus:ring-2 focus:ring-accent focus:border-accent"
       aria-label="Search games"
     />
   </div>
 ));
 
 const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange, showPublicOnly, onPublicOnlyChange, showUserOnly, onUserOnlyChange }) => (
-  <div className="bg-background-light dark:bg-background-dark p-4 rounded-lg space-y-4" aria-label="Filters">
+  <div className="bg-background-light  p-4 rounded-lg space-y-4" aria-label="Filters">
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label className="block text-sm font-medium text-gray-dark dark:text-gray-light mb-1">Category</label>
+        <label className="block text-sm font-medium text-gray-dark  mb-1">Category</label>
         <select
           value={selectedCategory}
           onChange={onCategoryChange}
-          className="w-full p-2 border border-gray-light dark:border-gray-dark rounded bg-white dark:bg-gray-700 text-text-dark dark:text-text-light"
+          className="w-full p-2 border border-gray-light  rounded bg-white text-text-dark "
           aria-label="Category filter"
         >
           {categories.map((cat) => (
@@ -71,11 +71,11 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
             type="checkbox"
             checked={showPublicOnly}
             onChange={onPublicOnlyChange}
-            className="rounded border-gray-light dark:border-gray-dark"
+            className="rounded border-gray-light "
             aria-checked={showPublicOnly}
             aria-label="Show public games only"
           />
-          <span className="text-sm text-gray-dark dark:text-gray-light">Public games only</span>
+          <span className="text-sm text-gray-dark ">Public games only</span>
         </label>
       </div>
       <div>
@@ -84,11 +84,11 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
             type="checkbox"
             checked={showUserOnly}
             onChange={onUserOnlyChange}
-            className="rounded border-gray-light dark:border-gray-dark"
+            className="rounded border-gray-light "
             aria-checked={showUserOnly}
             aria-label="Show my games only"
           />
-          <span className="text-sm text-gray-dark dark:text-gray-light">My games only</span>
+          <span className="text-sm text-gray-dark ">My games only</span>
         </label>
       </div>
     </div>
@@ -97,7 +97,7 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
 
 const GameCard = React.memo(({ game, onView, onShare }) => (
   <div
-    className="bg-white dark:bg-gray-800 border border-gray-light dark:border-gray-dark rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+    className="bg-white  border border-gray-light  rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
     tabIndex={0}
     role="button"
     aria-label={`View game: ${game.title}`}
@@ -105,7 +105,7 @@ const GameCard = React.memo(({ game, onView, onShare }) => (
     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onView(e); }}
   >
     <div className="flex justify-between items-start mb-3">
-      <h3 className="font-semibold text-text-dark dark:text-text-light line-clamp-2">{game.title}</h3>
+      <h3 className="font-semibold text-text-dark  line-clamp-2">{game.title}</h3>
       <div className="flex space-x-1 ml-2">
         <button
           type="button"
@@ -128,21 +128,21 @@ const GameCard = React.memo(({ game, onView, onShare }) => (
       </div>
     </div>
     {game.description && (
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{game.description}</p>
+      <p className="text-sm text-gray-600  mb-3 line-clamp-2">{game.description}</p>
     )}
     <div className="flex flex-wrap gap-2 mb-3">
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100  text-blue-800 ">
         <TagIcon className="w-3 h-3 mr-1" />
         {game.category}
       </span>
       {game.is_public && (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">Public</span>
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100  text-green-800 ">Public</span>
       )}
       {game.metadata?.totalGames > 1 && (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent">{game.metadata.totalGames} games</span>
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10  text-accent ">{game.metadata.totalGames} games</span>
       )}
     </div>
-    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+    <div className="flex justify-between items-center text-xs text-gray-500 ">
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
           <UserIcon className="w-3 h-3 mr-1" />
@@ -176,7 +176,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded border border-gray-light dark:border-gray-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-light/30 dark:hover:bg-gray-dark/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-2 rounded border border-gray-light  disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-light/30  transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Previous page"
       >
         <ChevronLeftIcon className="w-4 h-4" />
@@ -189,7 +189,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
           className={`px-3 py-2 rounded border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
             page === currentPage
               ? 'bg-accent text-white border-accent'
-              : 'border-gray-light dark:border-gray-dark hover:bg-gray-light/30 dark:hover:bg-gray-dark/30'
+              : 'border-gray-light  hover:bg-gray-light/30 '
           }`}
           aria-current={page === currentPage ? 'page' : undefined}
           aria-label={`Go to page ${page}`}
@@ -201,7 +201,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
         type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded border border-gray-light dark:border-gray-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-light/30 dark:hover:bg-gray-dark/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-2 rounded border border-gray-light  disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-light/30  transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Next page"
       >
         <ChevronRightIcon className="w-4 h-4" />
@@ -212,21 +212,21 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
 
 const GameViewerPanel = React.memo(({ selectedGame, selectedGamePGN, onClose }) => (
   <div className="sticky top-4">
-    <div className="bg-white dark:bg-gray-800 border border-gray-light dark:border-gray-dark rounded-lg p-4">
+    <div className="bg-white  border border-gray-light  rounded-lg p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-text-dark dark:text-text-light">Game Viewer</h3>
+        <h3 className="font-semibold text-text-dark ">Game Viewer</h3>
         <button
           type="button"
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="text-gray-400 hover:text-gray-600  focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="Close game viewer"
         >
           ×
         </button>
       </div>
       {selectedGame && (
-        <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-          <div className="font-medium text-text-dark dark:text-text-light">{selectedGame.title}</div>
+        <div className="mb-4 text-sm text-gray-600 ">
+          <div className="font-medium text-text-dark ">{selectedGame.title}</div>
           {selectedGame.description && <div className="mt-1">{selectedGame.description}</div>}
         </div>
       )}
@@ -414,14 +414,14 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
                 <button
                   type="button"
                   onClick={() => setShowFilters((v) => !v)}
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-dark dark:text-gray-light hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-dark  hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   aria-expanded={showFilters}
                   aria-controls="pgn-filters-panel"
                 >
                   <FunnelIcon className="w-5 h-5" />
                   <span>Filters</span>
                 </button>
-                <div className="text-sm text-gray-dark dark:text-gray-light">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
+                <div className="text-sm text-gray-dark ">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
               </div>
               {showFilters && (
                 <div id="pgn-filters-panel">
@@ -439,7 +439,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
             </div>
           </div>
           {error && (
-            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200" role="alert">{error}</div>
+            <div className="mb-4 p-4 bg-red-50  border border-red-200  rounded-lg text-red-800 " role="alert">{error}</div>
           )}
           {loading && (
             <div className="flex justify-center items-center py-12" aria-busy="true">
@@ -470,8 +470,8 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
               {games.length === 0 && !loading && (
                 <div className="text-center py-12">
                   <DocumentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" aria-hidden="true" />
-                  <h3 className="text-lg font-medium text-text-dark dark:text-text-light mb-2">No games found</h3>
-                  <p className="text-gray-dark dark:text-gray-light">
+                  <h3 className="text-lg font-medium text-text-dark  mb-2">No games found</h3>
+                  <p className="text-gray-dark ">
                     {searchTerm || selectedCategory || showPublicOnly || showUserOnly
                       ? 'Try adjusting your search criteria or filters.'
                       : 'Upload your first PGN file to get started.'}

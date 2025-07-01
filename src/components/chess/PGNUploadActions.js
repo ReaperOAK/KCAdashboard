@@ -20,7 +20,7 @@ export const PGNUploadActions = React.memo(function PGNUploadActions({
       <button
         type="button"
         onClick={onClear}
-        className="px-4 py-2 text-gray-dark dark:text-gray-light hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="px-4 py-2 text-gray-dark  hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Clear upload form"
       >
         Clear

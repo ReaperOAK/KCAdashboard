@@ -25,30 +25,30 @@ export const PGNUploadDetailsForm = React.memo(function PGNUploadDetailsForm({
   const handleIsPublicChange = useCallback((e) => setIsPublic(e.target.checked), [setIsPublic]);
 
   return (
-    <section className="mb-6 p-4 bg-background-light dark:bg-background-dark rounded-lg" aria-label="Upload details">
+    <section className="mb-6 p-4 bg-background-light  rounded-lg" aria-label="Upload details">
       <h3 className="text-lg font-semibold text-primary mb-4">Upload Details</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="pgn-upload-title" className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Title *</label>
+          <label htmlFor="pgn-upload-title" className="block text-sm font-medium text-text-dark  mb-2">Title *</label>
           <input
             id="pgn-upload-title"
             type="text"
             value={uploadTitle}
             onChange={handleTitleChange}
             placeholder="Enter PGN title..."
-            className="w-full px-3 py-2 border border-gray-light dark:border-gray-dark rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white dark:bg-gray-700 text-text-dark dark:text-text-light"
+            className="w-full px-3 py-2 border border-gray-light  rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-text-dark "
             required
             aria-required="true"
             aria-label="PGN title"
           />
         </div>
         <div>
-          <label htmlFor="pgn-upload-category" className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Category</label>
+          <label htmlFor="pgn-upload-category" className="block text-sm font-medium text-text-dark  mb-2">Category</label>
           <select
             id="pgn-upload-category"
             value={uploadCategory}
             onChange={handleCategoryChange}
-            className="w-full px-3 py-2 border border-gray-light dark:border-gray-dark rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white dark:bg-gray-700 text-text-dark dark:text-text-light"
+            className="w-full px-3 py-2 border border-gray-light  rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-text-dark "
             aria-label="PGN category"
           >
             {categories.map((cat) => (
@@ -57,14 +57,14 @@ export const PGNUploadDetailsForm = React.memo(function PGNUploadDetailsForm({
           </select>
         </div>
         <div className="md:col-span-2">
-          <label htmlFor="pgn-upload-description" className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Description</label>
+          <label htmlFor="pgn-upload-description" className="block text-sm font-medium text-text-dark  mb-2">Description</label>
           <textarea
             id="pgn-upload-description"
             value={uploadDescription}
             onChange={handleDescriptionChange}
             placeholder="Optional description..."
             rows={3}
-            className="w-full px-3 py-2 border border-gray-light dark:border-gray-dark rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white dark:bg-gray-700 text-text-dark dark:text-text-light"
+            className="w-full px-3 py-2 border border-gray-light  rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-text-dark "
             aria-label="PGN description"
           />
         </div>
@@ -74,13 +74,13 @@ export const PGNUploadDetailsForm = React.memo(function PGNUploadDetailsForm({
               type="checkbox"
               checked={isPublic}
               onChange={handleIsPublicChange}
-              className="w-4 h-4 text-accent bg-gray-light border-gray-light rounded focus:ring-accent dark:focus:ring-accent dark:ring-offset-background-dark focus:ring-2 dark:bg-gray-dark dark:border-gray-dark"
+              className="w-4 h-4 text-accent bg-gray-light border-gray-light rounded focus:ring-accent  focus:ring-2"
               aria-checked={isPublic}
               aria-label="Make this PGN public (visible to all users)"
             />
-            <span className="text-sm font-medium text-text-dark dark:text-text-light">Make this PGN public (visible to all users)</span>
+            <span className="text-sm font-medium text-text-dark ">Make this PGN public (visible to all users)</span>
           </label>
-          <p className="text-xs text-gray-dark dark:text-gray-light mt-1">
+          <p className="text-xs text-gray-dark  mt-1">
             {isPublic ? 'Anyone can view this PGN' : 'Only you can view this PGN'}
           </p>
         </div>

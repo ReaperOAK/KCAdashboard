@@ -7,7 +7,7 @@ import ApiService from '../../utils/api';
 // Stat card (memoized)
 const StatCard = React.memo(function StatCard({ title, value, icon }) {
   return (
-    <div className="bg-white dark:bg-background-dark p-6 rounded-xl shadow-lg">
+    <div className="bg-white  p-6 rounded-xl shadow-lg">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-secondary">{title}</h2>
         <span className="text-2xl" aria-hidden>{icon}</span>

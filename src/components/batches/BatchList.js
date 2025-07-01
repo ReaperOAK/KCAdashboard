@@ -27,7 +27,7 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
 // Card for a single batch
 const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManageStudents }) {
   return (
-    <div className="bg-background-light dark:bg-background-dark rounded-xl shadow-md border border-gray-light flex flex-col h-full" role="region" aria-labelledby={`batch-title-${batch.id}`}> 
+    <div className="bg-background-light rounded-xl shadow-md border border-gray-light flex flex-col h-full" role="region" aria-labelledby={`batch-title-${batch.id}`}> 
       <div className="p-6 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <h3 id={`batch-title-${batch.id}`} className="text-xl font-semibold text-primary" tabIndex={0}>

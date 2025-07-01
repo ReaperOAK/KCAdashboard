@@ -43,7 +43,7 @@ function Breadcrumbs() {
 
   // Accessibility: nav with aria-label, ol with role, Home always first
   return (
-    <nav aria-label="Breadcrumb" className="bg-white dark:bg-background-dark p-4 rounded-lg shadow-sm mb-6">
+    <nav aria-label="Breadcrumb" className="bg-white p-4 rounded-lg shadow-sm mb-6">
       <ol className="flex flex-wrap items-center text-sm">
         <li>
           <Link

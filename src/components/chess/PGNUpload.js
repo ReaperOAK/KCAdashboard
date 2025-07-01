@@ -502,7 +502,7 @@ export const PGNUpload = React.memo(function PGNUpload({
   };
 
   return (
-    <div className={`pgn-upload p-6 bg-background-light dark:bg-background-dark rounded-lg shadow-md ${className}`}>
+    <div className={`pgn-upload p-6 bg-background-light  rounded-lg shadow-md ${className}`}>
       <HeaderSection />
       <UploadMethodSelector uploadMethod={uploadMethod} setUploadMethod={setUploadMethod} />
       {uploadMethod === 'file' && (
@@ -555,7 +555,7 @@ function HeaderSection() {
   return (
     <div className="mb-6">
       <h2 className="text-2xl font-bold text-primary mb-2">Upload PGN Files</h2>
-      <p className="text-gray-dark dark:text-gray-light">
+      <p className="text-gray-dark ">
         Upload chess games in PGN format. Supports multiple games, variations, comments, and annotations.
       </p>
     </div>

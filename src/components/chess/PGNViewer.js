@@ -474,7 +474,7 @@ function ViewerHeader({ localTheme, toggleTheme, showSettings, setShowSettings, 
     <div className="flex justify-between items-center mb-4">
       <h2 className="text-xl font-bold">PGN Viewer</h2>
       <div className="flex items-center space-x-2">
-        <label className="cursor-pointer p-2 rounded hover:bg-gray-light dark:hover:bg-gray-dark">
+        <label className="cursor-pointer p-2 rounded hover:bg-gray-light ">
           <ArrowUpTrayIcon className="w-5 h-5" />
           <input
             type="file"
@@ -485,14 +485,14 @@ function ViewerHeader({ localTheme, toggleTheme, showSettings, setShowSettings, 
         </label>
         <button
           onClick={toggleTheme}
-          className="p-2 rounded hover:bg-gray-light dark:hover:bg-gray-dark"
+          className="p-2 rounded hover:bg-gray-light "
           aria-label="Toggle theme"
         >
           {localTheme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
         </button>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="p-2 rounded hover:bg-gray-light dark:hover:bg-gray-dark"
+          className="p-2 rounded hover:bg-gray-light "
           aria-label="Show settings"
         >
           <Cog6ToothIcon className="w-5 h-5" />
@@ -553,7 +553,7 @@ function NavigationControls({
       <button
         onClick={goToFirst}
         disabled={currentMoveIndex <= -1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
         aria-label="First move"
       >
         <ChevronDoubleLeftIcon className="w-5 h-5" />
@@ -561,7 +561,7 @@ function NavigationControls({
       <button
         onClick={goToPrevious}
         disabled={currentMoveIndex <= -1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
         aria-label="Previous move"
       >
         <BackwardIcon className="w-5 h-5" />
@@ -569,7 +569,7 @@ function NavigationControls({
       <button
         onClick={toggleAutoPlay}
         disabled={gameHistoryLength === 0}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
         aria-label={isPlaying ? 'Pause autoplay' : 'Play autoplay'}
       >
         {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
@@ -577,7 +577,7 @@ function NavigationControls({
       <button
         onClick={goToNext}
         disabled={currentMoveIndex >= gameHistoryLength - 1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
         aria-label="Next move"
       >
         <ForwardIcon className="w-5 h-5" />
@@ -585,7 +585,7 @@ function NavigationControls({
       <button
         onClick={goToLast}
         disabled={currentMoveIndex >= gameHistoryLength - 1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light dark:hover:bg-gray-dark"
+        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
         aria-label="Last move"
       >
         <ChevronDoubleRightIcon className="w-5 h-5" />
@@ -635,11 +635,11 @@ function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotation
             return (
               <React.Fragment key={index}>
                 {isWhiteMove && (
-                  <div className="font-medium text-gray-dark dark:text-gray-light">{moveNumber}.</div>
+                  <div className="font-medium text-gray-dark ">{moveNumber}.</div>
                 )}
                 <button
                   onClick={() => goToMove(index)}
-                  className={`text-left px-2 py-1 rounded hover:bg-accent/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${isCurrentMove ? 'bg-accent/20 dark:bg-accent/30' : ''}`}
+                  className={`text-left px-2 py-1 rounded hover:bg-accent/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${isCurrentMove ? 'bg-accent/20 ' : ''}`}
                   aria-label={`Go to move ${index + 1}`}
                 >
                   {move.san}
@@ -647,7 +647,7 @@ function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotation
                     <span className="ml-1 text-xs text-accent">💬</span>
                   )}
                   {variations[index] && (
-                    <span className="ml-1 text-xs text-green-600 dark:text-green-400">🌳</span>
+                    <span className="ml-1 text-xs text-green-600 ">🌳</span>
                   )}
                 </button>
               </React.Fragment>
@@ -655,7 +655,7 @@ function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotation
           })}
         </div>
         {moveAnnotations[currentMoveIndex] && (
-          <div className="mt-3 p-2 bg-accent/10 dark:bg-accent/20 rounded text-sm">
+          <div className="mt-3 p-2 bg-accent/10  rounded text-sm">
             <strong>Comment:</strong> {moveAnnotations[currentMoveIndex]}
           </div>
         )}
@@ -668,11 +668,11 @@ function ProgressIndicator({ currentMoveIndex, gameHistoryLength }) {
   const percent = Math.round(((currentMoveIndex + 1) / gameHistoryLength) * 100);
   return (
     <div className="mt-4">
-      <div className="flex justify-between text-sm text-gray-dark dark:text-gray-light mb-1">
+      <div className="flex justify-between text-sm text-gray-dark  mb-1">
         <span>Move {currentMoveIndex + 1} of {gameHistoryLength}</span>
         <span>{percent}%</span>
       </div>
-      <div className="w-full bg-gray-light dark:bg-gray-dark rounded-full h-2">
+      <div className="w-full bg-gray-light  rounded-full h-2">
         <div
           className="bg-accent h-2 rounded-full transition-all duration-300"
           style={{ width: `${percent}%` }}

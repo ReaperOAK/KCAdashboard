@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
+import {
   MagnifyingGlassIcon,
   FunnelIcon,
   EyeIcon,
@@ -15,6 +15,12 @@ import ApiService from '../../utils/api';
 import PGNApiService from '../../utils/pgnApi';
 import usePGNView from '../../hooks/usePGNView';
 import { useNavigate } from 'react-router-dom';
+
+// --- Custom Styles ---
+const gradientBg = 'bg-gradient-to-br from-blue-50 via-white to-accent/10';
+const cardShadow = 'shadow-lg hover:shadow-2xl transition-shadow duration-300';
+const glass = 'backdrop-blur-md bg-white/80';
+
 // --- Utility Functions ---
 const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes';
@@ -36,27 +42,27 @@ const formatDate = (dateString) => {
 
 const SearchBar = React.memo(({ value, onChange }) => (
   <div className="relative" role="search">
-    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" aria-hidden="true" />
+    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-accent w-6 h-6 pointer-events-none" aria-hidden="true" />
     <input
       type="text"
       placeholder="Search games by title or description..."
       value={value}
       onChange={onChange}
-      className="w-full pl-10 pr-4 py-2 border border-gray-light  rounded-lg bg-white  text-text-dark  focus:ring-2 focus:ring-accent focus:border-accent"
+      className="w-full pl-12 pr-4 py-3 border-2 border-accent/30 rounded-xl bg-white/80 text-text-dark text-lg focus:ring-2 focus:ring-accent focus:border-accent shadow-sm transition-all duration-200"
       aria-label="Search games"
     />
   </div>
 ));
 
 const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange, showPublicOnly, onPublicOnlyChange, showUserOnly, onUserOnlyChange }) => (
-  <div className="bg-background-light  p-4 rounded-lg space-y-4" aria-label="Filters">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div className={`p-6 rounded-2xl ${glass} border border-accent/10 shadow-md space-y-4`} aria-label="Filters">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       <div>
-        <label className="block text-sm font-medium text-gray-dark  mb-1">Category</label>
+        <label className="block text-base font-semibold text-accent mb-2">Category</label>
         <select
           value={selectedCategory}
           onChange={onCategoryChange}
-          className="w-full p-2 border border-gray-light  rounded bg-white text-text-dark "
+          className="w-full p-3 border-2 border-accent/20 rounded-xl bg-white/90 text-text-dark text-base focus:ring-2 focus:ring-accent focus:border-accent"
           aria-label="Category filter"
         >
           {categories.map((cat) => (
@@ -64,30 +70,30 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
           ))}
         </select>
       </div>
-      <div>
-        <label className="flex items-center space-x-2">
+      <div className="flex items-center">
+        <label className="flex items-center space-x-2 cursor-pointer">
           <input
             type="checkbox"
             checked={showPublicOnly}
             onChange={onPublicOnlyChange}
-            className="rounded border-gray-light "
+            className="rounded border-accent/30 focus:ring-accent w-5 h-5"
             aria-checked={showPublicOnly}
             aria-label="Show public games only"
           />
-          <span className="text-sm text-gray-dark ">Public games only</span>
+          <span className="text-base text-gray-dark font-medium">Public games only</span>
         </label>
       </div>
-      <div>
-        <label className="flex items-center space-x-2">
+      <div className="flex items-center">
+        <label className="flex items-center space-x-2 cursor-pointer">
           <input
             type="checkbox"
             checked={showUserOnly}
             onChange={onUserOnlyChange}
-            className="rounded border-gray-light "
+            className="rounded border-accent/30 focus:ring-accent w-5 h-5"
             aria-checked={showUserOnly}
             aria-label="Show my games only"
           />
-          <span className="text-sm text-gray-dark ">My games only</span>
+          <span className="text-base text-gray-dark font-medium">My games only</span>
         </label>
       </div>
     </div>
@@ -100,68 +106,68 @@ function GameCard({ game, onView, onShare }) {
   const navigate = useNavigate();
   return (
     <div
-      className="bg-white  border border-gray-light  rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+      className={`relative ${glass} ${cardShadow} border border-accent/10 rounded-2xl p-5 cursor-pointer group transition-all duration-300 min-h-[180px] flex flex-col justify-between`}
       tabIndex={0}
       role="button"
       aria-label={`View game: ${game.title}`}
       onClick={() => navigate(`/chess/pgn/${game.id}`)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/chess/pgn/${game.id}`); }}
     >
-    <div className="flex justify-between items-start mb-3">
-      <h3 className="font-semibold text-text-dark  line-clamp-2">{game.title}</h3>
-      <div className="flex space-x-1 ml-2">
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); window.open(`/chess/pgn/${game.id}`, '_blank'); }}
-          className="p-1 text-gray-400 hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          title="View"
-          aria-label={`View game: ${game.title}`}
-        >
-          <EyeIcon className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={onShare}
-          className="p-1 text-gray-400 hover:text-green-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          title="Share"
-          aria-label={`Share game: ${game.title}`}
-        >
-          <ShareIcon className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-    {game.description && (
-      <p className="text-sm text-gray-600  mb-3 line-clamp-2">{game.description}</p>
-    )}
-    <div className="flex flex-wrap gap-2 mb-3">
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100  text-blue-800 ">
-        <TagIcon className="w-3 h-3 mr-1" />
-        {game.category}
-      </span>
-      {game.is_public && (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100  text-green-800 ">Public</span>
-      )}
-      {game.metadata?.totalGames > 1 && (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10  text-accent ">{game.metadata.totalGames} games</span>
-      )}
-    </div>
-    <div className="flex justify-between items-center text-xs text-gray-500 ">
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center">
-          <UserIcon className="w-3 h-3 mr-1" />
-          {game.teacher_name || 'Unknown'}
-        </div>
-        <div className="flex items-center">
-          <CalendarIcon className="w-3 h-3 mr-1" />
-          {formatDate(game.created_at)}
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="font-bold text-lg text-primary line-clamp-2 group-hover:text-accent transition-colors duration-200">{game.title}</h3>
+        <div className="flex space-x-1 ml-2">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); window.open(`/chess/pgn/${game.id}`, '_blank'); }}
+            className="p-2 rounded-full bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            title="View"
+            aria-label={`View game: ${game.title}`}
+          >
+            <EyeIcon className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={onShare}
+            className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+            title="Share"
+            aria-label={`Share game: ${game.title}`}
+          >
+            <ShareIcon className="w-5 h-5" />
+          </button>
         </div>
       </div>
-      <div className="flex items-center">
-        <DocumentIcon className="w-3 h-3 mr-1" />
-        {formatFileSize(game.content_size)}
+      {game.description && (
+        <p className="text-base text-gray-600 mb-2 line-clamp-2 italic">{game.description}</p>
+      )}
+      <div className="flex flex-wrap gap-2 mb-2">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+          <TagIcon className="w-4 h-4 mr-1" />
+          {game.category}
+        </span>
+        {game.is_public && (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Public</span>
+        )}
+        {game.metadata?.totalGames > 1 && (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">{game.metadata.totalGames} games</span>
+        )}
+      </div>
+      <div className="flex justify-between items-center text-xs text-gray-500 mt-auto pt-2 border-t border-accent/10">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <UserIcon className="w-4 h-4 mr-1" />
+            {game.teacher_name || 'Unknown'}
+          </div>
+          <div className="flex items-center">
+            <CalendarIcon className="w-4 h-4 mr-1" />
+            {formatDate(game.created_at)}
+          </div>
+        </div>
+        <div className="flex items-center">
+          <DocumentIcon className="w-4 h-4 mr-1" />
+          {formatFileSize(game.content_size)}
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 
@@ -175,25 +181,25 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
   }, [currentPage, totalPages]);
 
   return (
-    <nav className="flex justify-center items-center space-x-2 mt-2" aria-label="Pagination">
+    <nav className="flex flex-wrap justify-center items-center gap-2 mt-4" aria-label="Pagination">
       <button
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded border border-gray-light  disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-light/30  transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-2 rounded-full border border-accent/20 bg-white/80 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Previous page"
       >
-        <ChevronLeftIcon className="w-4 h-4" />
+        <ChevronLeftIcon className="w-5 h-5" />
       </button>
       {pageNumbers.map((page) => (
         <button
           key={page}
           type="button"
           onClick={() => onPageChange(page)}
-          className={`px-3 py-2 rounded border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+          className={`px-4 py-2 rounded-full border font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
             page === currentPage
-              ? 'bg-accent text-white border-accent'
-              : 'border-gray-light  hover:bg-gray-light/30 '
+              ? 'bg-accent text-white border-accent shadow-md'
+              : 'border-accent/20 bg-white/80 hover:bg-accent/10 text-accent'
           }`}
           aria-current={page === currentPage ? 'page' : undefined}
           aria-label={`Go to page ${page}`}
@@ -205,10 +211,10 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
         type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded border border-gray-light  disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-light/30  transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-2 rounded-full border border-accent/20 bg-white/80 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Next page"
       >
-        <ChevronRightIcon className="w-4 h-4" />
+        <ChevronRightIcon className="w-5 h-5" />
       </button>
     </nav>
   );
@@ -311,7 +317,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   }, [totalPages]);
 
-
   const loadGameDetails = useCallback(async (gameId) => {
     try {
       const response = await ApiService.request(`/chess/get-game.php?id=${gameId}`, 'GET');
@@ -342,26 +347,28 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   // --- Render ---
   return (
-    <div className={`pgn-library w-full max-w-full px-1 sm:px-0 ${className}`}>
-      <div className="flex flex-col w-full gap-6">
+    <div className={`pgn-library w-full max-w-full min-h-screen px-1 sm:px-0 ${gradientBg} ${className}`}>
+      <div className="flex flex-col w-full gap-8 max-w-6xl mx-auto py-8">
         {/* Games list */}
         <div className="w-full">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-primary mb-4">PGN Library</h2>
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <h2 className="text-3xl font-extrabold text-primary tracking-tight drop-shadow-sm">PGN Library</h2>
+              <div className="text-base text-accent font-semibold bg-accent/10 px-4 py-2 rounded-xl shadow-sm">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
+            </div>
             <div className="space-y-4">
               <SearchBar value={searchTerm} onChange={handleSearch} />
-              <div className="flex justify-between items-center">
+              <div className="flex flex-wrap justify-between items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowFilters((v) => !v)}
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-dark  hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="flex items-center space-x-2 px-5 py-2 rounded-xl bg-accent/10 text-accent font-semibold hover:bg-accent/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm"
                   aria-expanded={showFilters}
                   aria-controls="pgn-filters-panel"
                 >
-                  <FunnelIcon className="w-5 h-5" />
+                  <FunnelIcon className="w-6 h-6" />
                   <span>Filters</span>
                 </button>
-                <div className="text-sm text-gray-dark ">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
               </div>
               {showFilters && (
                 <div id="pgn-filters-panel">
@@ -379,16 +386,16 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
             </div>
           </div>
           {error && (
-            <div className="mb-4 p-4 bg-red-50  border border-red-200  rounded-lg text-red-800 " role="alert">{error}</div>
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 font-semibold shadow" role="alert">{error}</div>
           )}
           {loading && (
-            <div className="flex justify-center items-center py-12" aria-busy="true">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            <div className="flex justify-center items-center py-16" aria-busy="true">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-accent"></div>
             </div>
           )}
           {!loading && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {games.map((game) => (
                   <GameCard
                     key={game.id}
@@ -408,10 +415,10 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               )}
               {games.length === 0 && !loading && (
-                <div className="text-center py-12">
-                  <DocumentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" aria-hidden="true" />
-                  <h3 className="text-lg font-medium text-text-dark  mb-2">No games found</h3>
-                  <p className="text-gray-dark ">
+                <div className="text-center py-16">
+                  <DocumentIcon className="mx-auto h-16 w-16 text-gray-300 mb-6" aria-hidden="true" />
+                  <h3 className="text-2xl font-bold text-text-dark mb-2">No games found</h3>
+                  <p className="text-lg text-gray-dark">
                     {searchTerm || selectedCategory || showPublicOnly || showUserOnly
                       ? 'Try adjusting your search criteria or filters.'
                       : 'Upload your first PGN file to get started.'}

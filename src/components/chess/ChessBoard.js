@@ -532,36 +532,38 @@ const ChessBoard = ({
 
   // Render the chess board with controls
   return (
-    <div className="flex flex-col space-y-4 w-full max-w-full">
+    <div className="flex flex-col space-y-6 w-full max-w-full px-2 sm:px-4 md:px-8 py-4 md:py-6 bg-white rounded-xl shadow-lg mx-auto">
       {engineLoadError && <EngineErrorBanner />}
       {engineLoadError && <PGNExportButton onExport={exportPGN} />}
       {useOnlineAPI && <OnlineAPIBanner />}
-      <div className="flex flex-col md:flex-row gap-6 w-full">
-        <div className="relative w-full max-w-[95vw] md:max-w-[560px] mx-auto md:mx-0">
-          <Chessboard
-            id="chess-board"
-            position={fen}
-            onSquareClick={onSquareClick}
-            onPieceDrop={onPieceDrop}
-            onSquareRightClick={onSquareRightClick}
-            customSquareStyles={squareStyles}
-            boardOrientation={orientation_}
-            arePiecesDraggable={allowMoves && !isThinking}
-            showBoardNotation={showNotation}
-          />
-          {isThinking && <LoadingSpinner label="Thinking..." />}
+      <div className="flex flex-col md:flex-row gap-8 w-full items-stretch">
+        <div className="relative w-full flex justify-center md:justify-start md:w-2/3 lg:w-1/2">
+          <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg aspect-square">
+            <Chessboard
+              id="chess-board"
+              position={fen}
+              onSquareClick={onSquareClick}
+              onPieceDrop={onPieceDrop}
+              onSquareRightClick={onSquareRightClick}
+              customSquareStyles={squareStyles}
+              boardOrientation={orientation_}
+              arePiecesDraggable={allowMoves && !isThinking}
+              showBoardNotation={showNotation}
+            />
+            {isThinking && <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10"><LoadingSpinner label="Thinking..." /></div>}
+          </div>
         </div>
-        <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto justify-center md:justify-start">
+        <div className="flex flex-col gap-3 w-full md:w-1/3 lg:w-1/2 justify-center md:justify-start">
           <button
             onClick={flipBoard}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full md:w-auto"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
             type="button"
           >
             Flip Board
           </button>
           <button
             onClick={resetBoard}
-            className="px-4 py-2 bg-gray-dark text-gray-light rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full md:w-auto"
+            className="px-4 py-2 bg-gray-dark text-gray-light rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
             disabled={isThinking}
             type="button"
           >
@@ -569,7 +571,7 @@ const ChessBoard = ({
           </button>
           <button
             onClick={handleResign}
-            className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full md:w-auto"
+            className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
             disabled={isThinking || gameOver.isOver || resignLoading || !gameId}
             type="button"
           >
@@ -578,7 +580,7 @@ const ChessBoard = ({
           {gameOver.isOver && <GameOverBanner result={gameOver.result} reason={gameOver.reason} />}
         </div>
       </div>
-      <div className="min-w-0 flex-1 w-full">
+      <div className="min-w-0 flex-1 w-full mt-4">
         {showHistory && <MoveHistory history={history} currentMove={currentMove} goToMove={goToMove} />}
         {showAnalysis && <EngineAnalysis engineEvaluation={engineEvaluation} />}
       </div>

@@ -48,6 +48,12 @@ export const chessRoutes = [
     name: 'Chess Game',
     hideInMenu: true,
   },
+  {
+    path: '/chess/pgn/:id',
+    element: require('../pages/chess/PGNGameView').default,
+    name: 'PGN Game View',
+    hideInMenu: true,
+  },
 ];
 
 export default chessRoutes;

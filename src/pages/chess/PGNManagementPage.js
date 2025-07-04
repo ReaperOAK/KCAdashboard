@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   ArrowUpTrayIcon,
@@ -173,14 +172,14 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
         <section className="mb-6 sm:mb-8">
           <TabNav activeTab={activeTab} onTabChange={handleTabChange} tabs={tabs} />
         </section>
-        <section className="tab-content" id={`tabpanel-${activeTab}`} role="tabpanel" aria-labelledby={activeTab}>
+        <section className="tab-content w-full" id={`tabpanel-${activeTab}`} role="tabpanel" aria-labelledby={activeTab}>
           {activeTab === 'viewer' && (
             <>
               <QuickActions onLoadSample={handleLoadSample} onUploadClick={handleUploadClick} />
-              <div className="w-full max-w-full sm:max-w-2xl mx-auto">
+              <div className="w-full">
                 <PGNViewer
                   initialPgn={selectedPGN}
-                  width={undefined}
+                  width={550}
                   height={undefined}
                   showControls
                   showHeaders
@@ -193,7 +192,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
             </>
           )}
           {activeTab === 'upload' && (
-            <div className="w-full max-w-full sm:max-w-2xl mx-auto">
+            <div className="w-full">
               <PGNUpload
                 onPGNParsed={handlePGNParsed}
                 onUploadComplete={handleUploadComplete}
@@ -203,7 +202,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
             </div>
           )}
           {activeTab === 'library' && (
-            <div className="w-full max-w-full sm:max-w-3xl mx-auto">
+            <div className="w-full">
               <PGNLibrary
                 onGameSelect={handleGameSelect}
                 showViewer

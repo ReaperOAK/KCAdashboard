@@ -13,9 +13,8 @@ import {
 } from '@heroicons/react/24/outline';
 import ApiService from '../../utils/api';
 import PGNApiService from '../../utils/pgnApi';
-import PGNViewer from './PGNViewer';
 import usePGNView from '../../hooks/usePGNView';
-
+import { useNavigate } from 'react-router-dom';
 // --- Utility Functions ---
 const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes';
@@ -95,21 +94,25 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
   </div>
 ));
 
-const GameCard = React.memo(({ game, onView, onShare }) => (
-  <div
-    className="bg-white  border border-gray-light  rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-    tabIndex={0}
-    role="button"
-    aria-label={`View game: ${game.title}`}
-    onClick={onView}
-    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onView(e); }}
-  >
+
+
+function GameCard({ game, onView, onShare }) {
+  const navigate = useNavigate();
+  return (
+    <div
+      className="bg-white  border border-gray-light  rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+      tabIndex={0}
+      role="button"
+      aria-label={`View game: ${game.title}`}
+      onClick={() => navigate(`/chess/pgn/${game.id}`)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/chess/pgn/${game.id}`); }}
+    >
     <div className="flex justify-between items-start mb-3">
       <h3 className="font-semibold text-text-dark  line-clamp-2">{game.title}</h3>
       <div className="flex space-x-1 ml-2">
         <button
           type="button"
-          onClick={onView}
+          onClick={(e) => { e.stopPropagation(); window.open(`/chess/pgn/${game.id}`, '_blank'); }}
           className="p-1 text-gray-400 hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           title="View"
           aria-label={`View game: ${game.title}`}
@@ -159,7 +162,8 @@ const GameCard = React.memo(({ game, onView, onShare }) => (
       </div>
     </div>
   </div>
-));
+  );
+}
 
 const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
   // Calculate visible page numbers
@@ -210,63 +214,6 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
   );
 });
 
-const GameViewerPanel = React.memo(({ selectedGame, selectedGamePGN, onClose }) => (
-  <div className="sticky top-4">
-    <div className="bg-white  border border-gray-light  rounded-lg p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-text-dark ">Game Viewer</h3>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600  focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          aria-label="Close game viewer"
-        >
-          ×
-        </button>
-      </div>
-      {selectedGame && (
-        <div className="mb-4 text-sm text-gray-600 ">
-          <div className="font-medium text-text-dark ">{selectedGame.title}</div>
-          {selectedGame.description && <div className="mt-1">{selectedGame.description}</div>}
-        </div>
-      )}
-      {selectedGamePGN && (
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            className="px-4 py-2 bg-accent text-white rounded hover:bg-secondary transition-colors font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            onClick={() => {
-              const blob = new Blob([selectedGamePGN], { type: 'text/plain' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `game-${selectedGame?.id || 'pgn'}.pgn`;
-              document.body.appendChild(a);
-              a.click();
-              setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }, 100);
-            }}
-            aria-label="Download PGN"
-          >
-            Download PGN
-          </button>
-        </div>
-      )}
-      <PGNViewer
-        initialPgn={selectedGamePGN}
-        width={300}
-        height={300}
-        showControls
-        showHeaders
-        showMoveList
-        theme="light"
-      />
-    </div>
-  </div>
-));
-
 // --- Main Component ---
 
 export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, showViewer = true, className = '' }) {
@@ -276,7 +223,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedGame, setSelectedGame] = useState(null);
-  const [selectedGamePGN, setSelectedGamePGN] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showPublicOnly, setShowPublicOnly] = useState(false);
@@ -371,7 +317,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
       const response = await ApiService.request(`/chess/get-game.php?id=${gameId}`, 'GET');
       if (response.success) {
         setSelectedGame(response.data);
-        setSelectedGamePGN(response.data.pgn_content);
         try { await PGNApiService.recordView(gameId); } catch {}
         if (onGameSelect) onGameSelect(response.data);
       } else {
@@ -395,17 +340,12 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     }
   }, [loadGameDetails]);
 
-  const handleCloseViewer = useCallback(() => {
-    setSelectedGame(null);
-    setSelectedGamePGN('');
-  }, []);
-
   // --- Render ---
   return (
-    <div className={`pgn-library w-full max-w-full px-2 sm:px-0 ${className}`}>
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div className={`pgn-library w-full max-w-full px-1 sm:px-0 ${className}`}>
+      <div className="flex flex-col w-full gap-6">
         {/* Games list */}
-        <div className="xl:col-span-2 w-full">
+        <div className="w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-primary mb-4">PGN Library</h2>
             <div className="space-y-4">
@@ -481,11 +421,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
             </>
           )}
         </div>
-        {showViewer && selectedGamePGN && (
-          <div className="xl:col-span-1 w-full max-w-full">
-            <GameViewerPanel selectedGame={selectedGame} selectedGamePGN={selectedGamePGN} onClose={handleCloseViewer} />
-          </div>
-        )}
+        {/* No viewer panel here, as viewing is now in a new page */}
       </div>
     </div>
   );

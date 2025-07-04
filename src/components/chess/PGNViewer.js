@@ -66,6 +66,17 @@ export const PGNViewer = React.memo(function PGNViewer({
   const [gameHistory, setGameHistory] = useState([]);
   const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
   const [position, setPosition] = useState(currentGame.fen());
+  // Responsive board width based on window size
+  const [responsiveBoardWidth, setResponsiveBoardWidth] = useState(width);
+  useEffect(() => {
+    function handleResize() {
+      const w = typeof window !== 'undefined' ? window.innerWidth : width;
+      setResponsiveBoardWidth(Math.min(width, w-50));
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [width]);
   // UI state
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -388,6 +399,7 @@ export const PGNViewer = React.memo(function PGNViewer({
     };
   }, []);
 
+
   const themeClasses = localTheme === 'dark'
     ? 'bg-background-dark text-text-light border-gray-dark'
     : 'bg-background-light text-text-dark border-gray-light';
@@ -395,7 +407,10 @@ export const PGNViewer = React.memo(function PGNViewer({
   const currentGameData = games[currentGameIndex];
 
   return (
-    <div className={`pgn-viewer p-4 rounded-lg border ${themeClasses} ${className}`}>
+    <div
+      className={`pgn-viewer border rounded-xl shadow-lg mx-auto my-4 px-2 py-4 sm:p-6 md:p-8 max-w-7xl w-full ${themeClasses} ${className}`}
+      style={{ minHeight: 400 }}
+    >
       {error && <ErrorBanner error={error} />}
       <ViewerHeader
         localTheme={localTheme}
@@ -412,35 +427,56 @@ export const PGNViewer = React.memo(function PGNViewer({
           localTheme={localTheme}
         />
       )}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          <div className="mb-4">
+      <div className="flex flex-col md:flex-row flex-wrap gap-6 md:gap-8 items-stretch">
+        <div
+          className="flex flex-col items-center md:items-start"
+          style={{
+            flex: `0 1 ${responsiveBoardWidth}px`,
+            minWidth: 220,
+            maxWidth: 600,
+            width: '100%',
+          }}
+        >
+          <div className="w-full flex justify-center md:justify-start mb-4">
             {currentGameData && (
-              <Chessboard
-                position={position}
-                boardWidth={width}
-                boardOrientation={orientation}
-                customBoardStyle={{ borderRadius: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                customDarkSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#4a4a4a' : '#b58863' }}
-                customLightSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#6a6a6a' : '#f0d9b5' }}
-                arePiecesDraggable={allowMoves}
-              />
+              <div className="w-full aspect-square">
+                <Chessboard
+                  position={position}
+                  boardWidth={responsiveBoardWidth}
+                  boardOrientation={orientation}
+                  customBoardStyle={{ borderRadius: '8px', boxShadow: '0 4px 16px 0 rgba(0,0,0,0.08)' }}
+                  customDarkSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#4a4a4a' : '#b58863' }}
+                  customLightSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#6a6a6a' : '#f0d9b5' }}
+                  arePiecesDraggable={allowMoves}
+                />
+              </div>
             )}
           </div>
           {showControls && (
-            <NavigationControls
-              goToFirst={goToFirst}
-              goToPrevious={goToPrevious}
-              toggleAutoPlay={toggleAutoPlay}
-              goToNext={goToNext}
-              goToLast={goToLast}
-              isPlaying={isPlaying}
-              currentMoveIndex={currentMoveIndex}
-              gameHistoryLength={gameHistory.length}
-            />
+            <div className="w-full flex justify-center mt-2">
+              <NavigationControls
+                goToFirst={goToFirst}
+                goToPrevious={goToPrevious}
+                toggleAutoPlay={toggleAutoPlay}
+                goToNext={goToNext}
+                goToLast={goToLast}
+                isPlaying={isPlaying}
+                currentMoveIndex={currentMoveIndex}
+                gameHistoryLength={gameHistory.length}
+              />
+            </div>
           )}
         </div>
-        <div className="flex flex-col space-y-4">
+        <div
+          className="flex flex-col gap-4"
+          style={{
+            flex: '1 1 300px',
+            minWidth: 220,
+            maxWidth: 700,
+            width: '100%',
+            overflow: 'auto',
+          }}
+        >
           {showHeaders && currentGameData && (
             <GameHeadersPanel gameHeaders={gameHeaders} localTheme={localTheme} />
           )}
@@ -457,7 +493,9 @@ export const PGNViewer = React.memo(function PGNViewer({
         </div>
       </div>
       {gameHistory.length > 0 && (
-        <ProgressIndicator currentMoveIndex={currentMoveIndex} gameHistoryLength={gameHistory.length} />
+        <div className="mt-6">
+          <ProgressIndicator currentMoveIndex={currentMoveIndex} gameHistoryLength={gameHistory.length} />
+        </div>
       )}
     </div>
   );

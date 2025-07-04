@@ -1,4 +1,3 @@
-
 # KCAdashboard Frontend – Admin Pages Documentation
 
 ## Overview
@@ -17,6 +16,7 @@ pages/admin/
   BatchManagement.js           # Admin batch management page
   NotificationManagement.js    # Admin notification management
   PlatformAnalytics.js         # Analytics dashboard for the platform
+  QuizManagement.js           # Admin quiz management page (view and manage all quizzes)
   StudentAttendanceHistory.js  # View student attendance history
   StudentAttendanceList.js     # List of student attendance records
   SupportSystem.js             # Admin support system page
@@ -49,6 +49,12 @@ pages/admin/
 
 - **PlatformAnalytics.js**  
   Dashboard for viewing analytics and reports on platform usage, engagement, and performance.
+
+- **QuizManagement.js**  
+  Admin quiz management page, allowing viewing and managing of all quizzes on the platform.
+  - **Admins** can view, edit, delete, and publish all quizzes on the platform.
+  - **Teachers** can view, edit, delete, and publish their own quizzes.
+  - Includes filters for difficulty and status, and a leaderboard button for each quiz.
 
 - **StudentAttendanceHistory.js**  
   View detailed attendance history for individual students.

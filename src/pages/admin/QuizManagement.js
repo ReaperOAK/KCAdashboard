@@ -106,12 +106,31 @@ export const AdminQuizManagement = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState(null);
 
+  // Helper to check if user is admin (from token or localStorage)
+  const isAdmin = useMemo(() => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return false;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role === 'admin';
+    } catch {
+      return false;
+    }
+  }, []);
+
   const fetchQuizzes = useCallback(async () => {
     setLoading(true);
     try {
-      const endpoint = filter === 'all'
-        ? '/quiz/get-teacher-quizzes.php'
-        : `/quiz/get-teacher-quizzes.php?difficulty=${filter}`;
+      let endpoint;
+      if (isAdmin) {
+        endpoint = filter === 'all'
+          ? '/quiz/get-all.php'
+          : `/quiz/get-all.php?difficulty=${filter}`;
+      } else {
+        endpoint = filter === 'all'
+          ? '/quiz/get-teacher-quizzes.php'
+          : `/quiz/get-teacher-quizzes.php?difficulty=${filter}`;
+      }
       const response = await ApiService.get(endpoint);
       setQuizzes(response.quizzes);
       setError(null);
@@ -120,7 +139,7 @@ export const AdminQuizManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, isAdmin]);
 
   useEffect(() => {
     fetchQuizzes();

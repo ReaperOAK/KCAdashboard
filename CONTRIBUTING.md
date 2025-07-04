@@ -1,6 +1,11 @@
+
 # Contributing
 
-## New Feature: Teacher Quiz Leaderboard
+
+## New Feature: Admin Quiz Management
+
+- Admins can now view and manage all quizzes from the Quiz Management page. When adding or updating quiz management features, ensure that admin users have access to all quizzes, not just their own or public ones.
+- When making changes to quiz management, update both backend (Quiz.php, endpoints) and frontend (QuizManagement.js) to reflect admin access.
 
 - When adding new quiz-related features, ensure both students and teachers have access to relevant analytics and leaderboards.
 - Teacher leaderboard pages should use the same API endpoints as student leaderboard pages for consistency.

@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import PERMISSIONS, { checkPermission } from '../../utils/permissions';
 import { useNavigate } from 'react-router-dom';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ApiService from '../../utils/api';
@@ -207,11 +209,19 @@ const EmptyState = React.memo(({ message, actionLabel, onAction }) => (
 ));
 
 // --- Main Component ---
+
 function GameArea() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('games');
   const [gameStatus, setGameStatus] = useState('all');
   const { games, practicePositions, loading, error } = useChessData(activeTab, gameStatus);
+  const { user } = useAuth();
+
+  // Upload modal state
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadData, setUploadData] = useState({ title: '', description: '', position: '', type: 'fen', difficulty: 'beginner' });
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   // Memoized handlers
   const handleTabChange = useCallback(
@@ -264,6 +274,39 @@ function GameArea() {
     )), [practicePositions, handleSelectPractice]
   );
 
+  // Permission check
+  const canUploadPractice = user && (user.role === 'admin' || checkPermission(user.permissions, PERMISSIONS.CHESS.UPLOAD_PRACTICE));
+
+  // Upload handlers
+  const openUploadModal = () => { setShowUpload(true); setUploadError(null); };
+  const closeUploadModal = () => { setShowUpload(false); setUploadData({ title: '', description: '', position: '', type: 'fen', difficulty: 'beginner' }); setUploadError(null); };
+  const handleUploadChange = (e) => {
+    const { name, value } = e.target;
+    setUploadData((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleUploadSubmit = async (e) => {
+    e.preventDefault();
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const payload = { ...uploadData };
+      // For FEN, backend expects 'position', for PGN, expects 'pgn_content'
+      if (payload.type === 'fen') {
+        payload.position = payload.position.trim();
+      } else {
+        payload.pgn_content = payload.position.trim();
+        delete payload.position;
+      }
+      await ApiService.createPracticePosition(payload);
+      closeUploadModal();
+      window.location.reload(); // Reload to show new position
+    } catch (err) {
+      setUploadError(err.message || 'Failed to upload practice position');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10">
       <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-5">Chess Game Area</h1>
@@ -305,6 +348,56 @@ function GameArea() {
 
       {activeTab === 'practice' && (
         <section aria-labelledby="practice-heading">
+          {canUploadPractice && (
+            <div className="mb-5 flex flex-col sm:flex-row sm:justify-end gap-3">
+              <button
+                type="button"
+                className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                onClick={openUploadModal}
+              >
+                Upload Practice Position
+              </button>
+            </div>
+          )}
+          {showUpload && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+              <form onSubmit={handleUploadSubmit} className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                <h2 className="text-xl font-bold mb-4">Upload Practice Position</h2>
+                {uploadError && <div className="mb-3 text-red-600">{uploadError}</div>}
+                <div className="mb-3">
+                  <label className="block mb-1 font-medium">Title</label>
+                  <input name="title" value={uploadData.title} onChange={handleUploadChange} required className="w-full border rounded px-2 py-1" />
+                </div>
+                <div className="mb-3">
+                  <label className="block mb-1 font-medium">Description</label>
+                  <textarea name="description" value={uploadData.description} onChange={handleUploadChange} rows={2} className="w-full border rounded px-2 py-1" />
+                </div>
+                <div className="mb-3">
+                  <label className="block mb-1 font-medium">Type</label>
+                  <select name="type" value={uploadData.type} onChange={handleUploadChange} className="w-full border rounded px-2 py-1">
+                    <option value="fen">FEN</option>
+                    <option value="pgn">PGN</option>
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label className="block mb-1 font-medium">{uploadData.type === 'fen' ? 'FEN String' : 'PGN Content'}</label>
+                  <textarea name="position" value={uploadData.position} onChange={handleUploadChange} rows={uploadData.type === 'fen' ? 2 : 6} required className="w-full border rounded px-2 py-1" />
+                </div>
+                <div className="mb-3">
+                  <label className="block mb-1 font-medium">Difficulty</label>
+                  <select name="difficulty" value={uploadData.difficulty} onChange={handleUploadChange} className="w-full border rounded px-2 py-1">
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button type="button" onClick={closeUploadModal} className="px-4 py-2 border rounded text-gray-700">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-primary text-white rounded" disabled={uploading}>{uploading ? 'Uploading...' : 'Upload'}</button>
+                </div>
+              </form>
+            </div>
+          )}
           {loading ? (
             <LoadingSpinner label="Loading practice positions..." />
           ) : error ? (

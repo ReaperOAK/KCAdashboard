@@ -13,6 +13,9 @@ export const PERMISSIONS = Object.freeze({
     EDIT: 'batch.edit',
     DELETE: 'batch.delete',
   }),
+  CHESS: Object.freeze({
+    UPLOAD_PRACTICE: 'upload_practice',
+  }),
 });
 
 export default PERMISSIONS;

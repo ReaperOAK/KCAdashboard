@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
+import LeaveRequestsAdmin from './LeaveRequestsAdmin';
 
 // Skeleton loader
 const SupportSkeleton = React.memo(() => (
@@ -36,6 +37,15 @@ const TabNav = React.memo(({ activeTab, onTabChange }) => (
       tabIndex={0}
     >
       FAQs
+    </button>
+    <button
+      onClick={() => onTabChange('leaves')}
+      className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'leaves' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
+      role="tab"
+      aria-selected={activeTab === 'leaves'}
+      tabIndex={0}
+    >
+      Leave Requests
     </button>
   </div>
 ));
@@ -360,7 +370,7 @@ const SupportSystem = React.memo(function SupportSystem() {
           <SupportSkeleton />
         ) : activeTab === 'tickets' ? (
           <TicketTable tickets={tickets} onStatusChange={handleStatusChange} onViewDetails={handleViewDetails} />
-        ) : (
+        ) : activeTab === 'faqs' ? (
           <div className="space-y-6">
             <div className="flex justify-end">
               <button
@@ -376,6 +386,8 @@ const SupportSystem = React.memo(function SupportSystem() {
               ))}
             </div>
           </div>
+        ) : (
+          <LeaveRequestsAdmin />
         )}
         {selectedTicket && (
           <TicketDetailModal ticket={selectedTicket} onClose={handleCloseDetails} onStatusChange={handleStatusChange} />

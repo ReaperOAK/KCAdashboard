@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import SupportTicketForm from './SupportTicketForm';
 import FaqList from './FaqList';
+import LeaveRequestForm from './LeaveRequestForm';
 
 
 const SupportCenter = () => {
@@ -22,20 +23,32 @@ const SupportCenter = () => {
           FAQs
         </button>
         {!isAdmin && (
-          <button
-            onClick={() => setActiveTab('ticket')}
-            className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'ticket' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
-            role="tab"
-            aria-selected={activeTab === 'ticket'}
-          >
-            Raise a Ticket
-          </button>
+          <>
+            <button
+              onClick={() => setActiveTab('ticket')}
+              className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'ticket' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
+              role="tab"
+              aria-selected={activeTab === 'ticket'}
+            >
+              Raise a Ticket
+            </button>
+            <button
+              onClick={() => setActiveTab('leave')}
+              className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'leave' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
+              role="tab"
+              aria-selected={activeTab === 'leave'}
+            >
+              Request Leave
+            </button>
+          </>
         )}
       </div>
       {activeTab === 'faqs' ? (
         <FaqList />
-      ) : (
+      ) : activeTab === 'ticket' ? (
         !isAdmin && <SupportTicketForm />
+      ) : (
+        !isAdmin && <LeaveRequestForm />
       )}
     </div>
   );

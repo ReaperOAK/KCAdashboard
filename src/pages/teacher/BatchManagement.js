@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ApiService from '../../utils/api';
 import BatchList from '../../components/batches/BatchList';
-import CreateBatchForm from '../../components/batches/CreateBatchForm';
 import Modal from '../../components/common/Modal';
+import BatchModal from '../../components/batches/BatchModal';
 import StudentSearch from '../../components/batches/StudentSearch';
 
 // --- Skeleton Loader ---
@@ -220,20 +220,17 @@ export default function BatchManagement() {
           />
         )}
 
-        {/* Create Batch Modal */}
+        {/* Create/Edit Batch Modal (shared) */}
         {showCreateModal && (
-          <Modal
-            title="Create New Batch"
+          <BatchModal
+            open={showCreateModal}
             onClose={() => setShowCreateModal(false)}
-          >
-            <CreateBatchForm
-              onClose={() => setShowCreateModal(false)}
-              onSubmit={async (data) => {
-                await ApiService.createBatch(data);
-                handleCreateSuccess();
-              }}
-            />
-          </Modal>
+            onSubmit={async (data) => {
+              await ApiService.createBatch(data);
+              handleCreateSuccess();
+            }}
+            mode="create"
+          />
         )}
 
         {/* Manage Students Modal */}

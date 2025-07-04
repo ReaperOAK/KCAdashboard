@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
 import Modal from '../../components/common/Modal';
+import { SchedulePicker } from '../../components/batches/CreateBatchForm';
 
 // Status badge (theme, accessible)
 const StatusBadge = React.memo(function StatusBadge({ status }) {
@@ -153,19 +154,7 @@ const EditBatchModal = React.memo(function EditBatchModal({ open, onClose, formD
               <option value="completed">Completed</option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-primary">Schedule</label>
-            <input
-              type="text"
-              name="schedule"
-              value={formData.schedule}
-              onChange={onChange}
-              required
-              className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-              aria-label="Batch schedule"
-            />
-          </div>
-          <div>
+          <div className="col-span-2">
             <label className="block text-sm font-medium text-primary">Max Students</label>
             <input
               type="number"
@@ -178,6 +167,14 @@ const EditBatchModal = React.memo(function EditBatchModal({ open, onClose, formD
               aria-label="Max students"
             />
           </div>
+        </div>
+        {/* SchedulePicker full width below grid */}
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-primary mb-1">Schedule</label>
+          <SchedulePicker
+            value={formData.schedule}
+            onChange={val => onChange({ target: { name: 'schedule', value: val } })}
+          />
         </div>
         <div className="flex justify-end space-x-3 pt-4">
           <button

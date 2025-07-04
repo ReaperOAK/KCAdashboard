@@ -80,9 +80,14 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
   );
 
   return (
-    <fieldset className="space-y-2" aria-label="Batch schedule">
+    <fieldset className="space-y-4" aria-label="Batch schedule">
       <legend className="sr-only">Batch schedule</legend>
-      <div className="flex items-center gap-2" role="group" aria-label="Days of week">
+      <label className="text-sm font-medium text-primary">Select Days</label>
+      <div
+        className="grid grid-cols-7 gap-2 w-full mb-2"
+        role="group"
+        aria-label="Days of week"
+      >
         {DAYS.map((day) => (
           <button
             key={day}
@@ -91,10 +96,10 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             aria-pressed={schedule.days.includes(day)}
             aria-label={day}
             className={
-              `px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent transition-colors ` +
+              `w-full py-2 rounded-lg font-semibold shadow-sm border transition-all focus:outline-none focus:ring-2 focus:ring-accent text-center ` +
               (schedule.days.includes(day)
-                ? 'bg-secondary text-white'
-                : 'bg-gray-light text-primary hover:bg-gray-dark hover:text-white')
+                ? 'bg-secondary text-white border-secondary scale-105'
+                : 'bg-gray-100 text-primary border-gray-300 hover:bg-accent hover:text-white')
             }
             onClick={() => handleDayToggle(day)}
             onKeyDown={e => {
@@ -108,20 +113,20 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label htmlFor="schedule-time" className="text-xs text-gray-dark">Time</label>
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+        <div className="flex-1">
+          <label htmlFor="schedule-time" className="block text-xs font-medium text-gray-dark mb-1">Time</label>
           <input
             id="schedule-time"
             type="time"
             value={schedule.time || '09:00'}
             onChange={e => handleFieldChange('time', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
+            className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2"
             aria-label="Batch time"
           />
         </div>
-        <div>
-          <label htmlFor="schedule-duration" className="text-xs text-gray-dark">Duration (minutes)</label>
+        <div className="flex-1">
+          <label htmlFor="schedule-duration" className="block text-xs font-medium text-gray-dark mb-1">Duration (minutes)</label>
           <input
             id="schedule-duration"
             type="number"
@@ -129,7 +134,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             step="30"
             value={schedule.duration || 60}
             onChange={e => handleFieldChange('duration', parseInt(e.target.value, 10))}
-            className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
+            className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2"
             aria-label="Batch duration in minutes"
           />
         </div>
@@ -272,16 +277,6 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
     </div>
   );
 
-  const ScheduleField = ({ values, setFieldValue }) => (
-    <div>
-      <label className="block text-sm font-medium text-primary">Schedule</label>
-      <SchedulePicker
-        value={values.schedule}
-        onChange={val => setFieldValue('schedule', val)}
-      />
-      <ErrorMessage name="schedule" component="div" className="text-xs text-red-600 mt-1" />
-    </div>
-  );
 
   const StatusField = () => (
     <div>
@@ -340,7 +335,8 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
             <MaxStudentsField />
           </div>
           {teachers && <TeacherField />}
-          <ScheduleField values={values} setFieldValue={setFieldValue} />
+          {/* Use only the custom recurring SchedulePicker for full width */}
+          <SchedulePicker value={values.schedule} onChange={val => setFieldValue('schedule', val)} />
           {values.status !== undefined && <StatusField />}
           <Actions isSubmitting={isSubmitting} />
         </Form>

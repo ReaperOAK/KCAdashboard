@@ -180,7 +180,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
         />
       )}
       <div
-        className={`fixed left-0 top-16 h-full bg-primary text-white transform transition-all duration-300 ease-in-out z-30 w-64 shadow-xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} lg:z-10`}
+        className={`fixed left-0 top-16 h-full bg-primary text-white transform transition-all duration-300 ease-in-out z-30 w-64 shadow-xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} lg:z-10 flex flex-col`}
         role="navigation"
         aria-label="Sidebar navigation"
       >
@@ -191,7 +191,8 @@ function Sidebar({ isOpen, toggleSidebar }) {
             </svg>
           </button>
         </div>
-        <div className="space-y-2 p-4 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+        {/* Make the scrollable area flex-1 and min-h-0 to allow scrolling when content overflows */}
+        <div className="space-y-2 p-4 flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
           {links.map((link) => {
             const isActive = location.pathname.startsWith(link.path);
             const expanded = expandedItem === link.label;

@@ -26,8 +26,15 @@ const ErrorAlert = React.memo(({ message, onClose }) => (
 ));
 
 // --- Classroom Card ---
-const ClassroomCard = React.memo(({ classroom, onSchedule, onAssignment, onMaterials }) => (
-  <div className="bg-white rounded-xl shadow-lg overflow-hidden" tabIndex={0} aria-label={`Classroom: ${classroom.name}`}>
+const ClassroomCard = React.memo(({ classroom, onCardClick, onSchedule, onAssignment, onMaterials }) => (
+  <div
+    className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+    tabIndex={0}
+    aria-label={`Classroom: ${classroom.name}`}
+    onClick={() => onCardClick(classroom)}
+    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { onCardClick(classroom); } }}
+    role="button"
+  >
     <div className="p-6">
       <h3 className="text-xl font-semibold text-secondary mb-2">{classroom.name}</h3>
       <p className="text-gray-600 mb-4">{classroom.description}</p>
@@ -39,7 +46,7 @@ const ClassroomCard = React.memo(({ classroom, onSchedule, onAssignment, onMater
     <div className="px-6 py-4 bg-gray-50 border-t flex flex-wrap gap-2 justify-between">
       <button
         type="button"
-        onClick={onSchedule}
+        onClick={e => { e.stopPropagation(); onSchedule(); }}
         className="text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-2 py-1"
         aria-label={`Schedule class for ${classroom.name}`}
       >
@@ -47,7 +54,7 @@ const ClassroomCard = React.memo(({ classroom, onSchedule, onAssignment, onMater
       </button>
       <button
         type="button"
-        onClick={onAssignment}
+        onClick={e => { e.stopPropagation(); onAssignment(); }}
         className="text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-2 py-1"
         aria-label={`Create assignment for ${classroom.name}`}
       >
@@ -55,7 +62,7 @@ const ClassroomCard = React.memo(({ classroom, onSchedule, onAssignment, onMater
       </button>
       <button
         type="button"
-        onClick={onMaterials}
+        onClick={e => { e.stopPropagation(); onMaterials(); }}
         className="text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-2 py-1"
         aria-label={`Add materials for ${classroom.name}`}
       >
@@ -116,9 +123,8 @@ function ClassroomManagement() {
   });
   const [materialForm, setMaterialForm] = useState({
     title: '',
-    type: 'document',
-    content: '',
-    file: null,
+    content: [''], // array of links
+    files: [], // array of files
   });
   const [assignmentForm, setAssignmentForm] = useState({
     title: '',
@@ -143,10 +149,28 @@ function ClassroomManagement() {
   const handleMaterialChange = useCallback((e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
-      setMaterialForm((prev) => ({ ...prev, file: files[0] }));
+      setMaterialForm((prev) => ({ ...prev, files: Array.from(files) }));
+    } else if (name === 'content') {
+      setMaterialForm((prev) => {
+        const idx = parseInt(e.target.dataset.idx || '0', 10);
+        const newContent = [...prev.content];
+        newContent[idx] = value;
+        return { ...prev, content: newContent };
+      });
     } else {
       setMaterialForm((prev) => ({ ...prev, [name]: value }));
     }
+  }, []);
+
+  // Add/remove video link fields
+  const handleAddLinkField = useCallback(() => {
+    setMaterialForm((prev) => ({ ...prev, content: [...prev.content, ''] }));
+  }, []);
+  const handleRemoveLinkField = useCallback((idx) => {
+    setMaterialForm((prev) => {
+      const newContent = prev.content.filter((_, i) => i !== idx);
+      return { ...prev, content: newContent.length ? newContent : [''] };
+    });
   }, []);
 
   const fetchClassrooms = useCallback(async () => {
@@ -214,16 +238,21 @@ function ClassroomManagement() {
       const formData = new window.FormData();
       formData.append('classroom_id', selectedClass.id);
       formData.append('title', materialForm.title);
-      formData.append('type', materialForm.type);
-      formData.append('content', materialForm.content);
-      if (materialForm.file) {
-        formData.append('file', materialForm.file);
+      // Append all links
+      materialForm.content.forEach((link) => {
+        if (link) formData.append('content[]', link);
+      });
+      // Append all files
+      if (materialForm.files && materialForm.files.length > 0) {
+        materialForm.files.forEach((file) => {
+          formData.append('files[]', file);
+        });
       }
       const response = await ApiService.postFormData('/classroom/add-material.php', formData);
       if (response.success) {
         setShowMaterialsModal(false);
         setRefreshTrigger((prev) => prev + 1);
-        setMaterialForm({ title: '', type: 'document', content: '', file: null });
+        setMaterialForm({ title: '', content: [''], files: [] });
         window.alert('Material uploaded successfully!');
       } else {
         setError(response.message || 'Failed to upload material');
@@ -267,6 +296,10 @@ function ClassroomManagement() {
                 <ClassroomCard
                   key={classroom.id}
                   classroom={classroom}
+                  onCardClick={(c) => {
+                    // Navigate to classroom detail route
+                    window.location.href = `/teacher/classroom/${c.id}`;
+                  }}
                   onSchedule={() => {
                     setSelectedClass(classroom);
                     setShowScheduleModal(true);
@@ -455,42 +488,35 @@ function ClassroomManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700" htmlFor="material-type">Type</label>
-                  <select
-                    id="material-type"
-                    name="type"
-                    value={materialForm.type}
-                    onChange={handleMaterialChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
-                  >
-                    <option value="document">Document</option>
-                    <option value="video">Video Link</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700">Video URLs</label>
+                  {materialForm.content.map((link, idx) => (
+                    <div key={idx} className="flex items-center gap-2 mb-2">
+                      <input
+                        type="url"
+                        name="content"
+                        data-idx={idx}
+                        value={link}
+                        onChange={handleMaterialChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
+                        required
+                      />
+                      {materialForm.content.length > 1 && (
+                        <button type="button" onClick={() => handleRemoveLinkField(idx)} className="text-red-600 hover:text-red-800 text-lg font-bold" aria-label="Remove link">&times;</button>
+                      )}
+                    </div>
+                  ))}
+                  <button type="button" onClick={handleAddLinkField} className="text-secondary hover:text-accent text-sm mt-1">+ Add another link</button>
                 </div>
-                {materialForm.type === 'video' ? (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="material-content">Video URL</label>
-                    <input
-                      id="material-content"
-                      type="url"
-                      name="content"
-                      value={materialForm.content}
-                      onChange={handleMaterialChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
-                      required
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="material-file">Upload File</label>
-                    <input
-                      id="material-file"
-                      type="file"
-                      onChange={handleMaterialChange}
-                      className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-white hover:file:bg-accent"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="material-file">Upload Files</label>
+                  <input
+                    id="material-file"
+                    type="file"
+                    multiple
+                    onChange={handleMaterialChange}
+                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-white hover:file:bg-accent"
+                  />
+                </div>
                 <div className="flex justify-end space-x-3">
                   <button
                     type="button"

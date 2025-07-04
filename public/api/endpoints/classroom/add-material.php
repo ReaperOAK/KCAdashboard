@@ -70,102 +70,104 @@ try {
         exit;
     }
       // Handle file upload if present
-    $file_url = null;
-    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+    $created_by = $user_data['id'];
+    $title = $_POST['title'];
+    $classroom_id = $_POST['classroom_id'];
+    $resource_ids = [];
+
+    // Accept multiple video links (content[])
+    $links = isset($_POST['content']) ? $_POST['content'] : [];
+    if (!is_array($links)) {
+        $links = [$links];
+    }
+    foreach ($links as $link) {
+        if (empty($link)) continue;
+        $stmt = $db->prepare("
+            INSERT INTO resources (
+                title, description, type, url, category, created_by, created_at
+            ) VALUES (
+                :title, :description, 'video', :url, 'classroom_material', :created_by, NOW()
+            )
+        ");
+        $desc = $link;
+        $stmt->bindParam(':title', $title);
+        $stmt->bindParam(':description', $desc);
+        $stmt->bindParam(':url', $link);
+        $stmt->bindParam(':created_by', $created_by);
+        $stmt->execute();
+        $resource_id = $db->lastInsertId();
+        $resource_ids[] = $resource_id;
+    }
+
+    // Accept multiple files
+    if (isset($_FILES['files'])) {
+        $files = $_FILES['files'];
+        $fileCount = is_array($files['name']) ? count($files['name']) : 0;
         $upload_dir = '../../../uploads/classroom_materials/';
-        
-        // Create directory if it doesn't exist
         if (!file_exists($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
-        
-        // Generate a unique filename
-        $filename = uniqid() . '_' . basename($_FILES['file']['name']);
-        $target_file = $upload_dir . $filename;
-          // Move the uploaded file
-        if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-            // Store only the filename in the database, not the subdirectory path
-            $file_url = $filename;
-        } else {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Failed to upload file: ' . error_get_last()['message']
-            ]);
-            exit;
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] !== UPLOAD_ERR_OK) continue;
+            $filename = uniqid() . '_' . basename($files['name'][$i]);
+            $target_file = $upload_dir . $filename;
+            if (move_uploaded_file($files['tmp_name'][$i], $target_file)) {
+                $stmt = $db->prepare("
+                    INSERT INTO resources (
+                        title, description, type, url, category, created_by, created_at
+                    ) VALUES (
+                        :title, :description, 'document', :url, 'classroom_material', :created_by, NOW()
+                    )
+                ");
+                $desc = $files['name'][$i];
+                $stmt->bindParam(':title', $title);
+                $stmt->bindParam(':description', $desc);
+                $stmt->bindParam(':url', $filename);
+                $stmt->bindParam(':created_by', $created_by);
+                $stmt->execute();
+                $resource_id = $db->lastInsertId();
+                $resource_ids[] = $resource_id;
+            }
         }
     }
-    
-    // Insert into resources table
-    $stmt = $db->prepare("
-        INSERT INTO resources (
-            title, description, type, url, category, created_by, created_at
-        ) VALUES (
-            :title, :description, :type, :url, 'classroom_material', :created_by, NOW()
-        )
-    ");
-    
-    $title = $_POST['title'];
-    $description = isset($_POST['content']) ? $_POST['content'] : '';
-    $type = $_POST['type'];
-    $created_by = $user_data['id'];
-    
-    // Store URL in a variable first for proper binding
-    $url = '';
-    if ($type === 'video') {
-        $url = isset($_POST['content']) ? $_POST['content'] : '';
-    } else {
-        $url = $file_url;
+
+    // Grant access and notify for all resources
+    foreach ($resource_ids as $resource_id) {
+        // Resource access
+        $stmt = $db->prepare("
+            INSERT INTO resource_access (resource_id, user_id)
+            SELECT :resource_id, cs.student_id
+            FROM classroom_students cs
+            WHERE cs.classroom_id = :classroom_id
+        ");
+        $stmt->bindParam(':resource_id', $resource_id);
+        $stmt->bindParam(':classroom_id', $classroom_id);
+        $stmt->execute();
+
+        // Notification
+        $stmt = $db->prepare("
+            INSERT INTO notifications (user_id, title, message, type, created_at)
+            SELECT 
+                cs.student_id,
+                :notif_title,
+                :notif_message,
+                'new_material',
+                NOW()
+            FROM classroom_students cs
+            WHERE cs.classroom_id = :classroom_id
+        ");
+        $notif_title = "New Learning Material Available";
+        $notif_message = "A new " . $type . " material '" . $title . "' has been added to your classroom.";
+        $stmt->bindParam(':notif_title', $notif_title);
+        $stmt->bindParam(':notif_message', $notif_message);
+        $stmt->bindParam(':classroom_id', $classroom_id);
+        $stmt->execute();
     }
-    
-    $stmt->bindParam(':title', $title);
-    $stmt->bindParam(':description', $description);
-    $stmt->bindParam(':type', $type);
-    $stmt->bindParam(':url', $url);
-    $stmt->bindParam(':created_by', $created_by);
-    $stmt->execute();
-    
-    $resource_id = $db->lastInsertId();
-    
-    // Now create resource access for all students in this classroom
-    $stmt = $db->prepare("
-        INSERT INTO resource_access (resource_id, user_id)
-        SELECT :resource_id, cs.student_id
-        FROM classroom_students cs
-        WHERE cs.classroom_id = :classroom_id
-    ");
-    
-    $stmt->bindParam(':resource_id', $resource_id);
-    $stmt->bindParam(':classroom_id', $_POST['classroom_id']);
-    $stmt->execute();
-    
-    // Create notifications for students - FIX HERE
-    $stmt = $db->prepare("
-        INSERT INTO notifications (user_id, title, message, type, created_at)
-        SELECT 
-            cs.student_id,
-            :notif_title,
-            :notif_message,
-            'new_material',
-            NOW()
-        FROM classroom_students cs
-        WHERE cs.classroom_id = :classroom_id
-    ");
-    
-    // Store all values in variables first before binding
-    $notif_title = "New Learning Material Available";
-    $notif_message = "A new " . $type . " material '" . $title . "' has been added to your classroom.";
-    $classroom_id = $_POST['classroom_id']; // Use a variable for classroom_id too
-    
-    // Now bind the variables, not expressions or literals
-    $stmt->bindParam(':notif_title', $notif_title);
-    $stmt->bindParam(':notif_message', $notif_message);
-    $stmt->bindParam(':classroom_id', $classroom_id);
-    $stmt->execute();
-    
+
     echo json_encode([
         'success' => true,
-        'message' => 'Material added successfully',
-        'resource_id' => $resource_id
+        'message' => 'Material(s) added successfully',
+        'resource_ids' => $resource_ids
     ]);
     
 } catch (Exception $e) {

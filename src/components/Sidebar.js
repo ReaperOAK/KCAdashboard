@@ -27,7 +27,7 @@ const SIDEBAR_LINKS = {
     { label: 'Tournaments', path: '/admin/tournaments', icon: '🏆' },
     { label: 'Quizzes', path: '/admin/quizzes', icon: '📋' },
     { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
-    { label: 'Support', path: '/admin/support', icon: '💬' },
+    // { label: 'Support', path: '/admin/support', icon: '💬' },
     { label: 'Settings', path: '/admin/settings', icon: '⚙️' }
   ],
   teacher: [

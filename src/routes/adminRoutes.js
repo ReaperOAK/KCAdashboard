@@ -1,4 +1,13 @@
+import SupportCenter from '../pages/support/SupportCenter';
+
+// ...existing imports...
+
 export const adminRoutes = [
+  {
+    path: '/support',
+    element: SupportCenter,
+    title: 'Support Center',
+  },
   {
     path: '/admin-dashboard',
     element: require('../pages/admin/AdminDashboard').default,
@@ -49,11 +58,7 @@ export const adminRoutes = [
     element: require('../pages/admin/PlatformAnalytics').default,
     title: 'Analytics',
   },
-  {
-    path: '/admin/support',
-    element: require('../pages/admin/SupportSystem').default,
-    title: 'Support',
-  },
+  // Support system for admin is now accessible from /support for all roles
   {
     path: '/admin/tournaments',
     element: require('../pages/admin/TournamentManagement').default,

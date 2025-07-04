@@ -1,3 +1,7 @@
+import SupportCenter from '../pages/support/SupportCenter';
+
+// ...existing imports...
+
 // Student dashboard route components (all are page-level, no logic here)
 import StudentDashboard from '../pages/student/StudentDashboard';
 import ClassroomPage from '../pages/student/ClassroomPage';
@@ -16,6 +20,11 @@ import FeedbackHistory from '../pages/student/FeedbackHistory';
 // Route config for student dashboard
 // Each route: { path, element, title }
 export const studentRoutes = [
+  {
+    path: '/support',
+    element: SupportCenter,
+    title: 'Support Center',
+  },
   {
     path: '/student-dashboard',
     element: StudentDashboard,

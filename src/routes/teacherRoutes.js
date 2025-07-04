@@ -1,3 +1,7 @@
+import SupportCenter from '../pages/support/SupportCenter';
+
+// ...existing imports...
+
 import StudentManagement from '../pages/teacher/StudentManagement';
 // import AttendanceManagement from '../pages/teacher/AttendanceManagement';
 // Route config for teacher dashboard section
@@ -13,6 +17,11 @@ import QuizManagement from '../pages/teacher/QuizManagement';
 import QuizCreator from '../pages/teacher/QuizCreator';
 
 export const teacherRoutes = [
+  {
+    path: '/support',
+    element: SupportCenter,
+    title: 'Support Center',
+  },
   {
     path: '/teacher/students',
     element: StudentManagement,

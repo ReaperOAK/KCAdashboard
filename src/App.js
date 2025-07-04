@@ -109,9 +109,9 @@ const AppContent = React.memo(function AppContent() {
                   </ProtectedRoute>
                 }
               />
-              {renderProtectedRoutes(adminRoutes, ['admin'])}
-              {renderProtectedRoutes(teacherRoutes, ['teacher'])}
-              {renderProtectedRoutes(studentRoutes, ['student'])}
+              {renderProtectedRoutes(adminRoutes, ['admin', 'teacher', 'student'])}
+              {renderProtectedRoutes(teacherRoutes, ['teacher', 'admin', 'student'])}
+              {renderProtectedRoutes(studentRoutes, ['student', 'admin', 'teacher'])}
               {renderProtectedRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
             </Routes>
           </main>

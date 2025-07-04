@@ -60,10 +60,15 @@ function TopNavbar({ toggleSidebar }) {
     navigate('/login');
   }, [logout, navigate]);
 
-  const commonLinks = useMemo(() => [
-    { label: 'Dashboard', path: `/${user?.role}-dashboard` },
-    { label: 'Profile', path: '/profile' }
-  ], [user?.role]);
+
+  const commonLinks = useMemo(() => {
+    const links = [
+      { label: 'Dashboard', path: `/${user?.role}-dashboard` },
+      { label: 'Profile', path: '/profile' },
+      { label: 'Support / FAQ', path: '/support' }
+    ];
+    return links;
+  }, [user?.role]);
 
   return (
     <nav className="bg-primary text-white fixed w-full z-40 shadow">

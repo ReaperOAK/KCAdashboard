@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../../utils/api';
@@ -52,7 +51,7 @@ const DeleteQuizModal = React.memo(({ open, quiz, onCancel, onConfirm }) => {
 });
 
 // Quiz table row
-const QuizTableRow = React.memo(({ quiz, onEdit, onPublish, onDelete, getStatusClass, getDifficultyClass }) => (
+const QuizTableRow = React.memo(({ quiz, onEdit, onPublish, onDelete, onViewLeaderboard, getStatusClass, getDifficultyClass }) => (
   <tr className="border-t hover:bg-gray-light">
     <td className="p-3 sm:p-4">
       <div className="font-medium text-secondary text-sm sm:text-base">{quiz.title}</div>
@@ -94,6 +93,14 @@ const QuizTableRow = React.memo(({ quiz, onEdit, onPublish, onDelete, getStatusC
           aria-label="Delete quiz"
         >
           <FaTrash />
+        </button>
+        <button
+          type="button"
+          onClick={onViewLeaderboard}
+          className="p-2 text-green-600 hover:bg-green-50 rounded focus:outline-none focus:ring-2 focus:ring-accent"
+          aria-label="View leaderboard"
+        >
+          <FaChessBoard />
         </button>
       </div>
     </td>
@@ -308,6 +315,7 @@ export const QuizManagement = () => {
                       onDelete={() => handleDeleteClick(quiz)}
                       getStatusClass={getStatusClass}
                       getDifficultyClass={getDifficultyClass}
+                      onViewLeaderboard={() => navigate(`/teacher/quiz/${quiz.id}/leaderboard`)}
                     />
                   ))}
                 </tbody>

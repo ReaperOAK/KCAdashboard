@@ -15,6 +15,7 @@ import ClassroomManagement from '../pages/teacher/ClassroomManagement';
 import ClassroomDetail from '../pages/teacher/ClassroomDetail';
 import QuizManagement from '../pages/teacher/QuizManagement';
 import QuizCreator from '../pages/teacher/QuizCreator';
+import TeacherQuizLeaderboardPage from '../pages/teacher/TeacherQuizLeaderboardPage';
 
 export const teacherRoutes = [
   {
@@ -77,5 +78,15 @@ export const teacherRoutes = [
     path: '/teacher/quiz/edit/:id',
     element: QuizCreator,
     title: 'Edit Quiz',
+  },
+  {
+    path: '/teacher/quiz/leaderboard',
+    element: TeacherQuizLeaderboardPage,
+    title: 'Quiz Leaderboard',
+  },
+  {
+    path: '/teacher/quiz/:id/leaderboard',
+    element: TeacherQuizLeaderboardPage,
+    title: 'Quiz Leaderboard',
   },
 ];

@@ -23,6 +23,7 @@ KCAdashboard is a full-featured platform for managing educational, chess, and ad
 
 ### Quiz & Analytics
 - Create, manage, and take quizzes with leaderboards and result exports
+- Teachers can now view the leaderboard for any quiz from the Quiz Management page. Click the leaderboard icon next to a quiz to see detailed rankings for that quiz.
 - Export and view analytics for attendance, performance, quizzes, and more
 
 ### Notifications & Resources

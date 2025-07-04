@@ -1,4 +1,3 @@
-
 # KCAdashboard Frontend – Teacher Pages Documentation
 
 ## Overview
@@ -11,15 +10,16 @@ The `teacher` folder under `pages` contains all top-level page components for te
 
 ```
 pages/teacher/
-  BatchDetail.js           # Shows details of a batch for teachers
-  BatchManagement.js       # Batch management page for teachers
-  ClassroomDetail.js       # Detailed classroom view for teachers
-  ClassroomManagement.js   # Classroom management page for teachers
-  GradingFeedback.js       # Provides grading and feedback tools
-  QuizCreator.js           # Tool for creating quizzes
-  QuizManagement.js        # Manage quizzes as a teacher
-  ReportsAnalytics.js      # Analytics and reports for teachers
-  TeacherDashboard.js      # Dashboard for teacher users
+  BatchDetail.js                     # Shows details of a batch for teachers
+  BatchManagement.js                 # Batch management page for teachers
+  ClassroomDetail.js                 # Detailed classroom view for teachers
+  ClassroomManagement.js             # Classroom management page for teachers
+  GradingFeedback.js                 # Provides grading and feedback tools
+  QuizCreator.js                     # Tool for creating quizzes
+  QuizManagement.js                  # Manage quizzes as a teacher
+  ReportsAnalytics.js                # Analytics and reports for teachers
+  TeacherDashboard.js                # Dashboard for teacher users
+  TeacherQuizLeaderboardPage.js      # View leaderboard for a specific quiz
 ```
 
 ---
@@ -53,6 +53,9 @@ pages/teacher/
 - **TeacherDashboard.js**  
   The main dashboard for teachers, summarizing upcoming classes, assignments, and recent activity.
 
+- **TeacherQuizLeaderboardPage.js**  
+  View the leaderboard for a specific quiz as a teacher.
+
 ---
 
 ## Features
@@ -84,6 +87,12 @@ import TeacherDashboard from './pages/teacher/TeacherDashboard';
 ```
 import QuizCreator from './pages/teacher/QuizCreator';
 <Route path="/teacher/quiz/create" element={<QuizCreator />} />
+```
+
+**Teacher Quiz Leaderboard Route:**
+```
+import TeacherQuizLeaderboardPage from './pages/teacher/TeacherQuizLeaderboardPage';
+<Route path="/teacher/quiz/:quizId/leaderboard" element={<TeacherQuizLeaderboardPage />} />
 ```
 
 ---

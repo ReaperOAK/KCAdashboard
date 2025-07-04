@@ -23,8 +23,8 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Clean up expired games first (similar to how challenges are cleaned up)
-    ChessGame::cleanupExpiredGames($db);
+    // Check for per-move timeouts (10 min)
+    ChessGame::processMoveTimeouts($db, 10);
     
     // Initialize game object
     $game = new ChessGame($db);

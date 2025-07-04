@@ -125,6 +125,43 @@ const InteractiveBoard = React.memo(() => {
   const [fenHistory, setFenHistory] = useState([]);
   const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
 
+  // --- Per-move countdown timer ---
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  useEffect(() => {
+    let timerInterval = null;
+    const isActive = gameData && gameData.status === 'active';
+    const isYourTurn = gameData && gameData.yourTurn;
+    if (isActive && isYourTurn && lastMoveAt) {
+      // Calculate seconds left
+      const lastMoveTime = new Date(lastMoveAt).getTime();
+      const now = Date.now();
+      const elapsed = Math.floor((now - lastMoveTime) / 1000);
+      setTimeLeft(Math.max(600 - elapsed, 0));
+      timerInterval = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timerInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      setTimeLeft(600);
+      if (timerInterval) clearInterval(timerInterval);
+    }
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [gameData, lastMoveAt]);
+
+  // Format timer as mm:ss
+  const formatTimer = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   // Fetch active games for switcher (simul support)
   useEffect(() => {
     ApiService.getChessGames('active').then(res => {
@@ -331,8 +368,24 @@ const InteractiveBoard = React.memo(() => {
           className="w-full h-auto"
         />
       </div>
+      {/* Per-move timer display */}
+      {id && gameData && gameData.status === 'active' && gameData.yourTurn && (
+        <div className="flex justify-center mb-4">
+          <div className="bg-gray-900 text-white px-6 py-2 rounded-lg text-lg font-mono font-bold shadow-md">
+            Your move timer: <span className={timeLeft <= 30 ? 'text-red-400' : timeLeft <= 60 ? 'text-yellow-300' : ''}>{formatTimer(timeLeft)}</span>
+          </div>
+        </div>
+      )}
       {gameData && (
         <GameInfoCard gameData={gameData} lastMoveAt={lastMoveAt} formatIST={formatIST} />
+      )}
+      {id && (
+        <div className="text-center text-lg font-semibold text-primary mt-4">
+          {gameData && gameData.yourTurn ? 'Your Turn' : 'Opponent\'s Turn'}
+          <div className="text-2xl font-bold">
+            {formatTimer(timeLeft)}
+          </div>
+        </div>
       )}
     </div>
   );

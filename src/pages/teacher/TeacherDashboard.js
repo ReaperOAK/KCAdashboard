@@ -1,7 +1,61 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ApiService from '../../utils/api';
+
+// --- Grading Prompt Modal ---
+const GradingPrompt = ({ sessions, onClose }) => {
+  const navigate = useNavigate();
+  if (!sessions.length) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+        <h2 className="text-lg font-bold mb-2 text-primary">Pending Grading</h2>
+        <p className="mb-4">You have classes that have ended but grading/feedback is not submitted. Please grade these sessions:</p>
+        <ul className="mb-4">
+          {sessions.map(s => (
+            <li key={s.id} className="mb-2 flex justify-between items-center">
+              <span>{s.title} <span className="text-xs text-gray-500">({s.batch_name})</span></span>
+              <button
+                className="ml-2 px-2 py-1 bg-secondary text-white rounded hover:bg-primary"
+                onClick={() => navigate(`/teacher/grading?session=${s.id}`)}
+              >Grade</button>
+            </li>
+          ))}
+        </ul>
+        <button className="text-sm text-gray-600 hover:underline" onClick={onClose}>Dismiss</button>
+      </div>
+    </div>
+  );
+};
+
+
+
+// --- Attendance Prompt Modal ---
+const AttendancePrompt = ({ sessions, onClose }) => {
+  const navigate = useNavigate();
+  if (!sessions.length) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+        <h2 className="text-lg font-bold mb-2 text-primary">Pending Attendance</h2>
+        <p className="mb-4">You have classes that have ended but attendance is not marked. Please mark attendance for these sessions:</p>
+        <ul className="mb-4">
+          {sessions.map(s => (
+            <li key={s.id} className="mb-2 flex justify-between items-center">
+              <span>{s.title} <span className="text-xs text-gray-500">({s.batch_name})</span></span>
+              <button
+                className="ml-2 px-2 py-1 bg-secondary text-white rounded hover:bg-primary"
+                onClick={() => navigate(`/teacher/attendance?session=${s.id}`)}
+              >Mark Attendance</button>
+            </li>
+          ))}
+        </ul>
+        <button className="text-sm text-gray-600 hover:underline" onClick={onClose}>Dismiss</button>
+      </div>
+    </div>
+  );
+};
 
 // --- Skeleton Loader ---
 const DashboardSkeleton = React.memo(() => (
@@ -93,6 +147,10 @@ export default function TeacherDashboard() {
     upcomingClasses: 0,
     completedClasses: 0,
   });
+  const [pendingAttendance, setPendingAttendance] = useState([]);
+  const [showAttendancePrompt, setShowAttendancePrompt] = useState(false);
+  const [pendingGrading, setPendingGrading] = useState([]);
+  const [showGradingPrompt, setShowGradingPrompt] = useState(false);
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,22 +166,43 @@ export default function TeacherDashboard() {
       } else {
         setError(response.message || 'Failed to fetch dashboard data');
       }
+      // Fetch pending attendance sessions
+      if (user && user.id) {
+        const pending = await ApiService.getPendingAttendanceSessions(user.id);
+        if (pending && pending.sessions && pending.sessions.length > 0) {
+          setPendingAttendance(pending.sessions);
+          setShowAttendancePrompt(true);
+        }
+        // Fetch pending grading sessions
+        const pendingGradingRes = await ApiService.getPendingGradingSessions(user.id);
+        if (pendingGradingRes && pendingGradingRes.sessions && pendingGradingRes.sessions.length > 0) {
+          setPendingGrading(pendingGradingRes.sessions);
+          setShowGradingPrompt(true);
+        }
+      }
     } catch (err) {
       setError(`Failed to load dashboard data: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+    // eslint-disable-next-line
+  }, [fetchDashboardData, user]);
 
   if (loading) return <DashboardSkeleton />;
   if (error) return <ErrorAlert message={error} onRetry={fetchDashboardData} />;
 
   return (
     <div className="min-h-screen bg-background-light">
+      {showAttendancePrompt && pendingAttendance.length > 0 && (
+        <AttendancePrompt sessions={pendingAttendance} onClose={() => setShowAttendancePrompt(false)} />
+      )}
+      {showGradingPrompt && pendingGrading.length > 0 && (
+        <GradingPrompt sessions={pendingGrading} onClose={() => setShowGradingPrompt(false)} />
+      )}
       <div className="p-4 sm:p-8 max-w-6xl mx-auto">
         <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6 break-words">
           Welcome, {user.full_name}!

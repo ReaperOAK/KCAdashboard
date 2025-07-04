@@ -9,6 +9,7 @@ class ApiService {
     return `/${path}`;
   }
 
+
   static async request(endpoint, method = 'GET', data = null, options = {}) {
     const token = localStorage.getItem('token');
     let url = endpoint.startsWith('http') ? endpoint : `${this.API_URL}${endpoint}`;
@@ -152,6 +153,12 @@ class ApiService {
     return this.request(endpoint, 'DELETE');
   }
 
+  // Mark attendance for one or more students for a session
+  static async markAttendance(attendanceRecords) {
+    // attendanceRecords: [{ student_id, batch_id, session_id, status, notes }]
+    return this.post('/attendance/mark-attendance.php', { attendance: attendanceRecords });
+  }
+
   // Admin Dashboard specific endpoints
   static async getDashboardStats() {
     try {
@@ -172,6 +179,10 @@ class ApiService {
 
   static async getAttendanceOverview() {
     return this.get('/admin/attendance-overview.php');
+  }
+  // Get sessions that have ended but attendance is not marked
+  static async getPendingAttendanceSessions(teacherId) {
+    return this.request('/attendance/get-pending.php', 'GET', null, { params: { teacher_id: teacherId } });
   }
 
   // Batch Management endpoints
@@ -365,6 +376,9 @@ class ApiService {
   static async getFeedbackHistory(studentId) {
     return this.get(`/grading/get-student-feedback-history.php?student_id=${studentId}`);  }
 
+  static async getPendingGradingSessions(teacherId) {
+    return this.request('/grading/get-pending.php', 'GET', null, { params: { teacher_id: teacherId } });
+  }
   // Resource Management endpoints
   static async getResources(category = null) {
     try {

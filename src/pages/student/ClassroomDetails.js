@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import ClassRating from '../../components/student/ClassRating';
 import { useParams } from 'react-router-dom';
 import ApiService from '../../utils/api';
 import UploadUtils from '../../utils/uploadUtils';
@@ -205,6 +206,10 @@ export const ClassroomDetails = React.memo(() => {
                 <span><span className="font-semibold">Schedule:</span> {classroom.schedule}</span>
                 <StatusBadge status={classroom.status} />
               </div>
+            </div>
+            {/* Show class rating if class has ended and student attended (backend will enforce eligibility) */}
+            <div className="mb-6">
+              <ClassRating classId={parseInt(classroom.id, 10)} />
             </div>
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
               <div className="border-b">

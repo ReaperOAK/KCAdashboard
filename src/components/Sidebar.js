@@ -33,7 +33,7 @@ const SIDEBAR_LINKS = {
   teacher: [
     { label: 'Batches', path: '/teacher/batches', icon: '👨‍👧‍👦' },
     { label: 'Analytics', path: '/teacher/analytics', icon: '📊' },
-    { label: 'Grading', path: '/teacher/grading', icon: '📝' },
+    { label: 'Students', path: '/teacher/students', icon: '🧑‍🎓' },
     { label: 'Quizzes', path: '/teacher/quizzes', icon: '📋' },
     { label: 'Classroom', path: '/teacher/classroom', icon: '🏫' }
   ],

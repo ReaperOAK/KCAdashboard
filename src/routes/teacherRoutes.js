@@ -1,16 +1,24 @@
+import StudentManagement from '../pages/teacher/StudentManagement';
+// import AttendanceManagement from '../pages/teacher/AttendanceManagement';
 // Route config for teacher dashboard section
 // Use named export for better DX and tree-shaking
 import TeacherDashboard from '../pages/teacher/TeacherDashboard';
 import BatchManagement from '../pages/teacher/BatchManagement';
 import BatchDetail from '../pages/teacher/BatchDetail';
 import ReportsAnalytics from '../pages/teacher/ReportsAnalytics';
-import { GradingFeedback } from '../pages/teacher/GradingFeedback';
+// import { GradingFeedback } from '../pages/teacher/GradingFeedback';
 import ClassroomManagement from '../pages/teacher/ClassroomManagement';
 import ClassroomDetail from '../pages/teacher/ClassroomDetail';
 import QuizManagement from '../pages/teacher/QuizManagement';
 import QuizCreator from '../pages/teacher/QuizCreator';
 
 export const teacherRoutes = [
+  {
+    path: '/teacher/students',
+    element: StudentManagement,
+    title: 'Student Management',
+  },
+  // Removed AttendanceManagement and GradingFeedback routes, replaced by StudentManagement
   {
     path: '/teacher-dashboard',
     element: TeacherDashboard,
@@ -31,11 +39,11 @@ export const teacherRoutes = [
     element: ReportsAnalytics,
     title: 'Analytics',
   },
-  {
-    path: '/teacher/grading',
-    element: GradingFeedback,
-    title: 'Grading',
-  },
+  // {
+  //   path: '/teacher/grading',
+  //   element: GradingFeedback,
+  //   title: 'Grading',
+  // },
   {
     path: '/teacher/classroom',
     element: ClassroomManagement,

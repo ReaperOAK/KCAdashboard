@@ -1,3 +1,21 @@
+### class_ratings
+| Column     | Type        | Null | Key | Default           | Extra           |
+|------------|-------------|------|-----|-------------------|-----------------|
+| id         | int(11)     | NO   | PRI | NULL              | auto_increment  |
+| class_id   | int(11)     | NO   | MUL | NULL              |                 |
+| student_id | int(11)     | NO   | MUL | NULL              |                 |
+| rating     | int(11)     | NO   |     | NULL              |                 |
+| comment    | text        | YES  |     | NULL              |                 |
+| created_at | datetime    | YES  |     | CURRENT_TIMESTAMP |                 |
+
+**Indexes & Constraints:**
+- `UNIQUE KEY unique_rating (class_id, student_id)` ensures a student can rate a class only once (can update).
+- `class_id` references `batch_sessions(id)` or `classrooms(id)` depending on implementation.
+- `student_id` references `users(id)`.
+
+**Purpose:**
+- Stores student ratings and optional comments for classes (online/offline), submitted after class ends.
+
 
 # KCA Dashboard Database Schema
 ### report_cards

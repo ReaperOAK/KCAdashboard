@@ -2,6 +2,7 @@
 // Endpoint: GET /api/endpoints/grading/get-pending.php
 // Returns sessions for the teacher that have ended but grading/feedback is not yet submitted
 require_once __DIR__ . '/../../models/Classroom.php';
+require_once '../../config/cors.php';
 require_once __DIR__ . '/../../config/Database.php';
 
 header('Content-Type: application/json');

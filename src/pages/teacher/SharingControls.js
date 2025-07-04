@@ -22,6 +22,11 @@ const SharingControls = ({
   const handleStudentSelect = (selected) => {
     setQuiz(prev => ({ ...prev, student_ids: selected ? selected.map(opt => opt.value) : [] }));
   };
+  // Defensive: ensure arrays for sharing fields
+  const batch_ids = Array.isArray(quiz.batch_ids) ? quiz.batch_ids : [];
+  const classroom_ids = Array.isArray(quiz.classroom_ids) ? quiz.classroom_ids : [];
+  const student_ids = Array.isArray(quiz.student_ids) ? quiz.student_ids : [];
+
   return (
     <div className="bg-white rounded-lg shadow-md mb-6 sm:mb-8">
       <div className="p-4 sm:p-6">
@@ -35,7 +40,7 @@ const SharingControls = ({
           <Select
             isMulti
             options={batches.map(b => ({ value: b.id, label: b.name }))}
-            value={batches.filter(b => quiz.batch_ids.includes(b.id)).map(b => ({ value: b.id, label: b.name }))}
+            value={batches.filter(b => batch_ids.includes(b.id)).map(b => ({ value: b.id, label: b.name }))}
             onChange={handleBatchSelect}
             placeholder="Select batches..."
           />
@@ -45,7 +50,7 @@ const SharingControls = ({
           <Select
             isMulti
             options={classrooms.map(c => ({ value: c.id, label: c.name }))}
-            value={classrooms.filter(c => quiz.classroom_ids.includes(c.id)).map(c => ({ value: c.id, label: c.name }))}
+            value={classrooms.filter(c => classroom_ids.includes(c.id)).map(c => ({ value: c.id, label: c.name }))}
             onChange={handleClassroomSelect}
             placeholder="Select classrooms..."
           />
@@ -56,7 +61,7 @@ const SharingControls = ({
             isMulti
             isLoading={studentLoading}
             options={students.map(s => ({ value: s.id, label: `${s.full_name} (${s.email})` }))}
-            value={students.filter(s => quiz.student_ids.includes(s.id)).map(s => ({ value: s.id, label: `${s.full_name} (${s.email})` }))}
+            value={students.filter(s => student_ids.includes(s.id)).map(s => ({ value: s.id, label: `${s.full_name} (${s.email})` }))}
             onChange={handleStudentSelect}
             onInputChange={setStudentSearch}
             placeholder="Search and select students..."

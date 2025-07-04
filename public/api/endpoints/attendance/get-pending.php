@@ -3,6 +3,7 @@
 // Returns sessions for the teacher that have ended but attendance is not yet marked
 require_once __DIR__ . '/../../models/Classroom.php';
 require_once __DIR__ . '/../../config/Database.php';
+require_once '../../config/cors.php';
 
 header('Content-Type: application/json');
 

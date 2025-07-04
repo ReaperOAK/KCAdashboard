@@ -21,13 +21,16 @@ class Quiz {
     public function getAll($user = null) {
         try {
             $params = [];
-            $where = ["q.status = 'published'"];
+            $where = [];
             if ($user) {
                 $userId = $user['id'];
                 $role = $user['role'];
-                // Admin/teacher sees all their own quizzes
-                if ($role === 'admin' || $role === 'teacher') {
-                    $where[] = '(q.is_public = 1 OR q.created_by = :user_id)';
+                if ($role === 'admin') {
+                    // Admin: see all quizzes, no restriction
+                    // No additional where clause needed
+                } else if ($role === 'teacher') {
+                    // Teacher: see their own or public quizzes
+                    $where[] = "(q.is_public = 1 OR q.created_by = :user_id)";
                     $params[':user_id'] = $userId;
                 } else {
                     // Student: public, shared with their batch/classroom, or directly
@@ -52,9 +55,11 @@ class Quiz {
             }
             $query = "SELECT q.*, u.full_name as creator_name 
                      FROM " . $this->table_name . " q
-                     JOIN users u ON q.created_by = u.id
-                     WHERE " . implode(' AND ', $where) . "
-                     ORDER BY q.created_at DESC";
+                     JOIN users u ON q.created_by = u.id";
+            if (!empty($where)) {
+                $query .= " WHERE " . implode(' AND ', $where);
+            }
+            $query .= " ORDER BY q.created_at DESC";
             $stmt = $this->conn->prepare($query);
             foreach ($params as $k => $v) {
                 $stmt->bindValue($k, $v);

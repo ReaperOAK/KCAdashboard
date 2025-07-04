@@ -155,7 +155,11 @@ export default function TeacherDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Prevent duplicate API calls by using a ref
+  const isFetchingRef = React.useRef(false);
   const fetchDashboardData = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -168,22 +172,31 @@ export default function TeacherDashboard() {
       }
       // Fetch pending attendance sessions
       if (user && user.id) {
-        const pending = await ApiService.getPendingAttendanceSessions(user.id);
-        if (pending && pending.sessions && pending.sessions.length > 0) {
-          setPendingAttendance(pending.sessions);
-          setShowAttendancePrompt(true);
+        try {
+          const pending = await ApiService.getPendingAttendanceSessions(user.id);
+          if (pending && pending.sessions && pending.sessions.length > 0) {
+            setPendingAttendance(pending.sessions);
+            setShowAttendancePrompt(true);
+          }
+        } catch (err) {
+          // Optionally log or show error for attendance fetch
         }
         // Fetch pending grading sessions
-        const pendingGradingRes = await ApiService.getPendingGradingSessions(user.id);
-        if (pendingGradingRes && pendingGradingRes.sessions && pendingGradingRes.sessions.length > 0) {
-          setPendingGrading(pendingGradingRes.sessions);
-          setShowGradingPrompt(true);
+        try {
+          const pendingGradingRes = await ApiService.getPendingGradingSessions(user.id);
+          if (pendingGradingRes && pendingGradingRes.sessions && pendingGradingRes.sessions.length > 0) {
+            setPendingGrading(pendingGradingRes.sessions);
+            setShowGradingPrompt(true);
+          }
+        } catch (err) {
+          // Optionally log or show error for grading fetch
         }
       }
     } catch (err) {
       setError(`Failed to load dashboard data: ${err.message}`);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [user]);
 

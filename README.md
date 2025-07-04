@@ -21,10 +21,15 @@ KCAdashboard is a full-featured platform for managing educational, chess, and ad
 - PGN upload/view, interactive boards, and player statistics
 - Practice sessions, tournaments, and leaderboard
 
+
 ### Quiz & Analytics
 - Create, manage, and take quizzes with leaderboards and result exports
 - Teachers can now view the leaderboard for any quiz from the Quiz Management page. Click the leaderboard icon next to a quiz to see detailed rankings for that quiz.
 - Export and view analytics for attendance, performance, quizzes, and more
+
+### Recent Improvements
+- Improved error handling in grading backend (get-pending.php) for better diagnostics and reliability.
+- Prevented duplicate API calls for pending grading/attendance in TeacherDashboard frontend.
 
 ### Notifications & Resources
 - Send, receive, and manage notifications and preferences (in-app, email, etc.)

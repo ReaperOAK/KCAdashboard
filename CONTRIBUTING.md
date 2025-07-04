@@ -5,6 +5,10 @@
 - When adding new quiz-related features, ensure both students and teachers have access to relevant analytics and leaderboards.
 - Teacher leaderboard pages should use the same API endpoints as student leaderboard pages for consistency.
 - When adding a new teacher page, update `src/pages/teacher/docs.md` and the main `README.md`.
+
+## Error Handling & API Best Practices
+- When modifying backend endpoints, always add error handling and logging for diagnostics.
+- For frontend API calls, ensure duplicate requests are prevented and errors are handled gracefully in the UI.
 - Add new routes to `src/routes/teacherRoutes.js` and test navigation from the Quiz Management page.
 - When making changes to upload or permissions logic, ensure that restrictions (such as preventing students from uploading PGNs) are enforced in both backend and frontend, and update documentation accordingly.
 

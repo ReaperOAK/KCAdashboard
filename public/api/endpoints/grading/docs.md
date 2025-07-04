@@ -69,11 +69,14 @@ endpoints/grading/
 
 ---
 
+
 ## Troubleshooting
 
 - If grading data is missing or incorrect, check the underlying database queries and data sources in each PHP file.
 - Ensure proper authentication and authorization checks are in place to protect sensitive data.
+- If you encounter a 500 error from `get-pending.php`, check the PHP error logs for details. The endpoint now logs errors and returns a JSON error message for diagnostics.
 
 ---
 
-For more details on the overall API structure and features, see the main `docs.md` in the `public/api` folder.
+## Recent Improvements
+- Error handling and logging added to `get-pending.php` for better diagnostics and reliability.

@@ -210,7 +210,7 @@ const EmptyState = React.memo(({ message, actionLabel, onAction }) => (
 function GameArea() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('games');
-  const [gameStatus, setGameStatus] = useState('active');
+  const [gameStatus, setGameStatus] = useState('all');
   const { games, practicePositions, loading, error } = useChessData(activeTab, gameStatus);
 
   // Memoized handlers

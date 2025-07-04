@@ -1,0 +1,23 @@
+1. DONE sidebar not scrollable 
+2. DONE calender in batch 
+3. student can rate class
+4. DONE rating model mein star 
+5. push notif reminder to grade the batch studs after class.
+6. DONE error boundary 
+7. batch wise quiz
+8. quiz visibility to either public/batch or a list of students
+9. admin can edit quiz
+10. pdf protector
+11. DONE multi uploads in add materials for batch 
+12. every batch has its own live board, collaborative, with permission controls
+13. DONE countdown 
+14. DONE PLEASE DONT DRAG & DROP THAT IS NOT SUPPORTED INPUT  it is now supported
+15. DONE play computer ui fix
+16. game library, default mein all games
+17. practice postions uploaded by admin and by teacher (access given by admin)
+18. leave management for teachers.
+19. pgn viewer ka ui fix
+20. live board, mein pgn view karna hai
+21. public/private
+22. quiz leaderboard visible to teacher
+23. no pgn upload for students

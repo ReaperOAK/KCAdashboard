@@ -252,9 +252,23 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
           />
         )}
         {activeTab === 'computer' && (
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="w-full lg:flex-1 space-y-6">
-              <div className="bg-background-light p-4 sm:p-6 rounded-lg">
+          <div className="flex flex-col lg:flex-row gap-8 items-center justify-center">
+            <div className="w-full max-w-full sm:max-w-[520px] md:max-w-[600px] lg:max-w-[640px] mx-auto lg:mx-0 flex-shrink-0 order-2 lg:order-1">
+              <ChessBoard
+                position="start"
+                orientation={engineColor === 'black' ? 'white' : 'black'}
+                allowMoves={true}
+                showHistory={true}
+                showAnalysis={false}
+                engineLevel={engineLevel}
+                playMode="vs-ai"
+                width={520}
+                useOnlineAPI={useOnlineAPI}
+                className="w-full h-auto max-w-full shadow-lg rounded-lg border border-gray-200"
+              />
+            </div>
+            <div className="w-full lg:flex-1 space-y-6 order-1 lg:order-2">
+              <div className="bg-background-light p-4 sm:p-6 rounded-lg shadow-md">
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-primary mb-2">Engine Level</label>
                   <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3">
@@ -315,20 +329,6 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                   </p>
                 </div>
               </div>
-            </div>
-            <div className="w-full max-w-full sm:max-w-[420px] mx-auto lg:mx-0 flex-shrink-0">
-              <ChessBoard
-                position="start"
-                orientation={engineColor === 'black' ? 'white' : 'black'}
-                allowMoves={true}
-                showHistory={true}
-                showAnalysis={false}
-                engineLevel={engineLevel}
-                playMode="vs-ai"
-                width={undefined}
-                useOnlineAPI={useOnlineAPI}
-                className="w-full h-auto max-w-full"
-              />
             </div>
           </div>
         )}

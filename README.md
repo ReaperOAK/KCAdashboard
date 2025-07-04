@@ -130,6 +130,10 @@ If you experience issues with the chess engine:
 npm run setup-stockfish
 ```
 
+## Notes
+
+- Students are not allowed to upload PGN files. The backend and frontend both enforce this restriction.
+
 ## License
 
 Copyright © 2023-2024 Kolkata Chess Academy. All rights reserved.

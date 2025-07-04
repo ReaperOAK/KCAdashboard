@@ -32,15 +32,25 @@ try {
     
     // Get current user (with fallback for development)
     $teacher_id = null;
+    $current_user = null;
     try {
         $current_user = getAuthUser();
         if ($current_user && isset($current_user['id'])) {
+            // Prevent students from uploading PGNs
+            if (isset($current_user['role']) && strtolower($current_user['role']) === 'student') {
+                http_response_code(403);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Students are not allowed to upload PGN files.',
+                    'error_code' => 'FORBIDDEN_ROLE'
+                ]);
+                exit();
+            }
             $teacher_id = $current_user['id'];
         }
     } catch (Exception $e) {
         error_log("Auth failed, using default teacher ID: " . $e->getMessage());
     }
-    
     // Fallback to default teacher ID if no authentication
     if (!$teacher_id) {
         $teacher_id = 1; // Default teacher ID for development

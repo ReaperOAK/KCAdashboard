@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   ArrowUpTrayIcon,
   BookOpenIcon,
@@ -123,11 +124,17 @@ const UploadHelpSection = React.memo(() => (
 // --- Main Page ---
 
 export const PGNManagementPage = React.memo(function PGNManagementPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('viewer');
   const [selectedPGN, setSelectedPGN] = useState('');
 
-  // Memoize tab config for performance
-  const tabs = useMemo(() => TABS, []);
+  // Only show upload tab if not student
+  const tabs = useMemo(() => {
+    if (user && user.role && user.role.toLowerCase() === 'student') {
+      return TABS.filter(tab => tab.id !== 'upload');
+    }
+    return TABS;
+  }, [user]);
 
   // --- Handlers ---
   const handleTabChange = useCallback((tabId) => {
@@ -139,8 +146,12 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
   }, []);
 
   const handleUploadClick = useCallback(() => {
+    if (user && user.role && user.role.toLowerCase() === 'student') {
+      // Do nothing or show a message
+      return;
+    }
     setActiveTab('upload');
-  }, []);
+  }, [user]);
 
   const handlePGNParsed = useCallback((pgnData) => {
     setSelectedPGN(pgnData.content);
@@ -193,12 +204,20 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
           )}
           {activeTab === 'upload' && (
             <div className="w-full">
-              <PGNUpload
-                onPGNParsed={handlePGNParsed}
-                onUploadComplete={handleUploadComplete}
-                className="bg-white shadow-lg w-full h-auto"
-              />
-              <UploadHelpSection />
+              {user && user.role && user.role.toLowerCase() === 'student' ? (
+                <div className="bg-yellow-100 border border-yellow-300 text-yellow-900 rounded-lg p-6 text-center">
+                  Students are not allowed to upload PGN files.
+                </div>
+              ) : (
+                <>
+                  <PGNUpload
+                    onPGNParsed={handlePGNParsed}
+                    onUploadComplete={handleUploadComplete}
+                    className="bg-white shadow-lg w-full h-auto"
+                  />
+                  <UploadHelpSection />
+                </>
+              )}
             </div>
           )}
           {activeTab === 'library' && (

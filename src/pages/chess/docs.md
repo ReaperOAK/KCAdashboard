@@ -1,4 +1,3 @@
-
 # KCAdashboard Frontend – Chess Pages Documentation
 
 ## Overview
@@ -87,6 +86,13 @@ import PGNManagementPage from './pages/chess/PGNManagementPage';
 - **Game not starting:** Check game state initialization and route configuration.
 - **PGN not loading:** Ensure file format is correct and API endpoints are reachable.
 - **Board not interactive:** Verify event handlers and component props.
+
+---
+
+## Student Upload Restriction
+
+- Students are not allowed to upload PGN files. The upload tab is hidden for student users, and the backend will also reject upload attempts from students.
+- Teachers and admins retain full access to PGN upload features.
 
 ---
 

@@ -354,6 +354,15 @@ export function ChessPGNBoard({
         <Chessboard
           position={game.fen()}
           onPieceDrop={handleDrop}
+          onSquareClick={(square) => {
+            // Emulate drag-and-drop logic for click-to-move
+            if (!window._moveFromPGNBoard) {
+              window._moveFromPGNBoard = square;
+              return;
+            }
+            handleDrop(window._moveFromPGNBoard, square);
+            window._moveFromPGNBoard = null;
+          }}
           customSquareStyles={moveSquares}
           boardWidth={width}
           boardOrientation={orientation}

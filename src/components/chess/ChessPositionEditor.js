@@ -248,7 +248,10 @@ export function ChessPositionEditor({
         <Chessboard
           position={fen}
           onPieceDrop={handleDrop}
-          onSquareClick={handleSquareClick}
+          onSquareClick={(square) => {
+            // For position editor, treat drag and click the same way
+            handleSquareClick(square);
+          }}
           boardWidth={width}
           boardOrientation={orientation}
           areArrowsAllowed={false}

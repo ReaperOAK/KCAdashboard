@@ -379,50 +379,62 @@ const ChessBoard = ({
     setOptionSquares({});
   }
 
+
   // Square click handler for making moves
   function onSquareClick(square) {
     if (!allowMoves || isThinking) return;
-    
-    // Check if it's the player's turn
     const playerColor = orientation_.charAt(0).toLowerCase();
     const currentTurn = game.turn();
-    
-    // In vs-ai or vs-human mode, only allow moving pieces when it's your turn
     if ((playMode === 'vs-ai' || playMode === 'vs-human') && playerColor !== currentTurn) {
       return;
     }
-    
-    // If we already have a piece selected
     if (moveFrom) {
-      // Try to make a move
-      const gameCopy = new Chess(game.fen());
-      const move = {
-        from: moveFrom,
-        to: square,
-        promotion: 'q' // Always promote to queen for simplicity
-      };
-
-      try {
-        gameCopy.move(move);
-        setGame(gameCopy);
-        setMoveFrom('');
-        setOptionSquares({});
-        
-        // Call onMove callback if provided
-        if (onMove) {
-          onMove(move, gameCopy.fen());
-        }
-      } catch (error) {
-        // Illegal move, reset selection
-        resetFirstMove();
-      }
+      handleMove(moveFrom, square);
     } else {
-      // No piece was selected yet, try to select one
       const piece = game.get(square);
       if (piece && piece.color === game.turn()) {
         setMoveFrom(square);
         getMoveOptions(square);
       }
+    }
+  }
+
+  // Drag-and-drop handler for making moves
+  function onPieceDrop(sourceSquare, targetSquare) {
+    if (!allowMoves || isThinking) return false;
+    const playerColor = orientation_.charAt(0).toLowerCase();
+    const currentTurn = game.turn();
+    if ((playMode === 'vs-ai' || playMode === 'vs-human') && playerColor !== currentTurn) {
+      return false;
+    }
+    return handleMove(sourceSquare, targetSquare);
+  }
+
+  // Shared move logic for click and drag
+  function handleMove(from, to) {
+    const gameCopy = new Chess(game.fen());
+    const move = {
+      from,
+      to,
+      promotion: 'q' // Always promote to queen for simplicity
+    };
+    try {
+      const result = gameCopy.move(move);
+      if (result) {
+        setGame(gameCopy);
+        setMoveFrom('');
+        setOptionSquares({});
+        if (onMove) {
+          onMove(move, gameCopy.fen());
+        }
+        return true;
+      } else {
+        resetFirstMove();
+        return false;
+      }
+    } catch (error) {
+      resetFirstMove();
+      return false;
     }
   }
 
@@ -530,6 +542,7 @@ const ChessBoard = ({
             id="chess-board"
             position={fen}
             onSquareClick={onSquareClick}
+            onPieceDrop={onPieceDrop}
             onSquareRightClick={onSquareRightClick}
             customSquareStyles={squareStyles}
             boardOrientation={orientation_}

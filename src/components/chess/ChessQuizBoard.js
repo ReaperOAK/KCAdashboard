@@ -173,6 +173,14 @@ export const ChessQuizBoard = React.memo(({
         <Chessboard
           position={game.fen()}
           onPieceDrop={handleDrop}
+          onSquareClick={(square) => {
+            if (!window._moveFromQuizBoard) {
+              window._moveFromQuizBoard = square;
+              return;
+            }
+            handleDrop(window._moveFromQuizBoard, square);
+            window._moveFromQuizBoard = null;
+          }}
           customSquareStyles={customSquareStyles}
           boardWidth={width}
           boardOrientation={orientation}

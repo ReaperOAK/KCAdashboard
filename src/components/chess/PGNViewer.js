@@ -56,7 +56,8 @@ export const PGNViewer = React.memo(function PGNViewer({
   showControls = true,
   onGameChange = null,
   onMoveChange = null,
-  className = ''
+  className = '',
+  allowMoves = true
 }) {
   // Core game state
   const [games, setGames] = useState([]);
@@ -422,6 +423,7 @@ export const PGNViewer = React.memo(function PGNViewer({
                 customBoardStyle={{ borderRadius: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
                 customDarkSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#4a4a4a' : '#b58863' }}
                 customLightSquareStyle={{ backgroundColor: localTheme === 'dark' ? '#6a6a6a' : '#f0d9b5' }}
+                arePiecesDraggable={allowMoves}
               />
             )}
           </div>

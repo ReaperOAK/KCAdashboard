@@ -2,6 +2,7 @@
 
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import SharingControls from './SharingControls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
 import ApiService from '../../utils/api';
@@ -277,14 +278,58 @@ const QuizCreator = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
-    const [quiz, setQuiz] = useState({
+  const [quiz, setQuiz] = useState({
     title: '',
     description: '',
     difficulty: 'beginner',
     time_limit: 15,
     status: 'draft',
-    questions: []
+    questions: [],
+    is_public: false,
+    batch_ids: [],
+    classroom_ids: [],
+    student_ids: []
   });
+
+  const [batches, setBatches] = useState([]);
+  const [classrooms, setClassrooms] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [studentSearch, setStudentSearch] = useState('');
+  const [studentLoading, setStudentLoading] = useState(false);
+  // Fetch batches and classrooms for sharing
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        const res = await ApiService.get('/batches/get-all.php');
+        setBatches(res.batches || []);
+      } catch {}
+    };
+    const fetchClassrooms = async () => {
+      try {
+        const res = await ApiService.get('/classroom/get-student-classes.php');
+        setClassrooms(res.classes || []);
+      } catch {}
+    };
+    fetchBatches();
+    fetchClassrooms();
+  }, []);
+
+  // Student search for sharing
+  useEffect(() => {
+    if (!studentSearch || studentSearch.length < 2) return;
+    setStudentLoading(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await ApiService.get(`/users/search-students.php?q=${encodeURIComponent(studentSearch)}`);
+        setStudents(res.students || []);
+      } catch {
+        setStudents([]);
+      } finally {
+        setStudentLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [studentSearch]);
   
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
@@ -652,6 +697,16 @@ const QuizCreator = () => {
           </h1>
         </div>
         <QuizDetailsForm quiz={quiz} handleFormChange={handleFormChange} />
+        <SharingControls
+          quiz={quiz}
+          setQuiz={setQuiz}
+          batches={batches}
+          classrooms={classrooms}
+          students={students}
+          studentSearch={studentSearch}
+          setStudentSearch={setStudentSearch}
+          studentLoading={studentLoading}
+        />
         <div className="bg-white rounded-lg shadow-md mb-6 sm:mb-8">
           <div className="p-4 sm:p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <h2 className="text-lg sm:text-xl font-semibold">Questions</h2>

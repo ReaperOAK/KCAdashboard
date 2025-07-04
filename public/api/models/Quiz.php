@@ -11,19 +11,54 @@ class Quiz {
     public $status;
     public $created_by;
     public $created_at;
+    public $is_public;
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
-    public function getAll() {
-        try {            $query = "SELECT q.*, u.full_name as creator_name 
+    // Only return quizzes the user is allowed to see (public, shared, or created by them)
+    public function getAll($user = null) {
+        try {
+            $params = [];
+            $where = ["q.status = 'published'"];
+            if ($user) {
+                $userId = $user['id'];
+                $role = $user['role'];
+                // Admin/teacher sees all their own quizzes
+                if ($role === 'admin' || $role === 'teacher') {
+                    $where[] = '(q.is_public = 1 OR q.created_by = :user_id)';
+                    $params[':user_id'] = $userId;
+                } else {
+                    // Student: public, shared with their batch/classroom, or directly
+                    $batchIds = $this->getUserBatchIds($userId);
+                    $classroomIds = $this->getUserClassroomIds($userId);
+                    $whereBatch = $whereClassroom = $whereStudent = '0';
+                    if (!empty($batchIds)) {
+                        $inBatches = implode(',', array_map('intval', $batchIds));
+                        $whereBatch = "q.id IN (SELECT quiz_id FROM quiz_batch_shares WHERE batch_id IN ($inBatches))";
+                    }
+                    if (!empty($classroomIds)) {
+                        $inClassrooms = implode(',', array_map('intval', $classroomIds));
+                        $whereClassroom = "q.id IN (SELECT quiz_id FROM quiz_classroom_shares WHERE classroom_id IN ($inClassrooms))";
+                    }
+                    $whereStudent = "q.id IN (SELECT quiz_id FROM quiz_student_shares WHERE student_id = :user_id)";
+                    $where[] = "(q.is_public = 1 OR $whereBatch OR $whereClassroom OR $whereStudent)";
+                    $params[':user_id'] = $userId;
+                }
+            } else {
+                // Not logged in: only public quizzes
+                $where[] = 'q.is_public = 1';
+            }
+            $query = "SELECT q.*, u.full_name as creator_name 
                      FROM " . $this->table_name . " q
                      JOIN users u ON q.created_by = u.id
-                     WHERE q.status = 'published'
+                     WHERE " . implode(' AND ', $where) . "
                      ORDER BY q.created_at DESC";
-
             $stmt = $this->conn->prepare($query);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -31,15 +66,44 @@ class Quiz {
         }
     }
 
-    public function getByDifficulty($difficulty) {
-        try {            $query = "SELECT q.*, u.full_name as creator_name 
+    public function getByDifficulty($difficulty, $user = null) {
+        try {
+            $params = [":difficulty" => $difficulty];
+            $where = ["q.difficulty = :difficulty", "q.status = 'published'"];
+            if ($user) {
+                $userId = $user['id'];
+                $role = $user['role'];
+                if ($role === 'admin' || $role === 'teacher') {
+                    $where[] = '(q.is_public = 1 OR q.created_by = :user_id)';
+                    $params[':user_id'] = $userId;
+                } else {
+                    $batchIds = $this->getUserBatchIds($userId);
+                    $classroomIds = $this->getUserClassroomIds($userId);
+                    $whereBatch = $whereClassroom = $whereStudent = '0';
+                    if (!empty($batchIds)) {
+                        $inBatches = implode(',', array_map('intval', $batchIds));
+                        $whereBatch = "q.id IN (SELECT quiz_id FROM quiz_batch_shares WHERE batch_id IN ($inBatches))";
+                    }
+                    if (!empty($classroomIds)) {
+                        $inClassrooms = implode(',', array_map('intval', $classroomIds));
+                        $whereClassroom = "q.id IN (SELECT quiz_id FROM quiz_classroom_shares WHERE classroom_id IN ($inClassrooms))";
+                    }
+                    $whereStudent = "q.id IN (SELECT quiz_id FROM quiz_student_shares WHERE student_id = :user_id)";
+                    $where[] = "(q.is_public = 1 OR $whereBatch OR $whereClassroom OR $whereStudent)";
+                    $params[':user_id'] = $userId;
+                }
+            } else {
+                $where[] = 'q.is_public = 1';
+            }
+            $query = "SELECT q.*, u.full_name as creator_name 
                      FROM " . $this->table_name . " q
                      JOIN users u ON q.created_by = u.id
-                     WHERE q.difficulty = :difficulty AND q.status = 'published'
+                     WHERE " . implode(' AND ', $where) . "
                      ORDER BY q.created_at DESC";
-
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(":difficulty", $difficulty);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -47,7 +111,8 @@ class Quiz {
         }
     }
     
-    public function getById($id) {
+    // Access control: user can access if quiz is public, or shared with their batch/classroom/student, or they are the creator/admin
+    public function getById($id, $user = null) {
         try {
             // Get quiz details
             $query = "SELECT q.*, u.full_name as creator_name 
@@ -59,23 +124,56 @@ class Quiz {
             $stmt->bindParam(":id", $id);
             $stmt->execute();
             $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$quiz) {
                 return null;
-            }              // Get questions for this quiz
+            }
+
+            // Access control
+            $canAccess = false;
+            if ($quiz['is_public']) {
+                $canAccess = true;
+            } elseif ($user) {
+                // Creator or admin always has access
+                if ($quiz['created_by'] == $user['id'] || $user['role'] === 'admin') {
+                    $canAccess = true;
+                } else {
+                    // Check batch sharing
+                    $batchIds = $this->getUserBatchIds($user['id']);
+                    if (!empty($batchIds)) {
+                        $inBatches = $this->isQuizSharedWithBatches($id, $batchIds);
+                        if ($inBatches) $canAccess = true;
+                    }
+                    // Check classroom sharing
+                    $classroomIds = $this->getUserClassroomIds($user['id']);
+                    if (!empty($classroomIds)) {
+                        $inClassrooms = $this->isQuizSharedWithClassrooms($id, $classroomIds);
+                        if ($inClassrooms) $canAccess = true;
+                    }
+                    // Check student sharing
+                    if ($this->isQuizSharedWithStudent($id, $user['id'])) {
+                        $canAccess = true;
+                    }
+                }
+            }
+            if (!$canAccess) {
+                return null;
+            }
+
+            // Get questions for this quiz
             $query = "SELECT *, correct_moves, pgn_data, expected_player_color FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":quiz_id", $id);
             $stmt->execute();
             $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // For each question, get its answers and parse chess data
             foreach ($questions as $key => $question) {
                 // Parse correct_moves JSON for chess questions
                 if ($question['type'] === 'chess' && $question['correct_moves']) {
                     $questions[$key]['correct_moves'] = json_decode($question['correct_moves'], true);
                 }
-                
+
                 // Get answers for multiple choice questions
                 if ($question['type'] === 'multiple_choice') {
                     $query = "SELECT * FROM quiz_answers WHERE question_id = :question_id";
@@ -85,13 +183,65 @@ class Quiz {
                     $questions[$key]['answers'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
             }
-            
+
             $quiz['questions'] = $questions;
             return $quiz;
-            
+
         } catch (PDOException $e) {
             throw new Exception("Error fetching quiz by ID: " . $e->getMessage());
         }
+    }
+
+    // Helper: get all batch IDs for a user
+    private function getUserBatchIds($userId) {
+        $query = "SELECT batch_id FROM batch_students WHERE student_id = :user_id AND status = 'active'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $userId);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_column($rows, 'batch_id');
+    }
+
+    // Helper: get all classroom IDs for a user
+    private function getUserClassroomIds($userId) {
+        $query = "SELECT classroom_id FROM classroom_students WHERE student_id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $userId);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_column($rows, 'classroom_id');
+    }
+
+    // Helper: check if quiz is shared with any of the user's batches
+    private function isQuizSharedWithBatches($quizId, $batchIds) {
+        if (empty($batchIds)) return false;
+        $in  = str_repeat('?,', count($batchIds) - 1) . '?';
+        $query = "SELECT 1 FROM quiz_batch_shares WHERE quiz_id = ? AND batch_id IN ($in) LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $params = array_merge([$quizId], $batchIds);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    // Helper: check if quiz is shared with any of the user's classrooms
+    private function isQuizSharedWithClassrooms($quizId, $classroomIds) {
+        if (empty($classroomIds)) return false;
+        $in  = str_repeat('?,', count($classroomIds) - 1) . '?';
+        $query = "SELECT 1 FROM quiz_classroom_shares WHERE quiz_id = ? AND classroom_id IN ($in) LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $params = array_merge([$quizId], $classroomIds);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    // Helper: check if quiz is shared with the user directly
+    private function isQuizSharedWithStudent($quizId, $userId) {
+        $query = "SELECT 1 FROM quiz_student_shares WHERE quiz_id = :quiz_id AND student_id = :user_id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":quiz_id", $quizId);
+        $stmt->bindParam(":user_id", $userId);
+        $stmt->execute();
+        return $stmt->fetchColumn() !== false;
     }
       public function submitQuiz($userId, $quizId, $answers, $chessMoves, $timeTaken) {
         try {
@@ -416,74 +566,124 @@ class Quiz {
     }
     
     // Get quizzes created by a specific teacher
-    public function getTeacherQuizzes($teacherId, $difficulty = null) {
+    // For admin: get all quizzes, for teacher: only their own
+    public function getTeacherQuizzes($userId, $difficulty = null, $role = 'teacher') {
         try {
             $query = "SELECT q.*, 
                      (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
                      u.full_name as creator_name 
                      FROM " . $this->table_name . " q
                      JOIN users u ON q.created_by = u.id
-                     WHERE q.created_by = :teacher_id";
-                     
+                     WHERE 1=1";
+            $params = [];
+            if ($role === 'teacher') {
+                $query .= " AND q.created_by = :user_id";
+                $params[':user_id'] = $userId;
+            }
             if ($difficulty) {
                 $query .= " AND q.difficulty = :difficulty";
+                $params[':difficulty'] = $difficulty;
             }
-            
             $query .= " ORDER BY q.created_at DESC";
-            
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(":teacher_id", $teacherId);
-            
-            if ($difficulty) {
-                $stmt->bindParam(":difficulty", $difficulty);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
             }
-            
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new Exception("Error fetching teacher quizzes: " . $e->getMessage());
+            throw new Exception("Error fetching quizzes: " . $e->getMessage());
         }
     }
       // Create a new quiz
     public function create($data) {
         try {
             $this->conn->beginTransaction();
-            
+
             // Insert the quiz
             $query = "INSERT INTO " . $this->table_name . " 
-                    (title, description, difficulty, time_limit, status, created_by) 
-                    VALUES (:title, :description, :difficulty, :time_limit, :status, :created_by)";
-            
+                    (title, description, difficulty, time_limit, status, created_by, is_public) 
+                    VALUES (:title, :description, :difficulty, :time_limit, :status, :created_by, :is_public)";
+
             $stmt = $this->conn->prepare($query);
-            
+
             // Clean and bind data
             $title = htmlspecialchars(strip_tags($data['title']));
             $description = htmlspecialchars(strip_tags($data['description'] ?? ''));
             $difficulty = htmlspecialchars(strip_tags($data['difficulty']));
             $time_limit = (int)$data['time_limit'];
             $status = isset($data['status']) ? htmlspecialchars(strip_tags($data['status'])) : 'draft';
-            
+            $is_public = isset($data['is_public']) ? (int)$data['is_public'] : 0;
+
             $stmt->bindParam(":title", $title);
             $stmt->bindParam(":description", $description);
             $stmt->bindParam(":difficulty", $difficulty);
             $stmt->bindParam(":time_limit", $time_limit);
             $stmt->bindParam(":status", $status);
             $stmt->bindParam(":created_by", $data['created_by']);
-            
+            $stmt->bindParam(":is_public", $is_public);
+
             $stmt->execute();
             $quizId = $this->conn->lastInsertId();
-            
+
             // Add questions if any
             if (isset($data['questions']) && is_array($data['questions']) && count($data['questions']) > 0) {
                 $this->addQuestions($quizId, $data['questions']);
             }
-            
+
+            // Handle sharing
+            if (isset($data['batch_ids']) && is_array($data['batch_ids'])) {
+                $this->shareWithBatches($quizId, $data['batch_ids'], $data['created_by']);
+            }
+            if (isset($data['classroom_ids']) && is_array($data['classroom_ids'])) {
+                $this->shareWithClassrooms($quizId, $data['classroom_ids'], $data['created_by']);
+            }
+            if (isset($data['student_ids']) && is_array($data['student_ids'])) {
+                $this->shareWithStudents($quizId, $data['student_ids'], $data['created_by']);
+            }
+
             $this->conn->commit();
             return $quizId;
-            
+
         } catch (Exception $e) {
             $this->conn->rollBack();
             throw new Exception("Error creating quiz: " . $e->getMessage());
+        }
+    }
+
+    // Share quiz with batches
+    private function shareWithBatches($quizId, $batchIds, $sharedBy) {
+        foreach ($batchIds as $batchId) {
+            $query = "INSERT IGNORE INTO quiz_batch_shares (quiz_id, batch_id, shared_by) VALUES (:quiz_id, :batch_id, :shared_by)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $quizId);
+            $stmt->bindParam(":batch_id", $batchId);
+            $stmt->bindParam(":shared_by", $sharedBy);
+            $stmt->execute();
+        }
+    }
+
+    // Share quiz with classrooms
+    private function shareWithClassrooms($quizId, $classroomIds, $sharedBy) {
+        foreach ($classroomIds as $classroomId) {
+            $query = "INSERT IGNORE INTO quiz_classroom_shares (quiz_id, classroom_id, shared_by) VALUES (:quiz_id, :classroom_id, :shared_by)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $quizId);
+            $stmt->bindParam(":classroom_id", $classroomId);
+            $stmt->bindParam(":shared_by", $sharedBy);
+            $stmt->execute();
+        }
+    }
+
+    // Share quiz with students
+    private function shareWithStudents($quizId, $studentIds, $sharedBy) {
+        foreach ($studentIds as $studentId) {
+            $query = "INSERT IGNORE INTO quiz_student_shares (quiz_id, student_id, shared_by) VALUES (:quiz_id, :student_id, :shared_by)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":quiz_id", $quizId);
+            $stmt->bindParam(":student_id", $studentId);
+            $stmt->bindParam(":shared_by", $sharedBy);
+            $stmt->execute();
         }
     }
     

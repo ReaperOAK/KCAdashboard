@@ -30,7 +30,7 @@ try {
     $db = $database->getConnection();
     $quiz = new Quiz($db);
 
-    $quizData = $quiz->getById($quiz_id);
+    $quizData = $quiz->getById($quiz_id, $user);
     
     if (!$quizData) {
         http_response_code(404);

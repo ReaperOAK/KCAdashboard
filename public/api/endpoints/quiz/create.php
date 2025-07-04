@@ -37,6 +37,14 @@ try {
     
     // Set the creator id to the authenticated user
     $data['created_by'] = $user['id'];
+
+    // Default to private unless explicitly public
+    $data['is_public'] = isset($data['is_public']) ? (bool)$data['is_public'] : false;
+
+    // Accept batch_ids, classroom_ids, student_ids for sharing (optional)
+    $data['batch_ids'] = isset($data['batch_ids']) ? $data['batch_ids'] : [];
+    $data['classroom_ids'] = isset($data['classroom_ids']) ? $data['classroom_ids'] : [];
+    $data['student_ids'] = isset($data['student_ids']) ? $data['student_ids'] : [];
     
     $database = new Database();
     $db = $database->getConnection();

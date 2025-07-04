@@ -8,7 +8,10 @@ try {
     $db = $database->getConnection();
     $quiz = new Quiz($db);
 
-    $quizzes = $quiz->getAll();
+    // Get user from token if available
+    require_once '../../middleware/auth.php';
+    $user = getAuthUser();
+    $quizzes = $quiz->getAll($user);
 
     http_response_code(200);
     echo json_encode([

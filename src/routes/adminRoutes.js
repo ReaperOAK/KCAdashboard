@@ -64,4 +64,9 @@ export const adminRoutes = [
     element: require('../pages/admin/TournamentRegistrations').default,
     title: 'Tournament Registrations',
   },
+  {
+    path: '/admin/quizzes',
+    element: require('../pages/admin/QuizManagement').default,
+    title: 'Quiz Management',
+  },
 ];

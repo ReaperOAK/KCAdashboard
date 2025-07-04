@@ -9,7 +9,9 @@ try {
     $quiz = new Quiz($db);
 
     $difficulty = isset($_GET['difficulty']) ? $_GET['difficulty'] : die();
-    $quizzes = $quiz->getByDifficulty($difficulty);
+    require_once '../../middleware/auth.php';
+    $user = getAuthUser();
+    $quizzes = $quiz->getByDifficulty($difficulty, $user);
 
     http_response_code(200);
     echo json_encode([

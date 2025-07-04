@@ -114,7 +114,7 @@ const FenModeSection = React.memo(function FenModeSection({
             onPositionChange={fen => handleChessPositionChange(questionIndex, fen)}
             width={Math.min(window.innerWidth - 48, 350)}
           />
-        </div>
+    </div>
       </div>
       <div className="space-y-4">
         <div>
@@ -338,14 +338,34 @@ export const ChessQuestionEditor = React.memo(function ChessQuestionEditor({
       <div>
         <label className="block text-sm font-medium text-text-dark mb-2">Question Preview</label>
         <div className="border border-gray-light rounded-lg p-4 bg-background-light w-full max-w-[300px] mx-auto">
-          <ChessQuizBoard
-            initialPosition={question.chess_position || 'start'}
-            orientation={question.chess_orientation || 'white'}
-            correctMoves={question.correct_moves || []}
-            question={question.question}
-            allowMoves={false}
-            width={Math.min(window.innerWidth - 48, 300)}
-          />
+          {/* FENPreview handles invalid FEN gracefully */}
+          {(() => {
+            try {
+              if (!isValidFEN(question.chess_position || 'start')) {
+                return (
+                  <div className="text-xs text-red-600 text-center py-4">
+                    Invalid FEN position. Please check for extra/missing kings, pawns on first/last rank, or other errors.
+                  </div>
+                );
+              }
+              return (
+                <ChessQuizBoard
+                  initialPosition={question.chess_position || 'start'}
+                  orientation={question.chess_orientation || 'white'}
+                  correctMoves={question.correct_moves || []}
+                  question={question.question}
+                  allowMoves={false}
+                  width={Math.min(window.innerWidth - 48, 300)}
+                />
+              );
+            } catch (e) {
+              return (
+                <div className="text-xs text-red-600 text-center py-4">
+                  Error rendering board: {e.message}
+                </div>
+              );
+            }
+          })()}
         </div>
       </div>
     </div>
@@ -353,3 +373,23 @@ export const ChessQuestionEditor = React.memo(function ChessQuestionEditor({
 });
 
 export default ChessQuestionEditor;
+
+// --- FENPreview: Handles invalid FEN gracefully ---
+// Place this at the very end of the file, outside any component or export
+function isValidFEN(fen) {
+  // Basic FEN validation: 6 space-separated fields, 8 ranks, only valid chars
+  if (!fen || typeof fen !== 'string') return false;
+  const parts = fen.trim().split(' ');
+  if (parts.length !== 6) return false;
+  const ranks = parts[0].split('/');
+  if (ranks.length !== 8) return false;
+  // Check for exactly one white and one black king
+  const boardStr = parts[0];
+  const wK = (boardStr.match(/K/g) || []).length;
+  const bK = (boardStr.match(/k/g) || []).length;
+  if (wK !== 1 || bK !== 1) return false;
+  // No pawns on first or last rank
+  if (/[Pp]/.test(ranks[0])) return false;
+  if (/[Pp]/.test(ranks[7])) return false;
+  return true;
+}

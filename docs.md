@@ -80,6 +80,24 @@ See the `docs.md` files in each folder for a breakdown of individual files and t
 
 ---
 
+## Chess PGN Upload & Management (2025 Update)
+
+- **PGN Upload** now supports advanced visibility controls:
+  - Public (all users)
+  - Private (only uploader)
+  - Batch (select one or more batches)
+  - Specific Students (select students)
+- Visibility can be set during upload and changed later by the owner or admin.
+- Admins can edit/delete any PGN; teachers can edit/delete their own.
+- New backend endpoints:
+  - `/api/endpoints/chess/edit-pgn.php` – Edit PGN metadata and visibility
+  - `/api/endpoints/chess/delete-pgn.php` – Delete a PGN (admin/owner only)
+  - `/api/endpoints/chess/set-pgn-visibility.php` – Change visibility after upload
+- Frontend upload form updated to allow visibility selection and batch/student assignment.
+- All changes are reflected in the PGN metadata for flexible access control.
+
+---
+
 ## JavaScript Files and Their Roles
 
 - **components/**: Contains reusable UI components, organized by feature (e.g., `chess/ChessBoard.js`, `batches/BatchList.js`).

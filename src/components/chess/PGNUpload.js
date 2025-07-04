@@ -48,6 +48,11 @@ export const PGNUpload = React.memo(function PGNUpload({
   const [uploadDescription, setUploadDescription] = useState('');
   const [uploadCategory, setUploadCategory] = useState('strategy');
   const [isPublic, setIsPublic] = useState(true);
+  const [visibility, setVisibility] = useState('public');
+  const [visibilityDetails, setVisibilityDetails] = useState({});
+  // TODO: Replace with real data from API
+  const [batchOptions] = useState([{ id: '1', name: 'Batch A' }, { id: '2', name: 'Batch B' }]);
+  const [studentOptions] = useState([{ id: '10', name: 'Student X' }, { id: '11', name: 'Student Y' }]);
 
   /**
    * Improved manual PGN parser with robust game splitting and header extraction
@@ -452,6 +457,8 @@ export const PGNUpload = React.memo(function PGNUpload({
         description: uploadDescription,
         category: uploadCategory,
         is_public: isPublic,
+        visibility,
+        visibility_details: visibilityDetails,
         metadata: {
           totalGames: metadata.totalGames,
           validGames: metadata.validGames,
@@ -480,7 +487,7 @@ export const PGNUpload = React.memo(function PGNUpload({
     } finally {
       setIsUploading(false);
     }
-  }, [pgnText, parsedGames, metadata, onUploadComplete, uploadTitle, uploadDescription, uploadCategory, isPublic]);
+  }, [pgnText, parsedGames, metadata, onUploadComplete, uploadTitle, uploadDescription, uploadCategory, isPublic, visibility, visibilityDetails]);
 
   /**
    * Clear form
@@ -536,6 +543,12 @@ export const PGNUpload = React.memo(function PGNUpload({
             setUploadDescription={setUploadDescription}
             isPublic={isPublic}
             setIsPublic={setIsPublic}
+            visibility={visibility}
+            setVisibility={setVisibility}
+            visibilityDetails={visibilityDetails}
+            setVisibilityDetails={setVisibilityDetails}
+            batchOptions={batchOptions}
+            studentOptions={studentOptions}
           />
         )}
         {parsedGames.length > 0 && (

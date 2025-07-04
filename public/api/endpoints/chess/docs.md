@@ -34,6 +34,9 @@ endpoints/chess/
   save-pgn.php              # Save a game in PGN format
   save-result.php           # Save the result of a game
   upload-pgn.php            # Upload a PGN file
+  edit-pgn.php              # Edit PGN metadata and visibility
+  delete-pgn.php            # Delete a PGN file
+  set-pgn-visibility.php    # Change PGN visibility
   validate-pgn.php          # Validate a PGN file
 ```
 
@@ -102,7 +105,16 @@ endpoints/chess/
   Saves the result of a completed game.
 
 - **upload-pgn.php**  
-  Uploads a PGN file for analysis or record-keeping.
+  Uploads a PGN file for analysis or record-keeping. Now supports advanced visibility controls (public, private, batch, students) via metadata.
+
+- **edit-pgn.php**  
+  Edit PGN metadata and visibility. Only the owner or admin can edit.
+
+- **delete-pgn.php**  
+  Delete a PGN file. Only the owner or admin can delete.
+
+- **set-pgn-visibility.php**  
+  Change PGN visibility after upload. Only the owner or admin can change visibility.
 
 - **validate-pgn.php**  
   Validates the format and content of a PGN file.

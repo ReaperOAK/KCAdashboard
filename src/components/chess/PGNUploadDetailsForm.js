@@ -16,13 +16,28 @@ export const PGNUploadDetailsForm = React.memo(function PGNUploadDetailsForm({
   setUploadCategory,
   uploadDescription,
   setUploadDescription,
+  visibility,
+  setVisibility,
+  visibilityDetails,
+  setVisibilityDetails,
   isPublic,
   setIsPublic,
+  batchOptions = [],
+  studentOptions = [],
 }) {
   const handleTitleChange = useCallback((e) => setUploadTitle(e.target.value), [setUploadTitle]);
   const handleCategoryChange = useCallback((e) => setUploadCategory(e.target.value), [setUploadCategory]);
   const handleDescriptionChange = useCallback((e) => setUploadDescription(e.target.value), [setUploadDescription]);
   const handleIsPublicChange = useCallback((e) => setIsPublic(e.target.checked), [setIsPublic]);
+  const handleVisibilityChange = useCallback((e) => setVisibility(e.target.value), [setVisibility]);
+  const handleBatchChange = useCallback((e) => {
+    const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setVisibilityDetails({ ...visibilityDetails, batch_ids: selected });
+  }, [setVisibilityDetails, visibilityDetails]);
+  const handleStudentChange = useCallback((e) => {
+    const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setVisibilityDetails({ ...visibilityDetails, student_ids: selected });
+  }, [setVisibilityDetails, visibilityDetails]);
 
   return (
     <section className="mb-6 p-4 bg-background-light  rounded-lg" aria-label="Upload details">
@@ -84,6 +99,40 @@ export const PGNUploadDetailsForm = React.memo(function PGNUploadDetailsForm({
             {isPublic ? 'Anyone can view this PGN' : 'Only you can view this PGN'}
           </p>
         </div>
+      </div>
+      <div className="md:col-span-2 mt-4">
+        <label htmlFor="pgn-visibility" className="block text-sm font-medium text-text-dark mb-2">Visibility</label>
+        <select
+          id="pgn-visibility"
+          value={visibility}
+          onChange={handleVisibilityChange}
+          className="w-full px-3 py-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-text-dark"
+        >
+          <option value="public">Public (all users)</option>
+          <option value="private">Private (only you)</option>
+          <option value="batch">Batch</option>
+          <option value="students">Specific Students</option>
+        </select>
+        {visibility === 'batch' && (
+          <div className="mt-2">
+            <label className="block text-xs font-medium text-text-dark mb-1">Select Batch(es)</label>
+            <select multiple value={visibilityDetails?.batch_ids || []} onChange={handleBatchChange} className="w-full px-2 py-1 border border-gray-light rounded">
+              {batchOptions.map(batch => (
+                <option key={batch.id} value={batch.id}>{batch.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        {visibility === 'students' && (
+          <div className="mt-2">
+            <label className="block text-xs font-medium text-text-dark mb-1">Select Student(s)</label>
+            <select multiple value={visibilityDetails?.student_ids || []} onChange={handleStudentChange} className="w-full px-2 py-1 border border-gray-light rounded">
+              {studentOptions.map(stu => (
+                <option key={stu.id} value={stu.id}>{stu.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     </section>
   );

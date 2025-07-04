@@ -64,7 +64,13 @@ try {
     $description = isset($input['description']) ? trim($input['description']) : '';
     $category = isset($input['category']) ? $input['category'] : 'strategy';
     $is_public = isset($input['is_public']) ? (bool)$input['is_public'] : true; // Default to public
-    $metadata = isset($input['metadata']) ? json_encode($input['metadata']) : json_encode([]);
+    // Visibility: public, private, batch, students
+    $visibility = isset($input['visibility']) ? $input['visibility'] : ($is_public ? 'public' : 'private');
+    $visibility_details = isset($input['visibility_details']) ? $input['visibility_details'] : null;
+    $metadata = isset($input['metadata']) ? $input['metadata'] : [];
+    $metadata['visibility'] = $visibility;
+    $metadata['visibility_details'] = $visibility_details;
+    $metadata = json_encode($metadata);
     
     // Validate category
     $valid_categories = ['opening', 'middlegame', 'endgame', 'tactics', 'strategy'];

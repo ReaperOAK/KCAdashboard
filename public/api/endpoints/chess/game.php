@@ -33,9 +33,9 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Check for per-move timeouts (10 min)
+    // Clean up expired games
     require_once '../../models/ChessGame.php';
-    ChessGame::processMoveTimeouts($db, 10);
+    ChessGame::cleanupExpiredGames($db);
     
     // Direct SQL query for simplicity and reliability
     $query = "SELECT g.*, 

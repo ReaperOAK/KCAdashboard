@@ -11,28 +11,10 @@ require_once '../../utils/ChessHelper.php'; // A utility class for generating th
 try {
     // Get authenticated user
     $user = getAuthUser();
+    
     if(!$user) {
         http_response_code(401);
         echo json_encode(["message" => "Unauthorized"]);
-        exit;
-    }
-
-    // Check if user is admin or has upload_practice permission
-    $allowed = false;
-    if ($user['role'] === 'admin') {
-        $allowed = true;
-    } else if ($user['role'] === 'teacher') {
-        require_once '../../models/Permission.php';
-        $database = new Database();
-        $db = $database->getConnection();
-        $permissionModel = new Permission($db);
-        if ($permissionModel->checkPermission($user['id'], 'upload_practice')) {
-            $allowed = true;
-        }
-    }
-    if (!$allowed) {
-        http_response_code(403);
-        echo json_encode(["message" => "You do not have permission to upload practice positions."]);
         exit;
     }
     

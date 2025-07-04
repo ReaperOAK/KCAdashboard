@@ -566,33 +566,32 @@ class Quiz {
     }
     
     // Get quizzes created by a specific teacher
-    // For admin: get all quizzes, for teacher: only their own
-    public function getTeacherQuizzes($userId, $difficulty = null, $role = 'teacher') {
+    public function getTeacherQuizzes($teacherId, $difficulty = null) {
         try {
             $query = "SELECT q.*, 
                      (SELECT COUNT(*) FROM quiz_questions WHERE quiz_id = q.id) as question_count,
                      u.full_name as creator_name 
                      FROM " . $this->table_name . " q
                      JOIN users u ON q.created_by = u.id
-                     WHERE 1=1";
-            $params = [];
-            if ($role === 'teacher') {
-                $query .= " AND q.created_by = :user_id";
-                $params[':user_id'] = $userId;
-            }
+                     WHERE q.created_by = :teacher_id";
+                     
             if ($difficulty) {
                 $query .= " AND q.difficulty = :difficulty";
-                $params[':difficulty'] = $difficulty;
             }
+            
             $query .= " ORDER BY q.created_at DESC";
+            
             $stmt = $this->conn->prepare($query);
-            foreach ($params as $k => $v) {
-                $stmt->bindValue($k, $v);
+            $stmt->bindParam(":teacher_id", $teacherId);
+            
+            if ($difficulty) {
+                $stmt->bindParam(":difficulty", $difficulty);
             }
+            
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new Exception("Error fetching quizzes: " . $e->getMessage());
+            throw new Exception("Error fetching teacher quizzes: " . $e->getMessage());
         }
     }
       // Create a new quiz

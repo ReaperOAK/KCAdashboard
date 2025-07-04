@@ -23,15 +23,14 @@ try {
         ]);
         exit;
     }
-
+    
     $difficulty = isset($_GET['difficulty']) ? $_GET['difficulty'] : null;
-
+    
     $database = new Database();
     $db = $database->getConnection();
     $quiz = new Quiz($db);
 
-    $role = $user['role'];
-    $quizzes = $quiz->getTeacherQuizzes($user['id'], $difficulty, $role);
+    $quizzes = $quiz->getTeacherQuizzes($user['id'], $difficulty);
 
     http_response_code(200);
     echo json_encode([

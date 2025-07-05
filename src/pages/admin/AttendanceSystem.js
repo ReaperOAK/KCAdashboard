@@ -256,16 +256,16 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
         start_date: dateRange.start,
         end_date: dateRange.end,
       }).toString();
-      const response = await fetch(
-        `${ApiService.API_URL}/attendance/export.php?${queryString}`,
+      const response = await ApiService.request(
+        `/attendance/export.php?${queryString}`,
+        'GET',
+        null,
         {
-          method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Accept': exportFormat === 'pdf' ? 'application/pdf' : 'text/csv',
             'X-Requested-With': 'XMLHttpRequest',
           },
-          credentials: 'include',
+          responseType: exportFormat === 'pdf' ? 'blob' : undefined,
         }
       );
       if (!response.ok) {

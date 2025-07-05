@@ -127,33 +127,42 @@ const InteractiveBoard = React.memo(() => {
 
   // --- Per-move countdown timer ---
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const timerRef = React.useRef();
+
+  // Set initial timeLeft when your turn or lastMoveAt changes
   useEffect(() => {
-    let timerInterval = null;
     const isActive = gameData && gameData.status === 'active';
     const isYourTurn = gameData && gameData.yourTurn;
     if (isActive && isYourTurn && lastMoveAt) {
-      // Calculate seconds left
       const lastMoveTime = new Date(lastMoveAt).getTime();
       const now = Date.now();
       const elapsed = Math.floor((now - lastMoveTime) / 1000);
       setTimeLeft(Math.max(600 - elapsed, 0));
-      timerInterval = setInterval(() => {
+    } else {
+      setTimeLeft(600);
+    }
+  }, [gameData, lastMoveAt]);
+
+  // Countdown interval: only set up when your turn starts, not on every tick
+  const isActive = gameData && gameData.status === 'active';
+  const isYourTurn = gameData && gameData.yourTurn;
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (isActive && isYourTurn && lastMoveAt) {
+      timerRef.current = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            clearInterval(timerInterval);
+            clearInterval(timerRef.current);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-    } else {
-      setTimeLeft(600);
-      if (timerInterval) clearInterval(timerInterval);
     }
     return () => {
-      if (timerInterval) clearInterval(timerInterval);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [gameData, lastMoveAt]);
+  }, [lastMoveAt, isActive, isYourTurn]);
 
   // Format timer as mm:ss
   const formatTimer = (secs) => {
@@ -303,13 +312,20 @@ const InteractiveBoard = React.memo(() => {
     try {
       setPosition(fen);
       setGameData(prev => ({ ...prev, yourTurn: false }));
-      await ApiService.makeGameMove(id, move, fen);
+      const moveResponse = await ApiService.makeGameMove(id, move, fen);
+      // Immediately update lastMoveAt from backend response for timer sync
+      if (moveResponse && moveResponse.lastMoveAt) {
+        setLastMoveAt(moveResponse.lastMoveAt);
+      }
       fetchMoveHistory(id);
     } catch {
       const response = await ApiService.getGameDetails(id);
       if (response.success && response.game) {
         setGameData(response.game);
         setPosition(response.game.position);
+        if (response.game.lastMove) {
+          setLastMoveAt(response.game.lastMove);
+        }
       }
     }
   }, [id, fetchMoveHistory]);

@@ -32,6 +32,7 @@ endpoints/classroom/
   post-discussion.php         # Post a discussion in a classroom
   quick-enroll.php            # Quickly enroll a student
   resolve-id.php              # Resolve classroom IDs
+  rate-class.php              # Rate a class attended by a student
   submit-assignment.php       # Submit an assignment
   sync-batch-classroom.php    # Sync batch and classroom data
   track-attendance.php        # Track classroom attendance
@@ -106,6 +107,9 @@ endpoints/classroom/
 
 - **resolve-id.php**  
   Resolves classroom IDs for integration or lookup.
+
+- **rate-class.php**  
+  Allows students to rate a class they attended. Validates eligibility and saves the rating and comment. Requires CORS and returns JSON responses for success or error.
 
 - **submit-assignment.php**  
   Allows students to submit assignments for grading.

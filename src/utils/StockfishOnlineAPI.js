@@ -39,6 +39,7 @@ class StockfishOnlineAPI {
         // Accessible logging for DX (can be removed in prod)
         // console.log(`[Stockfish] Request: ${fen.substring(0, 20)}...`);
 
+
         const response = await fetch(url.toString());
         if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
         const data = await response.json();

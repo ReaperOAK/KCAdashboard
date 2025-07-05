@@ -15,6 +15,7 @@ KCAdashboard is a full-featured platform for managing educational, chess, and ad
 - Mark, export, sync, and report attendance for students and classes
 - Create, update, and manage batches and classrooms
 - Assignments, materials, and session management
+- Teacher material upload now includes the required `type` field for backend compatibility (July 2025)
 
 ### Chess Platform
 - Challenge system, game management, and engine analysis (Stockfish & custom engines)

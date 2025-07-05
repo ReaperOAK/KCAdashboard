@@ -238,6 +238,16 @@ function ClassroomManagement() {
       const formData = new window.FormData();
       formData.append('classroom_id', selectedClass.id);
       formData.append('title', materialForm.title);
+      // Determine type: 'video' if links are provided, 'file' if files are uploaded
+      let type = '';
+      if (materialForm.files && materialForm.files.length > 0) {
+        type = 'file';
+      } else if (materialForm.content && materialForm.content.some(link => link && link.trim() !== '')) {
+        type = 'video';
+      } else {
+        type = 'video'; // fallback
+      }
+      formData.append('type', type);
       // Append all links
       materialForm.content.forEach((link) => {
         if (link) formData.append('content[]', link);

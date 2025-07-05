@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import ApiService from '../../utils/api';
 
 const ClassRating = ({ classId, onRated }) => {
   const [rating, setRating] = useState(0);
@@ -11,13 +13,11 @@ const ClassRating = ({ classId, onRated }) => {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch('/api/endpoints/classroom/rate-class.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ class_id: classId, rating, comment }),
-        credentials: 'include',
+      const data = await ApiService.post('/classroom/rate-class.php', {
+        class_id: classId,
+        rating,
+        comment,
       });
-      const data = await res.json();
       if (data.success) {
         setSubmitted(true);
         if (onRated) onRated();
@@ -25,7 +25,7 @@ const ClassRating = ({ classId, onRated }) => {
         setError(data.error || 'Failed to submit rating');
       }
     } catch (err) {
-      setError('Network error');
+      setError(err.message || 'Network error');
     }
   };
 

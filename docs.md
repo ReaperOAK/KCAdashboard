@@ -1,5 +1,10 @@
 # KCAdashboard Frontend – README & Documentation
 
+## [2025-07-05] PvP Chess Timer Fix
+
+- The per-move countdown timer in PvP chess games is now fully synchronized between players. The timer updates immediately after each move, providing a fair and accurate countdown for both sides.
+- See `src/pages/chess/InteractiveBoard.js` and chess documentation for details.
+
 ## Overview
 
 The KCAdashboard frontend is a modern React application that delivers a seamless experience for students, teachers, and administrators. The codebase is organized into logical folders for UI components, pages, hooks, routes, and utilities, supporting a wide range of educational, chess, and administrative features. This documentation provides a high-level overview of the structure, features, and the role of each major file and folder.

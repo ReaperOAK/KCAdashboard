@@ -1,4 +1,3 @@
-
 # Contributing
 
 
@@ -16,5 +15,7 @@
 - For frontend API calls, ensure duplicate requests are prevented and errors are handled gracefully in the UI.
 - Add new routes to `src/routes/teacherRoutes.js` and test navigation from the Quiz Management page.
 - When making changes to upload or permissions logic, ensure that restrictions (such as preventing students from uploading PGNs) are enforced in both backend and frontend, and update documentation accordingly.
+- When updating classroom material upload, always include the required `type` field in frontend requests to match backend requirements (see July 2025 fix).
+- When adding or updating classroom endpoints (such as rate-class.php), ensure CORS is included and the endpoint is documented in the appropriate docs.md file.
 
 See the codebase and documentation for more details.

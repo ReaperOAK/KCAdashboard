@@ -1,4 +1,7 @@
+
 <?php
+header('Content-Type: application/json');
+require_once '../../config/cors.php';
 // Endpoint: POST /api/endpoints/classroom/rate-class.php
 require_once __DIR__ . '/../../models/ClassRating.php';
 require_once __DIR__ . '/../../models/Attendance.php';

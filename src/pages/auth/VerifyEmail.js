@@ -1,6 +1,8 @@
 
+
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ApiService from '../../utils/api';
 
 const getStatusColor = status => {
   switch (status) {
@@ -49,18 +51,12 @@ function VerifyEmail() {
       return;
     }
     try {
-      const res = await fetch(`/api/endpoints/auth/verify-email.php?token=${token}`);
-      const data = await res.json();
-      if (res.ok) {
-        setStatus('success');
-        setMessage(data.message || 'Email verified successfully! You may now log in.');
-      } else {
-        setStatus('error');
-        setMessage(data.message || 'Verification failed.');
-      }
-    } catch {
+      const data = await ApiService.get(`/auth/verify-email.php?token=${token}`);
+      setStatus('success');
+      setMessage(data.message || 'Email verified successfully! You may now log in.');
+    } catch (err) {
       setStatus('error');
-      setMessage('An error occurred while verifying your email.');
+      setMessage(err.message || 'Verification failed.');
     }
   }, [token]);
 

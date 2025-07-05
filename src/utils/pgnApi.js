@@ -223,16 +223,7 @@ export class PGNApiService extends ApiService {
   // Export games in various formats
   static async exportGames(gameIds, format = 'pgn') {
     try {
-      const response = await fetch(`${this.API_URL}/chess/export-games.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ game_ids: gameIds, format }),
-      });
-      if (!response.ok) throw new Error('Export failed');
-      return await response.blob();
+      return await this.request('/chess/export-games.php', 'POST', { game_ids: gameIds, format }, { responseType: 'blob' });
     } catch (error) {
       console.error('Error exporting games:', error);
       throw error;

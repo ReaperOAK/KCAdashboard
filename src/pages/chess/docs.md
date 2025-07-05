@@ -1,5 +1,10 @@
 # KCAdashboard Frontend – Chess Pages Documentation
 
+## [2025-07-05] PvP Chess Timer Fix
+
+- The per-move countdown timer in PvP chess now resets and synchronizes instantly after each move. The timer is updated from the backend response, ensuring both players see the correct time left for their move without delay.
+- See `InteractiveBoard.js` for implementation details.
+
 ## Overview
 
 The `chess` folder under `pages` contains all top-level page components related to chess features in the KCAdashboard application. These pages provide interfaces for playing chess, managing PGN files, and supporting different gameplay modes. They are designed for both casual and competitive chess experiences, as well as for managing and analyzing chess games.

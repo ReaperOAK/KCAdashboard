@@ -36,7 +36,7 @@ pages/teacher/
   Detailed view of a classroom, showing members, assignments, and classroom resources.
 
 - **ClassroomManagement.js**  
-  Page for managing classrooms, including creation, editing, and student/teacher assignments.
+  Page for managing classrooms, including creation, editing, student/teacher assignments, and uploading materials. (As of July 2025, material upload now includes the required `type` field for backend compatibility.)
 
 - **GradingFeedback.js**  
   Tools for grading student submissions and providing feedback on assignments and quizzes.

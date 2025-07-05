@@ -43,7 +43,7 @@ public/
 ## PHP Files and Their Roles
 
 - **config/**: Core configuration (CORS, database, mail).
-- **endpoints/**: Each subfolder contains PHP files for REST API endpoints, grouped by feature (e.g., `attendance/mark-attendance.php`, `chess/make-move.php`).
+- **endpoints/**: Each subfolder contains PHP files for REST API endpoints, grouped by feature (e.g., `attendance/mark-attendance.php`, `chess/make-move.php`). Resource download endpoint now enforces resource-level access control.
 - **middleware/auth.php**: Handles authentication and authorization for API requests.
 - **models/**: PHP classes representing data entities (e.g., `User.php`, `Batch.php`, `ChessGame.php`).
 - **services/**: Business logic for sending emails and notifications.

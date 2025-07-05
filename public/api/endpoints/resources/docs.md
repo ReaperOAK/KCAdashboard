@@ -24,17 +24,23 @@ endpoints/resources/
   share-with-student.php  # Share a resource with a student
   unbookmark.php          # Remove a bookmark from a resource
   upload.php              # Upload a new resource
+  SecureFileViewer.js     # Secure React component for inline viewing of PDF and image resources
+  UploadsViewerPage.js    # Page for /uploads/view/:resourceId?type=pdf|img route, renders SecureFileViewer
 ```
 
 ---
 
+
 ## File Explanations
+
+- **SecureFileViewer.js**  
+  Secure React component for inline viewing of PDF and image resources. Fetches files via the backend API with authentication.
 
 - **bookmark.php**  
   Bookmarks a resource for a user, allowing quick access later.
 
 - **download.php**  
-  Handles downloading of resource files by authorized users.
+  Handles downloading of resource files by authorized users. Enforces resource-level access control: only the resource owner, admins, or users with whom the resource is shared (directly, via batch, or classroom) can download. Returns 403 Forbidden if access is denied.
 
 - **get-all.php**  
   Retrieves all resources available in the system.
@@ -95,6 +101,7 @@ endpoints/resources/
 - Ensure only authorized users can upload, share, or download resources.
 - Validate all uploaded files for security and compliance.
 - Regularly review resource metadata and access logs for quality and usage.
+- Direct access to files in the `uploads/` directory is blocked at the web server level (HTTP 403). All downloads must go through the backend API.
 
 ---
 

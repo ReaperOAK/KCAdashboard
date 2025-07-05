@@ -1,3 +1,12 @@
+## Secure Uploads Viewer Route
+
+Direct links to `/uploads/...` are now blocked. To view a file, redirect users to `/uploads/view/:resourceId?type=pdf|img`, which renders the secure React viewer. Update all frontend usages and links accordingly.
+## Secure File Viewer
+
+Use the `SecureFileViewer` React component (`src/components/common/SecureFileViewer.js`) to display PDF and image resources securely. It fetches files via the backend API with authentication and supports inline viewing for authorized users.
+## Security: Uploads Directory
+
+Direct access to files in the `uploads/` directory is now blocked at the web server level. All file downloads must go through the backend API, which enforces authentication and authorization. A `web.config` file in the `uploads/` directory returns HTTP 403 Forbidden for any direct access attempts.
 # Kolkata Chess Academy Dashboard
 
 KCAdashboard is a full-featured platform for managing educational, chess, and administrative workflows. It combines a modular PHP backend (API) and a modern React frontend, supporting a wide range of features for admins, teachers, students, and tournament organizers.

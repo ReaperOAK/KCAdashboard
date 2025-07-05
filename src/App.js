@@ -9,6 +9,7 @@ import TopNavbar from './components/TopNavbar';
 import Sidebar from './components/Sidebar';
 import Breadcrumbs from './components/Breadcrumbs';
 import Profile from './pages/Profile';
+import UploadsViewerPage from './pages/common/UploadsViewerPage';
 import NotificationPreferences from './pages/notifications/NotificationPreferences';
 import { adminRoutes } from './routes/adminRoutes';
 import { teacherRoutes } from './routes/teacherRoutes';
@@ -113,6 +114,14 @@ const AppContent = React.memo(function AppContent() {
               {renderProtectedRoutes(teacherRoutes, ['teacher', 'admin', 'student'])}
               {renderProtectedRoutes(studentRoutes, ['student', 'admin', 'teacher'])}
               {renderProtectedRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
+            <Route
+              path="/uploads/view/:resourceId"
+              element={
+                <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                  <UploadsViewerPage />
+                </ProtectedRoute>
+              }
+            />
             </Routes>
           </main>
         </>

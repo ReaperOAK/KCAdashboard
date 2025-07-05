@@ -453,11 +453,16 @@ const StudentManagement = () => {
   const handleSubmitAttendance = async ({ session_id, status, notes }) => {
     setActionError(null);
     setAttendanceLoading(true);
+    if (selectedBatch === 'all' || !selectedBatch) {
+      setActionError('Please select a specific batch before marking attendance.');
+      setAttendanceLoading(false);
+      return;
+    }
     try {
       await ApiService.markAttendance([
         {
           student_id: selectedStudent.id,
-          batch_id: students.find(s => s.id === selectedStudent.id)?.batch_id || null,
+          batch_id: selectedBatch,
           session_id,
           status,
           notes

@@ -1,9 +1,12 @@
 
 import React, { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import PropTypes from 'prop-types';
 import ApiService from '../../utils/api';
 
+
 const ClassRating = ({ classId, onRated }) => {
+  const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -12,9 +15,14 @@ const ClassRating = ({ classId, onRated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    if (!user || !user.id) {
+      setError('User not found. Please log in again.');
+      return;
+    }
     try {
       const data = await ApiService.post('/classroom/rate-class.php', {
         class_id: classId,
+        student_id: user.id,
         rating,
         comment,
       });

@@ -17,6 +17,7 @@ pages/admin/
   NotificationManagement.js    # Admin notification management
   PlatformAnalytics.js         # Analytics dashboard for the platform
   QuizManagement.js           # Admin quiz management page (view and manage all quizzes)
+  AdminQuizEditor.js          # Admin quiz editing page
   StudentAttendanceHistory.js  # View student attendance history
   StudentAttendanceList.js     # List of student attendance records
   SupportSystem.js             # Admin support system page
@@ -55,6 +56,9 @@ pages/admin/
   - **Admins** can view, edit, delete, and publish all quizzes on the platform.
   - **Teachers** can view, edit, delete, and publish their own quizzes.
   - Includes filters for difficulty and status, and a leaderboard button for each quiz.
+
+- **AdminQuizEditor.js**  
+  Admin quiz editing page, allows admins to edit any quiz using the same interface as teachers. Uses the same component as teacher quiz editor for consistency.
 
 - **StudentAttendanceHistory.js**  
   View detailed attendance history for individual students.

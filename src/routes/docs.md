@@ -1,4 +1,3 @@
-
 # KCAdashboard Frontend – Routes Documentation
 
 ## Overview
@@ -22,7 +21,7 @@ routes/
 ## File Explanations
 
 - **adminRoutes.js**  
-  Exports an array or object of route definitions for all admin-related pages (dashboard, user management, analytics, etc.). Handles route protection and layout for admin users.
+  Exports an array or object of route definitions for all admin-related pages (dashboard, user management, analytics, quiz management, quiz editing, etc.). Handles route protection and layout for admin users.
 
 - **chessRoutes.js**  
   Defines routes for chess features, such as game area, PGN management, and player-vs-player modes. Organizes chess-related navigation and access.

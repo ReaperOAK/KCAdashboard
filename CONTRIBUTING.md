@@ -10,6 +10,10 @@
 - Teacher leaderboard pages should use the same API endpoints as student leaderboard pages for consistency.
 - When adding a new teacher page, update `src/pages/teacher/docs.md` and the main `README.md`.
 
+- When adding or updating quiz editing features, ensure both admin and teacher editors are consistent and update documentation and routes accordingly.
+
+- When updating backend quiz permissions, ensure admin users can update any quiz, not just their own. See Quiz.php and update.php for logic.
+
 ## Error Handling & API Best Practices
 - When modifying backend endpoints, always add error handling and logging for diagnostics.
 - For frontend API calls, ensure duplicate requests are prevented and errors are handled gracefully in the UI.

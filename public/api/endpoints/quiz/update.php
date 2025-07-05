@@ -50,7 +50,7 @@ try {
     $db = $database->getConnection();
     $quiz = new Quiz($db);
     
-    $success = $quiz->update($quizId, $data, $user['id']);
+    $success = $quiz->update($quizId, $data, $user['id'], $user['role']);
     
     http_response_code(200);
     echo json_encode([

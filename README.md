@@ -29,6 +29,7 @@ KCAdashboard is a full-featured platform for managing educational, chess, and ad
 - **Admins can now view and manage all quizzes from the Quiz Management page.**
 - Teachers can now view the leaderboard for any quiz from the Quiz Management page. Click the leaderboard icon next to a quiz to see detailed rankings for that quiz.
 - Export and view analytics for attendance, performance, quizzes, and more
+- **Admins can now edit any quiz using the new /admin/quizzes/edit/:id page.**
 
 ### Recent Improvements
 - Improved error handling in grading backend (get-pending.php) for better diagnostics and reliability.

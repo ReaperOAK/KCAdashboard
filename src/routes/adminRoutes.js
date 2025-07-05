@@ -74,4 +74,9 @@ export const adminRoutes = [
     element: require('../pages/admin/QuizManagement').default,
     title: 'Quiz Management',
   },
+  {
+    path: '/admin/quizzes/edit/:id',
+    element: require('../pages/admin/AdminQuizEditor').default,
+    title: 'Edit Quiz',
+  },
 ];

@@ -692,17 +692,22 @@ class Quiz {
     }
     
     // Update an existing quiz
-    public function update($id, $data, $teacherId) {
+    public function update($id, $data, $userId, $userRole = 'teacher') {
         try {
             $this->conn->beginTransaction();
-            
-            // Verify that quiz belongs to the teacher
-            $query = "SELECT id FROM " . $this->table_name . " WHERE id = :id AND created_by = :teacher_id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(":id", $id);
-            $stmt->bindParam(":teacher_id", $teacherId);
-            $stmt->execute();
-            
+            // Allow admin to update any quiz, teacher can only update their own
+            if ($userRole === 'admin') {
+                $query = "SELECT id FROM " . $this->table_name . " WHERE id = :id";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(":id", $id);
+                $stmt->execute();
+            } else {
+                $query = "SELECT id FROM " . $this->table_name . " WHERE id = :id AND created_by = :teacher_id";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(":id", $id);
+                $stmt->bindParam(":teacher_id", $userId);
+                $stmt->execute();
+            }
             if ($stmt->rowCount() === 0) {
                 throw new Exception("Quiz not found or you don't have permission to edit it");
             }

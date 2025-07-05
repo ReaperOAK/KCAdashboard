@@ -95,7 +95,7 @@ const QuizTableRow = React.memo(({ quiz, onEdit, onPublish, onDelete, getStatusC
   </tr>
 ));
 
-export const AdminQuizManagement = () => {
+const QuizManagement = () => {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -109,11 +109,30 @@ export const AdminQuizManagement = () => {
   // Helper to check if user is admin (from token or localStorage)
   const isAdmin = useMemo(() => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return false;
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role === 'admin';
-    } catch {
+      // Try user key first, then fallback to token
+      let stored = localStorage.getItem('user') || localStorage.getItem('token');
+      console.log('[QuizManagement] User/token string:', stored);
+      if (!stored) return false;
+      // If user key, it may be a JSON object with a role property
+      if (stored.startsWith('{')) {
+        const userObj = JSON.parse(stored);
+        if (userObj.role) {
+          console.log('[QuizManagement] User object:', userObj);
+          return userObj.role === 'admin';
+        }
+        if (userObj.token) stored = userObj.token;
+        else if (userObj.jwt) stored = userObj.jwt;
+        else if (userObj.accessToken) stored = userObj.accessToken;
+      }
+      // If it's a JWT
+      if (stored.includes('.')) {
+        const payload = JSON.parse(atob(stored.split('.')[1]));
+        console.log('[QuizManagement] Decoded payload:', payload);
+        return payload.role === 'admin';
+      }
+      return false;
+    } catch (e) {
+      console.error('[QuizManagement] Error decoding user/token:', e);
       return false;
     }
   }, []);
@@ -332,4 +351,4 @@ export const AdminQuizManagement = () => {
   );
 };
 
-export default React.memo(AdminQuizManagement);
+export default React.memo(QuizManagement);

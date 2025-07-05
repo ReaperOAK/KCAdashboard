@@ -75,6 +75,8 @@ export const ClassroomDetails = React.memo(() => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [sessions, setSessions] = useState([]);
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [materials, setMaterials] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [discussions, setDiscussions] = useState([]);
@@ -99,6 +101,29 @@ export const ClassroomDetails = React.memo(() => {
   useEffect(() => {
     fetchClassroomDetails();
   }, [fetchClassroomDetails]);
+
+  // Fetch sessions for this classroom
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const response = await ApiService.getClassroomSessions(id);
+        // Only sessions that have ended
+        const now = new Date();
+        const endedSessions = (response.sessions || []).filter(s => {
+          const end = new Date(s.date_time);
+          end.setMinutes(end.getMinutes() + (parseInt(s.duration, 10) || 0));
+          return end < now;
+        });
+        setSessions(endedSessions);
+        if (endedSessions.length > 0) {
+          setSelectedSessionId(endedSessions[endedSessions.length - 1].id); // default to most recent
+        }
+      } catch {
+        setSessions([]);
+      }
+    };
+    fetchSessions();
+  }, [id]);
 
   useEffect(() => {
     if (!classroom) return;
@@ -207,9 +232,29 @@ export const ClassroomDetails = React.memo(() => {
                 <StatusBadge status={classroom.status} />
               </div>
             </div>
-            {/* Show class rating if class has ended and student attended (backend will enforce eligibility) */}
+            {/* Show class rating for ended sessions */}
             <div className="mb-6">
-              <ClassRating classId={parseInt(classroom.id, 10)} />
+              {sessions.length > 0 ? (
+                <>
+                  <label className="block mb-2 font-medium">Select Session to Rate:</label>
+                  <select
+                    value={selectedSessionId || ''}
+                    onChange={e => setSelectedSessionId(Number(e.target.value))}
+                    className="mb-4 p-2 border rounded"
+                  >
+                    {sessions.map(s => (
+                      <option key={s.id} value={s.id}>
+                        {s.title} ({new Date(s.date_time).toLocaleString()})
+                      </option>
+                    ))}
+                  </select>
+                  {selectedSessionId && (
+                    <ClassRating classId={selectedSessionId} />
+                  )}
+                </>
+              ) : (
+                <div>No ended sessions available for rating yet.</div>
+              )}
             </div>
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
               <div className="border-b">

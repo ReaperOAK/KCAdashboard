@@ -5,6 +5,14 @@
 - All notification endpoints set CORS and JSON headers, and log errors for easier debugging.
 - Notification categories are standardized and all logic respects user preferences.
 - Documentation updated in notifications/docs.md, services/docs.md, models/docs.md, and src/pages/notifications/docs.md to reflect new security, standardization, and best practices for notifications.
+
+### Leave Management System
+- Added `leave_requests` table to database schema for teacher leave requests (see `database_schema.md`).
+- Implemented backend logic in `LeaveRequest.php` for creating, listing, and updating leave requests.
+- All leave endpoints now include CORS headers for frontend compatibility.
+- Updated endpoints: `/leave/request`, `/leave/requests`, `/leave/approve`.
+- Frontend and backend now fully integrated for leave management.
+
 ### Changed
 - Tournament update endpoint now uses the centralized NotificationService to send notifications in bulk to all registered users when an online tournament is started. This ensures all tournament notifications are consistent, respect user preferences, and are future-proof.
 ### Added

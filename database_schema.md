@@ -18,6 +18,31 @@
 
 
 # KCA Dashboard Database Schema
+
+## Leave Management
+### leave_requests
+| Column         | Type                                    | Null | Key | Default           | Extra           |
+|---------------|-----------------------------------------|------|-----|-------------------|-----------------|
+| id            | int(11)                                 | NO   | PRI | NULL              | auto_increment  |
+| teacher_id    | int(11)                                 | NO   | MUL | NULL              |                 |
+| start_datetime| datetime                                | NO   |     | NULL              |                 |
+| end_datetime  | datetime                                | NO   |     | NULL              |                 |
+| reason        | text                                    | YES  |     | NULL              |                 |
+| status        | enum('pending','approved','rejected')   | NO   |     | 'pending'         |                 |
+| admin_comment | text                                    | YES  |     | NULL              |                 |
+| created_at    | timestamp                               | YES  |     | CURRENT_TIMESTAMP |                 |
+| updated_at    | timestamp                               | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+
+**Foreign Keys:**
+- `teacher_id` references `users(id)` ON DELETE CASCADE
+
+**Purpose:**
+- Stores leave requests submitted by teachers, with status and admin comments for approval/rejection.
+
+**Indexes:**
+- `teacher_id` for fast lookup by teacher
+
+
 ### report_cards
 | Column       | Type          | Null | Key | Default           | Extra           |
 |--------------|---------------|------|-----|-------------------|-----------------|

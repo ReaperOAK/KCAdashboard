@@ -64,4 +64,13 @@
 - When adding or updating classroom session logic, always use the NotificationService for sending notifications to students. This ensures category validation, user preferences, and future extensibility.
 - Document any changes to notification logic in both the relevant endpoint docs and services/docs.md.
 
+## Leave Management System
+
+- Added `leave_requests` table to database schema for teacher leave requests (see `database_schema.md`).
+- Implemented backend logic in `LeaveRequest.php` for creating, listing, and updating leave requests.
+- All leave endpoints now include CORS headers for frontend compatibility.
+- Updated endpoints: `/leave/request`, `/leave/requests`, `/leave/approve`.
+- Frontend and backend now fully integrated for leave management.
+- Please update tests and documentation if you add new leave features.
+
 See the codebase and documentation for more details.

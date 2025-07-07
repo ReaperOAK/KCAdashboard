@@ -106,6 +106,26 @@ KCAdashboard is a full-featured platform for managing educational, chess, and ad
 
 ---
 
+# Leave Management System (July 2025)
+
+- The leave management system allows teachers to submit leave requests, and admins to approve or reject them.
+- Backend endpoints:
+  - `/leave/request` (POST): Teachers submit leave requests.
+  - `/leave/requests` (GET): Admins see all requests, teachers see their own.
+  - `/leave/approve` (POST): Admins approve/reject requests with comments.
+- Table: `leave_requests` (see `database_schema.md`)
+- All endpoints now include CORS headers for frontend compatibility.
+- See also: `public/api/models/LeaveRequest.php`, `public/api/endpoints/leave/`.
+
+## Usage
+- Teachers use the leave request form in the support section.
+- Admins manage requests in the admin panel.
+
+## API
+- See `src/utils/api.js` for API usage in React frontend.
+
+---
+
 ## Prerequisites
 
 - Node.js version 20.17.0 or higher

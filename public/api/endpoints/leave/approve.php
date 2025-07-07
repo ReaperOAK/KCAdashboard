@@ -1,5 +1,6 @@
 <?php
 // endpoints/leave/approve.php
+require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../models/LeaveRequest.php';
 require_once __DIR__ . '/../../middleware/auth.php';
 

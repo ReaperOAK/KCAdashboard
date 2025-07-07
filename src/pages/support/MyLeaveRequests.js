@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import ApiService from '../../utils/api';
 
-const LeaveRequestsAdmin = () => {
+const MyLeaveRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [actionStatus, setActionStatus] = useState({});
+  const [cancelStatus, setCancelStatus] = useState({});
 
   useEffect(() => {
     fetchRequests();
@@ -15,7 +15,7 @@ const LeaveRequestsAdmin = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await ApiService.get('/support/leave/requests.php');
+      const data = await ApiService.get('/support/leave/my-requests.php');
       setRequests(data);
     } catch (err) {
       setError('Failed to load leave requests.');
@@ -24,31 +24,29 @@ const LeaveRequestsAdmin = () => {
     }
   };
 
-  const handleAction = async (id, status) => {
-    const comment = prompt(`Enter comment for ${status}:`);
-    if (comment === null) return;
-    setActionStatus(s => ({ ...s, [id]: 'pending' }));
+  const handleCancel = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this leave request?')) return;
+    setCancelStatus(s => ({ ...s, [id]: 'pending' }));
     try {
-      await ApiService.post('/support/leave/approve.php', { id, status, admin_comment: comment });
-      setActionStatus(s => ({ ...s, [id]: status }));
+      await ApiService.post('/support/leave/my-requests.php', { id });
+      setCancelStatus(s => ({ ...s, [id]: 'cancelled' }));
       fetchRequests();
     } catch (err) {
-      setActionStatus(s => ({ ...s, [id]: 'error' }));
-      alert('Failed to update status.');
+      setCancelStatus(s => ({ ...s, [id]: 'error' }));
+      alert('Failed to cancel leave request.');
     }
   };
 
-  if (loading) return <div>Loading leave requests...</div>;
+  if (loading) return <div>Loading your leave requests...</div>;
   if (error) return <div className="text-red-700">{error}</div>;
   if (!requests.length) return <div>No leave requests found.</div>;
 
   return (
     <div className="bg-white rounded-lg shadow p-6 max-w-3xl mx-auto mt-6">
-      <h2 className="text-xl font-bold mb-4">Teacher Leave Requests</h2>
+      <h2 className="text-xl font-bold mb-4">My Leave Requests</h2>
       <table className="w-full text-sm">
         <thead>
           <tr>
-            <th>Teacher ID</th>
             <th>Start</th>
             <th>End</th>
             <th>Reason</th>
@@ -60,7 +58,6 @@ const LeaveRequestsAdmin = () => {
         <tbody>
           {requests.map(r => (
             <tr key={r.id} className="border-b">
-              <td>{r.teacher_id}</td>
               <td>{r.start_datetime}</td>
               <td>{r.end_datetime}</td>
               <td>{r.reason}</td>
@@ -68,12 +65,11 @@ const LeaveRequestsAdmin = () => {
               <td>{r.admin_comment || '-'}</td>
               <td>
                 {r.status === 'pending' && (
-                  <>
-                    <button className="btn btn-success mr-2" onClick={() => handleAction(r.id, 'approved')} disabled={actionStatus[r.id] === 'pending'}>Approve</button>
-                    <button className="btn btn-danger" onClick={() => handleAction(r.id, 'rejected')} disabled={actionStatus[r.id] === 'pending'}>Reject</button>
-                  </>
+                  <button className="btn btn-danger" onClick={() => handleCancel(r.id)} disabled={cancelStatus[r.id] === 'pending'}>
+                    Cancel
+                  </button>
                 )}
-                {actionStatus[r.id] === 'pending' && <span>Updating...</span>}
+                {cancelStatus[r.id] === 'pending' && <span> Cancelling...</span>}
               </td>
             </tr>
           ))}
@@ -83,4 +79,4 @@ const LeaveRequestsAdmin = () => {
   );
 };
 
-export default LeaveRequestsAdmin;
+export default MyLeaveRequests;

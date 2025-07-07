@@ -19,7 +19,7 @@ import TeacherQuizLeaderboardPage from '../pages/teacher/TeacherQuizLeaderboardP
 
 export const teacherRoutes = [
   {
-    path: '/support',
+    path: '/teacher/support',
     element: SupportCenter,
     title: 'Support Center',
   },

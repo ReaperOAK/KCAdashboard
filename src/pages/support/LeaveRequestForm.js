@@ -18,7 +18,7 @@ const LeaveRequestForm = () => {
     setError(null);
     setSuccess(null);
     try {
-      await ApiService.post('/leave/request?action=request', form);
+      await ApiService.post('/support/leave/request.php', form);
       setSuccess('Leave request submitted!');
       setForm({ start_datetime: '', end_datetime: '', reason: '' });
     } catch (err) {

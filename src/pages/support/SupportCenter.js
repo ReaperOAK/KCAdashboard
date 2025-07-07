@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import SupportTicketForm from './SupportTicketForm';
 import FaqList from './FaqList';
 import LeaveRequestForm from './LeaveRequestForm';
+import MyLeaveRequests from './MyLeaveRequests';
 
 
 const SupportCenter = () => {
@@ -40,6 +41,14 @@ const SupportCenter = () => {
             >
               Request Leave
             </button>
+            <button
+              onClick={() => setActiveTab('my-leaves')}
+              className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'my-leaves' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
+              role="tab"
+              aria-selected={activeTab === 'my-leaves'}
+            >
+              My Leave Requests
+            </button>
           </>
         )}
       </div>
@@ -47,8 +56,10 @@ const SupportCenter = () => {
         <FaqList />
       ) : activeTab === 'ticket' ? (
         !isAdmin && <SupportTicketForm />
-      ) : (
+      ) : activeTab === 'leave' ? (
         !isAdmin && <LeaveRequestForm />
+      ) : (
+        !isAdmin && <MyLeaveRequests />
       )}
     </div>
   );

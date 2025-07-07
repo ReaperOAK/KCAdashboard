@@ -1,12 +1,12 @@
-import SupportCenter from '../pages/support/SupportCenter';
+import SupportSystem from '../pages/admin/SupportSystem';
 
 // ...existing imports...
 
 export const adminRoutes = [
   {
-    path: '/support',
-    element: SupportCenter,
-    title: 'Support Center',
+    path: '/admin/support',
+    element: SupportSystem,
+    title: 'Support System',
   },
   {
     path: '/admin-dashboard',

@@ -12,6 +12,9 @@
 - All leave endpoints now include CORS headers for frontend compatibility.
 - Updated endpoints: `/leave/request`, `/leave/requests`, `/leave/approve`.
 - Frontend and backend now fully integrated for leave management.
+- Added teacher ability to view and cancel their own leave requests via the Support Center (frontend: MyLeaveRequests.js, backend: my-requests.php).
+- Added new tab in Support Center for 'My Leave Requests' for teachers.
+- Backend: Added cancelByTeacher method in LeaveRequest.php for secure cancellation.
 
 ### Changed
 - Tournament update endpoint now uses the centralized NotificationService to send notifications in bulk to all registered users when an online tournament is started. This ensures all tournament notifications are consistent, respect user preferences, and are future-proof.

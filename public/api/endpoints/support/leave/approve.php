@@ -1,11 +1,11 @@
 <?php
 // endpoints/leave/approve.php
-require_once __DIR__ . '/../../config/cors.php';
-require_once __DIR__ . '/../../models/LeaveRequest.php';
-require_once __DIR__ . '/../../middleware/auth.php';
+require_once '../../../config/cors.php';
+require_once '../../../models/LeaveRequest.php';
+require_once '../../../middleware/auth.php';
 
-// Only admin can approve/reject
-if (!Auth::isAdmin()) {
+$user = getAuthUser();
+if (!$user || $user['role'] !== 'admin') {
     http_response_code(403);
     echo json_encode(['error' => 'Only admin can approve/reject leave']);
     exit;

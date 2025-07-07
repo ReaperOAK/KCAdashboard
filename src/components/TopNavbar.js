@@ -62,10 +62,14 @@ function TopNavbar({ toggleSidebar }) {
 
 
   const commonLinks = useMemo(() => {
+    let supportPath = '/support';
+    if (user?.role === 'admin') supportPath = '/admin/support';
+    else if (user?.role === 'teacher') supportPath = '/teacher/support';
+    else if (user?.role === 'student') supportPath = '/student/support';
     const links = [
       { label: 'Dashboard', path: `/${user?.role}-dashboard` },
       { label: 'Profile', path: '/profile' },
-      { label: 'Support / FAQ', path: '/support' }
+      { label: 'Support / FAQ', path: supportPath }
     ];
     return links;
   }, [user?.role]);

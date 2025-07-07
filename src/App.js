@@ -110,9 +110,9 @@ const AppContent = React.memo(function AppContent() {
                   </ProtectedRoute>
                 }
               />
-              {renderProtectedRoutes(adminRoutes, ['admin', 'teacher', 'student'])}
-              {renderProtectedRoutes(teacherRoutes, ['teacher', 'admin', 'student'])}
-              {renderProtectedRoutes(studentRoutes, ['student', 'admin', 'teacher'])}
+              {renderProtectedRoutes(adminRoutes, ['admin'])}
+              {renderProtectedRoutes(teacherRoutes, ['teacher'])}
+              {renderProtectedRoutes(studentRoutes, ['student'])}
               {renderProtectedRoutes(chessRoutes, ['student', 'teacher', 'admin'])}
             <Route
               path="/uploads/view/:resourceId"

@@ -71,6 +71,8 @@
 - All leave endpoints now include CORS headers for frontend compatibility.
 - Updated endpoints: `/leave/request`, `/leave/requests`, `/leave/approve`.
 - Frontend and backend now fully integrated for leave management.
+- Teachers can now view and cancel their own leave requests from the Support Center (see `MyLeaveRequests.js`).
+- Backend endpoint `/leave/my-requests.php` supports secure cancellation by teachers (see `LeaveRequest.php`).
 - Please update tests and documentation if you add new leave features.
 
 See the codebase and documentation for more details.

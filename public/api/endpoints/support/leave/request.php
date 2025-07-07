@@ -1,11 +1,11 @@
 <?php
 // endpoints/leave/request.php
-require_once __DIR__ . '/../../config/cors.php';
-require_once __DIR__ . '/../../models/LeaveRequest.php';
-require_once __DIR__ . '/../../middleware/auth.php';
+require_once '../../../config/cors.php';
+require_once '../../../models/LeaveRequest.php';
+require_once '../../../middleware/auth.php';
 
-// Only teachers can request leave
-if (!Auth::isTeacher()) {
+$user = getAuthUser();
+if (!$user || $user['role'] !== 'teacher') {
     http_response_code(403);
     echo json_encode(['error' => 'Only teachers can request leave']);
     exit;
@@ -22,5 +22,5 @@ if (!$start || !$end) {
     exit;
 }
 
-LeaveRequest::create(Auth::userId(), $start, $end, $reason);
+LeaveRequest::create($user['id'], $start, $end, $reason);
 echo json_encode(['success' => true]);

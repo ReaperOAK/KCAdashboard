@@ -21,7 +21,7 @@ import FeedbackHistory from '../pages/student/FeedbackHistory';
 // Each route: { path, element, title }
 export const studentRoutes = [
   {
-    path: '/support',
+    path: '/student/support',
     element: SupportCenter,
     title: 'Support Center',
   },

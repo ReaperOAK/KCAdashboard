@@ -1,5 +1,13 @@
 # KCAdashboard API – Notifications Endpoints Documentation
 
+## July 2025 Notification System Refactor
+
+- All notification endpoints now use the centralized NotificationService for sending, deleting, and managing notifications.
+- All user IDs and input data are sanitized and validated for security.
+- All endpoints set CORS and JSON headers, and log errors for easier debugging.
+- Notification categories are standardized and all logic respects user preferences.
+- See CONTRIBUTING.md for coding standards and notification requirements.
+
 ## Overview
 
 The `notifications` endpoints folder provides the backend API for all notification-related features in KCAdashboard. These PHP files enable sending, receiving, managing, and customizing notifications for users and admins. The endpoints support workflows for real-time alerts, preference management, and notification templates.
@@ -26,22 +34,22 @@ endpoints/notifications/
 ## File Explanations
 
 - **admin-sent.php**  
-  Lists all notifications sent by admin users, supporting audit and review.
+  Lists all notifications sent by admin users, supporting audit and review. Uses the centralized NotificationService to retrieve and group admin-sent notifications. Do not query the notifications table directly for grouping; always use NotificationService for notification logic.
 
 - **delete.php**  
-  Deletes a specific notification for a user.
+  Deletes a specific notification for a user. Uses the centralized NotificationService for deletion logic. Do not call the model directly; always use NotificationService for notification deletion. User ownership is enforced for security.
 
 - **get-preferences.php**  
-  Retrieves the current notification preferences for a user (e.g., email, SMS, in-app).
+  Retrieves the current notification preferences for a user (e.g., email, SMS, in-app). User ID is sanitized and validated.
 
 - **get.php**  
-  Retrieves all notifications for a user, supporting inbox and alert features.
+  Retrieves all notifications for a user, supporting inbox and alert features. User ID is sanitized and validated.
 
 - **mark-all-read.php**  
-  Marks all notifications as read for a user, clearing notification badges.
+  Marks all notifications as read for a user, clearing notification badges. User ID is sanitized and validated.
 
 - **mark-read.php**  
-  Marks a specific notification as read.
+  Marks a specific notification as read. Both notification ID and user ID are sanitized and validated.
 
 - **send.php**  
   Sends a new notification to one or more users.
@@ -50,7 +58,7 @@ endpoints/notifications/
   Manages notification templates for consistent messaging.
 
 - **update-preferences.php**  
-  Updates a user's notification preferences.
+  Updates a user's notification preferences. User ID and preferences data are sanitized and validated.
 
 ---
 
@@ -72,6 +80,8 @@ endpoints/notifications/
 
 ## Best Practices
 
+- Always use NotificationService for all notification logic (send, delete, update, list).
+- Sanitize and validate all user IDs and input data in endpoints.
 - Ensure only authorized users can send or delete notifications.
 - Allow users to customize their notification preferences.
 - Use templates for consistent and professional messaging.

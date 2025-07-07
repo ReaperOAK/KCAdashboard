@@ -1,8 +1,10 @@
 <?php
 require_once '../../config/cors.php';
+
 require_once '../../config/Database.php';
 require_once '../../models/Tournament.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get user from token
@@ -92,7 +94,7 @@ try {
         // If tournament was updated to ongoing status and is online, send notifications
         if ($data->status === 'ongoing' && $data->type === 'online' && $tournament_details['status'] !== 'ongoing') {
             // Get all registered users with completed payments
-            $registrationsQuery = "SELECT u.id, u.email FROM tournament_registrations tr 
+            $registrationsQuery = "SELECT u.id FROM tournament_registrations tr 
                                  JOIN users u ON tr.user_id = u.id 
                                  WHERE tr.tournament_id = :tournament_id 
                                  AND tr.payment_status = 'completed'";
@@ -100,21 +102,19 @@ try {
             $registrationsStmt->bindParam(':tournament_id', $data->id);
             $registrationsStmt->execute();
             $registrations = $registrationsStmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Add notifications for all registered users
-            foreach ($registrations as $reg) {
-                $notificationQuery = "INSERT INTO notifications 
-                                    (user_id, title, message, type, is_read, created_at)
-                                    VALUES (:user_id, :title, :message, 'tournament', 0, NOW())";
-                $notificationStmt = $db->prepare($notificationQuery);
-                $notificationStmt->bindParam(":user_id", $reg['id']);
-                $title = "Tournament Started";
-                $notificationStmt->bindParam(":title", $title);
-                $message = "The tournament '" . $data->title . "' has started. Join now!";
-                $notificationStmt->bindParam(":message", $message);
-                $notificationStmt->execute();
-                
-                // TODO: Add email notifications in the future
+            // Use NotificationService to send notifications in bulk
+            if (!empty($registrations)) {
+                $userIds = array_column($registrations, 'id');
+                $notificationService = new NotificationService();
+                $notifTitle = "Tournament Started";
+                $notifMsg = "The tournament '" . $data->title . "' has started. Join now!";
+                $notificationService->sendBulkCustom(
+                    $userIds,
+                    $notifTitle,
+                    $notifMsg,
+                    'tournament',
+                    false
+                );
             }
         }
         

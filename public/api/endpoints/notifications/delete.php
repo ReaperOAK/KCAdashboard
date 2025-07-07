@@ -1,8 +1,10 @@
 <?php
 require_once '../../config/cors.php';
+
 require_once '../../config/Database.php';
 require_once '../../models/Notification.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get the POST data
@@ -20,10 +22,17 @@ try {
     
     $database = new Database();
     $db = $database->getConnection();
-    $notification = new Notification($db);
-    
-    // Delete notification
-    if($notification->deleteNotification($data->id, $user_id)) {
+    $notificationService = new NotificationService();
+    // Use NotificationService for deletion logic
+    $result = false;
+    if (method_exists($notificationService, 'deleteNotification')) {
+        $result = $notificationService->deleteNotification($data->id, $user_id);
+    } else {
+        // fallback to model if service method not available
+        $notification = new Notification($db);
+        $result = $notification->deleteNotification($data->id, $user_id);
+    }
+    if($result) {
         http_response_code(200);
         echo json_encode([
             "message" => "Notification deleted successfully"

@@ -5,7 +5,10 @@ require_once '../../config/cors.php';
 // Include database and object files
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
+
 require_once '../../models/ChessStats.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get authenticated user
@@ -124,30 +127,17 @@ try {
             error_log("[save-result] Black save result: " . var_export($blackUpdate, true));
         }
 
-        // Create notifications for both players
-        $notifyQuery = "INSERT INTO notifications 
-                       (user_id, title, message, type, is_read, created_at) 
-                       VALUES (:user_id, :title, :message, 'game', 0, NOW())";
-        
-        // Notification for white player
+        // Create notifications for both players using NotificationService
+        $notificationService = new NotificationService();
+        $whiteWin = $data->result === '1-0';
+        $blackWin = $data->result === '0-1';
+        $draw = $data->result === '1/2-1/2';
         $whiteTitle = $whiteWin ? "Game Won" : ($blackWin ? "Game Lost" : "Game Drawn");
         $whiteMessage = "Your game against " . $game['black_player_name'] . " has ended. Result: " . $data->result;
-        
-        $whiteNotifyStmt = $db->prepare($notifyQuery);
-        $whiteNotifyStmt->bindParam(':user_id', $whiteId);
-        $whiteNotifyStmt->bindParam(':title', $whiteTitle);
-        $whiteNotifyStmt->bindParam(':message', $whiteMessage);
-        $whiteNotifyStmt->execute();
-        
-        // Notification for black player
+        $notificationService->sendCustom($whiteId, $whiteTitle, $whiteMessage, 'game');
         $blackTitle = $blackWin ? "Game Won" : ($whiteWin ? "Game Lost" : "Game Drawn");
         $blackMessage = "Your game against " . $game['white_player_name'] . " has ended. Result: " . $data->result;
-        
-        $blackNotifyStmt = $db->prepare($notifyQuery);
-        $blackNotifyStmt->bindParam(':user_id', $blackId);
-        $blackNotifyStmt->bindParam(':title', $blackTitle);
-        $blackNotifyStmt->bindParam(':message', $blackMessage);
-        $blackNotifyStmt->execute();
+        $notificationService->sendCustom($blackId, $blackTitle, $blackMessage, 'game');
 
         // Commit transaction
         $db->commit();

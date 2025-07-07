@@ -131,14 +131,25 @@ class Notification {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Delete a notification for a user. Only the owner can delete their notification.
+     * Returns true if deleted, false if not found or not allowed.
+     */
     public function deleteNotification($id, $user_id) {
-        $query = "DELETE FROM " . $this->table_name . " 
-                  WHERE id = :id AND user_id = :user_id";
-        
+        // Check if notification exists and belongs to user
+        $query = "SELECT id FROM " . $this->table_name . " WHERE id = :id AND user_id = :user_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":id", $id);
         $stmt->bindParam(":user_id", $user_id);
-        
+        $stmt->execute();
+        if ($stmt->rowCount() === 0) {
+            return false;
+        }
+        // Delete notification
+        $query = "DELETE FROM " . $this->table_name . " WHERE id = :id AND user_id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id);
+        $stmt->bindParam(":user_id", $user_id);
         return $stmt->execute();
     }
 

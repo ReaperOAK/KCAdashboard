@@ -2,7 +2,10 @@
 // chess/resign-game.php
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
+
 require_once '../../middleware/auth.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 try {
     $user = getAuthUser();
@@ -53,14 +56,11 @@ try {
     $delStmt->bindParam(':game_id', $gameId);
     $delStmt->execute();
 
-    // Notify both players
-    $notify = "INSERT INTO notifications (user_id, title, message, type, is_read, created_at) VALUES (:uid, 'Game Resigned', :msg, 'game', 0, NOW())";
+    // Notify both players using NotificationService
+    $notificationService = new NotificationService();
     $msg = 'The game has been resigned and ended.';
     foreach ([$game['white_player_id'], $game['black_player_id']] as $uid) {
-        $nstmt = $db->prepare($notify);
-        $nstmt->bindParam(':uid', $uid);
-        $nstmt->bindParam(':msg', $msg);
-        $nstmt->execute();
+        $notificationService->sendCustom($uid, 'Game Resigned', $msg, 'game');
     }
     echo json_encode(["success" => true, "message" => "Game resigned and completed."]);
 } catch(Exception $e) {

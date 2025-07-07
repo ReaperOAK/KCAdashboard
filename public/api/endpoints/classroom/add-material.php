@@ -17,7 +17,10 @@ error_log("POST data: " . print_r($_POST, true));
 error_log("FILES data: " . print_r($_FILES, true));
 
 require_once '../../config/Database.php';
+
 require_once '../../middleware/auth.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 // Verify token and get user
 $user_data = verifyToken();
@@ -138,29 +141,19 @@ try {
     $stmt->bindParam(':classroom_id', $_POST['classroom_id']);
     $stmt->execute();
     
-    // Create notifications for students - FIX HERE
-    $stmt = $db->prepare("
-        INSERT INTO notifications (user_id, title, message, type, created_at)
-        SELECT 
-            cs.student_id,
-            :notif_title,
-            :notif_message,
-            'new_material',
-            NOW()
-        FROM classroom_students cs
-        WHERE cs.classroom_id = :classroom_id
-    ");
-    
-    // Store all values in variables first before binding
+    // Create notifications for students using NotificationService
     $notif_title = "New Learning Material Available";
     $notif_message = "A new " . $type . " material '" . $title . "' has been added to your classroom.";
-    $classroom_id = $_POST['classroom_id']; // Use a variable for classroom_id too
-    
-    // Now bind the variables, not expressions or literals
-    $stmt->bindParam(':notif_title', $notif_title);
-    $stmt->bindParam(':notif_message', $notif_message);
-    $stmt->bindParam(':classroom_id', $classroom_id);
-    $stmt->execute();
+    $classroom_id = $_POST['classroom_id'];
+    $notificationService = new NotificationService();
+    // Get all student IDs in the classroom
+    $studentStmt = $db->prepare("SELECT student_id FROM classroom_students WHERE classroom_id = :classroom_id");
+    $studentStmt->bindParam(':classroom_id', $classroom_id);
+    $studentStmt->execute();
+    $studentIds = $studentStmt->fetchAll(PDO::FETCH_COLUMN);
+    if (!empty($studentIds)) {
+        $notificationService->sendBulkCustom($studentIds, $notif_title, $notif_message, 'new_material');
+    }
     
     echo json_encode([
         'success' => true,

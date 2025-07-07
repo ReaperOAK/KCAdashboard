@@ -114,22 +114,25 @@ class NotificationPreference {
     }
     
     // Check if user should receive notification of specific category
+    /**
+     * Check if user should receive notification of specific category and channel (in_app or email).
+     * Returns true if allowed, false if explicitly disabled.
+     * Falls back to default (true) if no preference is set or invalid channel is provided.
+     */
     public function shouldReceiveNotification($user_id, $category, $channel = 'in_app') {
-        $query = "SELECT " . $channel . " FROM " . $this->table_name . "
-                 WHERE user_id = :user_id AND category = :category";
-                 
+        $allowedChannels = ['in_app', 'email'];
+        if (!in_array($channel, $allowedChannels)) {
+            return true; // fallback to default if invalid channel
+        }
+        $query = "SELECT in_app, email FROM " . $this->table_name . " WHERE user_id = :user_id AND category = :category";
         $stmt = $this->conn->prepare($query);
-        
         $stmt->bindParam(":user_id", $user_id);
         $stmt->bindParam(":category", $category);
-        
         $stmt->execute();
-        
         if ($stmt->rowCount() > 0) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return (bool)$result[$channel];
+            return isset($result[$channel]) ? (bool)$result[$channel] : true;
         }
-        
         // If no preference set, return true (default behavior)
         return true;
     }

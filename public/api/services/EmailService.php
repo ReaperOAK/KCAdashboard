@@ -37,24 +37,28 @@ class EmailService {
         }
     }
     
+    /**
+     * Send a notification email to a user. Returns true if sent, false otherwise.
+     * Sanitizes all input and ensures no duplicate recipients.
+     */
     public function sendNotificationEmail($to_email, $to_name, $subject, $message, $category = 'general', $link = null) {
         try {
-            // Reset all recipients
+            // Reset all recipients and attachments
             $this->mail->clearAddresses();
-            
+            $this->mail->clearAttachments();
+            // Validate email
+            if (!filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception("Invalid recipient email: $to_email");
+            }
             // Add recipient
-            $this->mail->addAddress($to_email, $to_name);
-            
+            $this->mail->addAddress(trim($to_email), trim($to_name));
             // Set email subject
-            $this->mail->Subject = $subject;
-            
+            $this->mail->Subject = trim($subject);
             // Generate email body using template
             $body = $this->generateEmailTemplate($subject, $message, $category, $link);
             $this->mail->Body = $body;
-            
             // Plain text version
             $this->mail->AltBody = strip_tags(str_replace(['<br>', '<br/>'], "\n", $message));
-            
             // Send email
             return $this->mail->send();
         } catch (Exception $e) {

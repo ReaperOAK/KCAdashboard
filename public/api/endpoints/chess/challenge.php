@@ -4,7 +4,10 @@ require_once '../../config/cors.php';
 
 // Include database and object files
 require_once '../../config/Database.php';
+
 require_once '../../middleware/auth.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get authenticated user
@@ -82,17 +85,13 @@ try {
     if($stmt->execute()) {
         $challengeId = $db->lastInsertId();
 
-        // Create a notification for the recipient
-        $notifyQuery = "INSERT INTO notifications 
-                        (user_id, title, message, type, is_read, created_at) 
-                        VALUES (:user_id, 'New Chess Challenge', :message, 'challenge', 0, NOW())";
-        
-        $message = $user['full_name'] . ' has challenged you to a chess game.';
-        
-        $notifyStmt = $db->prepare($notifyQuery);
-        $notifyStmt->bindParam(':user_id', $data->opponent_id);
-        $notifyStmt->bindParam(':message', $message);
-        $notifyStmt->execute();
+
+        // Create a notification for the recipient using NotificationService
+        $notificationService = new NotificationService();
+        $notifTitle = 'New Chess Challenge';
+        $notifMessage = $user['full_name'] . ' has challenged you to a chess game.';
+        $notifCategory = 'challenge';
+        $notificationService->sendCustom($data->opponent_id, $notifTitle, $notifMessage, $notifCategory);
 
         http_response_code(201);
         echo json_encode([

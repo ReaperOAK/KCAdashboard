@@ -2,13 +2,16 @@
 // chess/cleanup-inactive-games.php
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
+
 require_once '../../models/ChessGame.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 try {
     $database = new Database();
     $db = $database->getConnection();
-    // 60 minutes inactivity
-    $thresholdDate = date('Y-m-d H:i:s', strtotime('-60 minutes'));
+    // 10 minutes inactivity
+    $thresholdDate = date('Y-m-d H:i:s', strtotime('-10 minutes'));
     $query = "SELECT id, white_player_id, black_player_id FROM chess_games WHERE status = 'active' AND last_move_at < :threshold_date";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':threshold_date', $thresholdDate);
@@ -45,23 +48,15 @@ try {
         $updateStmt->bindParam(':result', $result);
         $updateStmt->bindParam(':game_id', $game['id']);
         $updateStmt->execute();
-        // Notify both players
-        $notify = "INSERT INTO notifications (user_id, title, message, type, is_read, created_at) VALUES (:uid, 'Game Auto-Resigned', :msg, 'game', 0, NOW())";
-        $msgWinner = 'Victory! Your opponent was resigned due to 60 minutes of inactivity.';
-        $msgLoser = 'You have been resigned from a game due to 60 minutes of inactivity.';
-        // Winner notification
+        // Notify both players using NotificationService
+        $notificationService = new NotificationService();
+        $msgWinner = 'Victory! Your opponent was resigned due to 10 minutes of inactivity.';
+        $msgLoser = 'You have been resigned from a game due to 10 minutes of inactivity.';
         if ($winner) {
-            $nstmt = $db->prepare($notify);
-            $nstmt->bindParam(':uid', $winner);
-            $nstmt->bindParam(':msg', $msgWinner);
-            $nstmt->execute();
+            $notificationService->sendCustom($winner, 'Game Auto-Resigned', $msgWinner, 'game');
         }
-        // Loser notification
         if ($loser) {
-            $nstmt = $db->prepare($notify);
-            $nstmt->bindParam(':uid', $loser);
-            $nstmt->bindParam(':msg', $msgLoser);
-            $nstmt->execute();
+            $notificationService->sendCustom($loser, 'Game Auto-Resigned', $msgLoser, 'game');
         }
         $resignedGames[] = $game['id'];
     }

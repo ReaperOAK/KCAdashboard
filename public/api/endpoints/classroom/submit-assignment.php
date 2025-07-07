@@ -1,8 +1,10 @@
 <?php
 require_once '../../config/cors.php';
 
+
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Validate user auth token
@@ -115,20 +117,25 @@ try {
     $stmt->bindParam(':submission_text', $submission_text);
     $stmt->execute();
     
-    // Create notification for teacher
-    $query = "INSERT INTO notifications (user_id, title, message, type)
-              SELECT c.teacher_id, 
-                     CONCAT('New submission for ', a.title),
-                     CONCAT(:student_name, ' has submitted an assignment for ', a.title),
-                     'assignment_submission'
-              FROM classroom_assignments a
-              JOIN classrooms c ON a.classroom_id = c.id
-              WHERE a.id = :assignment_id";
-    
+
+    // Use NotificationService to notify teacher
+    $query = "SELECT a.title, c.teacher_id, c.name as classroom_name FROM classroom_assignments a JOIN classrooms c ON a.classroom_id = c.id WHERE a.id = :assignment_id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':assignment_id', $assignment_id);
-    $stmt->bindParam(':student_name', $user['full_name']);
     $stmt->execute();
+    $info = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($info && $info['teacher_id'] != $user['id']) {
+        $notificationService = new NotificationService();
+        $notifTitle = 'New submission for ' . $info['title'];
+        $notifMsg = $user['full_name'] . ' has submitted an assignment for ' . $info['title'];
+        $notificationService->sendCustom(
+            $info['teacher_id'],
+            $notifTitle,
+            $notifMsg,
+            'assignment',
+            false
+        );
+    }
     
     http_response_code(200);
     echo json_encode([

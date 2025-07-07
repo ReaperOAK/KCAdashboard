@@ -5,6 +5,15 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../services/EmailService.php';
 
 class NotificationService {
+    // Sanitize a string for safe DB and email use
+    private function sanitize($str) {
+        return trim(filter_var($str, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+    }
+
+    // Validate user ID
+    private function isValidUserId($user_id) {
+        return is_numeric($user_id) && intval($user_id) > 0;
+    }
     private $db;
     private $notification;
     private $user;
@@ -54,45 +63,55 @@ class NotificationService {
 
     // Send notification using a template
     public function sendFromTemplate($user_id, $notificationType, $params = [], $sendEmail = false, $linkUrl = null) {
+        if (!$this->isValidUserId($user_id)) {
+            error_log("Invalid user_id in sendFromTemplate: $user_id");
+            return false;
+        }
         if (!isset($this->templates[$notificationType])) {
             throw new Exception("Notification template not found: $notificationType");
         }
 
         $template = $this->templates[$notificationType];
-        
+
+        // Sanitize params for placeholders
+        foreach ($params as $k => $v) {
+            $params[$k] = htmlspecialchars($this->sanitize($v));
+        }
+
         // Replace placeholders with actual values
         $title = $this->replacePlaceholders($template['title'], $params);
         $message = $this->replacePlaceholders($template['message'], $params);
         $category = $template['category'];
-        
+
         // Set notification properties
-        $this->notification->user_id = $user_id;
-        $this->notification->title = $title;
-        $this->notification->message = $message;
+        $this->notification->user_id = intval($user_id);
+        $this->notification->title = $this->sanitize($title);
+        $this->notification->message = $this->sanitize($message);
         $this->notification->type = $notificationType;
-        $this->notification->category = $category;
-        $this->notification->link = $linkUrl;
+        $this->notification->category = $this->sanitize($category);
+        $this->notification->link = $linkUrl ? $this->sanitize($linkUrl) : null;
         $this->notification->email_sent = false;
-        
+
         // Send notification
         $result = $this->notification->create();
-        
+
         // If email should be sent
         if ($result && $sendEmail) {
             try {
                 // Get user email
                 $userInfo = $this->user->getById($user_id);
                 if ($userInfo && !empty($userInfo['email'])) {
+                    $email = filter_var($userInfo['email'], FILTER_SANITIZE_EMAIL);
+                    $name = htmlspecialchars($this->sanitize($userInfo['full_name']));
                     // Send email
                     $emailResult = $this->emailService->sendNotificationEmail(
-                        $userInfo['email'],
-                        $userInfo['full_name'],
+                        $email,
+                        $name,
                         $title,
                         $message,
                         $category,
                         $linkUrl
                     );
-                    
                     // Update notification with email sent status
                     if ($emailResult) {
                         $this->notification->id = $this->db->lastInsertId();
@@ -104,7 +123,7 @@ class NotificationService {
                 // Continue even if email fails, the in-app notification was created
             }
         }
-        
+
         return $result;
     }
 
@@ -115,8 +134,13 @@ class NotificationService {
             'failed' => 0,
             'emails_sent' => 0
         ];
-        
+
         foreach ($user_ids as $user_id) {
+            if (!$this->isValidUserId($user_id)) {
+                $results['failed']++;
+                error_log("Invalid user_id in sendBulkFromTemplate: $user_id");
+                continue;
+            }
             try {
                 $success = $this->sendFromTemplate($user_id, $notificationType, $params, $sendEmail, $linkUrl);
                 if ($success) {
@@ -132,35 +156,40 @@ class NotificationService {
                 error_log("Error sending notification to user $user_id: " . $e->getMessage());
             }
         }
-        
+
         return $results;
     }
 
     // Send custom notification (without template)
     public function sendCustom($user_id, $title, $message, $category = 'general', $sendEmail = false, $linkUrl = null) {
-        $this->notification->user_id = $user_id;
-        $this->notification->title = $title;
-        $this->notification->message = $message;
+        if (!$this->isValidUserId($user_id)) {
+            error_log("Invalid user_id in sendCustom: $user_id");
+            return false;
+        }
+        $this->notification->user_id = intval($user_id);
+        $this->notification->title = $this->sanitize($title);
+        $this->notification->message = $this->sanitize($message);
         $this->notification->type = 'custom';
-        $this->notification->category = $category;
-        $this->notification->link = $linkUrl;
+        $this->notification->category = $this->sanitize($category);
+        $this->notification->link = $linkUrl ? $this->sanitize($linkUrl) : null;
         $this->notification->email_sent = false;
-        
+
         $result = $this->notification->create();
-        
+
         if ($result && $sendEmail) {
             try {
                 $userInfo = $this->user->getById($user_id);
                 if ($userInfo && !empty($userInfo['email'])) {
+                    $email = filter_var($userInfo['email'], FILTER_SANITIZE_EMAIL);
+                    $name = htmlspecialchars($this->sanitize($userInfo['full_name']));
                     $emailResult = $this->emailService->sendNotificationEmail(
-                        $userInfo['email'],
-                        $userInfo['full_name'],
+                        $email,
+                        $name,
                         $title,
                         $message,
                         $category,
                         $linkUrl
                     );
-                    
                     if ($emailResult) {
                         $this->notification->id = $this->db->lastInsertId();
                         $this->updateEmailSentStatus($this->notification->id, true);
@@ -170,7 +199,7 @@ class NotificationService {
                 error_log("Failed to send email notification: " . $e->getMessage());
             }
         }
-        
+
         return $result;
     }
 
@@ -181,8 +210,13 @@ class NotificationService {
             'failed' => 0,
             'emails_sent' => 0
         ];
-        
+
         foreach ($user_ids as $user_id) {
+            if (!$this->isValidUserId($user_id)) {
+                $results['failed']++;
+                error_log("Invalid user_id in sendBulkCustom: $user_id");
+                continue;
+            }
             try {
                 $success = $this->sendCustom($user_id, $title, $message, $category, $sendEmail, $linkUrl);
                 if ($success) {
@@ -198,7 +232,7 @@ class NotificationService {
                 error_log("Error sending notification to user $user_id: " . $e->getMessage());
             }
         }
-        
+
         return $results;
     }
 

@@ -1,8 +1,10 @@
 <?php
 require_once '../../config/cors.php';
 
+
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -85,37 +87,46 @@ try {
     
     $post_id = $db->lastInsertId();
     
-    // If this is a reply, create notifications for the parent post owner
+    // Use NotificationService for notifications
+    $notificationService = new NotificationService();
     if ($parent_id) {
-        $query = "INSERT INTO notifications (user_id, title, message, type)
-                  SELECT d.user_id,
-                         'New reply to your post',
-                         CONCAT(:user_name, ' replied to your post in ', c.name),
-                         'discussion_reply'
-                  FROM classroom_discussions d
-                  JOIN classrooms c ON d.classroom_id = c.id
-                  WHERE d.id = :parent_id AND d.user_id != :user_id";
-        
+        // Notify parent post owner (if not self)
+        $query = "SELECT d.user_id, c.name as classroom_name FROM classroom_discussions d JOIN classrooms c ON d.classroom_id = c.id WHERE d.id = :parent_id AND d.user_id != :user_id";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':parent_id', $parent_id);
-        $stmt->bindParam(':user_name', $user['full_name']);
         $stmt->bindParam(':user_id', $user['id']);
         $stmt->execute();
+        $parentInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($parentInfo) {
+            $notifTitle = 'New reply to your post';
+            $notifMsg = $user['full_name'] . ' replied to your post in ' . $parentInfo['classroom_name'];
+            $notificationService->sendCustom(
+                $parentInfo['user_id'],
+                $notifTitle,
+                $notifMsg,
+                'discussion',
+                false
+            );
+        }
     } else {
-        // For new topics, notify the teacher
-        $query = "INSERT INTO notifications (user_id, title, message, type)
-                  SELECT c.teacher_id,
-                         'New discussion in your classroom',
-                         CONCAT(:user_name, ' started a new discussion in ', c.name),
-                         'new_discussion'
-                  FROM classrooms c
-                  WHERE c.id = :classroom_id AND c.teacher_id != :user_id";
-        
+        // For new topics, notify the teacher (if not self)
+        $query = "SELECT teacher_id, name FROM classrooms WHERE id = :classroom_id AND teacher_id != :user_id";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':classroom_id', $classroom_id);
-        $stmt->bindParam(':user_name', $user['full_name']);
         $stmt->bindParam(':user_id', $user['id']);
         $stmt->execute();
+        $teacherInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($teacherInfo) {
+            $notifTitle = 'New discussion in your classroom';
+            $notifMsg = $user['full_name'] . ' started a new discussion in ' . $teacherInfo['name'];
+            $notificationService->sendCustom(
+                $teacherInfo['teacher_id'],
+                $notifTitle,
+                $notifMsg,
+                'discussion',
+                false
+            );
+        }
     }
     
     // Return newly created post with user details

@@ -53,7 +53,7 @@ endpoints/tournaments/
   Initiates payment processing for tournament registration.
 
 - **payment-verify.php**  
-  Verifies payment status for a tournament registration.
+  Verifies payment status for a tournament registration. Uses the centralized NotificationService to notify the user when their payment is approved or rejected. Do not insert directly into the notifications table; always use NotificationService for payment notifications.
 
 - **register.php**  
   Registers a user for a tournament.
@@ -62,7 +62,7 @@ endpoints/tournaments/
   Gets the registration status for a user in a tournament.
 
 - **update.php**  
-  Updates tournament details, such as schedule, rules, or participants.
+  Updates tournament details, such as schedule, rules, or participants. Uses the centralized NotificationService to send notifications in bulk to all registered users when an online tournament is started. Do not insert directly into the notifications table; always use NotificationService for tournament notifications.
 
 ---
 

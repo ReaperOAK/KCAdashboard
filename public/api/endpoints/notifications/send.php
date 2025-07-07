@@ -36,7 +36,22 @@ try {
     // Get parameters
     $title = $data->title;
     $message = $data->message;
+    // Validate category
+    $allowed_categories = [
+        'general',
+        'class',
+        'tournament',
+        'assignment',
+        'attendance',
+        'announcement',
+        'achievement'
+    ];
     $category = $data->category ?? 'general';
+    if (!in_array($category, $allowed_categories, true)) {
+        http_response_code(400);
+        echo json_encode(["message" => "Invalid notification category. Allowed: " . implode(', ', $allowed_categories)]);
+        exit();
+    }
     $sendEmail = $data->send_email ?? false;
     $linkUrl = $data->link ?? null;
     $recipients = $data->recipients; // Can be array of user IDs or "all", "students", "teachers"

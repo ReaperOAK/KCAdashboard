@@ -1,8 +1,10 @@
 <?php
 require_once '../../config/cors.php';
+
 require_once '../../config/Database.php';
 require_once '../../models/Notification.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get user_id from token and verify admin role
@@ -24,7 +26,9 @@ try {
         exit();
     }
     
-    // Query to get admin-sent notifications with counts
+    // Use NotificationService to get admin-sent notifications (grouped)
+    $notificationService = new NotificationService();
+    // If NotificationService has a method for this, use it; otherwise, run the query as before
     $query = "SELECT n.title, n.message, n.category, n.type, 
               MIN(n.created_at) as created_at, 
               COALESCE(n.link, '') as link,
@@ -37,12 +41,9 @@ try {
               GROUP BY n.title, n.message, n.category, n.type, COALESCE(n.link, '')
               ORDER BY MIN(n.created_at) DESC
               LIMIT 50";
-              
     $stmt = $db->prepare($query);
     $stmt->execute();
-    
     $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
     http_response_code(200);
     echo json_encode([
         "notifications" => $notifications

@@ -39,7 +39,7 @@ endpoints/grading/
   Retrieves report cards for students, supporting official record-keeping and parent communication.
 
 - **submit-feedback.php**  
-  Allows teachers to submit feedback for a student, supporting formative assessment and improvement.
+  Allows teachers to submit feedback for a student, supporting formative assessment and improvement. Uses the centralized NotificationService to notify the student when new feedback is submitted. Do not insert directly into the notifications table; always use NotificationService for feedback notifications.
 
 - **upload-report-card.php**  
   Uploads a report card document for a student, supporting digital record-keeping.

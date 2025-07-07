@@ -114,39 +114,26 @@ try {
     
     $assignment_id = $db->lastInsertId();
 
-    // Create notifications for all students in the classroom
-    $notificationQuery = "
-        INSERT INTO notifications (user_id, title, message, type, created_at)
-        SELECT 
-            cs.student_id,
-            'New Assignment: ' || :title,
-            'A new assignment \"' || :title || '\" has been posted. Due date: ' || :formatted_due_date,
-            'assignment',
-            NOW()
-        FROM classroom_students cs
-        WHERE cs.classroom_id = :classroom_id
-    ";
-    
+    // Create notifications for all students in the classroom using NotificationService
+    require_once '../../services/NotificationService.php';
     $formatted_due_date = date('M j, Y g:i A', strtotime($due_date));
     $notification_title = 'New Assignment: ' . $title;
     $notification_message = 'A new assignment "' . $title . '" has been posted. Due date: ' . $formatted_due_date;
-    
-    $stmt = $db->prepare("
-        INSERT INTO notifications (user_id, title, message, type, created_at)
-        SELECT 
-            cs.student_id,
-            :notif_title,
-            :notif_message,
-            'assignment',
-            NOW()
-        FROM classroom_students cs
-        WHERE cs.classroom_id = :classroom_id
-    ");
-    
-    $stmt->bindParam(':notif_title', $notification_title);
-    $stmt->bindParam(':notif_message', $notification_message);
+    $notification_category = 'assignment';
+    // Get all students in the classroom
+    $stmt = $db->prepare("SELECT student_id FROM classroom_students WHERE classroom_id = :classroom_id");
     $stmt->bindParam(':classroom_id', $classroom_id);
     $stmt->execute();
+    $students = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($students as $student_id) {
+        NotificationService::send(
+            $db,
+            $student_id,
+            $notification_title,
+            $notification_message,
+            $notification_category
+        );
+    }
 
     http_response_code(201);
     echo json_encode([

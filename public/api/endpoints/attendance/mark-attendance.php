@@ -2,8 +2,11 @@
 <?php
 require_once '../../config/cors.php';
 header('Content-Type: application/json');
+
 require_once '../../middleware/auth.php';
 require_once '../../config/Database.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 $user_id = validateToken();
 $database = new Database();
@@ -49,15 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function sendAttendanceNotifications($attendance) {
-    global $db;
-    
+    $notificationService = new NotificationService();
     foreach ($attendance as $record) {
         if ($record->status === 'absent') {
-            // Insert notification for absent students
-            $query = "INSERT INTO notifications (user_id, title, message, type) 
-                     VALUES (:user_id, 'Absence Recorded', 'You were marked absent for today\'s class', 'attendance')";
-            $stmt = $db->prepare($query);
-            $stmt->execute(['user_id' => $record->student_id]);
+            // Use NotificationService to send notification with proper category
+            $title = 'Absence Recorded';
+            $message = "You were marked absent for today's class.";
+            $category = 'attendance';
+            $notificationService->sendCustom($record->student_id, $title, $message, $category);
         }
     }
 }

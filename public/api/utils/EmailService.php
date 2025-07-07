@@ -35,25 +35,28 @@ class EmailService {
      * @param array $attachments Optional array of attachments
      * @return bool True if email was sent successfully
      */
+    /**
+     * Send an email with optional attachments. Sanitizes input and validates email.
+     */
     public function sendEmail($to, $subject, $body, $attachments = []) {
         try {
-            $this->mailer->addAddress($to);
-            $this->mailer->Subject = $subject;
+            $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
+            if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception("Invalid recipient email: $to");
+            }
+            $this->mailer->addAddress(trim($to));
+            $this->mailer->Subject = trim($subject);
             $this->mailer->Body = $body;
-            
             // Add attachments if provided
             foreach ($attachments as $attachment) {
                 if (isset($attachment['path']) && isset($attachment['name'])) {
                     $this->mailer->addAttachment($attachment['path'], $attachment['name']);
                 }
             }
-            
             $this->mailer->send();
-            
-            // Clear all addresses for next send
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            
             return true;
         } catch (Exception $e) {
             error_log('Email sending failed: ' . $e->getMessage());
@@ -71,30 +74,32 @@ class EmailService {
      * @param array $attachments Optional array of attachments
      * @return bool True if email was sent successfully
      */
+    /**
+     * Send an HTML email with optional plain text and attachments. Sanitizes input and validates email.
+     */
     public function sendHTMLEmail($to, $subject, $htmlContent, $plainTextContent = '', $attachments = []) {
         try {
-            $this->mailer->addAddress($to);
-            $this->mailer->Subject = $subject;
+            $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
+            if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception("Invalid recipient email: $to");
+            }
+            $this->mailer->addAddress(trim($to));
+            $this->mailer->Subject = trim($subject);
             $this->mailer->isHTML(true);
             $this->mailer->Body = $htmlContent;
-            
             if (!empty($plainTextContent)) {
                 $this->mailer->AltBody = $plainTextContent;
             }
-            
             // Add attachments if provided
             foreach ($attachments as $attachment) {
                 if (isset($attachment['path']) && isset($attachment['name'])) {
                     $this->mailer->addAttachment($attachment['path'], $attachment['name']);
                 }
             }
-            
             $this->mailer->send();
-            
-            // Clear all addresses for next send
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            
             return true;
         } catch (Exception $e) {
             error_log('HTML email sending failed: ' . $e->getMessage());
@@ -112,9 +117,15 @@ class EmailService {
      * @param string $comment Feedback comment
      * @return bool True if email was sent successfully
      */
+    /**
+     * Send a notification email for new feedback. Sanitizes all input.
+     */
     public function sendFeedbackNotification($to, $studentName, $teacherName, $rating, $comment = '') {
         $subject = "New Feedback from your Teacher";
-        
+        $studentName = htmlspecialchars($studentName);
+        $teacherName = htmlspecialchars($teacherName);
+        $rating = intval($rating);
+        $comment = htmlspecialchars($comment);
         // HTML content
         $htmlContent = "
         <html>
@@ -135,11 +146,9 @@ class EmailService {
                 <p>Hello {$studentName},</p>
                 <p>Your teacher {$teacherName} has provided new feedback for you.</p>
                 <div class='rating'>Rating: {$rating}/5</div>";
-        
         if (!empty($comment)) {
             $htmlContent .= "<p><strong>Comment:</strong> {$comment}</p>";
         }
-        
         $htmlContent .= "
                 <p>Please log in to your dashboard to view the complete feedback.</p>
                 <p>Regards,<br>Kolkata Chess Academy Team</p>
@@ -149,19 +158,15 @@ class EmailService {
             </div>
         </body>
         </html>";
-        
         // Plain text alternative
         $plainText = "Hello {$studentName},\n\n";
         $plainText .= "Your teacher {$teacherName} has provided new feedback for you.\n\n";
         $plainText .= "Rating: {$rating}/5\n";
-        
         if (!empty($comment)) {
             $plainText .= "Comment: {$comment}\n\n";
         }
-        
         $plainText .= "Please log in to your dashboard to view the complete feedback.\n\n";
         $plainText .= "Regards,\nKolkata Chess Academy Team";
-        
         return $this->sendHTMLEmail($to, $subject, $htmlContent, $plainText);
     }
 }

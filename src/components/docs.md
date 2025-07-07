@@ -33,8 +33,16 @@ components/
 - **ExportButton.js**  
   Provides a button for exporting data (e.g., CSV, Excel) from tables or reports.
 
-- **NotificationBell.js**  
-  Shows a notification bell icon and manages notification logic for alerts and messages.
+**NotificationBell.js**  
+Displays a modern, responsive notification bell icon with a beautiful dropdown panel for alerts and messages. The panel features:
+  - Glassmorphism and gradient backgrounds for a visually appealing look
+  - Animated, rounded notification cards with category badges and icons
+  - Responsive layout for all screen sizes (mobile, tablet, desktop)
+  - Category tabs for filtering notifications
+  - Mark all as read, delete, and quick navigation to notification settings
+  - Accessibility and keyboard navigation improvements
+  - Animated notification badge and smooth transitions
+See the notifications documentation for more details on usage and features.
 
 - **ResourcePreview.js**  
   Previews resources (documents, images, etc.) in the UI before download or sharing.

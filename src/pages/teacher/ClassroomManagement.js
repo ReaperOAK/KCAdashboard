@@ -200,7 +200,11 @@ function ClassroomManagement() {
       setRefreshTrigger((prev) => prev + 1);
       fetchClassrooms();
     } catch (err) {
-      setError('Failed to schedule class');
+      if (err.message && err.message.includes('overlaps with this time')) {
+        setError('You already have a class scheduled that overlaps with this time. Please choose a different time slot.');
+      } else {
+        setError('Failed to schedule class');
+      }
     }
   }, [selectedClass, scheduleForm, fetchClassrooms]);
 

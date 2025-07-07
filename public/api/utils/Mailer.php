@@ -1,3 +1,16 @@
+    /**
+     * Sanitize a string for safe email headers and content
+     */
+    private function sanitize($str) {
+        return trim(filter_var($str, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+    }
+
+    /**
+     * Validate an email address
+     */
+    private function isValidEmail($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
 <?php
 // First try to use composer autoloader if available
 $vendorAutoloadPaths = [
@@ -112,15 +125,25 @@ class Mailer {
     /**
      * Send a notification email for new feedback
      */
+    /**
+     * Send a notification email for new feedback. Sanitizes all input and validates email.
+     */
     public function sendFeedbackNotification($to, $studentName, $teacherName, $rating, $comment = '', $areasOfImprovement = '', $strengths = '') {
         try {
-            // Clear previous recipients
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            
+            $to = $this->sanitize($to);
+            if (!$this->isValidEmail($to)) {
+                throw new Exception("Invalid recipient email: $to");
+            }
+            $studentName = htmlspecialchars($this->sanitize($studentName));
+            $teacherName = htmlspecialchars($this->sanitize($teacherName));
+            $rating = intval($rating);
+            $comment = htmlspecialchars($this->sanitize($comment));
+            $areasOfImprovement = htmlspecialchars($this->sanitize($areasOfImprovement));
+            $strengths = htmlspecialchars($this->sanitize($strengths));
             $this->mailer->addAddress($to);
             $this->mailer->Subject = "New Feedback from your Teacher";
-            
             // HTML content
             $htmlContent = "
             <html>
@@ -142,19 +165,15 @@ class Mailer {
                     <p>Hello {$studentName},</p>
                     <p>Your teacher {$teacherName} has provided new feedback for you.</p>
                     <div class='rating'>Rating: {$rating}/5</div>";
-            
             if (!empty($comment)) {
                 $htmlContent .= "<div class='section'><strong>Comment:</strong> {$comment}</div>";
             }
-            
             if (!empty($strengths)) {
                 $htmlContent .= "<div class='section'><strong>Your Strengths:</strong> {$strengths}</div>";
             }
-            
             if (!empty($areasOfImprovement)) {
                 $htmlContent .= "<div class='section'><strong>Areas for Improvement:</strong> {$areasOfImprovement}</div>";
             }
-            
             $htmlContent .= "
                     <p>Please log in to your dashboard to view the complete feedback.</p>
                     <p>Regards,<br>Kolkata Chess Academy Team</p>
@@ -164,35 +183,25 @@ class Mailer {
                 </div>
             </body>
             </html>";
-            
             // Plain text alternative
             $plainText = "Hello {$studentName},\n\n";
             $plainText .= "Your teacher {$teacherName} has provided new feedback for you.\n\n";
             $plainText .= "Rating: {$rating}/5\n";
-            
             if (!empty($comment)) {
                 $plainText .= "Comment: {$comment}\n\n";
             }
-            
             if (!empty($strengths)) {
                 $plainText .= "Your Strengths: {$strengths}\n\n";
             }
-            
             if (!empty($areasOfImprovement)) {
                 $plainText .= "Areas for Improvement: {$areasOfImprovement}\n\n";
             }
-            
             $plainText .= "Please log in to your dashboard to view the complete feedback.\n\n";
             $plainText .= "Regards,\nKolkata Chess Academy Team";
-            
             $this->mailer->Body = $htmlContent;
             $this->mailer->AltBody = $plainText;
-            
             $result = $this->mailer->send();
-            
-            // Log successful send
             error_log("Feedback notification sent to {$to} from teacher {$teacherName}");
-            
             return $result;
         } catch (Exception $e) {
             error_log("Failed to send feedback notification to {$to}: " . $e->getMessage());
@@ -205,22 +214,34 @@ class Mailer {
      */
     public function sendAttendanceReminder($data) {
         try {
+            $email = $this->sanitize($data['email']);
+            $name = htmlspecialchars($this->sanitize($data['name']));
+            $batch_name = htmlspecialchars($this->sanitize($data['batch_name']));
+            if (!$this->isValidEmail($email)) {
+                throw new Exception("Invalid recipient email: $email");
+            }
             // Clear previous recipients
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            
-            $this->mailer->addAddress($data['email'], $data['name']);
-            $this->mailer->Subject = "Reminder: Upcoming Class - {$data['batch_name']}";
-            
+
+            $this->mailer->addAddress($email, $name);
+            $this->mailer->Subject = "Reminder: Upcoming Class - {$batch_name}";
+
+            // Sanitize meeting_link and session_time if present
+            $data['meeting_link'] = isset($data['meeting_link']) ? $this->sanitize($data['meeting_link']) : '';
+            $data['session_time'] = isset($data['session_time']) ? $this->sanitize($data['session_time']) : '';
+            $data['batch_name'] = $batch_name;
+            $data['name'] = $name;
+
             $body = $this->getAttendanceReminderTemplate($data);
             $this->mailer->Body = $body;
             $this->mailer->AltBody = strip_tags($body);
-            
+
             $result = $this->mailer->send();
-            
+
             // Log successful send
-            error_log("Attendance reminder sent to {$data['email']} for batch {$data['batch_name']}");
-            
+            error_log("Attendance reminder sent to {$email} for batch {$batch_name}");
+
             return $result;
         } catch (Exception $e) {
             error_log("Failed to send attendance reminder to {$data['email']}: " . $e->getMessage());
@@ -262,10 +283,15 @@ class Mailer {
      */
     public function sendPasswordReset($email, $token) {
         try {
+            $email = $this->sanitize($email);
+            if (!$this->isValidEmail($email)) {
+                throw new Exception("Invalid recipient email: $email");
+            }
+            $token = htmlspecialchars($this->sanitize($token));
             // Clear previous recipients
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            
+
             $resetLink = "https://dashboard.kolkatachessacademy.in/reset-password?token=" . $token;
 
             $this->mailer->addAddress($email);

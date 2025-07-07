@@ -36,7 +36,7 @@ pages/teacher/
   Detailed view of a classroom, showing members, assignments, and classroom resources.
 
 - **ClassroomManagement.js**  
-  Page for managing classrooms, including creation, editing, student/teacher assignments, and uploading materials. (As of July 2025, material upload now includes the required `type` field for backend compatibility.)
+  Page for managing classrooms, including creation, editing, student/teacher assignments, and uploading materials. Prevents teachers from scheduling overlapping classes: if a teacher tries to schedule a class that overlaps with another of their sessions, the backend will reject the request and the frontend will display a user-friendly error. (As of July 2025, material upload now includes the required `type` field for backend compatibility.)
 
 - **GradingFeedback.js**  
   Tools for grading student submissions and providing feedback on assignments and quizzes.

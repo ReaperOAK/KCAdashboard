@@ -27,7 +27,7 @@ components/classroom/
   Modal dialog for marking and viewing classroom attendance.
 
 - **ClassroomCalendar.js**  
-  Calendar component for displaying classroom events, sessions, and schedules.
+Calendar component for displaying classroom events, sessions, and schedules. If a teacher attempts to schedule a class that overlaps with another of their sessions, the backend will reject the request and the frontend will display a user-friendly error message.
 
 - **MaterialsView.js**  
   Shows learning materials and resources available to the classroom.

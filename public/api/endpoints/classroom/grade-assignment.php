@@ -7,8 +7,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+
 require_once '../../config/Database.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Validate user auth token
@@ -73,19 +75,18 @@ try {
     $stmt->bindParam(':submission_id', $submission_id);
     $stmt->execute();
 
-    // Create notification for student
+
+    // Send notification using NotificationService
+    $notificationService = new NotificationService();
     $notification_title = 'Assignment Graded: ' . $submission_info['assignment_title'];
     $notification_message = 'Your assignment "' . $submission_info['assignment_title'] . '" has been graded. Grade: ' . $grade;
-    
-    $stmt = $db->prepare("
-        INSERT INTO notifications (user_id, title, message, type, created_at)
-        VALUES (:student_id, :title, :message, 'assignment_graded', NOW())
-    ");
-    
-    $stmt->bindParam(':student_id', $submission_info['student_id']);
-    $stmt->bindParam(':title', $notification_title);
-    $stmt->bindParam(':message', $notification_message);
-    $stmt->execute();
+    $notificationService->sendCustom(
+        $submission_info['student_id'],
+        $notification_title,
+        $notification_message,
+        'assignment', // category
+        false // sendEmail
+    );
 
     http_response_code(200);
     echo json_encode([

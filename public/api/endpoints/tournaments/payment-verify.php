@@ -1,8 +1,10 @@
 <?php
 require_once '../../config/cors.php';
+
 require_once '../../config/Database.php';
 require_once '../../models/Tournament.php';
 require_once '../../middleware/auth.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get user ID from token
@@ -62,21 +64,20 @@ try {
     $updateStmt->execute();
     
     // If approved, update registration status
+    $notificationService = new NotificationService();
     if ($data->status === 'approved') {
         $tournament = new Tournament($db);
         $tournament->updatePaymentStatus($payment['tournament_id'], $payment['user_id'], 'completed');
-        
         // Send notification to student
-        $notificationQuery = "INSERT INTO notifications 
-                            (user_id, title, message, type, is_read, created_at)
-                            VALUES (:user_id, :title, :message, 'payment', 0, NOW())";
-        $notificationStmt = $db->prepare($notificationQuery);
-        $notificationStmt->bindParam(":user_id", $payment['user_id']);
         $title = "Payment Approved";
-        $notificationStmt->bindParam(":title", $title);
         $message = "Your payment for tournament registration has been approved. You are now registered for the tournament.";
-        $notificationStmt->bindParam(":message", $message);
-        $notificationStmt->execute();
+        $notificationService->sendCustom(
+            $payment['user_id'],
+            $title,
+            $message,
+            'payment',
+            false
+        );
     } else {
         // If rejected, update registration status to pending or remove registration
         $rejectQuery = "UPDATE tournament_registrations 
@@ -87,18 +88,16 @@ try {
         $rejectStmt->bindParam(":tournament_id", $payment['tournament_id']);
         $rejectStmt->bindParam(":user_id", $payment['user_id']);
         $rejectStmt->execute();
-        
         // Send notification to student
-        $notificationQuery = "INSERT INTO notifications 
-                            (user_id, title, message, type, is_read, created_at)
-                            VALUES (:user_id, :title, :message, 'payment', 0, NOW())";
-        $notificationStmt = $db->prepare($notificationQuery);
-        $notificationStmt->bindParam(":user_id", $payment['user_id']);
         $title = "Payment Rejected";
-        $notificationStmt->bindParam(":title", $title);
         $message = "Your payment for tournament registration has been rejected. Please contact support for more information.";
-        $notificationStmt->bindParam(":message", $message);
-        $notificationStmt->execute();
+        $notificationService->sendCustom(
+            $payment['user_id'],
+            $title,
+            $message,
+            'payment',
+            false
+        );
     }
     
     // Log the action

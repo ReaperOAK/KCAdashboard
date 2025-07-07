@@ -13,6 +13,7 @@ try {
     require_once '../../config/Database.php';
     require_once '../../middleware/auth.php';
     require_once '../../utils/Mailer.php'; // Make sure we use the right path
+    require_once '../../services/NotificationService.php';
 
     // Get request body
     $data = json_decode(file_get_contents("php://input"), true);
@@ -67,40 +68,29 @@ try {
     
     // Execute query
     if ($stmt->execute()) {
-        // Get student's email for notification
-        $studentQuery = "SELECT email, full_name FROM users WHERE id = :student_id";
+        // Notify student using NotificationService
+        $studentQuery = "SELECT id, email, full_name FROM users WHERE id = :student_id";
         $studentStmt = $db->prepare($studentQuery);
         $studentStmt->bindParam(':student_id', $studentId);
         $studentStmt->execute();
-        
         $student = $studentStmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Skip email if we can't send it
-        $emailSent = false;
-        if ($student && !empty($student['email']) && !empty($student['full_name'])) {
-            try {
-                // Try to send email notification but don't fail if it doesn't work
-                $mailer = new Mailer();
-                $emailSent = $mailer->sendFeedbackNotification(
-                    $student['email'], 
-                    $student['full_name'], 
-                    $teacher['full_name'], 
-                    $rating, 
-                    $comment,
-                    $areasOfImprovement,
-                    $strengths
-                );
-            } catch (Exception $emailError) {
-                // Log email error but don't fail the whole request
-                error_log("Email notification failed: " . $emailError->getMessage());
-            }
+        $notifSent = false;
+        if ($student && !empty($student['id'])) {
+            $notificationService = new NotificationService();
+            $notifTitle = 'New Feedback from ' . $teacher['full_name'];
+            $notifMsg = 'You have received new feedback from your teacher.';
+            $notifSent = $notificationService->sendCustom(
+                $student['id'],
+                $notifTitle,
+                $notifMsg,
+                'feedback',
+                false
+            );
         }
-        
-        // Return success even if email fails
         echo json_encode([
             "success" => true,
-            "message" => "Feedback submitted successfully" . ($emailSent ? " and notification sent" : ""),
-            "email_sent" => $emailSent
+            "message" => "Feedback submitted successfully" . ($notifSent ? " and notification sent" : ""),
+            "notification_sent" => $notifSent
         ]);
     } else {
         throw new Exception("Database error: Failed to insert feedback");

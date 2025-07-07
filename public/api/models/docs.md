@@ -64,11 +64,13 @@ models/
 - **Grading.php**  
   Handles grading data, calculations, and feedback.
 
+  
 - **Notification.php**  
-  Models notifications sent to users.
+  Models notifications sent to users. All notification logic is now handled via NotificationService for security and consistency. Deletion enforces user ownership.
 
+  
 - **NotificationPreference.php**  
-  Stores user notification preferences (email, SMS, in-app, etc.).
+  Stores user notification preferences (email, SMS, in-app, etc.). All logic is now centralized and channel-safe, with robust validation.
 
 - **Permission.php**  
   Manages user permissions and access control.

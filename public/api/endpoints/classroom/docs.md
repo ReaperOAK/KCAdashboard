@@ -46,7 +46,7 @@ endpoints/classroom/
   Adds new learning materials to a classroom for student access.
 
 - **add-session.php**  
-  Adds a new session (class/meeting) to a classroom schedule.
+  Adds a new session (class/meeting) to a classroom schedule. Prevents a teacher from scheduling more than one class at the same time (overlapping sessions) across all their classrooms. If an overlap is detected, the API returns an error and the session is not created.
 
 - **add-student.php**  
   Adds a student to a classroom, updating enrollment records.
@@ -97,10 +97,10 @@ endpoints/classroom/
   Gets all classes assigned to a teacher.
 
 - **grade-assignment.php**  
-  Allows teachers to grade student assignments.
+  Allows teachers to grade student assignments. When a submission is graded, the endpoint uses the centralized NotificationService to send a notification to the student about their grade. This ensures all notifications are consistent, respect user preferences, and are future-proof. Do not insert directly into the notifications table; always use NotificationService for assignment grading notifications.
 
 - **post-discussion.php**  
-  Posts a new discussion or message in a classroom.
+  Posts a new discussion or message in a classroom. Uses the centralized NotificationService to send notifications: when a user replies to a post, the parent post owner is notified; when a new topic is started, the classroom teacher is notified. Do not insert directly into the notifications table; always use NotificationService for discussion notifications.
 
 - **quick-enroll.php**  
   Quickly enrolls a student in a classroom.
@@ -112,7 +112,7 @@ endpoints/classroom/
   Allows students to rate a class they attended. Validates eligibility and saves the rating and comment. Requires CORS and returns JSON responses for success or error.
 
 - **submit-assignment.php**  
-  Allows students to submit assignments for grading.
+  Allows students to submit assignments for grading. Uses the centralized NotificationService to notify the classroom teacher when a new assignment submission is made. Do not insert directly into the notifications table; always use NotificationService for assignment submission notifications.
 
 - **sync-batch-classroom.php**  
   Syncs batch and classroom data for consistency.

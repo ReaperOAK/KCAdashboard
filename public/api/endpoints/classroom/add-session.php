@@ -2,7 +2,10 @@
 header('Content-Type: application/json');
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
+
 require_once '../../middleware/auth.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 // Get JSON request data
 $data = json_decode(file_get_contents("php://input"), true);
@@ -51,7 +54,30 @@ try {
     
     // Combine date and time
     $date_time = $data['date'] . ' ' . $data['time'];
-    
+    $duration = isset($data['duration']) ? (int)$data['duration'] : 60;
+    $end_time = date('Y-m-d H:i:s', strtotime($date_time) + $duration * 60);
+
+    // Check for overlapping sessions for this teacher
+    $overlap_stmt = $db->prepare("
+        SELECT bs.id FROM batch_sessions bs
+        JOIN classrooms c ON bs.batch_id = c.id
+        WHERE c.teacher_id = :teacher_id
+          AND (
+            (bs.date_time < :end_time AND DATE_ADD(bs.date_time, INTERVAL bs.duration MINUTE) > :start_time)
+          )
+    ");
+    $overlap_stmt->bindParam(':teacher_id', $user_data['id']);
+    $overlap_stmt->bindParam(':start_time', $date_time);
+    $overlap_stmt->bindParam(':end_time', $end_time);
+    $overlap_stmt->execute();
+    if ($overlap_stmt->rowCount() > 0) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'You already have a class scheduled that overlaps with this time.'
+        ]);
+        exit;
+    }
+
     // Insert the session
     $stmt = $db->prepare("
         INSERT INTO batch_sessions (
@@ -62,37 +88,27 @@ try {
             :meeting_link, NOW()
         )
     ");
-    
     $stmt->bindParam(':batch_id', $data['classroom_id']);
     $stmt->bindParam(':title', $data['title']);
     $stmt->bindParam(':date_time', $date_time);
-    $stmt->bindParam(':duration', $data['duration']);
+    $stmt->bindParam(':duration', $duration);
     $stmt->bindParam(':type', $data['type']);
     $stmt->bindParam(':meeting_link', $data['meeting_link']);
-    
     $stmt->execute();
     $session_id = $db->lastInsertId();
     
-    // Generate notifications for all students in this classroom
-    $stmt = $db->prepare("
-        INSERT INTO notifications (user_id, title, message, type, created_at)
-        SELECT 
-            cs.student_id,
-            :notif_title,
-            :notif_message,
-            'class_scheduled',
-            NOW()
-        FROM classroom_students cs
-        WHERE cs.classroom_id = :classroom_id
-    ");
-    
+    // Generate notifications for all students in this classroom using NotificationService
     $notif_title = "New Class Scheduled";
     $notif_message = "A new class '{$data['title']}' has been scheduled on " . date('M d, Y', strtotime($data['date'])) . " at " . date('h:i A', strtotime($data['time']));
-    
-    $stmt->bindParam(':notif_title', $notif_title);
-    $stmt->bindParam(':notif_message', $notif_message);
-    $stmt->bindParam(':classroom_id', $data['classroom_id']);
-    $stmt->execute();
+    $notificationService = new NotificationService();
+    // Get all student IDs in the classroom
+    $studentStmt = $db->prepare("SELECT student_id FROM classroom_students WHERE classroom_id = :classroom_id");
+    $studentStmt->bindParam(':classroom_id', $data['classroom_id']);
+    $studentStmt->execute();
+    $studentIds = $studentStmt->fetchAll(PDO::FETCH_COLUMN);
+    if (!empty($studentIds)) {
+        $notificationService->sendBulkCustom($studentIds, $notif_title, $notif_message, 'class_scheduled');
+    }
     
     echo json_encode([
         'success' => true,

@@ -1,7 +1,10 @@
 
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../utils/api';
+import { FiBell, FiSettings, FiTrash2 } from 'react-icons/fi';
+import { BsDot } from 'react-icons/bs';
 
 const NOTIFICATION_CATEGORIES = [
   { id: 'all', label: 'All' },
@@ -44,14 +47,14 @@ const getRelativeTime = (dateString) => {
 
 const NotificationCategoryTabs = React.memo(function NotificationCategoryTabs({ categories, activeCategory, onChange }) {
   return (
-    <div className="flex p-2 space-x-2 overflow-x-auto">
+    <div className="flex p-2 gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
       {categories.map(category => (
         <button
           key={category.id}
-          className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-accent ${
+          className={`px-4 py-1 text-sm rounded-full whitespace-nowrap font-medium shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/60 ${
             activeCategory === category.id
-              ? 'bg-secondary text-white'
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-dark'
+              ? 'bg-gradient-to-r from-secondary to-accent text-white scale-105'
+              : 'bg-white/70 hover:bg-accent/10 text-gray-700 border border-gray-200'
           }`}
           onClick={() => onChange(category.id)}
           aria-pressed={activeCategory === category.id}
@@ -66,45 +69,42 @@ const NotificationCategoryTabs = React.memo(function NotificationCategoryTabs({ 
 const NotificationList = React.memo(function NotificationList({ notifications, onNotificationClick, onDelete }) {
   if (notifications.length === 0) {
     return (
-      <div className="p-4 text-center text-gray-500">
-        <svg className="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-2.586a1 1 0 0 0-.707.293l-2.414 2.414a1 1 0 0 1-.707.293h-3.172a1 1 0 0 1-.707-.293l-2.414-2.414A1 1 0 0 0 6.586 13H4" />
-        </svg>
-        <p className="mt-2">No notifications in this category</p>
+      <div className="p-6 text-center text-gray-400 flex flex-col items-center justify-center h-40">
+        <FiBell className="w-12 h-12 mb-2 opacity-40" />
+        <p className="text-base">No notifications in this category</p>
       </div>
     );
   }
   return (
-    <div className="overflow-y-auto flex-grow">
+    <div className="overflow-y-auto flex-grow max-h-[60vh] px-2 md:px-4 py-2 scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-w-2">
       {notifications.map((notification) => (
         <div
           key={notification.id}
-          className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
-            notification.is_read ? '' : 'bg-blue-50'
+          className={`group relative bg-white/80 backdrop-blur-md rounded-xl shadow-md mb-3 px-4 py-3 flex flex-col gap-1 border border-gray-100 transition-all duration-200 hover:scale-[1.01] hover:shadow-lg cursor-pointer ${
+            notification.is_read ? '' : 'ring-2 ring-accent/30 bg-accent/10'
           }`}
           onClick={() => onNotificationClick(notification)}
           tabIndex={0}
           role="button"
           aria-label={`Notification: ${notification.title}`}
         >
-          <div className="flex justify-between items-start">
-            <span className={`px-2 py-1 text-xs rounded-full text-white ${getCategoryColor(notification.category)}`}>{notification.category}</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-500">{getRelativeTime(notification.created_at)}</span>
-              <button
-                onClick={e => onDelete(e, notification.id)}
-                className="text-gray-400 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-accent rounded"
-                aria-label="Delete notification"
-                tabIndex={0}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-xs font-bold shadow ${getCategoryColor(notification.category)}`}>{notification.category[0].toUpperCase()}</span>
+              <span className="text-xs text-gray-500 font-medium">{getRelativeTime(notification.created_at)}</span>
+              {!notification.is_read && <BsDot className="text-accent w-6 h-6 animate-pulse" title="Unread" />}
             </div>
+            <button
+              onClick={e => onDelete(e, notification.id)}
+              className="text-gray-300 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-accent rounded p-1 transition-colors"
+              aria-label="Delete notification"
+              tabIndex={0}
+            >
+              <FiTrash2 className="w-4 h-4" />
+            </button>
           </div>
-          <h4 className="font-semibold text-secondary mt-2">{notification.title}</h4>
-          <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+          <h4 className="font-semibold text-secondary text-base mt-1 leading-tight line-clamp-1">{notification.title}</h4>
+          <p className="text-sm text-gray-700 mt-0.5 line-clamp-2">{notification.message}</p>
           {notification.link && (
             <div className="mt-2">
               <a
@@ -112,7 +112,7 @@ const NotificationList = React.memo(function NotificationList({ notifications, o
                 href={notification.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-secondary hover:underline inline-flex items-center focus:outline-none focus:ring-2 focus:ring-accent rounded"
+                className="text-sm text-accent hover:underline inline-flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-accent rounded"
                 aria-label="View details"
               >
                 <span>View details</span>
@@ -142,35 +142,34 @@ const NotificationPanel = React.memo(function NotificationPanel({
 }) {
   if (!isOpen) return null;
   return (
-    <div className="absolute right-0 left-0 mx-auto mt-2 w-full max-w-xs sm:w-80 md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] flex flex-col border border-gray-light">
-      <div className="p-4 border-b flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-primary">Notifications</h3>
+    <div className="fixed md:absolute right-0 left-0 md:left-auto mx-auto md:mx-0 top-20 md:top-12 w-full max-w-md md:max-w-lg lg:max-w-xl bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl z-50 max-h-[90vh] flex flex-col border border-gray-200 transition-all duration-300 animate-fade-in-up min-w-[320px] md:min-w-[400px]">
+      <div className="p-4 border-b flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center bg-gradient-to-r from-primary/80 to-accent/60 rounded-t-2xl">
+        <h3 className="text-lg font-bold text-white tracking-wide flex items-center gap-2"><FiBell className="inline-block" /> Notifications</h3>
         {unreadCount > 0 && (
           <button
             onClick={onMarkAllAsRead}
-            className="text-sm text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded"
+            className="text-xs sm:text-sm bg-white/80 text-accent font-semibold px-3 py-1 rounded-full shadow hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent/60 transition-all"
             aria-label="Mark all as read"
           >
             Mark all as read
           </button>
         )}
       </div>
-      <div className="border-b">
-        <NotificationCategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
-      </div>
+      <NotificationCategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
       <NotificationList notifications={notifications} onNotificationClick={onNotificationClick} onDelete={onDelete} />
-      <div className="p-3 border-t text-center">
+      <div className="p-3 border-t flex justify-center items-center gap-2 bg-white/70 rounded-b-2xl">
         <button
           onClick={onSettingsClick}
-          className="text-sm text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded"
+          className="flex items-center gap-1 text-sm text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-3 py-1 font-medium transition-all"
           aria-label="Notification Settings"
         >
-          Notification Settings
+          <FiSettings className="inline-block" /> Notification Settings
         </button>
       </div>
     </div>
   );
 });
+
 
 export function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
@@ -187,7 +186,6 @@ export function NotificationBell() {
       setUnreadCount(response.unread_count);
     } catch (error) {
       // Optionally show a toast or error boundary
-      // console.error('Failed to fetch notifications:', error);
     }
   }, []);
 
@@ -213,7 +211,6 @@ export function NotificationBell() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
 
   const markAsRead = useCallback(async (notificationId) => {
     try {
@@ -259,22 +256,21 @@ export function NotificationBell() {
   }, [navigate]);
 
   return (
-    <div className="relative" ref={notificationRef}>
+    <div className="relative z-50" ref={notificationRef}>
       <button
         onClick={() => setIsOpen((open) => !open)}
-        className="relative p-2 text-white hover:bg-secondary rounded-full focus:outline-none focus:ring-2 focus:ring-accent"
+        className="relative p-2 bg-white/80 hover:bg-accent/10 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
         aria-label="Notifications"
         tabIndex={0}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
+        <FiBell className="w-7 h-7 text-secondary" />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-gradient-to-br from-red-500 to-accent text-white rounded-full w-6 h-6 text-xs flex items-center justify-center font-bold border-2 border-white shadow-md animate-bounce">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
+      <div className="fixed inset-0 z-40 md:hidden" style={{ display: isOpen ? 'block' : 'none' }} onClick={() => setIsOpen(false)} />
       <NotificationPanel
         isOpen={isOpen}
         unreadCount={unreadCount}

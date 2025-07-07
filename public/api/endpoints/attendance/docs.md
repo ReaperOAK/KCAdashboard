@@ -85,4 +85,30 @@ endpoints/attendance/
 
 ---
 
+## Notifications for Attendance
+
+- When a student is marked absent via `mark-attendance.php`, an in-app notification is sent to the student using the centralized `NotificationService`.
+- The notification uses the `attendance` category, ensuring consistency with the rest of the notification system.
+- This approach ensures that notification preferences, email delivery, and future extensibility are respected.
+
+---
+
+## Example Notification Logic
+
+- When marking attendance, the backend will call:
+  ```php
+  $notificationService->sendCustom($student_id, 'Absence Recorded', "You were marked absent for today's class.", 'attendance');
+  ```
+- This ensures the notification is created using the same logic as all other notifications in the system.
+
+---
+
+## Best Practices (Notifications)
+
+- Always use the `NotificationService` for sending notifications from attendance endpoints.
+- Do not insert directly into the `notifications` table; this bypasses preferences and category validation.
+- Document notification logic in both attendance and notification docs for clarity.
+
+---
+
 For more details on the overall API structure and features, see the main `docs.md` in the `public/api` folder.

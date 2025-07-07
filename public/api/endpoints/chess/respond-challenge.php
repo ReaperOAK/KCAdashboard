@@ -4,7 +4,10 @@ require_once '../../config/cors.php';
 
 // Include database and object files
 require_once '../../config/Database.php';
+
 require_once '../../middleware/auth.php';
+require_once '../../models/Notification.php';
+require_once '../../services/NotificationService.php';
 
 try {
     // Get authenticated user
@@ -108,29 +111,15 @@ try {
             
             $gameId = $db->lastInsertId();
             
-            // Create a notification for the challenger
-            $notifyQuery = "INSERT INTO notifications 
-                           (user_id, title, message, type, is_read, created_at) 
-                           VALUES (:user_id, 'Challenge Accepted', :message, 'game', 0, NOW())";
-            
+            // Create a notification for the challenger using NotificationService
+            $notificationService = new NotificationService();
             $message = $challenge['recipient_name'] . ' has accepted your chess challenge.';
-            
-            $notifyStmt = $db->prepare($notifyQuery);
-            $notifyStmt->bindParam(':user_id', $challenge['challenger_id']);
-            $notifyStmt->bindParam(':message', $message);
-            $notifyStmt->execute();
+            $notificationService->sendCustom($challenge['challenger_id'], 'Challenge Accepted', $message, 'game');
         } else {
-            // If declined, just create a notification
-            $notifyQuery = "INSERT INTO notifications 
-                           (user_id, title, message, type, is_read, created_at) 
-                           VALUES (:user_id, 'Challenge Declined', :message, 'game', 0, NOW())";
-            
+            // If declined, just create a notification using NotificationService
+            $notificationService = new NotificationService();
             $message = $challenge['recipient_name'] . ' has declined your chess challenge.';
-            
-            $notifyStmt = $db->prepare($notifyQuery);
-            $notifyStmt->bindParam(':user_id', $challenge['challenger_id']);
-            $notifyStmt->bindParam(':message', $message);
-            $notifyStmt->execute();
+            $notificationService->sendCustom($challenge['challenger_id'], 'Challenge Declined', $message, 'game');
         }
 
         // Commit transaction

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import PropTypes from 'prop-types';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 
 
 const ClassRating = ({ classId, onRated }) => {
@@ -20,12 +20,7 @@ const ClassRating = ({ classId, onRated }) => {
       return;
     }
     try {
-      const data = await ApiService.post('/classroom/rate-class.php', {
-        class_id: classId,
-        student_id: user.id,
-        rating,
-        comment,
-      });
+      const data = await ClassroomApi.rateClass(classId, user.id, rating, comment);
       if (data.success) {
         setSubmitted(true);
         if (onRated) onRated();

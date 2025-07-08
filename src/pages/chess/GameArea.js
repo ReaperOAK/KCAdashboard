@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import PERMISSIONS, { checkPermission } from '../../utils/permissions';
 import { useNavigate } from 'react-router-dom';
 import ChessNavigation from '../../components/chess/ChessNavigation';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 
 // --- Utility Hooks ---
 function useChessData(activeTab, gameStatus) {
@@ -20,11 +20,11 @@ function useChessData(activeTab, gameStatus) {
       setError(null);
       try {
         if (activeTab === 'games') {
-          const gamesResponse = await ApiService.getChessGames(gameStatus);
+          const gamesResponse = await ChessApi.getChessGames(gameStatus);
           if (isMounted && gamesResponse.success) setGames(gamesResponse.games || []);
         }
         if (activeTab === 'practice') {
-          const practiceResponse = await ApiService.getPracticePositions();
+          const practiceResponse = await ChessApi.getPracticePositions();
           if (isMounted && practiceResponse.success) setPracticePositions(practiceResponse.positions || []);
         }
       } catch (err) {
@@ -235,7 +235,7 @@ function GameArea() {
   const handleSelectGame = useCallback(async (game) => {
     if (game.status === 'completed') {
       try {
-        const res = await ApiService.getMoveHistory(game.id);
+        const res = await ChessApi.getMoveHistory(game.id);
         if (res && res.success && res.pgn) {
           const blob = new Blob([res.pgn], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
@@ -297,7 +297,7 @@ function GameArea() {
         payload.pgn_content = payload.position.trim();
         delete payload.position;
       }
-      await ApiService.createPracticePosition(payload);
+      await ChessApi.createPracticePosition(payload);
       closeUploadModal();
       window.location.reload(); // Reload to show new position
     } catch (err) {

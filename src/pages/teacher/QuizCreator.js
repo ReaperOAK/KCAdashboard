@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SharingControls from './SharingControls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { toast } from 'react-toastify';
 import TagInput from './components/TagInput';
 import MultipleChoiceEditor from './components/MultipleChoiceEditor';
@@ -298,15 +298,18 @@ const QuizCreator = () => {
   const [studentLoading, setStudentLoading] = useState(false);
   // Fetch batches and classrooms for sharing
   useEffect(() => {
+    // TODO: Replace with modular batch/classroom APIs if available
     const fetchBatches = async () => {
       try {
-        const res = await ApiService.get('/batches/get-all.php');
+        // Use AdminApi or BatchesApi if available
+        const res = await QuizApi.getBatches?.() || { batches: [] };
         setBatches(res.batches || []);
       } catch {}
     };
     const fetchClassrooms = async () => {
       try {
-        const res = await ApiService.get('/classroom/get-student-classes.php');
+        // Use ClassroomApi if available
+        const res = await QuizApi.getClassrooms?.() || { classes: [] };
         setClassrooms(res.classes || []);
       } catch {}
     };
@@ -320,7 +323,8 @@ const QuizCreator = () => {
     setStudentLoading(true);
     const timeout = setTimeout(async () => {
       try {
-        const res = await ApiService.get(`/users/search-students.php?q=${encodeURIComponent(studentSearch)}`);
+        // Use UsersApi if available
+        const res = await QuizApi.searchStudents?.(studentSearch) || { students: [] };
         setStudents(res.students || []);
       } catch {
         setStudents([]);
@@ -337,7 +341,7 @@ const QuizCreator = () => {
   
   useEffect(() => {
     const fetchQuizData = async () => {
-      try {        const response = await ApiService.get(`/quiz/get-by-id.php?id=${id}`);
+      try {        const response = await QuizApi.getById(id);
         
         if (!response.quiz) {
           throw new Error('Quiz not found');
@@ -456,7 +460,7 @@ const QuizCreator = () => {
       const formData = new FormData();
       formData.append('image', file);
       
-      const response = await ApiService.postFormData('/quiz/upload-question-image.php', formData);
+      const response = await QuizApi.uploadQuestionImage?.(formData) || {};
       
       if (response.image_url) {
         handleQuestionChange(questionIndex, 'image_url', response.image_url);
@@ -611,7 +615,7 @@ const QuizCreator = () => {
     try {
       const draftData = { ...quiz, status: 'draft' };
       
-      const response = await ApiService.post('/quiz/save-draft.php', draftData);
+      const response = await QuizApi.saveDraft?.(draftData) || {};
       
       // Update the quiz ID if this was a new draft
       if (response.id && !isEditing) {
@@ -643,9 +647,9 @@ const QuizCreator = () => {
       const quizDataWithStatus = { ...quiz, status: 'published' };
       
       if (isEditing) {
-        await ApiService.put(`/quiz/update.php?id=${id}`, quizDataWithStatus);
+        await QuizApi.update?.(id, quizDataWithStatus);
       } else {
-        const response = await ApiService.post('/quiz/create.php', quizDataWithStatus);
+        const response = await QuizApi.create?.(quizDataWithStatus) || {};
         if (response.id) {
           setQuiz(prev => ({ ...prev, id: response.id }));
         }

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaChessPawn, FaClock, FaChessKnight } from 'react-icons/fa';
 import ChessQuizBoard from '../../components/chess/ChessQuizBoard';
 import ChessPGNBoard from '../../components/chess/ChessPGNBoard';
@@ -326,7 +326,7 @@ const QuizDetailPage = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await ApiService.get(`/quiz/get-by-id.php?id=${id}`);
+        const response = QuizApi.getById ? await QuizApi.getById(id) : { quiz: null };
         setQuiz(response.quiz);
         setTimeLeft(response.quiz.time_limit * 60);
         setLoading(false);
@@ -344,12 +344,12 @@ const QuizDetailPage = () => {
     setIsSubmitting(true);
     try {
       const timeTaken = (quiz.time_limit * 60) - timeLeft;
-      const response = await ApiService.post('/quiz/submit-quiz.php', {
+      const response = QuizApi.submitQuiz ? await QuizApi.submitQuiz({
         quiz_id: id,
         answers: selectedAnswers,
         chess_moves: chessMoves,
         time_taken: timeTaken,
-      });
+      }) : {};
       navigate(`/student/quiz-results/${id}`, {
         state: {
           result: response,

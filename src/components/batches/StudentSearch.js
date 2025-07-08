@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { UsersApi } from '../../api/users';
 
 // Loading spinner (accessible, theme color)
 const Spinner = React.memo(function Spinner() {
@@ -54,7 +54,8 @@ export const StudentSearch = React.memo(function StudentSearch({ onSelectStudent
     setLoading(true);
     setError('');
     try {
-      const response = await ApiService.get(`/users/search-students.php?q=${query}`);
+      // Use UsersApi modular method for student search
+      const response = await UsersApi.searchStudents(query);
       if (response.success) {
         setStudents(response.students || []);
       } else {

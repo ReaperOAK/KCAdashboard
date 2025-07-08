@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ApiService from '../../utils/api';
+import { SupportApi } from '../../api/support';
 
 const LeaveRequestsAdmin = () => {
   const [requests, setRequests] = useState([]);
@@ -15,7 +15,7 @@ const LeaveRequestsAdmin = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await ApiService.get('/support/leave/requests.php');
+      const data = await SupportApi.getLeaveRequests();
       setRequests(data);
     } catch (err) {
       setError('Failed to load leave requests.');
@@ -29,7 +29,7 @@ const LeaveRequestsAdmin = () => {
     if (comment === null) return;
     setActionStatus(s => ({ ...s, [id]: 'pending' }));
     try {
-      await ApiService.post('/support/leave/approve.php', { id, status, admin_comment: comment });
+      await SupportApi.approveLeave(id, status, comment);
       setActionStatus(s => ({ ...s, [id]: status }));
       fetchRequests();
     } catch (err) {

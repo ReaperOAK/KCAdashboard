@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import ApiService from '../../utils/api';
+import { AttendanceApi } from '../../api/attendance';
 
 const AttendanceSettingsSkeleton = React.memo(function AttendanceSettingsSkeleton() {
   return (
@@ -120,7 +120,7 @@ const AttendanceSettings = React.memo(function AttendanceSettings() {
     let isMounted = true;
     const fetchSettings = async () => {
       try {
-        const response = await ApiService.get('/attendance/get-settings.php');
+        const response = await AttendanceApi.getSettings();
         if (isMounted && response.success && response.settings) {
           setSettings({
             minAttendancePercent: response.settings.min_attendance_percent ?? 75,
@@ -146,7 +146,7 @@ const AttendanceSettings = React.memo(function AttendanceSettings() {
     setSaving(true);
     setError('');
     try {
-      await ApiService.post('/attendance/update-settings.php', settings);
+      await AttendanceApi.updateSettings(settings);
     } catch (error) {
       setError('Failed to save settings');
     } finally {

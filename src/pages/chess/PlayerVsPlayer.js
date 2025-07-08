@@ -5,7 +5,7 @@ import ChallengeList from '../../components/chess/ChallengeList';
 import PlayerList from '../../components/chess/PlayerList';
 import ChessNavigation from '../../components/chess/ChessNavigation';
 import ChessBoard from '../../components/chess/ChessBoard';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 import { useAuth } from '../../hooks/useAuth';
 import AcceptedGamesModal from '../../components/chess/AcceptedGamesModal';
 
@@ -64,7 +64,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Fetch online players
   const fetchOnlinePlayers = useCallback(async () => {
     try {
-      const response = await ApiService.getOnlinePlayers();
+      const response = await ChessApi.getOnlinePlayers();
       if (response.success) setOnlinePlayers(response.players);
     } catch (error) {
       setError('Failed to load online players. Please try again later.');
@@ -74,7 +74,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Fetch player stats
   const fetchPlayerStats = useCallback(async () => {
     try {
-      const response = await ApiService.getPlayerStats();
+      const response = await ChessApi.getPlayerStats();
       if (response.success) setPlayerStats(response.stats);
     } catch (error) {
       // Silent fail, stats are not critical
@@ -84,7 +84,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Fetch challenges and show accepted games modal if needed
   const fetchChallenges = useCallback(async () => {
     try {
-      const challengesResponse = await ApiService.getChallenges();
+      const challengesResponse = await ChessApi.getChallenges();
       if (challengesResponse && challengesResponse.success) {
         setChallenges(challengesResponse.challenges || []);
         const accepted = (challengesResponse.challenges || []).filter(
@@ -109,7 +109,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Resign accepted game
   const handleResignAcceptedGame = useCallback(async (gameId) => {
     try {
-      const response = await ApiService.resignGame(gameId);
+      const response = await ChessApi.resignGame(gameId);
       if (response.success) {
         setAcceptedGames(games => games.filter(g => g.gameId !== gameId));
         fetchChallenges();
@@ -130,7 +130,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Challenge a player
   const handleChallengePlayer = useCallback(async (playerId, color, timeControl) => {
     try {
-      const response = await ApiService.challengePlayer(playerId, { color, timeControl });
+      const response = await ChessApi.challengePlayer(playerId, { color, timeControl });
       if (response.success) {
         alert(`Challenge sent! You'll be redirected to the game board when your opponent accepts.`);
         setActiveTab('challenges');

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaTrophy, FaChartLine, FaClock, FaRedo, FaList } from 'react-icons/fa';
 
 // --- Loading Spinner ---
@@ -161,14 +161,14 @@ const QuizResultsPage = () => {
     const fetchData = async () => {
       if (!result) {
         try {
-          const response = await ApiService.get(`/quiz/get-latest-result.php?quiz_id=${id}`);
+          const response = QuizApi.getLatestResult ? await QuizApi.getLatestResult(id) : {};
           setLatestResult(response);
         } catch (error) {
           // Could add error state here
         }
       }
       try {
-        const leaderboardData = await ApiService.get(`/quiz/get-leaderboard.php?quiz_id=${id}`);
+        const leaderboardData = QuizApi.getQuizLeaderboard ? await QuizApi.getQuizLeaderboard(id) : { leaderboard: [] };
         setLeaderboard(leaderboardData.leaderboard);
       } catch (error) {
         // Could add error state here

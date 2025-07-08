@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import ApiService from '../../utils/api';
+import { AdminApi } from '../../api/admin';
 
 // Stat card (memoized)
 const StatCard = React.memo(function StatCard({ title, value, icon }) {
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.get('/admin/dashboard-stats.php');
+      const response = await AdminApi.getDashboardStats();
       if (response && response.stats) {
         setStats(response.stats);
       } else {

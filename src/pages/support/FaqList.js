@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ApiService from '../../utils/api';
+import { SupportApi } from '../../api/support';
 
 const FaqList = () => {
   const [faqs, setFaqs] = useState([]);
@@ -10,7 +10,7 @@ const FaqList = () => {
     const fetchFaqs = async () => {
       setLoading(true);
       try {
-        const response = await ApiService.get('/support/faqs/get-all.php');
+        const response = await SupportApi.getFaqs();
         setFaqs(response.faqs || []);
       } catch (err) {
         setError('Failed to load FAQs');

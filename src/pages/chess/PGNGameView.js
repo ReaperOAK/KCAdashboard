@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PGNViewer from '../../components/chess/PGNViewer';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 
 export default function PGNGameView() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export default function PGNGameView() {
       setLoading(true);
       setError('');
       try {
-        const response = await ApiService.request(`/chess/get-game.php?id=${id}`, 'GET');
+        const response = await ChessApi.getPGNGame(id);
         if (response.success && response.data && response.data.pgn_content) {
           setPgn(response.data.pgn_content);
         } else {

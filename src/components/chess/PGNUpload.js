@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { parse } from '@mliebelt/pgn-parser';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 import UploadMethodSelector from './PGNUploadMethodSelector';
 import PGNFileDrop from './PGNFileDrop';
 import PGNTextInput from './PGNTextInput';
@@ -451,7 +451,8 @@ export const PGNUpload = React.memo(function PGNUpload({
 
     try {
       // Upload PGN to backend
-      const response = await ApiService.request('/chess/upload-pgn.php', 'POST', {
+
+      const response = await ChessApi.uploadPGN({
         pgn_content: pgnText,
         title: uploadTitle || `PGN Upload - ${new Date().toLocaleDateString()}`,
         description: uploadDescription,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ApiService from '../../utils/api';
+import { SupportApi } from '../../api/support';
 
 const LeaveRequestForm = () => {
   const [form, setForm] = useState({ start_datetime: '', end_datetime: '', reason: '' });
@@ -18,7 +18,7 @@ const LeaveRequestForm = () => {
     setError(null);
     setSuccess(null);
     try {
-      await ApiService.post('/support/leave/request.php', form);
+      await SupportApi.requestLeave(form);
       setSuccess('Leave request submitted!');
       setForm({ start_datetime: '', end_datetime: '', reason: '' });
     } catch (err) {

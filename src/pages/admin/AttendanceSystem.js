@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { AttendanceApi } from '../../api/attendance';
+import { BatchesApi } from '../../api/batches';
+import { AuthApi } from '../../api/auth';
 import Calendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -206,7 +208,7 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
 
   const fetchAttendanceData = useCallback(async () => {
     try {
-      const response = await ApiService.get(`/attendance/get-all.php?batch=${selectedBatch}`);
+      const response = await AttendanceApi.getAll(selectedBatch);
       if (response.attendance_data) setAttendanceData(response.attendance_data);
       if (response.settings) setSettings(response.settings);
     } catch (error) {
@@ -218,7 +220,7 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
 
   const fetchBatches = useCallback(async () => {
     try {
-      const response = await ApiService.get('/batches/get-all.php');
+      const response = await BatchesApi.getBatches();
       setBatches(response.batches);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -232,7 +234,7 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
 
   const handleSettingsSave = useCallback(async () => {
     try {
-      await ApiService.post('/attendance/update-settings.php', settings);
+      await AttendanceApi.updateSettings(settings);
       setShowSettingsModal(false);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -245,38 +247,17 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Authentication token not found');
       try {
-        await ApiService.request('/auth/verify-token.php', 'GET');
+        await AuthApi.verifyToken();
       } catch (error) {
         localStorage.removeItem('token');
         throw new Error('Your session has expired. Please login again.');
       }
-      const queryString = new URLSearchParams({
+      const blob = await AttendanceApi.exportReport({
         format: exportFormat,
         batch_id: selectedBatch,
         start_date: dateRange.start,
         end_date: dateRange.end,
-      }).toString();
-      const response = await ApiService.request(
-        `/attendance/export.php?${queryString}`,
-        'GET',
-        null,
-        {
-          headers: {
-            'Accept': exportFormat === 'pdf' ? 'application/pdf' : 'text/csv',
-            'X-Requested-With': 'XMLHttpRequest',
-          },
-          responseType: exportFormat === 'pdf' ? 'blob' : undefined,
-        }
-      );
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Export failed');
-        }
-        throw new Error(`Export failed with status: ${response.status}`);
-      }
-      const blob = await response.blob();
+      });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

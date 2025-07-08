@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
 import AttendanceModal from '../../components/classroom/AttendanceModal';
 import MaterialsView from '../../components/classroom/MaterialsView';
@@ -99,7 +99,7 @@ export const ClassroomDetail = () => {
     const fetchClassroomDetails = async () => {
       try {
         setLoading(true);
-        const response = await ApiService.getClassroomDetails(id);
+        const response = await ClassroomApi.getClassroomDetails(id);
         if (!isMounted) return;
         if (response.success) {
           setClassroom(response.classroom);

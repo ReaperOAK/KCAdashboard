@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ApiService from '../../utils/api';
+import { BatchesApi } from '../../api/batches';
 import BatchList from '../../components/batches/BatchList';
 import Modal from '../../components/common/Modal';
 import BatchModal from '../../components/batches/BatchModal';
@@ -118,7 +118,7 @@ export default function BatchManagement() {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.getBatches();
+      const response = await BatchesApi.getBatches();
       if (response && response.success) {
         setBatches(response.batches || []);
       } else {
@@ -138,7 +138,7 @@ export default function BatchManagement() {
   const handleManageStudents = useCallback(async (batch) => {
     setSelectedBatch(batch);
     try {
-      const response = await ApiService.getBatchStudents(batch.id);
+      const response = await BatchesApi.getBatchStudents(batch.id);
       if (response && response.success) {
         setStudents(response.students || []);
       }
@@ -159,8 +159,8 @@ export default function BatchManagement() {
   const handleConfirmAddStudent = useCallback(async () => {
     if (!selectedStudent) return;
     try {
-      await ApiService.addStudentToBatch(selectedBatch.id, selectedStudent.id);
-      const response = await ApiService.getBatchStudents(selectedBatch.id);
+      await BatchesApi.addStudentToBatch(selectedBatch.id, selectedStudent.id);
+      const response = await BatchesApi.getBatchStudents(selectedBatch.id);
       if (response && response.success) {
         setStudents(response.students || []);
       }
@@ -173,8 +173,8 @@ export default function BatchManagement() {
 
   const handleRemoveStudent = useCallback(async (studentId) => {
     try {
-      await ApiService.removeStudentFromBatch(selectedBatch.id, studentId);
-      const response = await ApiService.getBatchStudents(selectedBatch.id);
+      await BatchesApi.removeStudentFromBatch(selectedBatch.id, studentId);
+      const response = await BatchesApi.getBatchStudents(selectedBatch.id);
       if (response && response.success) {
         setStudents(response.students || []);
       }
@@ -226,7 +226,7 @@ export default function BatchManagement() {
             open={showCreateModal}
             onClose={() => setShowCreateModal(false)}
             onSubmit={async (data) => {
-              await ApiService.createBatch(data);
+              await BatchesApi.createBatch(data);
               handleCreateSuccess();
             }}
             mode="create"

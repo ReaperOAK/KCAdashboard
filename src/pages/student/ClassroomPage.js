@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 import { Link } from 'react-router-dom';
 
 
@@ -101,9 +101,9 @@ export const ClassroomPage = React.memo(() => {
     try {
       let response;
       try {
-        response = await ApiService.get('/classroom/get-student-batches.php');
+        response = await ClassroomApi.getStudentBatches ? await ClassroomApi.getStudentBatches() : await ClassroomApi.getStudentClasses();
       } catch {
-        response = await ApiService.get('/classroom/get-student-classes.php');
+        response = await ClassroomApi.getStudentClasses();
       }
       setClasses(response.classes);
       setLoading(false);
@@ -115,7 +115,7 @@ export const ClassroomPage = React.memo(() => {
 
   const fetchAvailableClasses = useCallback(async () => {
     try {
-      const response = await ApiService.get('/classroom/get-available-classes.php');
+      const response = await ClassroomApi.getAvailableClasses ? await ClassroomApi.getAvailableClasses() : { classes: [] };
       setAvailableClasses(response.classes);
     } catch (err) {
       // Silently fail, no available classes
@@ -138,7 +138,7 @@ export const ClassroomPage = React.memo(() => {
     setEnrollSuccess(null);
     setEnrollError(null);
     try {
-      await ApiService.post('/classroom/enroll.php', { classroom_id: classId });
+      await ClassroomApi.enrollInClassroom(classId);
       setEnrollSuccess(classId);
       fetchClasses();
       fetchAvailableClasses();

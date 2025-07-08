@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import {TournamentsApi } from '../../api/tournaments';
 import { useAuth } from '../../hooks/useAuth';
 
 // Loading Spinner
@@ -195,10 +195,12 @@ export const TournamentsPage = React.memo(() => {
     const fetchTournaments = async () => {
       try {
         setLoading(true);
-        const endpoint = activeFilter === 'all'
-          ? '/tournaments/get-all.php'
-          : `/tournaments/get-by-status.php?status=${activeFilter}`;
-        const response = await ApiService.get(endpoint);
+        let response;
+        if (activeFilter === 'all') {
+          response = await TournamentsApi.getAll();
+        } else {
+          response = await TournamentsApi.getByStatus(activeFilter);
+        }
         if (isMounted) setTournaments(response.tournaments);
         await fetchRegistrationStatus();
         if (isMounted) setLoading(false);
@@ -211,7 +213,7 @@ export const TournamentsPage = React.memo(() => {
     };
     const fetchRegistrationStatus = async () => {
       try {
-        const response = await ApiService.get('/tournaments/registration-status.php');
+        const response = await TournamentsApi.getRegistrations();
         const registrationMap = {};
         response.registrations.forEach(reg => {
           registrationMap[reg.tournament_id] = reg;
@@ -235,7 +237,7 @@ export const TournamentsPage = React.memo(() => {
   // Fetch registration status for register/cancel/payment
   const fetchRegistrationStatus = useCallback(async () => {
     try {
-      const response = await ApiService.get('/tournaments/registration-status.php');
+      const response = await TournamentsApi.getRegistrations();
       const registrationMap = {};
       response.registrations.forEach(reg => {
         registrationMap[reg.tournament_id] = reg;
@@ -252,7 +254,7 @@ export const TournamentsPage = React.memo(() => {
       setSelectedTournament(tournament);
       setPaymentModal(true);
     } else {
-      ApiService.post('/tournaments/register.php', { tournament_id: tournament.id })
+      TournamentsApi.register(tournament.id)
         .then(() => fetchRegistrationStatus())
         .catch(() => setError('Failed to register for tournament'));
     }
@@ -260,7 +262,7 @@ export const TournamentsPage = React.memo(() => {
 
   // Cancel registration handler
   const handleCancelRegistration = useCallback((tournamentId) => {
-    ApiService.post('/tournaments/cancel-registration.php', { tournament_id: tournamentId })
+    TournamentsApi.cancelRegistration(tournamentId)
       .then(() => fetchRegistrationStatus())
       .catch(() => setError('Failed to cancel registration'));
   }, [fetchRegistrationStatus]);
@@ -291,7 +293,7 @@ export const TournamentsPage = React.memo(() => {
       const formData = new FormData();
       formData.append('tournament_id', selectedTournament.id);
       formData.append('payment_screenshot', paymentScreenshot);
-      await ApiService.postFormData('/tournaments/payment-initiate.php', formData);
+      await TournamentsApi.initiatePayment(formData);
       handleClosePaymentModal();
       await fetchRegistrationStatus();
       setPaymentLoading(false);

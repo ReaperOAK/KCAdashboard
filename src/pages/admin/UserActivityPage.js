@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { UsersApi } from '../../api/users';
 
 // Filter select (memoized)
 const FilterSelect = React.memo(function FilterSelect({ value, onChange }) {
@@ -104,7 +104,7 @@ function UserActivityPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await ApiService.get(`/users/activity-log.php?page=${page}&limit=${limit}&filter=${filter}`);
+      const response = await UsersApi.getActivityLogs({ page, limit, filter });
       if (response.success) {
         setActivities(response.data);
       } else {

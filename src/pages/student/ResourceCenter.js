@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { ResourcesApi } from '../../api/resources';
 import { useAuth } from '../../hooks/useAuth';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -430,15 +430,15 @@ function useResources({ activeCategory, searchTerm, showBookmarksOnly }) {
       setError(null);
       let response;
       if (showBookmarksOnly) {
-        response = await ApiService.getUserBookmarks();
+        response = await ResourcesApi.getUserBookmarks();
         setResources(response.resources || []);
       } else if (searchTerm.trim()) {
-        response = await ApiService.searchResources(searchTerm, {
+        response = await ResourcesApi.searchResources(searchTerm, {
           category: activeCategory !== 'all' ? activeCategory : null,
         });
         setResources(response.resources || []);
       } else {
-        response = await ApiService.getResources(activeCategory);
+        response = await ResourcesApi.getResources(activeCategory);
         setResources(response.resources || []);
       }
     } catch (err) {
@@ -459,7 +459,7 @@ function useFeaturedResources() {
   const [featured, setFeatured] = useState([]);
   const fetchFeatured = useCallback(async () => {
     try {
-      const response = await ApiService.getFeaturedResources();
+      const response = await ResourcesApi.getFeaturedResources();
       setFeatured(response.resources || []);
     } catch (err) {
       // Silent fail for featured
@@ -489,10 +489,10 @@ const ResourceCenter = () => {
   const handleResourceClick = useCallback(async (resource) => {
     try {
       if (resource.type === 'link' || resource.type === 'video') {
-        await ApiService.post('/resources/log-access.php', { resource_id: resource.id });
+        await ResourcesApi.logResourceAccess(resource.id);
         window.open(resource.url, '_blank', 'noopener');
       } else {
-        window.open(ApiService.getResourceDownloadUrl(resource.id), '_blank', 'noopener');
+        window.open(ResourcesApi.getResourceDownloadUrl(resource.id), '_blank', 'noopener');
       }
     } catch (err) {
       // Optionally show error toast
@@ -502,9 +502,9 @@ const ResourceCenter = () => {
   const handleBookmarkToggle = useCallback(async (resource) => {
     try {
       if (resource.is_bookmarked) {
-        await ApiService.unbookmarkResource(resource.id);
+        await ResourcesApi.unbookmarkResource(resource.id);
       } else {
-        await ApiService.bookmarkResource(resource.id);
+        await ResourcesApi.bookmarkResource(resource.id);
       }
       // Update resource in the list
       setResources((prev) => prev.map(item => item.id === resource.id ? { ...item, is_bookmarked: !item.is_bookmarked } : item));

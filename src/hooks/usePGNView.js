@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useCallback } from 'react';
-import { PGNApiService } from '../utils/pgnApi';
+import { ChessApi } from '../api/chess';
 
 /**
  * Custom hook to record PGN views for analytics (stateless, composable)
@@ -19,7 +19,7 @@ export const usePGNView = (gameId, options = {}) => {
   const handleRecordView = useCallback(async () => {
     if (!gameId || recordedRef.current) return false;
     try {
-      await PGNApiService.recordView(gameId);
+      await ChessApi.recordPGNView(gameId);
       recordedRef.current = true;
       return true;
     } catch (error) {

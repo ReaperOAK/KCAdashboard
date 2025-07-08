@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { AuthApi } from '../../api/auth';
 
 const getStatusColor = status => {
   switch (status) {
@@ -51,7 +51,7 @@ function VerifyEmail() {
       return;
     }
     try {
-      const data = await ApiService.get(`/auth/verify-email.php?token=${token}`);
+      const data = await AuthApi.verifyEmail(token);
       setStatus('success');
       setMessage(data.message || 'Email verified successfully! You may now log in.');
     } catch (err) {

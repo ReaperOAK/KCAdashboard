@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { TournamentsApi } from '../../api/tournaments';
 import { toast } from 'react-hot-toast';
 
 // Skeleton loader
@@ -281,8 +281,8 @@ const TournamentManagement = React.memo(function TournamentManagement() {
     try {
       setLoading(true);
       setError(null);
-      const response = await ApiService.get('/tournaments/get-all.php');
-      setTournaments(response.tournaments);
+      const tournaments = await TournamentsApi.getAll();
+      setTournaments(tournaments);
     } catch (error) {
       setError('Failed to fetch tournaments.');
       toast.error('Failed to fetch tournaments');
@@ -344,13 +344,10 @@ const TournamentManagement = React.memo(function TournamentManagement() {
     e.preventDefault();
     try {
       if (editingTournament) {
-        await ApiService.post('/tournaments/update.php', {
-          id: editingTournament.id,
-          ...formData
-        });
+        await TournamentsApi.update(editingTournament.id, formData);
         toast.success('Tournament updated successfully');
       } else {
-        await ApiService.post('/tournaments/create.php', formData);
+        await TournamentsApi.create(formData);
         toast.success('Tournament created successfully');
       }
       handleCloseModal();
@@ -363,7 +360,7 @@ const TournamentManagement = React.memo(function TournamentManagement() {
   const handleDelete = useCallback(async (id) => {
     if (!window.confirm('Are you sure you want to delete this tournament?')) return;
     try {
-      await ApiService.post('/tournaments/delete.php', { id });
+      await TournamentsApi.delete(id);
       toast.success('Tournament deleted successfully');
       fetchTournaments();
     } catch (error) {

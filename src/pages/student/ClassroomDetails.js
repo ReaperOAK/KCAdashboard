@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ClassRating from '../../components/student/ClassRating';
 import { useParams } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 import UploadUtils from '../../utils/uploadUtils';
 
 
@@ -89,7 +89,7 @@ export const ClassroomDetails = React.memo(() => {
 
   const fetchClassroomDetails = useCallback(async () => {
     try {
-      const response = await ApiService.getClassroomDetails(id);
+      const response = await ClassroomApi.getClassroomDetails(id);
       setClassroom(response.classroom);
       setLoading(false);
     } catch (error) {
@@ -106,7 +106,7 @@ export const ClassroomDetails = React.memo(() => {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const response = await ApiService.getClassroomSessions(id);
+        const response = await ClassroomApi.getClassroomSessions(id);
         // Only sessions that have ended
         const now = new Date();
         const endedSessions = (response.sessions || []).filter(s => {
@@ -130,13 +130,13 @@ export const ClassroomDetails = React.memo(() => {
     const fetchTabContent = async () => {
       try {
         if (activeTab === 'materials') {
-          const response = await ApiService.getClassroomMaterials(id);
+          const response = await ClassroomApi.getClassroomMaterials(id);
           setMaterials(response.materials || []);
         } else if (activeTab === 'assignments') {
-          const response = await ApiService.getClassroomAssignments(id);
+          const response = await ClassroomApi.getClassroomAssignments(id);
           setAssignments(response.assignments || []);
         } else if (activeTab === 'discussions') {
-          const response = await ApiService.getClassroomDiscussions(id);
+          const response = await ClassroomApi.getClassroomDiscussions(id);
           setDiscussions(response.discussions || []);
         }
       } catch (error) {
@@ -172,15 +172,12 @@ export const ClassroomDetails = React.memo(() => {
     setSubmitting(true);
     setSubmitSuccess(false);
     setSubmitError(null);
-    const formData = new FormData();
-    if (submissionFile) {
-      formData.append('submission_file', submissionFile);
-    }
-    formData.append('assignment_id', assignmentId);
-    formData.append('classroom_id', id);
-    formData.append('submission_text', submissionText);
     try {
-      await ApiService.postFormData('/classroom/submit-assignment.php', formData);
+      await ClassroomApi.submitAssignment(assignmentId, {
+        classroom_id: id,
+        submission_text: submissionText,
+        ...(submissionFile ? { submission_file: submissionFile } : {})
+      });
       setSubmitSuccess(true);
       setSubmissionFile(null);
       setSubmissionText('');
@@ -188,7 +185,7 @@ export const ClassroomDetails = React.memo(() => {
       const fileInput = document.querySelector('input[type="file"]');
       if (fileInput) fileInput.value = '';
       // Refresh assignments to show updated status
-      const response = await ApiService.getClassroomAssignments(id);
+      const response = await ClassroomApi.getClassroomAssignments(id);
       setAssignments(response.assignments || []);
     } catch (error) {
       setSubmitError(error.message || 'Failed to submit assignment');
@@ -202,12 +199,9 @@ export const ClassroomDetails = React.memo(() => {
   const handlePostDiscussion = useCallback(async () => {
     if (!newDiscussion.trim()) return;
     try {
-      await ApiService.post('/classroom/post-discussion.php', {
-        classroom_id: id,
-        message: newDiscussion
-      });
+      await ClassroomApi.postClassroomDiscussion(id, { message: newDiscussion });
       // Refresh discussions
-      const response = await ApiService.get(`/classroom/get-discussions.php?classroom_id=${id}`);
+      const response = await ClassroomApi.getClassroomDiscussions(id);
       setDiscussions(response.discussions || []);
       setNewDiscussion('');
     } catch {

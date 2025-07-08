@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
-import ApiService from '../../utils/api';
+import { NotificationsApi } from '../../api/notifications';
 
 // Memoized switch component for toggles
 const ToggleSwitch = React.memo(function ToggleSwitch({ checked, onChange, label, id }) {
@@ -140,7 +140,7 @@ export default function NotificationPreferences() {
   const fetchPreferences = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await ApiService.get('/notifications/get-preferences.php');
+      const response = await NotificationsApi.getPreferences();
       const preferenceMap = {};
       response.preferences.forEach(pref => {
         preferenceMap[pref.category] = pref;
@@ -182,7 +182,7 @@ export default function NotificationPreferences() {
         in_app: pref.in_app,
         email: pref.email
       }));
-      await ApiService.post('/notifications/update-preferences.php', { preferences: apiPreferences });
+      await NotificationsApi.updatePreferences(apiPreferences);
       toast.success('Notification preferences updated successfully');
     } catch (error) {
       toast.error('Failed to save notification preferences');

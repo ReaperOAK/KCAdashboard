@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useContext, createContext, useCallback, useMemo } from 'react';
-import ApiService from '../utils/api';
+import { AuthApi } from '../api/auth';
 
 const AuthContext = createContext(null);
 
@@ -20,7 +20,7 @@ function useProvideAuth() {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          await ApiService.get('/auth/verify-token.php');
+      await AuthApi.verifyToken();
         } catch (error) {
           // If token is invalid, clear auth data
           // eslint-disable-next-line no-console
@@ -35,7 +35,7 @@ function useProvideAuth() {
 
   const login = useCallback(async (email, password) => {
     try {
-      const response = await ApiService.post('/auth/login.php', { email, password });
+      const response = await AuthApi.login(email, password);
       const tokenData = {
         token: response.token,
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -53,7 +53,7 @@ function useProvideAuth() {
 
   const register = useCallback(async (userData) => {
     try {
-      const response = await ApiService.post('/auth/register.php', userData);
+      const response = await AuthApi.register(userData);
       if (response && response.message && response.message.toLowerCase().includes('verify your email')) {
         window.alert('Registration successful! Please check your email and verify your account before logging in.');
       }
@@ -74,7 +74,7 @@ function useProvideAuth() {
 
   const requestPasswordReset = useCallback(async (email) => {
     try {
-      const response = await ApiService.post('/auth/request-reset.php', { email });
+      const response = await AuthApi.requestPasswordReset(email);
       return response;
     } catch (error) {
       throw new Error(error.message);
@@ -83,10 +83,7 @@ function useProvideAuth() {
 
   const resetPassword = useCallback(async (token, newPassword) => {
     try {
-      const response = await ApiService.post('/auth/reset-password.php', {
-        token,
-        password: newPassword,
-      });
+      const response = await AuthApi.resetPassword(token, newPassword);
       return response;
     } catch (error) {
       throw new Error(error.message || 'Failed to reset password');
@@ -95,7 +92,7 @@ function useProvideAuth() {
 
   const updateProfile = useCallback(async (userData) => {
     try {
-      const response = await ApiService.put('/auth/update-profile.php', userData);
+      const response = await AuthApi.updateProfile(userData);
       setUser(response.user);
       return response;
     } catch (error) {

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { BatchesApi } from '../../api/batches';
+import { UsersApi } from '../../api/users';
 import Modal from '../../components/common/Modal';
 import CreateBatchForm from '../../components/batches/CreateBatchForm';
 
@@ -81,7 +82,7 @@ function BatchManagement() {
   const fetchBatches = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await ApiService.getBatches();
+      const response = await BatchesApi.getBatches();
       if (response.success && response.batches) {
         setBatches(response.batches);
       } else {
@@ -96,7 +97,7 @@ function BatchManagement() {
 
   const fetchTeachers = useCallback(async () => {
     try {
-      const response = await ApiService.get('/users/get-teachers.php');
+      const response = await UsersApi.getTeachers();
       if (response.success && response.teachers) {
         setTeachers(response.teachers);
       } else {
@@ -130,9 +131,9 @@ function BatchManagement() {
   const handleFormSubmit = useCallback(async (data) => {
     let response;
     if (selectedBatch) {
-      response = await ApiService.updateBatch(selectedBatch.id, data);
+      response = await BatchesApi.updateBatch(selectedBatch.id, data);
     } else {
-      response = await ApiService.createBatch(data);
+      response = await BatchesApi.createBatch(data);
     }
     if (!response.success) {
       throw new Error(response.message || 'Failed to save batch');

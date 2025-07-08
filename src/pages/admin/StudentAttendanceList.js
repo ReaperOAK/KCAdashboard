@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { AttendanceApi } from '../../api/attendance';
+import { BatchesApi } from '../../api/batches';
 
 const StudentAttendanceSkeleton = React.memo(function StudentAttendanceSkeleton() {
   return (
@@ -100,8 +101,8 @@ const StudentAttendanceList = React.memo(function StudentAttendanceList() {
     const fetchData = async () => {
       try {
         const [studentsData, batchesData] = await Promise.all([
-          ApiService.get(`/attendance/get-students-attendance.php?batch=${selectedBatch}`),
-          ApiService.get('/batches/get-all.php'),
+          AttendanceApi.getStudentsAttendance(selectedBatch),
+           BatchesApi.getBatches(),
         ]);
         if (isMounted) {
           setStudents(studentsData.students || []);

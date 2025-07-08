@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { UsersApi } from '../../api/users';
 
 // Loading skeleton (memoized)
 const ActivitySkeleton = React.memo(function ActivitySkeleton() {
@@ -74,8 +74,8 @@ function UserActivity({ userId: propUserId }) {
       setLoading(true);
       setError(null);
       const [activitiesResponse, userResponse] = await Promise.all([
-        ApiService.get(`/users/activity-log.php?user_id=${userId}`),
-        !propUserId ? ApiService.get(`/users/get-details.php?id=${userId}`) : Promise.resolve(null)
+        UsersApi.getActivityLog(userId),
+        !propUserId ? UsersApi.getDetails(userId) : Promise.resolve(null)
       ]);
       setActivities(activitiesResponse.data);
       if (userResponse) setUserData(userResponse.user);

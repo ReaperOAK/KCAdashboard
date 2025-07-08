@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaPlus, FaEdit, FaTrash, FaChessBoard, FaFilter, FaSearch, FaEye } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
@@ -122,11 +122,8 @@ export const QuizManagement = () => {
   const fetchQuizzes = useCallback(async () => {
     setLoading(true);
     try {
-      const endpoint = filter === 'all'
-        ? '/quiz/get-teacher-quizzes.php'
-        : `/quiz/get-teacher-quizzes.php?difficulty=${filter}`;
-      const response = await ApiService.get(endpoint);
-      setQuizzes(response.quizzes);
+      const quizzes = await QuizApi.getTeacherQuizzes(filter === 'all' ? undefined : filter);
+      setQuizzes(quizzes);
       setError(null);
     } catch (err) {
       setError('Failed to load quizzes');
@@ -152,7 +149,7 @@ export const QuizManagement = () => {
 
   const handleConfirmDelete = useCallback(async () => {
     try {
-      await ApiService.delete(`/quiz/delete.php?id=${quizToDelete.id}`);
+      await QuizApi.deleteQuiz(quizToDelete.id);
       setDeleteModalOpen(false);
       setQuizToDelete(null);
       toast.success('Quiz deleted successfully');
@@ -164,7 +161,7 @@ export const QuizManagement = () => {
 
   const handlePublishQuiz = useCallback(async (quiz) => {
     try {
-      await ApiService.post('/quiz/publish.php', { id: quiz.id });
+      await QuizApi.publish(quiz.id);
       toast.success('Quiz published successfully');
       fetchQuizzes();
     } catch (err) {

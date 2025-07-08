@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ApiService from '../../utils/api';
+import { SupportApi } from '../../api/support';
 
 const SupportTicketForm = () => {
   const [form, setForm] = useState({ title: '', description: '', priority: 'medium' });
@@ -18,7 +18,7 @@ const SupportTicketForm = () => {
     setError(null);
     setSuccess(null);
     try {
-      await ApiService.post('/support/tickets/create.php', form);
+      await SupportApi.createTicket(form);
       setSuccess('Ticket submitted successfully!');
       setForm({ title: '', description: '', priority: 'medium' });
     } catch (err) {

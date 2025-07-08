@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 
 // --- Loading Skeleton ---
 const AttendanceLoadingSkeleton = React.memo(() => (
@@ -79,7 +79,7 @@ function AttendanceModal({ session, onClose, onAttendanceSubmitted }) {
       try {
         setLoading(true);
         setError(null);
-        const response = await ApiService.get(`/classroom/get-session-students.php?session_id=${session.id}`);
+        const response = await ClassroomApi.getSessionStudents(session.id);
         if (!isMounted) return;
         if (response.success) {
           setStudents(response.students);
@@ -118,7 +118,7 @@ function AttendanceModal({ session, onClose, onAttendanceSubmitted }) {
       setSubmitting(true);
       setError(null);
       const attendanceArray = Object.values(attendanceRecords);
-      const response = await ApiService.post('/classroom/track-attendance.php', {
+      const response = await ClassroomApi.trackAttendance({
         session_id: session.id,
         attendance: attendanceArray
       });

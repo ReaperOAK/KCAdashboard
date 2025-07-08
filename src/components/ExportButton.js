@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import ApiService from '../utils/api';
+import { AnalyticsApi } from '../api/analytics';
 
 // Error message popover
 const ErrorPopover = React.memo(function ErrorPopover({ message }) {
@@ -27,7 +27,7 @@ export const ExportButton = React.memo(function ExportButton({ reportType = 'att
       setLoading(true);
       setErrorMessage(null);
       // Call the API to get the report
-      const blob = await ApiService.exportReport(reportType, defaultFilters);
+      const blob = await AnalyticsApi.exportReport(reportType, defaultFilters);
       if (!blob || blob.size === 0) throw new Error('Received empty file from server');
       // Download logic
       const url = window.URL.createObjectURL(blob);

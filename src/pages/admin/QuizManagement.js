@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaPlus, FaEdit, FaTrash, FaChessBoard, FaFilter, FaSearch, FaEye } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
@@ -140,17 +140,12 @@ const QuizManagement = () => {
   const fetchQuizzes = useCallback(async () => {
     setLoading(true);
     try {
-      let endpoint;
+      let response;
       if (isAdmin) {
-        endpoint = filter === 'all'
-          ? '/quiz/get-all.php'
-          : `/quiz/get-all.php?difficulty=${filter}`;
+        response = filter === 'all' ? await QuizApi.getAll() : await QuizApi.getAll(filter);
       } else {
-        endpoint = filter === 'all'
-          ? '/quiz/get-teacher-quizzes.php'
-          : `/quiz/get-teacher-quizzes.php?difficulty=${filter}`;
+        response = filter === 'all' ? await QuizApi.getTeacherQuizzes() : await QuizApi.getTeacherQuizzes(filter);
       }
-      const response = await ApiService.get(endpoint);
       setQuizzes(response.quizzes);
       setError(null);
     } catch (err) {
@@ -176,7 +171,7 @@ const QuizManagement = () => {
 
   const handleConfirmDelete = useCallback(async () => {
     try {
-      await ApiService.delete(`/quiz/delete.php?id=${quizToDelete.id}`);
+      await QuizApi.delete(quizToDelete.id);
       setDeleteModalOpen(false);
       setQuizToDelete(null);
       toast.success('Quiz deleted successfully');
@@ -188,7 +183,7 @@ const QuizManagement = () => {
 
   const handlePublishQuiz = useCallback(async (quiz) => {
     try {
-      await ApiService.post('/quiz/publish.php', { id: quiz.id });
+      await QuizApi.publish(quiz.id);
       toast.success('Quiz published successfully');
       fetchQuizzes();
     } catch (err) {

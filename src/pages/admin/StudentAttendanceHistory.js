@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { AttendanceApi } from '../../api/attendance';
+import { UsersApi } from '../../api/users';
 
 const StudentAttendanceHistorySkeleton = React.memo(function StudentAttendanceHistorySkeleton() {
   return (
@@ -93,8 +94,8 @@ const StudentAttendanceHistory = React.memo(function StudentAttendanceHistory() 
     const fetchData = async () => {
       try {
         const [attendance, student] = await Promise.all([
-          ApiService.get(`/attendance/get-user-attendance.php?user_id=${studentId}`),
-          ApiService.get(`/users/get-details.php?id=${studentId}`),
+          AttendanceApi.getUserAttendance(studentId),
+          UsersApi.getDetails(studentId),
         ]);
         if (isMounted) {
           setAttendanceData(attendance.data || []);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ApiService from '../../utils/api';
+import { SupportApi } from '../../api/support';
 import LeaveRequestsAdmin from './LeaveRequestsAdmin';
 
 // Skeleton loader
@@ -291,7 +291,7 @@ const SupportSystem = React.memo(function SupportSystem() {
 
   const fetchTickets = useCallback(async () => {
     try {
-      const response = await ApiService.get('/support/tickets/get-all.php');
+      const response = await SupportApi.getTickets();
       setTickets(response.tickets);
     } catch (error) {
       setError('Failed to fetch tickets.');
@@ -300,7 +300,7 @@ const SupportSystem = React.memo(function SupportSystem() {
 
   const fetchFaqs = useCallback(async () => {
     try {
-      const response = await ApiService.get('/support/faqs/get-all.php');
+      const response = await SupportApi.getFaqs();
       setFaqs(response.faqs);
     } catch (error) {
       setError('Failed to fetch FAQs.');
@@ -319,10 +319,7 @@ const SupportSystem = React.memo(function SupportSystem() {
 
   const handleStatusChange = useCallback(async (ticketId, newStatus) => {
     try {
-      await ApiService.post('/support/tickets/update-status.php', {
-        ticket_id: ticketId,
-        status: newStatus
-      });
+      await SupportApi.updateTicketStatus(ticketId, newStatus);
       fetchTickets();
     } catch (error) {
       setError('Failed to update ticket status.');
@@ -335,7 +332,7 @@ const SupportSystem = React.memo(function SupportSystem() {
   const handleFaqSubmit = useCallback(async (e) => {
     e.preventDefault();
     try {
-      await ApiService.post('/support/faqs/create.php', newFaq);
+      await SupportApi.createFaq(newFaq);
       setShowFaqModal(false);
       setNewFaq({ question: '', answer: '', category: 'general' });
       fetchFaqs();
@@ -347,7 +344,7 @@ const SupportSystem = React.memo(function SupportSystem() {
   const handleFaqDelete = useCallback(async (faqId) => {
     if (window.confirm('Are you sure you want to delete this FAQ?')) {
       try {
-        await ApiService.delete(`/support/faqs/delete.php?id=${faqId}`);
+        await SupportApi.deleteFaq(faqId);
         fetchFaqs();
       } catch (error) {
         setError('Failed to delete FAQ.');

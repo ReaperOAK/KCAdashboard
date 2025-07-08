@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaTrophy, FaChess, FaFilter } from 'react-icons/fa';
 
 // Spinner for loading state
@@ -128,14 +128,14 @@ const LeaderboardPage = () => {
     let isMounted = true;
     const fetchData = async () => {
       try {
-        const quizzesResponse = await ApiService.get('/quiz/get-all.php');
+        const quizzesResponse = await QuizApi.getAll();
         const quizzesList = quizzesResponse.quizzes || [];
-        const overallResponse = await ApiService.get('/quiz/get-overall-leaderboard.php');
+        const overallResponse = await QuizApi.getOverallLeaderboard ? await QuizApi.getOverallLeaderboard() : { leaderboard: [] };
         const leaderboardsData = { overall: overallResponse.leaderboard };
         // Preload top 3 quiz leaderboards for snappy UX
         const topQuizzes = quizzesList.slice(0, 3);
         await Promise.all(topQuizzes.map(async (quiz) => {
-          const quizLeaderboard = await ApiService.get(`/quiz/get-leaderboard.php?quiz_id=${quiz.id}`);
+          const quizLeaderboard = QuizApi.getQuizLeaderboard ? await QuizApi.getQuizLeaderboard(quiz.id) : { leaderboard: [] };
           leaderboardsData[quiz.id] = quizLeaderboard.leaderboard;
         }));
         if (isMounted) {
@@ -160,7 +160,7 @@ const LeaderboardPage = () => {
       setActiveQuiz(quizId);
       if (!leaderboards[quizId]) {
         setLoading(true);
-        ApiService.get(`/quiz/get-leaderboard.php?quiz_id=${quizId}`)
+        (QuizApi.getQuizLeaderboard ? QuizApi.getQuizLeaderboard(quizId) : Promise.resolve({ leaderboard: [] }))
           .then((response) => {
             setLeaderboards((prev) => ({ ...prev, [quizId]: response.leaderboard }));
             setLoading(false);

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { AnalyticsApi } from '../../api/analytics';
 import ExportButton from '../../components/ExportButton';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -208,9 +208,9 @@ export const ReportsAnalytics = () => {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       setDebugInfo(`User: ${user.name || 'Unknown'}, Role: ${user.role || 'Unknown'}, Token: ${token ? 'Present' : 'Missing'}`);
-      // Call the real API endpoint
-      const params = selectedBatch !== 'all' ? { batch: selectedBatch } : {};
-      const response = await ApiService.request('/analytics/teacher-stats.php', 'GET', null, { params });
+      // Use AnalyticsApi for teacher stats
+      const batchId = selectedBatch !== 'all' ? selectedBatch : 'all';
+      const response = await AnalyticsApi.getTeacherStats(batchId);
       if (response && response.success) {
         setStats(response.stats);
         setBatches(response.batches || []);

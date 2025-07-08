@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 import UploadUtils from '../../utils/uploadUtils';
 
 // --- Loading Skeleton ---
@@ -54,7 +54,7 @@ function MaterialsView({ classroomId, refreshTrigger = 0 }) {
       try {
         setLoading(true);
         setError(null);
-        const response = await ApiService.get(`/classroom/get-materials.php?classroom_id=${classroomId}`);
+        const response = await ClassroomApi.getClassroomMaterials(classroomId);
         if (!isMounted) return;
         if (response.success) {
           setMaterials(response.materials);

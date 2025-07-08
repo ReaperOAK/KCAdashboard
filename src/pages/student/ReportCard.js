@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { GradingApi } from '../../api/grading';
 
 // Spinner for loading state
 const LoadingSpinner = React.memo(() => (
@@ -61,7 +61,7 @@ export const ReportCard = React.memo(() => {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.get('/grading/get-student-report-cards.php');
+      const response = await GradingApi.getStudentReportCards();
       if (response.success) {
         setReportCards(response.report_cards);
       } else {

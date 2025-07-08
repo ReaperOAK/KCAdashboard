@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
 import AttendanceModal from '../../components/classroom/AttendanceModal';
 import MaterialsView from '../../components/classroom/MaterialsView';
@@ -176,7 +176,7 @@ function ClassroomManagement() {
   const fetchClassrooms = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await ApiService.get('/classroom/get-teacher-classes.php');
+      const response = await ClassroomApi.getTeacherClasses();
       setClassrooms(response.classes);
       setLoading(false);
     } catch (err) {
@@ -192,7 +192,7 @@ function ClassroomManagement() {
   const handleScheduleSubmit = useCallback(async (e) => {
     e.preventDefault();
     try {
-      await ApiService.post('/classroom/add-session.php', {
+      await ClassroomApi.addSession({
         classroom_id: selectedClass.id,
         ...scheduleForm,
       });
@@ -211,7 +211,7 @@ function ClassroomManagement() {
   const handleAssignmentSubmit = useCallback(async (e) => {
     e.preventDefault();
     try {
-      const response = await ApiService.createAssignment({
+      const response = await ClassroomApi.createAssignment({
         classroom_id: selectedClass.id,
         ...assignmentForm,
       });
@@ -262,7 +262,7 @@ function ClassroomManagement() {
           formData.append('files[]', file);
         });
       }
-      const response = await ApiService.postFormData('/classroom/add-material.php', formData);
+      const response = await ClassroomApi.addMaterial(formData);
       if (response.success) {
         setShowMaterialsModal(false);
         setRefreshTrigger((prev) => prev + 1);

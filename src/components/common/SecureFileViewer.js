@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ResourcesApi } from '../../api/resources';
 
 /**
  * SecureFileViewer component
@@ -15,14 +16,10 @@ const SecureFileViewer = ({ resourceId, fileType, token }) => {
     if (!resourceId || !fileType) return;
     setError(null);
     setFileUrl(null);
-    // Fetch the file as a blob from the API
+    // Fetch the file as a blob from the API (via ResourcesApi)
     const fetchFile = async () => {
       try {
-        const res = await fetch(`/api/endpoints/resources/download.php?id=${resourceId}&view=1`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (!res.ok) throw new Error('Failed to fetch file');
-        const blob = await res.blob();
+        const blob = await ResourcesApi.getResourceFileBlob(resourceId, token);
         setFileUrl(URL.createObjectURL(blob));
       } catch (e) {
         setError(e.message);

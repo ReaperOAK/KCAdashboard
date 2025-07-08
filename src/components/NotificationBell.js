@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../utils/api';
+import { NotificationsApi } from '../api/notifications';
 import { FiBell, FiSettings, FiTrash2 } from 'react-icons/fi';
 import { BsDot } from 'react-icons/bs';
 
@@ -181,7 +181,7 @@ export function NotificationBell() {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const response = await ApiService.get('/notifications/get.php');
+      const response = await NotificationsApi.getNotifications();
       setNotifications(response.notifications);
       setUnreadCount(response.unread_count);
     } catch (error) {
@@ -214,7 +214,7 @@ export function NotificationBell() {
 
   const markAsRead = useCallback(async (notificationId) => {
     try {
-      await ApiService.post('/notifications/mark-read.php', { id: notificationId });
+      await NotificationsApi.markAsRead(notificationId);
       fetchNotifications();
     } catch {}
   }, [fetchNotifications]);
@@ -237,7 +237,7 @@ export function NotificationBell() {
 
   const markAllAsRead = useCallback(async () => {
     try {
-      await ApiService.post('/notifications/mark-all-read.php');
+      await NotificationsApi.markAllAsRead();
       fetchNotifications();
     } catch {}
   }, [fetchNotifications]);
@@ -245,7 +245,7 @@ export function NotificationBell() {
   const deleteNotification = useCallback(async (e, notificationId) => {
     e.stopPropagation();
     try {
-      await ApiService.post('/notifications/delete.php', { id: notificationId });
+      await NotificationsApi.deleteNotification(notificationId);
       fetchNotifications();
     } catch {}
   }, [fetchNotifications]);

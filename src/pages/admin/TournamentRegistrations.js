@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { TournamentsApi } from '../../api/tournaments';
 import UploadUtils from '../../utils/uploadUtils';
 import { toast } from 'react-hot-toast';
 
@@ -185,7 +185,7 @@ const TournamentRegistrations = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.get(`/tournaments/get-registrations.php?tournament_id=${id}`);
+      const response = await TournamentsApi.getRegistrations(id);
       setTournament(response.tournament);
       setRegistrations(response.registrations);
     } catch (err) {
@@ -210,10 +210,7 @@ const TournamentRegistrations = () => {
   // Payment verify handler
   const handleVerifyPayment = useCallback(async (status) => {
     try {
-      await ApiService.post('/tournaments/payment-verify.php', {
-        payment_id: selectedPaymentId,
-        status,
-      });
+      await TournamentsApi.verifyPayment(selectedPaymentId, status);
       toast.success(`Payment ${status === 'approved' ? 'approved' : 'rejected'} successfully`);
       setShowImageModal(false);
       fetchRegistrations();

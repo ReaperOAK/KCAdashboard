@@ -1,7 +1,7 @@
 
 import React, { useMemo, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 
 // Util: Format time control for display
 const formatTimeControl = (timeControl) => {
@@ -98,7 +98,7 @@ export const ChallengeList = React.memo(function ChallengeList({ challenges, onA
   const handleAccept = useCallback(
     async (id) => {
       try {
-        const response = await ApiService.respondToChallenge(id, true);
+        const response = await ChessApi.respondToChallenge(id, true);
         if (response.success && response.gameId) {
           onRefresh && onRefresh();
           onAccept && onAccept(response.gameId);
@@ -115,7 +115,7 @@ export const ChallengeList = React.memo(function ChallengeList({ challenges, onA
   const handleDecline = useCallback(
     async (id, isIncoming) => {
       try {
-        await ApiService.respondToChallenge(id, false);
+        await ChessApi.respondToChallenge(id, false);
         onRefresh && onRefresh();
         if (isIncoming) {
           onDecline && onDecline();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaTrophy } from 'react-icons/fa';
 
 function formatTime(seconds) {
@@ -68,7 +68,7 @@ const TeacherQuizLeaderboardPage = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const leaderboardData = await ApiService.get(`/quiz/get-leaderboard.php?quiz_id=${id}`);
+        const leaderboardData = await QuizApi.getQuizLeaderboard(id);
         setLeaderboard(leaderboardData.leaderboard);
       } catch (error) {
         setLeaderboard([]);

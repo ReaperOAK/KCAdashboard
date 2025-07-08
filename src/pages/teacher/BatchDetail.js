@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { BatchesApi } from '../../api/batches';
 import Modal from '../../components/common/Modal';
 import { SchedulePicker } from '../../components/batches/CreateBatchForm';
 
@@ -216,7 +216,7 @@ export const BatchDetail = () => {
   const fetchBatchDetails = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await ApiService.getBatchDetails(id);
+      const response = await BatchesApi.getBatchDetails(id);
       if (response.success) {
         setBatch(response.batch);
         setFormData({
@@ -227,7 +227,7 @@ export const BatchDetail = () => {
           max_students: response.batch.max_students,
           status: response.batch.status,
         });
-        const studentsResponse = await ApiService.getBatchStudents(id);
+        const studentsResponse = await BatchesApi.getBatchStudents(id);
         if (studentsResponse.success) {
           setStudents(studentsResponse.students || []);
         }
@@ -250,7 +250,7 @@ export const BatchDetail = () => {
   const handleEdit = useCallback(async (e) => {
     e.preventDefault();
     try {
-      const response = await ApiService.updateBatch(id, formData);
+      const response = await BatchesApi.updateBatch(id, formData);
       if (response.success) {
         setShowEditModal(false);
         fetchBatchDetails();
@@ -272,7 +272,7 @@ export const BatchDetail = () => {
   const handleDelete = useCallback(async () => {
     if (window.confirm('Are you sure you want to delete this batch? This action cannot be undone.')) {
       try {
-        const response = await ApiService.deleteBatch(id);
+        const response = await BatchesApi.deleteBatch(id);
         if (response.success) {
           navigate('/teacher/batches');
         } else {

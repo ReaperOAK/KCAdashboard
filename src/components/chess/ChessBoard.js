@@ -5,7 +5,7 @@ import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
 import ChessEngineFactory from '../../utils/ChessEngineFactory';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 
 // --- Loading Spinner ---
 const LoadingSpinner = React.memo(({ label }) => (
@@ -91,9 +91,9 @@ const ChessBoard = ({
     if (!window.confirm('Are you sure you want to resign this game?')) return;
     setResignLoading(true);
     try {
-      await ApiService.resignGame(gameId);
+      await ChessApi.resignGame(gameId);
       setGameOver({ isOver: true, result: '0-1', reason: 'resigned' });
-      try { await ApiService.saveGameResult(gameId, '0-1'); } catch {}
+      try { await ChessApi.saveGameResult(gameId, '0-1'); } catch {}
       if (onResign) onResign();
       setTimeout(() => navigate('/chess/play'), 1200);
     } catch (e) {
@@ -282,7 +282,7 @@ const ChessBoard = ({
       setGameOver(result);
       // Save result to backend for stats if in vs-human mode
       if (playMode === 'vs-human' && gameId && saveResult) {
-        ApiService.saveGameResult(gameId, saveResult).finally(() => {
+        ChessApi.saveGameResult(gameId, saveResult).finally(() => {
           setTimeout(() => navigate('/chess/play'), 1200);
         });
       }

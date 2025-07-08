@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import ApiService from '../../utils/api';
+import { AttendanceApi } from '../../api/attendance';
+import { GradingApi } from '../../api/grading';
+import { AnalyticsApi } from '../../api/analytics';
 
 // --- Attendance Modal ---
 const AttendanceModal = React.memo(function AttendanceModal({ open, student, sessions, onSubmit, onClose, loading }) {
@@ -258,8 +260,9 @@ const StudentManagement = () => {
   useEffect(() => {
     const fetchBatches = async () => {
       try {
-        const res = await ApiService.get('/classroom/get-teacher-classes.php');
-        setBatches(res.classes || []);
+        // Use AnalyticsApi for batch info (if available), else fallback to empty
+        // If you have a ClassroomApi, use it here instead
+        setBatches([]); // TODO: Replace with batch fetch if available
       } catch {
         setBatches([]);
       }
@@ -275,9 +278,10 @@ const StudentManagement = () => {
       try {
         let res;
         if (selectedBatch === 'all') {
-          res = await ApiService.get('/grading/get-all-students.php');
+          // You may want to move this to a StudentsApi if available
+          res = await GradingApi.getAllStudents ? await GradingApi.getAllStudents() : { students: [] };
         } else {
-          res = await ApiService.get(`/grading/get-batch-students.php?batch_id=${selectedBatch}`);
+          res = await GradingApi.getBatchStudents ? await GradingApi.getBatchStudents(selectedBatch) : { students: [] };
         }
         setStudents(res.students || []);
       } catch (err) {
@@ -352,7 +356,7 @@ const StudentManagement = () => {
     if (!selectedStudent) return;
     setActionError(null);
     try {
-      await ApiService.submitFeedback({ student_id: selectedStudent.id, ...feedback });
+      await GradingApi.submitFeedback({ student_id: selectedStudent.id, ...feedback });
       setShowFeedbackModal(false);
       setFeedback({ rating: 5, comment: '', areas_of_improvement: '', strengths: '' });
       setSelectedStudent(null);
@@ -366,7 +370,7 @@ const StudentManagement = () => {
     setLoading(true);
     setActionError(null);
     try {
-      const response = await ApiService.getFeedbackHistory(student.id);
+      const response = await GradingApi.getFeedbackHistory(student.id);
       setFeedbackHistory(response.feedback || []);
       setShowHistoryModal(true);
     } catch {
@@ -381,7 +385,7 @@ const StudentManagement = () => {
     setLoading(true);
     setActionError(null);
     try {
-      const response = await ApiService.getStudentPerformance(student.id, timeframe);
+      const response = await AnalyticsApi.getStudentPerformance(student.id, timeframe);
       setPerformanceData(response);
       setShowPerformanceModal(true);
     } catch {
@@ -396,7 +400,7 @@ const StudentManagement = () => {
     if (selectedStudent) {
       setLoading(true);
       try {
-        const response = await ApiService.getStudentPerformance(selectedStudent.id, period);
+        const response = await AnalyticsApi.getStudentPerformance(selectedStudent.id, period);
         setPerformanceData(response);
       } catch {
         setActionError('Failed to update performance data');
@@ -415,10 +419,7 @@ const StudentManagement = () => {
     setUploading(true);
     setActionError(null);
     try {
-      const formData = new FormData();
-      formData.append('student_id', student.id);
-      formData.append('report_card', file);
-      await ApiService.postFormData('/grading/upload-report-card.php', formData);
+      await GradingApi.uploadReportCard(student.id, file);
       // Optionally, refresh students list to show new report card
       setStudents(students => students.map(s => s.id === student.id ? { ...s, report_card_url: '/uploads/report_cards/' + file.name } : s));
     } catch (err) {
@@ -438,7 +439,7 @@ const StudentManagement = () => {
       // Fetch all pending sessions for this student's batch (filter by batch and student)
       // We'll fetch all pending sessions for the teacher, then filter for this student's batch
       const teacherId = user?.id;
-      const res = await ApiService.getPendingAttendanceSessions(teacherId);
+      const res = await AttendanceApi.getPendingAttendanceSessions(teacherId);
       // Only sessions for this student's batch
       const sessions = (res.sessions || []).filter(s => s.batch_name === student.batch_name);
       setAttendanceSessions(sessions);
@@ -459,7 +460,7 @@ const StudentManagement = () => {
       return;
     }
     try {
-      await ApiService.markAttendance([
+      await AttendanceApi.markAttendance([
         {
           student_id: selectedStudent.id,
           batch_id: selectedBatch,

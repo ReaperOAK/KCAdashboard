@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ApiService from '../../utils/api';
+import { SupportApi } from '../../api/support';
 
 const MyLeaveRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -15,8 +15,8 @@ const MyLeaveRequests = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await ApiService.get('/support/leave/my-requests.php');
-      setRequests(data);
+      const data = await SupportApi.getMyLeaveRequests();
+      setRequests(data.requests || []);
     } catch (err) {
       setError('Failed to load leave requests.');
     } finally {
@@ -28,7 +28,7 @@ const MyLeaveRequests = () => {
     if (!window.confirm('Are you sure you want to cancel this leave request?')) return;
     setCancelStatus(s => ({ ...s, [id]: 'pending' }));
     try {
-      await ApiService.post('/support/leave/my-requests.php', { id });
+      await SupportApi.cancelMyLeaveRequest(id);
       setCancelStatus(s => ({ ...s, [id]: 'cancelled' }));
       fetchRequests();
     } catch (err) {

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import ApiService from '../../utils/api';
+import { AnalyticsApi } from '../../api/analytics';
 
 
 // Loading spinner (accessible, reusable)
@@ -97,7 +97,7 @@ export const StudentDashboard = React.memo(() => {
     try {
       setLoading(true);
       setError(null);
-      const response = await ApiService.getStudentDashboardStats();
+      const response = await AnalyticsApi.getStudentDashboardStats();
       if (response.success) {
         setStats(response.stats);
         setRecentActivities(response.recentActivities || []);

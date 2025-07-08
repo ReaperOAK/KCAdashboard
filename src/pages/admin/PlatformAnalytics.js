@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { AnalyticsApi } from '../../api/analytics';
 import { Line, Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -147,7 +147,7 @@ const PlatformAnalytics = React.memo(function PlatformAnalytics() {
     try {
       setLoading(true);
       setError(null);
-      const response = await ApiService.get(`/analytics/get-stats.php?range=${timeRange}`);
+      const response = await AnalyticsApi.getPlatformStats(timeRange);
       const { userStats, activityStats, performanceStats } = response || {};
       setAnalytics({ userStats, activityStats, performanceStats });
     } catch (error) {

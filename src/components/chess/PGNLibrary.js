@@ -11,8 +11,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
-import ApiService from '../../utils/api';
-import PGNApiService from '../../utils/pgnApi';
+import { ChessApi } from '../../api/chess';
 import usePGNView from '../../hooks/usePGNView';
 import { useNavigate } from 'react-router-dom';
 
@@ -262,7 +261,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
         ...(showPublicOnly && { public_only: true }),
         ...(showUserOnly && { user_only: true }),
       };
-      const response = await ApiService.request('/chess/get-games.php', 'GET', null, { params });
+      const response = await ChessApi.getGames(params);
       if (response.success) {
         setAllGames(response.data);
         setTotalGames(response.total || response.data.length);
@@ -319,10 +318,10 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   const loadGameDetails = useCallback(async (gameId) => {
     try {
-      const response = await ApiService.request(`/chess/get-game.php?id=${gameId}`, 'GET');
+      const response = await ChessApi.getGame(gameId);
       if (response.success) {
         setSelectedGame(response.data);
-        try { await PGNApiService.recordView(gameId); } catch {}
+        try { await ChessApi.recordPGNView(gameId); } catch {}
         if (onGameSelect) onGameSelect(response.data);
       } else {
         throw new Error(response.message || 'Failed to load game');

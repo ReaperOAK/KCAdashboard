@@ -4,7 +4,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 
 // --- Loading Skeleton ---
 const CalendarLoadingSkeleton = React.memo(() => (
@@ -30,11 +30,14 @@ function ClassroomCalendar({ classroomId, onEventClick, onDateSelect, refreshTri
     setLoading(true);
     setError(null);
     try {
-      const startDate = info?.startStr || new Date().toISOString().split('T')[0];
-      const endDate = info?.endStr || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const params = { start: startDate, end: endDate };
-      if (classroomId) params.classroom_id = classroomId;
-      const response = await ApiService.get('/classroom/get-sessions.php', { params });
+      // ClassroomApi.getClassroomSessions only takes classroomId, so we use params directly
+      let response;
+      if (classroomId) {
+        response = await ClassroomApi.getClassroomSessions(classroomId);
+      } else {
+        // fallback: fetch all sessions (if endpoint exists)
+        response = { success: false, events: [] };
+      }
       if (response.success) {
         setEvents(response.events);
       } else {

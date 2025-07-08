@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { ClassroomApi } from '../../api/classroom';
 import UploadUtils from '../../utils/uploadUtils';
 // Grading Modal (uses Formik for validation)
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -227,7 +227,7 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
   const fetchAssignments = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await ApiService.getTeacherAssignments(classroomId);
+      const response = await ClassroomApi.getTeacherAssignments(classroomId);
       setAssignments(response.assignments || []);
     } catch (err) {
       setError('Failed to fetch assignments');
@@ -244,7 +244,7 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
   const handleViewSubmissions = useCallback(async (assignment) => {
     try {
       setSelectedAssignment(assignment);
-      const response = await ApiService.getAssignmentSubmissions(assignment.id);
+      const response = await ClassroomApi.getAssignmentSubmissions(assignment.id);
       setSubmissions(response.submissions || []);
       setShowSubmissions(true);
     } catch (err) {
@@ -260,13 +260,13 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
   // Submit grade (Formik onSubmit handler)
   const handleSubmitGrade = useCallback(async (values, { setSubmitting, resetForm }) => {
     try {
-      await ApiService.gradeAssignment(
+      await ClassroomApi.gradeAssignment(
         gradingSubmission.id,
         parseFloat(values.grade),
         values.feedback
       );
       // Refresh submissions
-      const response = await ApiService.getAssignmentSubmissions(selectedAssignment.id);
+      const response = await ClassroomApi.getAssignmentSubmissions(selectedAssignment.id);
       setSubmissions(response.submissions || []);
       setGradingSubmission(null);
       resetForm();

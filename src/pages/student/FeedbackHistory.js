@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import ApiService from '../../utils/api';
+import { GradingApi } from '../../api/grading';
 
 // Spinner for loading state
 const LoadingSpinner = React.memo(() => (
@@ -57,7 +57,7 @@ export const FeedbackHistory = React.memo(() => {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.get('/grading/get-student-feedback-history.php');
+      const response = await GradingApi.getFeedbackHistory();
       if (response.success) {
         setFeedback(response.feedback);
       } else {

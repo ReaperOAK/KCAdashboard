@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import ApiService from '../../utils/api';
+import { AnalyticsApi } from '../../api/analytics';
+import { AttendanceApi } from '../../api/attendance';
+import { GradingApi } from '../../api/grading';
 
 // --- Grading Prompt Modal ---
 const GradingPrompt = ({ sessions, onClose }) => {
@@ -163,7 +165,7 @@ export default function TeacherDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.getTeacherDashboardStats();
+      const response = await AnalyticsApi.getTeacherDashboardStats();
       if (response.success) {
         setStats(response.stats);
         setRecentActivities(response.recentActivities || []);
@@ -173,7 +175,7 @@ export default function TeacherDashboard() {
       // Fetch pending attendance sessions
       if (user && user.id) {
         try {
-          const pending = await ApiService.getPendingAttendanceSessions(user.id);
+          const pending = await AttendanceApi.getPendingAttendanceSessions(user.id);
           if (pending && pending.sessions && pending.sessions.length > 0) {
             setPendingAttendance(pending.sessions);
             setShowAttendancePrompt(true);
@@ -183,7 +185,7 @@ export default function TeacherDashboard() {
         }
         // Fetch pending grading sessions
         try {
-          const pendingGradingRes = await ApiService.getPendingGradingSessions(user.id);
+          const pendingGradingRes = await GradingApi.getPendingGradingSessions(user.id);
           if (pendingGradingRes && pendingGradingRes.sessions && pendingGradingRes.sessions.length > 0) {
             setPendingGrading(pendingGradingRes.sessions);
             setShowGradingPrompt(true);

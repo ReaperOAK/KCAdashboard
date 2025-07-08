@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ChessBoard from '../../components/chess/ChessBoard';
 import ChessNavigation from '../../components/chess/ChessNavigation';
-import ApiService from '../../utils/api';
+import { ChessApi } from '../../api/chess';
 
 // --- Loading Spinner ---
 const LoadingSpinner = React.memo(({ label }) => (
@@ -173,7 +173,7 @@ const InteractiveBoard = React.memo(() => {
 
   // Fetch active games for switcher (simul support)
   useEffect(() => {
-    ApiService.getChessGames('active').then(res => {
+    ChessApi.getChessGames('active').then(res => {
       if (res.success && Array.isArray(res.games)) {
         let userId = null;
         try {
@@ -209,7 +209,7 @@ const InteractiveBoard = React.memo(() => {
   const pollGameUpdates = useCallback(async () => {
     if (!id) return;
     try {
-      const response = await ApiService.getGameDetails(id);
+      const response = await ChessApi.getGameDetails(id);
       if (response.success && response.game) {
         if (response.game.status && response.game.status !== 'active') {
           alert('Game over: ' + (response.game.reason || response.game.status) + '\nYou will be redirected to the game lobby.');
@@ -232,7 +232,7 @@ const InteractiveBoard = React.memo(() => {
   const fetchMoveHistory = useCallback(async (gameId) => {
     if (!gameId) return;
     try {
-      const res = await ApiService.getMoveHistory(gameId);
+      const res = await ChessApi.getMoveHistory(gameId);
       if (res && res.success) {
         setPgn(res.pgn || '');
         setMoveHistory(res.moves || []);
@@ -249,7 +249,7 @@ const InteractiveBoard = React.memo(() => {
       const loadGame = async () => {
         try {
           setLoading(true);
-          const response = await ApiService.getGameDetails(id);
+          const response = await ChessApi.getGameDetails(id);
           if (response.success && response.game) {
             setGameData(response.game);
             setPosition(response.game.position || 'start');
@@ -284,7 +284,7 @@ const InteractiveBoard = React.memo(() => {
     if (!id) {
       const checkForAcceptedChallenges = async () => {
         try {
-          const response = await ApiService.getChallenges();
+          const response = await ChessApi.getChallenges();
           if (response.success && response.challenges) {
             const acceptedChallenge = response.challenges.find(
               c => c.direction === 'outgoing' && c.gameId && c.status === 'accepted'
@@ -312,14 +312,14 @@ const InteractiveBoard = React.memo(() => {
     try {
       setPosition(fen);
       setGameData(prev => ({ ...prev, yourTurn: false }));
-      const moveResponse = await ApiService.makeGameMove(id, move, fen);
+      const moveResponse = await ChessApi.makeGameMove(id, move, fen);
       // Immediately update lastMoveAt from backend response for timer sync
       if (moveResponse && moveResponse.lastMoveAt) {
         setLastMoveAt(moveResponse.lastMoveAt);
       }
       fetchMoveHistory(id);
     } catch {
-      const response = await ApiService.getGameDetails(id);
+      const response = await ChessApi.getGameDetails(id);
       if (response.success && response.game) {
         setGameData(response.game);
         setPosition(response.game.position);

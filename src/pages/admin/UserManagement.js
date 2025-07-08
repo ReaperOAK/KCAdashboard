@@ -4,7 +4,7 @@ import UserTable from '../../components/user-management/UserTable';
 import Filters from '../../components/user-management/Filters';
 import EditUserModal from '../../components/user-management/Modals/EditUserModal';
 import { useAuth } from '../../hooks/useAuth';
-import ApiService from '../../utils/api';
+import { UsersApi } from '../../api/users';
 import PERMISSIONS from '../../utils/permissions';
 
 
@@ -150,7 +150,7 @@ const UserManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await ApiService.get(`/users/get-all.php?filter=${filter}&search=${searchTerm}`);
+      const response = await UsersApi.getAll(filter, searchTerm);
       setUsers(response.users);
     } catch (error) {
       setError('Failed to fetch users');
@@ -168,10 +168,7 @@ const UserManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      await ApiService.post('/users/update-status.php', {
-        user_id: userId,
-        status,
-      });
+      await UsersApi.updateStatus(userId, status);
       await fetchUsers();
     } catch (error) {
       setError('Failed to update user status');
@@ -183,11 +180,7 @@ const UserManagement = () => {
   const handleRoleChange = useCallback(async (userId, newRole) => {
     setError(null);
     try {
-      const response = await ApiService.post('/users/update-role.php', {
-        user_id: userId,
-        role: newRole,
-        current_user_id: currentUser.id,
-      });
+      const response = await UsersApi.updateRole(userId, newRole, currentUser.id);
       if (!response.success) throw new Error(response.message || 'Failed to update role');
       setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
       await fetchUsers();
@@ -200,7 +193,7 @@ const UserManagement = () => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await ApiService.post('/users/update.php', {
+      const response = await UsersApi.update({
         user_id: selectedUser.id,
         full_name: selectedUser.full_name,
         email: selectedUser.email,
@@ -222,15 +215,10 @@ const UserManagement = () => {
     setError(null);
     try {
       if (action === 'activate' || action === 'deactivate') {
-        await ApiService.post('/users/bulk-update-status.php', {
-          user_ids: selectedUsers,
-          status: action === 'activate' ? 'active' : 'inactive',
-        });
+        await UsersApi.bulkUpdateStatus(selectedUsers, action === 'activate' ? 'active' : 'inactive');
       } else if (action === 'delete') {
         if (window.confirm('Are you sure you want to delete these users?')) {
-          await ApiService.post('/users/bulk-delete.php', {
-            user_ids: selectedUsers,
-          });
+          await UsersApi.bulkDelete(selectedUsers);
         } else {
           return;
         }
@@ -252,10 +240,7 @@ const UserManagement = () => {
         name: permission,
         id: PERMISSIONS_MAP[permission],
       }));
-      const response = await ApiService.post('/users/update-permissions.php', {
-        user_id: userId,
-        permissions: permissionIds,
-      });
+      const response = await UsersApi.updatePermissions(userId, permissionIds);
       if (!response.success) throw new Error(response.message || 'Failed to update permissions');
       setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, permissions } : user)));
       setShowPermissionsModal(false);
@@ -268,10 +253,7 @@ const UserManagement = () => {
     if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
     setError(null);
     try {
-      const response = await ApiService.post('/users/delete.php', {
-        user_id: userId,
-        current_user_id: currentUser.id,
-      });
+      const response = await UsersApi.delete(userId, currentUser.id);
       if (response.success) {
         await fetchUsers();
         alert('User deleted successfully');

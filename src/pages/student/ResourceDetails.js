@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import {ResourcesApi} from '../../api/resources';
 import { useAuth } from '../../hooks/useAuth';
 
 // --- Utility: Resource Icon ---
@@ -207,7 +207,7 @@ export default function ResourceDetails() {
     let isMounted = true;
     const fetchResourceDetails = async () => {
       try {
-        const response = await ApiService.get(`/resources/get-by-id.php?id=${id}`);
+        const response = await ResourcesApi.getById(id);
         if (isMounted) {
           if (response.resource) {
             setResource(response.resource);
@@ -233,9 +233,9 @@ export default function ResourceDetails() {
     if (!resource) return;
     try {
       if (resource.is_bookmarked) {
-        await ApiService.unbookmarkResource(resource.id);
+        await ResourcesApi.unbookmarkResource(resource.id);
       } else {
-        await ApiService.bookmarkResource(resource.id);
+        await ResourcesApi.bookmarkResource(resource.id);
       }
       setResource(r => r ? { ...r, is_bookmarked: !r.is_bookmarked } : r);
     } catch (err) {
@@ -247,10 +247,10 @@ export default function ResourceDetails() {
     if (!resource) return;
     try {
       if (resource.type === 'link' || resource.type === 'video') {
-        await ApiService.post('/resources/log-access.php', { resource_id: resource.id });
+        await ResourcesApi.logResourceAccess(resource.id);
         window.open(resource.url, '_blank', 'noopener');
       } else {
-        window.open(ApiService.getResourceDownloadUrl(resource.id), '_blank', 'noopener');
+        window.open(ResourcesApi.getResourceDownloadUrl(resource.id), '_blank', 'noopener');
       }
     } catch (err) {
       // Optionally show error toast

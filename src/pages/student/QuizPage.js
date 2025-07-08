@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import QuizCard from '../../components/student/QuizCard';
 import { FaSearch, FaTrophy, FaHistory } from 'react-icons/fa';
 
@@ -124,10 +124,14 @@ export default function QuizPage() {
     let isMounted = true;
     const fetchQuizzes = async () => {
       try {
-        const endpoint = activeFilter === 'all'
-          ? '/quiz/get-all.php'
-          : `/quiz/get-by-difficulty.php?difficulty=${activeFilter}`;
-        const response = await ApiService.get(endpoint);
+        let response;
+        if (activeFilter === 'all') {
+          response = await QuizApi.getAll();
+        } else if (QuizApi.getByDifficulty) {
+          response = await QuizApi.getByDifficulty(activeFilter);
+        } else {
+          response = { quizzes: [] };
+        }
         if (isMounted) {
           setQuizzes(response.quizzes);
           setError(null);

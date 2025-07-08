@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../../utils/api';
+import { QuizApi } from '../../api/quiz';
 import { FaHistory, FaFilter, FaChartLine, FaTrophy, FaEye } from 'react-icons/fa';
 
 // --- Utility: Format time ---
@@ -211,7 +211,7 @@ const QuizHistoryPage = () => {
   useEffect(() => {
     const fetchQuizHistory = async () => {
       try {
-        const response = await ApiService.get(`/quiz/get-user-history.php?filter=${filter}`);
+        const response = QuizApi.getUserHistory ? await QuizApi.getUserHistory(filter) : { history: [], stats: null };
         setQuizHistory(response.history);
         setStats(response.stats);
         setLoading(false);

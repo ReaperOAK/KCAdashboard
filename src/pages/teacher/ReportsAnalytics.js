@@ -186,7 +186,6 @@ const ExportModal = React.memo(function ExportModal({ open, onClose, exportType,
 export const ReportsAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [debugInfo, setDebugInfo] = useState(null);
   const [stats, setStats] = useState({
     attendanceData: { labels: [], datasets: [] },
     performanceData: { labels: [], datasets: [] },
@@ -202,12 +201,8 @@ export const ReportsAnalytics = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    setDebugInfo(null);
+
     try {
-      // Debug: Check if we have auth token
-      const token = localStorage.getItem('token');
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      setDebugInfo(`User: ${user.name || 'Unknown'}, Role: ${user.role || 'Unknown'}, Token: ${token ? 'Present' : 'Missing'}`);
       // Use AnalyticsApi for teacher stats
       const batchId = selectedBatch !== 'all' ? selectedBatch : 'all';
       const response = await AnalyticsApi.getTeacherStats(batchId);
@@ -276,12 +271,7 @@ export const ReportsAnalytics = () => {
             </button>
           </div>
         </div>
-        {/* Debug Info - Show only in development */}
-        {process.env.NODE_ENV === 'development' && debugInfo && (
-          <div className="bg-blue-100 p-2 rounded mb-4 text-sm text-blue-800">
-            <strong>Debug:</strong> {debugInfo}
-          </div>
-        )}
+       
         {loading ? (
           <LoadingSkeleton />
         ) : error ? (

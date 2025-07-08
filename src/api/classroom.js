@@ -31,8 +31,4 @@ export const ClassroomApi = {
   removeStudentFromClassroom: (classroomId, studentId) => post('/classroom/remove-student.php', { classroom_id: classroomId, student_id: studentId }),
   getClassroomStudents: (classroomId) => get(`/classroom/get-students.php?classroom_id=${classroomId}`),
   enrollInClassroom: (classroomId) => post('/classroom/enroll.php', { classroom_id: classroomId }),
-  debugClassroom: (classroomId = null) => {
-    const endpoint = classroomId ? `/classroom/debug-classroom.php?id=${classroomId}` : '/classroom/debug-classroom.php';
-    return get(endpoint);
-  },
 };

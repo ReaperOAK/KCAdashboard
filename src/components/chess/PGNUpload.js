@@ -192,7 +192,6 @@ export const PGNUpload = React.memo(function PGNUpload({
         moves: [], // Empty moves array for manual parser - PGNViewer will handle this gracefully
         moveCount: moveCount,
         headerCount: Object.keys(headers).length,
-        _rawMoveText: cleanMoveText.substring(0, 100) + '...', // Debug info
         _isManuallyParsed: true // Flag to indicate this came from manual parser
       });
     }

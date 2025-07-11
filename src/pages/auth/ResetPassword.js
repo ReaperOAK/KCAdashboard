@@ -4,6 +4,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 
 
 const RequestResetSchema = Yup.object({
@@ -24,31 +26,36 @@ const ResetPasswordSchema = Yup.object({
 const MessageBanner = React.memo(function MessageBanner({ message }) {
   if (!message) return null;
   return (
-    <div
+    <motion.div
       className="bg-secondary text-white p-4 rounded text-center"
       role="status"
       aria-live="polite"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
       {message}
-    </div>
+    </motion.div>
   );
 });
 
 const EmailField = React.memo(function EmailField() {
   return (
     <div>
-      <label htmlFor="email" className="text-sm font-medium text-gray-dark block">
-        Email address
+      <label htmlFor="email" className="text-sm font-medium text-gray-dark block flex items-center gap-1">
+        <EnvelopeIcon className="w-4 h-4 text-accent" /> Email address
       </label>
-      <Field
-        id="email"
-        name="email"
-        type="email"
-        autoComplete="email"
-        className="mt-1 block w-full rounded-md border border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-        aria-required="true"
-        aria-label="Email address"
-      />
+      <div className="relative">
+        <Field
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          className="mt-1 block w-full rounded-md border border-gray-light shadow-sm focus:border-secondary focus:ring-secondary pr-10"
+          aria-required="true"
+          aria-label="Email address"
+        />
+        <EnvelopeIcon className="w-5 h-5 text-gray-300 absolute right-3 top-2.5 pointer-events-none" />
+      </div>
       <ErrorMessage name="email" component="div" className="text-red-600 text-sm mt-1" />
     </div>
   );
@@ -58,33 +65,39 @@ const PasswordFields = React.memo(function PasswordFields() {
   return (
     <>
       <div>
-        <label htmlFor="password" className="text-sm font-medium text-gray-dark block">
-          New Password
+        <label htmlFor="password" className="text-sm font-medium text-gray-dark block flex items-center gap-1">
+          <LockClosedIcon className="w-4 h-4 text-accent" /> New Password
         </label>
-        <Field
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          className="mt-1 block w-full rounded-md border border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-          aria-required="true"
-          aria-label="New password"
-        />
+        <div className="relative">
+          <Field
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            className="mt-1 block w-full rounded-md border border-gray-light shadow-sm focus:border-secondary focus:ring-secondary pr-10"
+            aria-required="true"
+            aria-label="New password"
+          />
+          <LockClosedIcon className="w-5 h-5 text-gray-300 absolute right-3 top-2.5 pointer-events-none" />
+        </div>
         <ErrorMessage name="password" component="div" className="text-red-600 text-sm mt-1" />
       </div>
       <div>
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-dark block">
-          Confirm New Password
+        <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-dark block flex items-center gap-1">
+          <LockClosedIcon className="w-4 h-4 text-accent" /> Confirm New Password
         </label>
-        <Field
-          id="confirmPassword"
-          name="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          className="mt-1 block w-full rounded-md border border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-          aria-required="true"
-          aria-label="Confirm new password"
-        />
+        <div className="relative">
+          <Field
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            className="mt-1 block w-full rounded-md border border-gray-light shadow-sm focus:border-secondary focus:ring-secondary pr-10"
+            aria-required="true"
+            aria-label="Confirm new password"
+          />
+          <LockClosedIcon className="w-5 h-5 text-gray-300 absolute right-3 top-2.5 pointer-events-none" />
+        </div>
         <ErrorMessage name="confirmPassword" component="div" className="text-red-600 text-sm mt-1" />
       </div>
     </>
@@ -99,7 +112,12 @@ const SubmitButton = React.memo(function SubmitButton({ isSubmitting, token }) {
       className="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:bg-gray-dark disabled:text-gray-light disabled:cursor-not-allowed transition-colors"
       aria-busy={isSubmitting}
     >
-      {isSubmitting ? 'Processing...' : token ? 'Reset Password' : 'Send Reset Instructions'}
+      {isSubmitting ? (
+        <span className="flex items-center gap-2">
+          <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+          Processing...
+        </span>
+      ) : token ? 'Reset Password' : 'Send Reset Instructions'}
     </button>
   );
 });
@@ -144,7 +162,12 @@ function ResetPassword() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-light">
+    <motion.div
+      className="min-h-screen flex items-center justify-center bg-background-light"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg" role="form" aria-labelledby="reset-password-title">
         <h2 id="reset-password-title" className="text-3xl font-bold text-primary text-center">
           {token ? 'Reset Your Password' : 'Request Password Reset'}
@@ -165,7 +188,7 @@ function ResetPassword() {
           )}
         </Formik>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

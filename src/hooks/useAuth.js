@@ -24,7 +24,7 @@ function useProvideAuth() {
         } catch (error) {
           // If token is invalid, clear auth data
           // eslint-disable-next-line no-console
-          console.log('Token validation failed:', error);
+          
           logout();
         }
       }

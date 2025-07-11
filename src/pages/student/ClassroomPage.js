@@ -1,90 +1,11 @@
 
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ClassroomApi } from '../../api/classroom';
-import { Link } from 'react-router-dom';
-
-
-// Loading spinner (accessible, reusable)
-const LoadingSpinner = React.memo(() => (
-  <div className="flex items-center justify-center min-h-screen bg-background-light" role="status" aria-live="polite">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4" aria-label="Loading"></div>
-      <p className="text-secondary">Loading classes...</p>
-    </div>
-  </div>
-));
-
-// Error state (accessible, reusable)
-const ErrorState = React.memo(({ error }) => (
-  <div className="flex items-center justify-center min-h-screen bg-background-light" role="alert" aria-live="assertive">
-    <div className="text-center">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-        {error}
-      </div>
-    </div>
-  </div>
-));
-
-// Status badge (memoized)
-const StatusBadge = React.memo(({ status }) => {
-  let badgeClass = 'bg-gray-light text-gray-dark';
-  if (status === 'active') badgeClass = 'bg-green-100 text-green-800';
-  else if (status === 'upcoming') badgeClass = 'bg-blue-100 text-blue-800';
-  return (
-    <span className={`ml-2 px-2 py-1 rounded-full text-xs ${badgeClass}`}>{status}</span>
-  );
-});
-
-// Enrolled class card (memoized)
-const EnrolledClassCard = React.memo(({ classroom }) => (
-  <div className="bg-white rounded-xl shadow-md overflow-hidden" role="region" aria-label={classroom.name}>
-    <div className="p-6">
-      <h2 className="text-xl font-semibold text-secondary mb-2">{classroom.name}</h2>
-      <p className="text-gray-dark mb-4">{classroom.description}</p>
-      <div className="text-sm text-gray-dark">
-        <p><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</p>
-        <p><span className="font-semibold">Schedule:</span> {classroom.schedule}</p>
-        <p><span className="font-semibold">Status:</span> <StatusBadge status={classroom.status} /></p>
-      </div>
-    </div>
-    <div className="px-6 py-4 bg-gray-light/30 border-t">
-      <Link
-        to={`/student/classes/${classroom.id}`}
-        className="block w-full text-center text-secondary hover:text-accent focus:outline-none focus:underline"
-        aria-label={`View details for ${classroom.name}`}
-      >
-        View Details →
-      </Link>
-    </div>
-  </div>
-));
-
-// Available class card (memoized)
-const AvailableClassCard = React.memo(({ classroom, enrolling, enrollSuccess, enrollError, onEnroll }) => (
-  <div className="bg-white border-2 border-dashed border-gray-light rounded-xl overflow-hidden" role="region" aria-label={classroom.name}>
-    <div className="p-6">
-      <h2 className="text-xl font-semibold text-secondary mb-2">{classroom.name}</h2>
-      <p className="text-gray-dark mb-4">{classroom.description}</p>
-      <div className="text-sm text-gray-dark mb-4">
-        <p><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</p>
-        <p><span className="font-semibold">Schedule:</span> {classroom.schedule}</p>
-        <p><span className="font-semibold">Level:</span> {classroom.level}</p>
-        <p><span className="font-semibold">Availability:</span> <span className="ml-1 text-green-600">{classroom.available_slots} slots left</span></p>
-      </div>
-      <button
-        onClick={() => onEnroll(classroom.id)}
-        disabled={enrolling === classroom.id}
-        className="w-full px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
-        aria-label={`Enroll in ${classroom.name}`}
-      >
-        {enrolling === classroom.id ? 'Enrolling...' : enrollSuccess === classroom.id ? 'Enrolled!' : 'Enroll Now'}
-      </button>
-      {enrollError && enrolling === classroom.id && (
-        <p className="mt-2 text-sm text-red-600">{enrollError}</p>
-      )}
-    </div>
-  </div>
-));
+import LoadingSpinner from '../../components/classroom/LoadingSpinner';
+import ErrorState from '../../components/classroom/ErrorState';
+import EnrolledClassCard from '../../components/classroom/EnrolledClassCard';
+import AvailableClassCard from '../../components/classroom/AvailableClassCard';
 
 // Main classroom page
 export const ClassroomPage = React.memo(() => {

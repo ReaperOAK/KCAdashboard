@@ -22,7 +22,7 @@ pages/admin/
   StudentAttendanceList.js     # List of student attendance records
   SupportSystem.js             # Admin support system page
   TournamentManagement.js      # Admin tournament management
-  TournamentRegistrations.js   # Manage tournament registrations
+  TournamentRegistrations.js   # Manage tournament registrations (modular, imports subcomponents)
   UserActivity.js              # View user activity logs
   UserActivityPage.js          # Detailed user activity page
   UserAttendanceReport.js      # Attendance report for users
@@ -56,6 +56,12 @@ pages/admin/
   - **Admins** can view, edit, delete, and publish all quizzes on the platform.
   - **Teachers** can view, edit, delete, and publish their own quizzes.
   - Includes filters for difficulty and status, and a leaderboard button for each quiz.
+  - Uses modular, single-responsibility components from `src/components/quiz/`:
+    - `QuizLoadingSkeleton`: Loading spinner and message
+    - `QuizErrorAlert`: Error message display
+    - `DeleteQuizModal`: Accessible modal for quiz deletion
+    - `QuizTableRow`: Table row for quiz data and actions
+  - See `src/components/quiz/docs.md` for details and usage patterns.
 
 - **AdminQuizEditor.js**  
   Admin quiz editing page, allows admins to edit any quiz using the same interface as teachers. Uses the same component as teacher quiz editor for consistency.
@@ -72,8 +78,18 @@ pages/admin/
 - **TournamentManagement.js**  
   Manage chess tournaments, including creation, scheduling, and results.
 
-- **TournamentRegistrations.js**  
-  View and manage registrations for tournaments.
+-- **TournamentRegistrations.js**  
+  View and manage registrations for tournaments. Now fully modular:
+  - Imports and composes the following from `src/components/tournaments/`:
+    - `RegistrationsSkeleton.js`: Loading spinner and message
+    - `ErrorAlert.js`: Error message display
+    - `TournamentInfo.js`: Tournament info card
+    - `FilterExportBar.js`: Filter and export controls
+    - `RegistrationsTable.js`: Table of registrations
+    - `PaymentModal.js`: Accessible modal for payment screenshot/approval
+  - Each subcomponent is single-responsibility, memoized, and uses the color system.
+  - All UI is responsive, accessible, and beautiful.
+  - See `src/components/tournaments/docs.md` for details and usage patterns.
 
 - **UserActivity.js**  
   View recent activity logs for users, including actions and events.

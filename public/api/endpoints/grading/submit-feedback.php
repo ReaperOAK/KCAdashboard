@@ -44,28 +44,32 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Prepare statement to insert feedback
+    // Accept session_id if provided
+    $sessionId = isset($data['session_id']) ? intval($data['session_id']) : null;
+
+    // Prepare statement to insert feedback (now with session_id)
     $query = "INSERT INTO student_feedback 
-                (student_id, teacher_id, rating, comment, areas_of_improvement, strengths, created_at) 
+                (student_id, teacher_id, session_id, rating, comment, areas_of_improvement, strengths, created_at) 
               VALUES 
-                (:student_id, :teacher_id, :rating, :comment, :areas_of_improvement, :strengths, NOW())";
+                (:student_id, :teacher_id, :session_id, :rating, :comment, :areas_of_improvement, :strengths, NOW())";
 
     $stmt = $db->prepare($query);
-    
+
     // Sanitize and bind parameters
     $studentId = htmlspecialchars(strip_tags($data['student_id']));
     $rating = intval($data['rating']);
     $comment = isset($data['comment']) ? htmlspecialchars(strip_tags($data['comment'])) : '';
     $areasOfImprovement = isset($data['areas_of_improvement']) ? htmlspecialchars(strip_tags($data['areas_of_improvement'])) : '';
     $strengths = isset($data['strengths']) ? htmlspecialchars(strip_tags($data['strengths'])) : '';
-    
+
     $stmt->bindParam(':student_id', $studentId);
     $stmt->bindParam(':teacher_id', $teacherId);
+    $stmt->bindParam(':session_id', $sessionId);
     $stmt->bindParam(':rating', $rating);
     $stmt->bindParam(':comment', $comment);
     $stmt->bindParam(':areas_of_improvement', $areasOfImprovement);
     $stmt->bindParam(':strengths', $strengths);
-    
+
     // Execute query
     if ($stmt->execute()) {
         // Notify student using NotificationService

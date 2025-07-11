@@ -1,3 +1,19 @@
+## Documentation & Changelog Updates
+- After any major refactor or feature addition, update:
+  - `README.md` with new features and improvements
+  - `CHANGELOG.md` with a summary of changes
+  - Any relevant `docs.md` files for affected features or components
+  - For classroom, quiz, analytics, and leaderboard UI/UX changes, document all new/updated components and patterns in the relevant feature folder and main docs.
+# Classroom, Quiz, Analytics, and Leaderboard UI/UX Refactor (July 2025)
+- All classroom, quiz, analytics, and leaderboard UIs must use modular, single-responsibility React components in their respective folders.
+- All new or updated components must be documented in the relevant feature folder and `docs.md`.
+- Ensure all interactive elements are accessible, responsive, and use color tokens and icons as per the design system in `colour_scheme.md`.
+- After any major UI/UX change, update the main `README.md` and `CHANGELOG.md`.
+## Tournaments UI Modularity & Documentation (July 2025)
+- All tournament-related UI must use modular, single-responsibility React components in `src/components/tournaments/`.
+- All new or updated tournament UI components must be documented in `src/components/tournaments/README.md` and `docs.md`.
+- Ensure all interactive elements are accessible, responsive, and use color tokens and icons as per the design system.
+- After any major tournaments UI change, update the main `README.md` and `CHANGELOG.md`.
 # Notification System Coding Standards (July 2025)
 
 - All notification-related backend endpoints must use NotificationService for sending, deleting, and managing notifications. Do not insert directly into the notifications table or call models directly for notification logic.
@@ -12,7 +28,24 @@
   - Direct access to files in the `uploads/` directory must be blocked at the web server level (HTTP 403). All downloads and in-browser viewing must go through the backend API, which enforces authentication and authorization. Use the `SecureFileViewer` React component for secure inline viewing of PDF and image resources. Update docs and tests accordingly.
 - When updating resource download logic, ensure resource-level access control is enforced: only owners, admins, or users with whom the resource is shared (directly, via batch, or classroom) can download. Update docs and tests accordingly.
   - Direct access to files in the `uploads/` directory must be blocked at the web server level (HTTP 403). All downloads must go through the backend API, which enforces authentication and authorization. Update docs and tests accordingly.
+
 # Contributing
+
+## UI/UX & Frontend Coding Standards (June 2024)
+- All major UI/UX changes must:
+  - Use design tokens for color, spacing, and typography.
+  - Ensure accessibility (keyboard navigation, screen reader support, color contrast, ARIA labels where needed).
+  - Use Framer Motion for animation and Heroicons for icons where appropriate.
+  - Be fully responsive and tested on all major device sizes.
+  - Update all relevant documentation and changelogs after significant UI/UX changes.
+  - Follow component and file naming conventions, and keep code modular and well-commented.
+
+## Documentation & Changelog Updates
+- After any major refactor or feature addition, update:
+  - `README.md` with new features and improvements
+  - `CHANGELOG.md` with a summary of changes
+  - Any relevant `docs.md` files for affected features or components
+
 
 ## Scheduling Overlap Prevention
 - Teachers cannot schedule more than one class at the same time. The backend checks for overlapping sessions for the same teacher and rejects any new session that conflicts. The frontend displays a clear error message if this occurs. Update tests and documentation to reflect this rule.

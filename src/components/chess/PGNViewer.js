@@ -99,11 +99,11 @@ export const PGNViewer = React.memo(function PGNViewer({
         return;
       }
 
-      console.log('Parsing PGN:', pgnText.substring(0, 200) + '...');
+      
 
       // Use @mliebelt/pgn-parser for complex PGN parsing
       const parsedGames = parse(pgnText, { startRule: 'games' });
-      console.log('PGN parsed successfully, games found:', parsedGames.length);
+      
       
       const processedGames = parsedGames.map((game, index) => {
         const chess = new Chess();
@@ -114,7 +114,7 @@ export const PGNViewer = React.memo(function PGNViewer({
         // Extract headers
         const headers = {};
         if (game.tags) {
-          console.log('Processing tags for game', index, '- Type:', typeof game.tags, 'IsArray:', Array.isArray(game.tags));
+          
           
           // Handle both array and object formats
           if (Array.isArray(game.tags)) {
@@ -231,7 +231,7 @@ export const PGNViewer = React.memo(function PGNViewer({
           if (hasValidMoves) {
             processMoves(game.moves);
           } else {
-            console.log('Game has moves array but no valid move notations - likely manually parsed');
+            
           }
         }
 

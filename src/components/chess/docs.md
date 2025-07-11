@@ -1,3 +1,8 @@
+### MoveTimer.js
+Accessible, beautiful timer for per-move countdown in PvP games. Uses color tokens and ARIA live region. Props: `timeLeft`, `formatTimer`.
+
+### GameStatus.js
+Shows current turn and timer with icon and color. Uses color tokens, transitions, and ARIA live. Props: `yourTurn`, `timeLeft`, `formatTimer`.
 # KCAdashboard Frontend – Chess Components Documentation
 
 ## Overview
@@ -27,7 +32,26 @@ components/chess/
 
 ---
 
-## File Explanations
+
+## PlayerVsPlayer Modular Subcomponents (July 2025)
+
+### TabButton.js
+Memoized tab button for navigation tabs. Props: `isActive`, `onClick`, `children`, `badge`, `ariaLabel`.
+
+### LoadingState.js
+Displays a centered loading indicator for async states.
+
+### ErrorState.js
+Displays an error message and retry button. Props: `error`, `onRetry`.
+
+### ComputerSettings.js
+Settings panel for "Play Computer" tab. Props: `engineLevel`, `setEngineLevel`, `engineColor`, `setEngineColor`, `useOnlineAPI`, `setUseOnlineAPI`.
+
+### StatsPanel.js
+Displays user chess statistics and recent games. Prop: `playerStats`.
+
+---
+These components are used in `PlayerVsPlayer.js` for modularity, reusability, and design system compliance.
 
 - **AcceptedGamesModal.js**  
   Modal dialog displaying a list of accepted chess games for the user.
@@ -91,6 +115,22 @@ components/chess/
 - Keep components focused and reusable.
 - Document component props and usage for maintainability.
 - Use modular design for chess features to support future expansion.
+
+---
+
+## PGN Management Modular Subcomponents (August 2025)
+
+### FeatureHighlights.js
+Highlights PGN features for the management page. Uses color tokens and is fully responsive.
+
+### TabNav.js
+Tab navigation for chess pages. Now supports both dynamic (PGN management) and legacy (static) tab modes. Uses color tokens, icons, and ARIA roles for accessibility.
+
+### QuickActions.js
+Quick start actions for PGN management. Uses design tokens and is fully responsive.
+
+### UploadHelpSection.js
+PGN format help for uploads. Uses design tokens and is fully responsive.
 
 ---
 

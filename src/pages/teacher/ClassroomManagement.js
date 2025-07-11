@@ -1,100 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { ClassroomApi } from '../../api/classroom';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
 import AttendanceModal from '../../components/classroom/AttendanceModal';
 import MaterialsView from '../../components/classroom/MaterialsView';
 import AssignmentsView from '../../components/classroom/AssignmentsView';
-
-// --- Loading Skeleton ---
-const LoadingSkeleton = React.memo(() => (
-  <div className="animate-pulse text-center py-8" role="status" aria-busy="true">
-    <div className="h-6 bg-gray-light rounded w-1/3 mx-auto mb-4" />
-    <div className="h-4 bg-gray-light rounded w-1/2 mx-auto" />
-  </div>
-));
-
-// --- Error Alert ---
-const ErrorAlert = React.memo(({ message, onClose }) => (
-  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 flex items-center justify-between mb-4" role="alert" aria-live="assertive">
-    <span>{message}</span>
-    {onClose && (
-      <button onClick={onClose} aria-label="Dismiss error" className="ml-4 text-white hover:text-gray-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-800 rounded">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-      </button>
-    )}
-  </div>
-));
-
-// --- Classroom Card ---
-const ClassroomCard = React.memo(({ classroom, onCardClick, onSchedule, onAssignment, onMaterials }) => (
-  <div
-    className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-    tabIndex={0}
-    aria-label={`Classroom: ${classroom.name}`}
-    onClick={() => onCardClick(classroom)}
-    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { onCardClick(classroom); } }}
-    role="button"
-  >
-    <div className="p-6">
-      <h3 className="text-xl font-semibold text-secondary mb-2">{classroom.name}</h3>
-      <p className="text-gray-600 mb-4">{classroom.description}</p>
-      <div className="text-sm text-gray-500">
-        <p><span className="font-semibold">Students:</span> {classroom.student_count}</p>
-        <p><span className="font-semibold">Next Class:</span> {classroom.next_session || 'Not scheduled'}</p>
-      </div>
-    </div>
-    <div className="px-6 py-4 bg-gray-50 border-t flex flex-wrap gap-2 justify-between">
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); onSchedule(); }}
-        className="text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-2 py-1"
-        aria-label={`Schedule class for ${classroom.name}`}
-      >
-        Schedule Class
-      </button>
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); onAssignment(); }}
-        className="text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-2 py-1"
-        aria-label={`Create assignment for ${classroom.name}`}
-      >
-        Create Assignment
-      </button>
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); onMaterials(); }}
-        className="text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-2 py-1"
-        aria-label={`Add materials for ${classroom.name}`}
-      >
-        Add Materials
-      </button>
-    </div>
-  </div>
-));
-
-// --- View Switcher ---
-const ViewSwitcher = React.memo(({ currentView, onSwitch }) => {
-  const views = useMemo(() => [
-    { key: 'calendar', label: 'Calendar' },
-    { key: 'materials', label: 'Materials' },
-    { key: 'assignments', label: 'Assignments' },
-  ], []);
-  return (
-    <nav aria-label="Classroom views" className="flex space-x-2">
-      {views.map(view => (
-        <button
-          key={view.key}
-          type="button"
-          className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${currentView === view.key ? 'bg-secondary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-          aria-current={currentView === view.key ? 'page' : undefined}
-          onClick={() => onSwitch(view.key)}
-        >
-          {view.label}
-        </button>
-      ))}
-    </nav>
-  );
-});
+import LoadingSkeleton from '../../components/classroom/LoadingSkeleton';
+import ErrorAlert from '../../components/classroom/ErrorAlert';
+import ClassroomCard from '../../components/classroom/ClassroomCard';
+import ViewSwitcher from '../../components/classroom/ViewSwitcher';
+import ModalOverlay from '../../components/classroom/ModalOverlay';
 
 
 // --- Main Component ---
@@ -666,21 +581,5 @@ function ClassroomManagement() {
   );
 }
 
-// --- Modal Overlay (for accessibility, focus trap, and escape close) ---
-const ModalOverlay = React.memo(function ModalOverlay({ children, onClose }) {
-  // Trap focus and close on Escape
-  useEffect(() => {
-    function handleKeyDown(e) {
-      if (e.key === 'Escape' && onClose) onClose();
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]" tabIndex={-1} aria-modal="true" role="dialog">
-      {children}
-    </div>
-  );
-});
 
 export default ClassroomManagement;

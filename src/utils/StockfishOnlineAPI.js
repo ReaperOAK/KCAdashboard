@@ -37,7 +37,7 @@ class StockfishOnlineAPI {
         url.searchParams.append('depth', safeDepth);
 
         // Accessible logging for DX (can be removed in prod)
-        // console.log(`[Stockfish] Request: ${fen.substring(0, 20)}...`);
+        
 
 
         const response = await fetch(url.toString());

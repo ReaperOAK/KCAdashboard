@@ -2,58 +2,102 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { AnalyticsApi } from '../../api/analytics';
-
+import { motion } from 'framer-motion';
+import { UserCircleIcon, AcademicCapIcon, TrophyIcon, CalendarDaysIcon, ChartBarIcon, FireIcon, ArrowPathIcon, ExclamationCircleIcon, CheckCircleIcon, PuzzlePieceIcon } from '@heroicons/react/24/solid';
 
 // Loading spinner (accessible, reusable)
 const LoadingSpinner = React.memo(() => (
   <div className="flex items-center justify-center min-h-screen bg-background-light" role="status" aria-live="polite">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4" aria-label="Loading"></div>
+      <ArrowPathIcon className="animate-spin h-12 w-12 text-secondary mx-auto mb-4" aria-label="Loading" />
       <p className="text-secondary">Loading dashboard...</p>
     </div>
   </div>
 ));
 
 // Error state (accessible, reusable)
-const ErrorState = React.memo(({ error, onRetry }) => (
-  <div className="flex items-center justify-center min-h-screen bg-background-light" role="alert" aria-live="assertive">
-    <div className="text-center">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-        {error}
+const ErrorState = React.memo(({ error, onRetry }) => {
+  const [retrying, setRetrying] = useState(false);
+  const handleRetry = async () => {
+    setRetrying(true);
+    await onRetry();
+    setRetrying(false);
+  };
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-background-light" role="alert" aria-live="assertive">
+      <div className="text-center">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2" role="alert">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-700" aria-hidden="true" />
+          {error}
+        </div>
+        <button
+          onClick={handleRetry}
+          className="bg-secondary text-white px-4 py-2 rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent flex items-center gap-2"
+          aria-label="Retry loading dashboard"
+          disabled={retrying}
+        >
+          {retrying && <ArrowPathIcon className="animate-spin h-5 w-5" aria-hidden="true" />} Retry
+        </button>
       </div>
-      <button
-        onClick={onRetry}
-        className="bg-secondary text-white px-4 py-2 rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent"
-        aria-label="Retry loading dashboard"
-      >
-        Retry
-      </button>
     </div>
-  </div>
-));
+  );
+});
 
-// Stat card (memoized, accessible)
-const StatCard = React.memo(({ title, value, children }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md" role="region" aria-label={title}>
-    <h2 className="text-lg font-semibold text-secondary">{title}</h2>
-    <p className="text-3xl font-bold text-primary">{value}</p>
-    {children}
-  </div>
-));
+// Stat card (memoized, accessible, animated, with icon)
+const statIcons = [
+  AcademicCapIcon, // Total Classes
+  CalendarDaysIcon, // Attendance
+  PuzzlePieceIcon, // Games Played
+  TrophyIcon, // Upcoming Classes
+  ChartBarIcon, // Quiz Performance
+  CheckCircleIcon, // Attendance Rate
+  FireIcon, // Current Streak
+  TrophyIcon, // Chess Rating
+];
 
-// Recent activity badge (memoized)
+const StatCard = React.memo(({ title, value, children, iconIdx }) => {
+  const Icon = statIcons[iconIdx % statIcons.length] || AcademicCapIcon;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, type: 'spring' }}
+      className="bg-white p-6 rounded-xl shadow-md border border-accent/10 flex flex-col items-start gap-2"
+      role="region"
+      aria-label={title}
+    >
+      <Icon className="h-7 w-7 text-primary mb-1" aria-hidden="true" />
+      <h2 className="text-lg font-semibold text-secondary">{title}</h2>
+      <p className="text-3xl font-bold text-primary">{value}</p>
+      {children}
+    </motion.div>
+  );
+});
+
+// Recent activity badge (memoized, with icon)
 const ActivityBadge = React.memo(({ type }) => {
   const badgeClass = type === 'quiz'
     ? 'bg-blue-100 text-blue-800'
     : 'bg-green-100 text-green-800';
+  const Icon = type === 'quiz' ? ChartBarIcon : PuzzlePieceIcon;
   return (
-    <span className={`inline-block px-2 py-1 text-xs rounded-full ${badgeClass}`}>{type}</span>
+    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${badgeClass}`}>
+      <Icon className="h-4 w-4" aria-hidden="true" />
+      {type}
+    </span>
   );
 });
 
-// Recent activities list (memoized)
+// Recent activities list (memoized, animated)
 const RecentActivities = React.memo(({ activities }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md mt-4" role="region" aria-label="Recent Activities">
+  <motion.div
+    initial={{ opacity: 0, y: 24 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, type: 'spring' }}
+    className="bg-white p-6 rounded-xl shadow-md mt-4 border border-accent/10"
+    role="region"
+    aria-label="Recent Activities"
+  >
     <h2 className="text-xl font-semibold text-primary mb-4">Recent Activities</h2>
     <div className="space-y-3">
       {activities.map((activity, idx) => (
@@ -71,7 +115,7 @@ const RecentActivities = React.memo(({ activities }) => (
         </div>
       ))}
     </div>
-  </div>
+  </motion.div>
 ));
 
 // Main dashboard component
@@ -186,20 +230,29 @@ export const StudentDashboard = React.memo(() => {
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState error={error} onRetry={fetchDashboardData} />;
 
+
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6 md:mb-8">Welcome, {user.full_name}!</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light px-4 sm:px-6 md:px-8 py-8">
+      <motion.div
+        initial={{ opacity: 0, y: 32 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, type: 'spring' }}
+        className="max-w-7xl mx-auto"
+      >
+        <div className="flex flex-col items-center mb-8">
+          <UserCircleIcon className="h-20 w-20 text-primary mb-2" aria-hidden="true" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary text-center">Welcome, {user.full_name}!</h1>
+        </div>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">
           {statCards.map((card, idx) => (
-            <StatCard key={card.title} title={card.title} value={card.value}>{card.children}</StatCard>
+            <StatCard key={card.title} title={card.title} value={card.value} iconIdx={idx}>{card.children}</StatCard>
           ))}
         </div>
         {/* Additional Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">
           {extraStatCards.map((card, idx) => (
-            <StatCard key={card.title} title={card.title} value={card.value}>{card.children}</StatCard>
+            <StatCard key={card.title} title={card.title} value={card.value} iconIdx={idx + 4}>{card.children}</StatCard>
           ))}
         </div>
         {/* Recent Activities */}
@@ -208,7 +261,7 @@ export const StudentDashboard = React.memo(() => {
             <RecentActivities activities={recentActivities} />
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 });

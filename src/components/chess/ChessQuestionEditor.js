@@ -1,9 +1,9 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { FaPlus, FaTrash, FaChess, FaFileAlt } from 'react-icons/fa';
-import ChessPositionEditor from '../../../components/chess/ChessPositionEditor';
-import ChessPGNBoard from '../../../components/chess/ChessPGNBoard';
-import ChessQuizBoard from '../../../components/chess/ChessQuizBoard';
+import ChessPositionEditor from './ChessPositionEditor';
+import ChessPGNBoard from './ChessPGNBoard';
+import ChessQuizBoard from './ChessQuizBoard';
 
 // Chess mode selector button
 const ChessModeButton = React.memo(function ChessModeButton({ active, onClick, icon: Icon, children, ariaLabel }) {

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AttendanceApi } from '../../api/attendance';
 import { BatchesApi } from '../../api/batches';
@@ -6,190 +7,10 @@ import { AuthApi } from '../../api/auth';
 import Calendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-
-// Loading skeleton for attendance
-const AttendanceSkeleton = React.memo(function AttendanceSkeleton() {
-  return (
-    <div className="flex items-center justify-center h-64" role="status" aria-busy="true">
-      <div className="animate-pulse text-lg text-gray-dark">Loading attendance data...</div>
-    </div>
-  );
-});
-
-// Batch select dropdown
-const BatchSelect = React.memo(function BatchSelect({ batches, selectedBatch, onChange }) {
-  return (
-    <select
-      value={selectedBatch}
-      onChange={onChange}
-      className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
-      aria-label="Select batch"
-    >
-      <option value="all">All Batches</option>
-      {batches.map(batch => (
-        <option key={batch.id} value={batch.id}>{batch.name}</option>
-      ))}
-    </select>
-  );
-});
-
-// Export controls
-const ExportControls = React.memo(function ExportControls({ dateRange, setDateRange, exportFormat, setExportFormat, onExport, disabled }) {
-  const handleStartChange = useCallback(e => setDateRange(prev => ({ ...prev, start: e.target.value })), [setDateRange]);
-  const handleEndChange = useCallback(e => setDateRange(prev => ({ ...prev, end: e.target.value })), [setDateRange]);
-  const handleFormatChange = useCallback(e => setExportFormat(e.target.value), [setExportFormat]);
-  return (
-    <div className="flex space-x-2">
-      <input
-        type="date"
-        value={dateRange.start || ''}
-        onChange={handleStartChange}
-        className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
-        aria-label="Start date"
-      />
-      <input
-        type="date"
-        value={dateRange.end || ''}
-        onChange={handleEndChange}
-        className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
-        aria-label="End date"
-      />
-      <select
-        value={exportFormat}
-        onChange={handleFormatChange}
-        className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
-        aria-label="Export format"
-      >
-        <option value="pdf">PDF</option>
-        <option value="csv">CSV</option>
-      </select>
-      <button
-        type="button"
-        onClick={onExport}
-        className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
-        disabled={disabled}
-        aria-disabled={disabled}
-      >
-        Export Report
-      </button>
-    </div>
-  );
-});
-
-// Settings modal
-const SettingsModal = React.memo(function SettingsModal({ settings, setSettings, onClose, onSave }) {
-  // Named handlers for accessibility
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setSettings(prev => ({ ...prev, [name]: parseInt(value, 10) }));
-  }, [setSettings]);
-
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
-    onSave();
-  }, [onSave]);
-
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-          <div className="absolute inset-0 bg-gray-dark opacity-75"></div>
-        </div>
-        <div className="relative inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl">
-          <h2 className="text-2xl font-bold text-primary mb-4">Attendance Settings</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="minAttendancePercent">
-                Minimum Attendance Percentage
-              </label>
-              <input
-                id="minAttendancePercent"
-                name="minAttendancePercent"
-                type="number"
-                value={settings.minAttendancePercent}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-                min="0"
-                max="100"
-                aria-label="Minimum attendance percent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="lateThreshold">
-                Late Threshold (minutes)
-              </label>
-              <input
-                id="lateThreshold"
-                name="lateThreshold"
-                type="number"
-                value={settings.lateThreshold}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-                min="0"
-                aria-label="Late threshold in minutes"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="autoMarkAbsent">
-                Auto-mark Absent After (minutes)
-              </label>
-              <input
-                id="autoMarkAbsent"
-                name="autoMarkAbsent"
-                type="number"
-                value={settings.autoMarkAbsent}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-                min="0"
-                aria-label="Auto-mark absent after minutes"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="reminderBefore">
-                Reminder Before Class (minutes)
-              </label>
-              <input
-                id="reminderBefore"
-                name="reminderBefore"
-                type="number"
-                value={settings.reminderBefore}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
-                min="0"
-                aria-label="Reminder before class in minutes"
-              />
-            </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-light rounded-md shadow-sm text-sm font-medium text-primary hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                Save Settings
-              </button>
-            </div>
-          </form>
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-dark hover:text-gray-light focus:outline-none"
-            aria-label="Close settings modal"
-          >
-            <span className="sr-only">Close</span>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-});
+import AttendanceSkeleton from '../../components/attendance/AttendanceSkeleton';
+import BatchSelect from '../../components/attendance/BatchSelect';
+import ExportControls from '../../components/attendance/ExportControls';
+import SettingsModal from '../../components/attendance/SettingsModal';
 
 const AttendanceSystem = React.memo(function AttendanceSystem() {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -273,13 +94,16 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
     }
   }, [exportFormat, selectedBatch, dateRange]);
 
-  // Memoize calendar events for performance
+  // Memoize calendar events for performance, use color tokens
   const calendarEvents = useMemo(() =>
     (attendanceData || []).map(item => ({
       title: `${item.batch_name} - ${item.present_count}/${item.total_students}`,
       start: item.session_date,
-      backgroundColor: item.attendance_percentage >= settings.minAttendancePercent ? '#32CD32' : '#FF6B6B',
+      backgroundColor: item.attendance_percentage >= settings.minAttendancePercent ? '#43a047' : '#e53935', // success/error from tailwind config
+      borderColor: item.attendance_percentage >= settings.minAttendancePercent ? '#43a047' : '#e53935',
+      textColor: '#fff',
     })), [attendanceData, settings.minAttendancePercent]);
+
   return (
     <div className="min-h-screen bg-background-light">
       <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8">
@@ -306,7 +130,7 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
                 <button
                   type="button"
                   onClick={() => setShowSettingsModal(true)}
-                  className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full sm:w-auto"
+                  className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full sm:w-auto transition-all duration-200"
                   aria-label="Open attendance settings"
                 >
                   Settings
@@ -323,6 +147,7 @@ const AttendanceSystem = React.memo(function AttendanceSystem() {
                   center: 'title',
                   right: 'dayGridMonth,timeGridWeek',
                 }}
+                height="auto"
               />
             </div>
             {showSettingsModal && (

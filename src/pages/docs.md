@@ -1,3 +1,14 @@
+# Chess PGN Management Page Refactor (2025-07-11)
+
+- Modularized `PGNManagementPage.js` by extracting:
+  - `FeatureHighlights` (now in `components/chess/FeatureHighlights.js`)
+  - `TabNav` (now in `components/chess/TabNav.js`)
+  - `QuickActions` (now in `components/chess/QuickActions.js`)
+  - `UploadHelpSection` (now in `components/chess/UploadHelpSection.js`)
+- Updated all color classes to use design tokens from `colour_scheme.md` and `tailwind.config.js`.
+- Improved accessibility, responsiveness, and UI/UX polish for all subcomponents.
+- All interactive elements now have clear focus, hover, and active states.
+- Updated documentation and changelog accordingly.
 
 # KCAdashboard Frontend – Pages Documentation
 
@@ -95,6 +106,16 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 - **Page not rendering:** Check route configuration and file/component exports.
 - **Form errors:** Ensure Formik and Yup schemas are correctly set up and error messages are displayed.
 - **Data not loading:** Verify data fetching logic and API endpoints.
+
+---
+
+# [2025-07-11] PGNGameView UI/UX & Accessibility Refactor
+
+- Refactored `PGNGameView.js` for beautiful, accessible, and responsive UI.
+- All color classes now use design tokens from `colour_scheme.md` and `tailwind.config.js`.
+- Improved error, loading, and button states for clarity and accessibility.
+- Added ARIA labels and focus states for navigation and feedback.
+- File remains single-responsibility and optimized for performance.
 
 ---
 

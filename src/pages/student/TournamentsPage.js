@@ -1,173 +1,13 @@
 
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import {TournamentsApi } from '../../api/tournaments';
+import { TournamentsApi } from '../../api/tournaments';
 import { useAuth } from '../../hooks/useAuth';
-
-// Loading Spinner
-const LoadingSpinner = React.memo(() => (
-  <div className="flex flex-col items-center justify-center py-8" role="status" aria-live="polite">
-    <div className="animate-spin w-12 h-12 border-4 border-secondary border-t-transparent rounded-full mb-4" />
-    <span className="text-gray-dark">Loading tournaments...</span>
-  </div>
-));
-
-// Error State
-const ErrorState = React.memo(({ message }) => (
-  <div className="text-red-700 bg-red-50 border border-red-200 rounded p-6 text-center" role="alert">
-    <span>{message}</span>
-  </div>
-));
-
-// Tournament Filter Bar
-const TournamentFilterBar = React.memo(({ filters, activeFilter, onFilterChange }) => (
-  <div className="flex space-x-4" role="tablist" aria-label="Tournament filters">
-    {filters.map(filter => (
-      <button
-        key={filter.id}
-        type="button"
-        onClick={onFilterChange(filter.id)}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent ${activeFilter === filter.id ? 'bg-secondary text-white' : 'bg-white text-secondary hover:bg-secondary hover:text-white'}`}
-        role="tab"
-        aria-selected={activeFilter === filter.id}
-        tabIndex={activeFilter === filter.id ? 0 : -1}
-      >
-        {filter.label}
-      </button>
-    ))}
-  </div>
-));
-
-// Registration Button/Status
-const RegistrationButton = React.memo(({ tournament, registrationStatus, onRegister, onCancel }) => {
-  if (registrationStatus === 'pending') {
-    return (
-      <div className="space-y-2">
-        <span className="block text-sm text-amber-600 font-medium">Payment verification pending</span>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          Cancel Registration
-        </button>
-      </div>
-    );
-  } else if (registrationStatus === 'completed') {
-    return <span className="block text-sm text-green-600 font-medium">Registration confirmed ✓</span>;
-  } else if (registrationStatus === 'refunded') {
-    return <span className="block text-sm text-gray-600 font-medium">Registration cancelled (refunded)</span>;
-  } else {
-    return (
-      <button
-        type="button"
-        onClick={onRegister}
-        className="w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-      >
-        Register Now
-      </button>
-    );
-  }
-});
-
-// Tournament Card
-const TournamentCard = React.memo(({ tournament, registrationStatus, onRegister, onCancel }) => (
-  <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full">
-    <div className="p-6 flex-1 flex flex-col">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xl font-semibold text-secondary">{tournament.title}</h3>
-        <span className={`px-3 py-1 rounded-full text-xs ${tournament.status === 'upcoming' ? 'bg-blue-100 text-blue-800' : tournament.status === 'ongoing' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{tournament.status}</span>
-      </div>
-      <p className="text-gray-dark mb-4">{tournament.description}</p>
-      <div className="space-y-2 text-sm text-gray-dark">
-        <p>📅 {new Date(tournament.date_time).toLocaleString()}</p>
-        <p>📍 {tournament.location || 'Online'}</p>
-        <p>💰 Entry Fee: {tournament.entry_fee > 0 ? `₹${tournament.entry_fee}` : 'Free'}</p>
-        <p>🏆 Prize Pool: ₹{tournament.prize_pool}</p>
-        <p>👥 Participants: {tournament.participant_count || 0}{tournament.max_participants ? ` / ${tournament.max_participants}` : ''}</p>
-        <p>👤 Organizer: {tournament.organizer_name}</p>
-      </div>
-    </div>
-    <div className="px-6 py-4 bg-gray-light border-t">
-      {tournament.status === 'upcoming' && (
-        <RegistrationButton
-          tournament={tournament}
-          registrationStatus={registrationStatus}
-          onRegister={onRegister}
-          onCancel={onCancel}
-        />
-      )}
-      {tournament.status === 'ongoing' && tournament.type === 'online' && registrationStatus === 'completed' && (
-        <a
-          href={`https://lichess.org/tournament/${tournament.lichess_id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full text-center py-2 px-4 rounded-md text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          Join Tournament
-        </a>
-      )}
-      {tournament.status === 'completed' && (
-        <a
-          href={`/student/tournament/${tournament.id}/results`}
-          className="block w-full text-center py-2 px-4 rounded-md text-sm font-medium text-secondary bg-white border border-secondary hover:bg-background-light focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          View Results
-        </a>
-      )}
-    </div>
-  </div>
-));
-
-// Payment Modal
-const PaymentModal = React.memo(({ tournament, open, onClose, onSubmit, onFileChange, paymentLoading }) => {
-  if (!open || !tournament) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-primary">Payment for {tournament.title}</h2>
-        <div className="mb-4 p-4 bg-gray-light rounded-lg">
-          <p className="font-medium">Amount: ₹{tournament.entry_fee}</p>
-          <p className="text-sm mt-2">Please make payment using UPI to:</p>
-          <p className="font-bold mt-1">kca@upi</p>
-          <div className="mt-4 flex justify-center">
-            <img src="/qr-code-placeholder.png" alt="Payment QR Code" className="w-40 h-40 border border-gray-300" />
-          </div>
-        </div>
-        <form onSubmit={onSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="payment-screenshot">Upload Payment Screenshot:</label>
-            <input
-              id="payment-screenshot"
-              type="file"
-              accept="image/*"
-              onChange={onFileChange}
-              className="w-full border border-gray-300 rounded-md py-2 px-3"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">Please upload a screenshot of your successful payment</p>
-          </div>
-          <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={paymentLoading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 py-2 px-4 rounded-md text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={paymentLoading}
-            >
-              {paymentLoading ? 'Processing...' : 'Submit Payment'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-});
+import LoadingSpinner from '../../components/tournaments/LoadingSpinner';
+import ErrorState from '../../components/tournaments/ErrorState';
+import TournamentFilterBar from '../../components/tournaments/TournamentFilterBar';
+import TournamentCard from '../../components/tournaments/TournamentCard';
+import PaymentModal from '../../components/tournaments/PaymentModal';
 
 // Main Page
 export const TournamentsPage = React.memo(() => {
@@ -227,12 +67,11 @@ export const TournamentsPage = React.memo(() => {
     return () => { isMounted = false; };
   }, [activeFilter]);
 
+
   // Memoized registration status getter
   const getRegistrationStatus = useCallback((tournamentId) => {
     return registrations[tournamentId]?.payment_status || null;
   }, [registrations]);
-
-  // Register handler
 
   // Fetch registration status for register/cancel/payment
   const fetchRegistrationStatus = useCallback(async () => {
@@ -312,15 +151,16 @@ export const TournamentsPage = React.memo(() => {
         registrationStatus={getRegistrationStatus(tournament.id)}
         onRegister={() => handleRegister(tournament)}
         onCancel={() => handleCancelRegistration(tournament.id)}
+        loading={paymentLoading && selectedTournament?.id === tournament.id}
       />
     ))
-  ), [tournaments, getRegistrationStatus, handleRegister, handleCancelRegistration]);
+  ), [tournaments, getRegistrationStatus, handleRegister, handleCancelRegistration, paymentLoading, selectedTournament]);
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Chess Tournaments</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-sm">Chess Tournaments</h1>
           <TournamentFilterBar filters={filters} activeFilter={activeFilter} onFilterChange={id => () => setActiveFilter(id)} />
         </div>
         {loading ? (
@@ -328,7 +168,7 @@ export const TournamentsPage = React.memo(() => {
         ) : error ? (
           <ErrorState message={error} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{tournamentCards}</div>
+          <div className="grid grid-cols-1 gap-y-8 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{tournamentCards}</div>
         )}
       </div>
       <PaymentModal

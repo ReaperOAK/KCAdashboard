@@ -1,249 +1,19 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+
+
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { AttendanceApi } from '../../api/attendance';
 import { GradingApi } from '../../api/grading';
 import { AnalyticsApi } from '../../api/analytics';
-
-// --- Attendance Modal ---
-const AttendanceModal = React.memo(function AttendanceModal({ open, student, sessions, onSubmit, onClose, loading }) {
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [status, setStatus] = useState('present');
-  const [notes, setNotes] = useState('');
-
-  useEffect(() => {
-    setSelectedSession(sessions && sessions.length > 0 ? sessions[0].id : null);
-    setStatus('present');
-    setNotes('');
-  }, [sessions, open]);
-
-  if (!open || !student) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
-      <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-        <h2 className="text-2xl font-bold text-primary mb-4">Mark Attendance: {student.name}</h2>
-        {loading ? (
-          <div>Loading sessions...</div>
-        ) : (
-          sessions && sessions.length > 0 ? (
-            <form onSubmit={e => { e.preventDefault(); onSubmit({ session_id: selectedSession, status, notes }); }} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Session</label>
-                <select value={selectedSession || ''} onChange={e => setSelectedSession(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300">
-                  {sessions.map(s => (
-                    <option key={s.id} value={s.id}>{s.title} ({formatDate(s.date_time)})</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Status</label>
-                <select value={status} onChange={e => setStatus(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300">
-                  <option value="present">Present</option>
-                  <option value="absent">Absent</option>
-                  <option value="late">Late</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Notes (optional)</label>
-                <input type="text" value={notes} onChange={e => setNotes(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300" />
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="px-4 py-2 border border-transparent rounded-md text-white bg-secondary hover:bg-accent">Mark Attendance</button>
-              </div>
-            </form>
-          ) : (
-            <div>
-              <div className="text-gray-500 mb-4">No pending sessions for this student.</div>
-              <div className="flex justify-end">
-                <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Close</button>
-              </div>
-            </div>
-          )
-        )}
-      </div>
-    </div>
-  );
-});
-
+import { BatchesApi } from '../../api/batches';
+import AttendanceModal from '../../components/teacher/AttendanceModal';
+import FeedbackModal from '../../components/teacher/FeedbackModal';
+import FeedbackHistoryModal from '../../components/teacher/FeedbackHistoryModal';
+import PerformanceModal from '../../components/teacher/PerformanceModal';
 
 // --- Utility helpers ---
 const formatDate = dateString => dateString ? new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 const getRatingColor = rating => rating >= 4 ? 'bg-green-100 text-green-800' : rating >= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
-
-// --- Feedback Modal ---
-const FeedbackModal = React.memo(function FeedbackModal({ open, student, feedback, setFeedback, onClose, onSubmit }) {
-  if (!open || !student) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
-      <div className="bg-white rounded-xl p-6 max-w-lg w-full">
-        <h2 className="text-2xl font-bold text-primary mb-4">Feedback for {student.name}</h2>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Rating</label>
-            <div className="flex items-center space-x-1 mt-1">
-              {[1,2,3,4,5].map(num => (
-                <span key={num} style={{ cursor: 'pointer', color: feedback.rating >= num ? '#f5b301' : '#ccc', fontSize: 28 }} onClick={() => setFeedback(f => ({ ...f, rating: num }))}>★</span>
-              ))}
-              <span className="ml-2 text-sm text-gray-500">{feedback.rating}/5</span>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">General Feedback</label>
-            <textarea value={feedback.comment} onChange={e => setFeedback(f => ({ ...f, comment: e.target.value }))} rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Areas of Improvement</label>
-            <textarea value={feedback.areas_of_improvement} onChange={e => setFeedback(f => ({ ...f, areas_of_improvement: e.target.value }))} rows={2} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Strengths</label>
-            <textarea value={feedback.strengths} onChange={e => setFeedback(f => ({ ...f, strengths: e.target.value }))} rows={2} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary" />
-          </div>
-          <div className="flex justify-end space-x-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-            <button type="submit" className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent">Submit Feedback</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-});
-
-// --- Feedback History Modal ---
-const FeedbackHistoryModal = React.memo(function FeedbackHistoryModal({ open, student, feedbackHistory, onClose }) {
-  if (!open || !student) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
-      <div className="bg-white rounded-xl p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-primary">Feedback History for {student.name}</h2>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-500">
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        {feedbackHistory.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No feedback history available</p>
-        ) : (
-          <div className="space-y-6">
-            {feedbackHistory.map((feedback) => (
-              <div key={feedback.id} className="border-b pb-6 last:border-b-0">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="font-medium">{formatDate(feedback.created_at)}</span>
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRatingColor(feedback.rating)}`}>{feedback.rating}/5</span>
-                </div>
-                {feedback.comment && (<div className="mb-3"><h4 className="text-sm font-medium text-gray-700">General Feedback:</h4><p className="text-sm text-gray-600">{feedback.comment}</p></div>)}
-                {feedback.strengths && (<div className="mb-3"><h4 className="text-sm font-medium text-gray-700">Strengths:</h4><p className="text-sm text-gray-600">{feedback.strengths}</p></div>)}
-                {feedback.areas_of_improvement && (<div className="mb-3"><h4 className="text-sm font-medium text-gray-700">Areas for Improvement:</h4><p className="text-sm text-gray-600">{feedback.areas_of_improvement}</p></div>)}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
-
-// --- Performance Modal (GradingFeedback style) ---
-const PerformanceModal = React.memo(function PerformanceModal({ open, student, performanceData, selectedTimeframe, onTimeframeChange, onClose }) {
-  if (!open || !student) return null;
-  // Chart.js is not imported here, so just show summary and recent feedback/quiz for now
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
-      <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-primary">Performance: {student.name}</h2>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-500">
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        {/* Time frame selector */}
-        <div className="flex space-x-2 mb-6">
-          <span className="text-gray-700">Time Period:</span>
-          {['week', 'month', 'quarter', 'year'].map(period => (
-            <button
-              key={period}
-              type="button"
-              onClick={() => onTimeframeChange(period)}
-              className={`px-3 py-1 text-sm rounded-md ${selectedTimeframe === period ? 'bg-secondary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              aria-pressed={selectedTimeframe === period}
-            >
-              {period.charAt(0).toUpperCase() + period.slice(1)}
-            </button>
-          ))}
-        </div>
-        {!performanceData ? (
-          <div>Loading...</div>
-        ) : (
-          <div className="space-y-8">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-medium text-primary mb-4">Attendance Summary</h3>
-              {performanceData.attendance ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white p-3 rounded-md text-center">
-                    <div className="text-2xl font-bold text-secondary">{performanceData.attendance.present || 0}</div>
-                    <div className="text-sm text-gray-500">Present</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md text-center">
-                    <div className="text-2xl font-bold text-red-500">{performanceData.attendance.absent || 0}</div>
-                    <div className="text-sm text-gray-500">Absent</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md text-center">
-                    <div className="text-2xl font-bold text-yellow-500">{performanceData.attendance.late || 0}</div>
-                    <div className="text-sm text-gray-500">Late</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md text-center">
-                    <div className="text-2xl font-bold text-blue-500">{performanceData.attendance.rate || 0}%</div>
-                    <div className="text-sm text-gray-500">Attendance Rate</div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No attendance data available</p>
-              )}
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-medium text-primary mb-4">Quiz Performance Summary</h3>
-              {performanceData.quiz_performance ? (
-                <div className="space-y-3">
-                  <div className="bg-white p-3 rounded-md">
-                    <div className="text-2xl font-bold text-secondary">{performanceData.quiz_performance.average || 0}</div>
-                    <div className="text-sm text-gray-500">Average Score</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md">
-                    <div className="text-2xl font-bold text-blue-500">{performanceData.quiz_performance.count || 0}</div>
-                    <div className="text-sm text-gray-500">Total Quizzes</div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No quiz performance data available</p>
-              )}
-            </div>
-            {/* Recent Feedback */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-medium text-primary mb-4">Recent Teacher Feedback</h3>
-              {performanceData.feedback && performanceData.feedback.length > 0 ? (
-                <div className="space-y-4">
-                  {performanceData.feedback.map((feedback) => (
-                    <div key={feedback.id} className="bg-white p-4 rounded-lg border">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500">By {feedback.teacher_name} on {formatDate(feedback.created_at)}</span>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRatingColor(feedback.rating)}`}>{feedback.rating}/5</span>
-                      </div>
-                      {feedback.comment && (<div className="mb-2"><h5 className="text-sm font-medium text-gray-700">Comment:</h5><p className="text-sm text-gray-600">{feedback.comment}</p></div>)}
-                      {feedback.strengths && (<div className="mb-2"><h5 className="text-sm font-medium text-gray-700">Strengths:</h5><p className="text-sm text-gray-600">{feedback.strengths}</p></div>)}
-                      {feedback.areas_of_improvement && (<div><h5 className="text-sm font-medium text-gray-700">Areas for Improvement:</h5><p className="text-sm text-gray-600">{feedback.areas_of_improvement}</p></div>)}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No recent feedback available</p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
 
 const StudentManagement = () => {
   const { user } = useAuth();
@@ -260,9 +30,9 @@ const StudentManagement = () => {
   useEffect(() => {
     const fetchBatches = async () => {
       try {
-        // Use AnalyticsApi for batch info (if available), else fallback to empty
-        // If you have a ClassroomApi, use it here instead
-        setBatches([]); // TODO: Replace with batch fetch if available
+        // Use BatchesApi for batch info
+        const res = await BatchesApi.getBatches();
+        setBatches(res.batches || []);
       } catch {
         setBatches([]);
       }
@@ -283,7 +53,12 @@ const StudentManagement = () => {
         } else {
           res = await GradingApi.getBatchStudents ? await GradingApi.getBatchStudents(selectedBatch) : { students: [] };
         }
-        setStudents(res.students || []);
+        // Support both {students: [...]} and {data: [...]} and fallback to []
+        setStudents(
+          Array.isArray(res.students) ? res.students :
+          Array.isArray(res.data) ? res.data :
+          []
+        );
       } catch (err) {
         setError('Failed to fetch students');
       } finally {
@@ -547,8 +322,8 @@ const StudentManagement = () => {
         )}
         <AttendanceModal open={showAttendanceModal} student={selectedStudent} sessions={attendanceSessions} onSubmit={handleSubmitAttendance} onClose={() => setShowAttendanceModal(false)} loading={attendanceLoading} />
         <FeedbackModal open={showFeedbackModal} student={selectedStudent} feedback={feedback} setFeedback={setFeedback} onClose={handleCloseFeedbackModal} onSubmit={handleSubmitFeedback} />
-        <FeedbackHistoryModal open={showHistoryModal} student={selectedStudent} feedbackHistory={feedbackHistory} onClose={handleCloseHistoryModal} />
-        <PerformanceModal open={showPerformanceModal} student={selectedStudent} performanceData={performanceData} selectedTimeframe={selectedTimeframe} onTimeframeChange={handleTimeframeChange} onClose={handleClosePerformanceModal} />
+        <FeedbackHistoryModal open={showHistoryModal} student={selectedStudent} feedbackHistory={feedbackHistory} onClose={handleCloseHistoryModal} formatDate={formatDate} getRatingColor={getRatingColor} />
+        <PerformanceModal open={showPerformanceModal} student={selectedStudent} performanceData={performanceData} selectedTimeframe={selectedTimeframe} onTimeframeChange={handleTimeframeChange} onClose={handleClosePerformanceModal} formatDate={formatDate} getRatingColor={getRatingColor} />
       </div>
     </div>
   );

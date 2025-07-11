@@ -1,85 +1,14 @@
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ClassroomApi } from '../../api/classroom';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
 import AttendanceModal from '../../components/classroom/AttendanceModal';
 import MaterialsView from '../../components/classroom/MaterialsView';
-
-// Loading skeleton
-const ClassroomDetailLoading = React.memo(() => (
-  <div className="min-h-screen bg-background-light p-8 flex items-center justify-center" aria-busy="true" aria-label="Loading classroom details">
-    <div className="w-full max-w-2xl animate-pulse">
-      <div className="h-8 bg-gray-light rounded w-1/2 mb-6" />
-      <div className="h-6 bg-gray-light rounded w-1/3 mb-4" />
-      <div className="h-4 bg-gray-light rounded w-1/4 mb-2" />
-      <div className="h-4 bg-gray-light rounded w-1/4 mb-2" />
-      <div className="h-4 bg-gray-light rounded w-1/4 mb-2" />
-    </div>
-  </div>
-));
-
-// Error alert
-const ClassroomDetailError = React.memo(({ error, onBack }) => (
-  <div className="min-h-screen bg-background-light p-8 flex items-center justify-center">
-    <div className="bg-red-700 border border-red-800 text-white p-6 rounded-xl max-w-lg w-full text-center" role="alert">
-      <div>{error}</div>
-      <button
-        type="button"
-        onClick={onBack}
-        className="mt-6 px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-        aria-label="Back to Classrooms"
-      >
-        Back to Classrooms
-      </button>
-    </div>
-  </div>
-));
-
-// Not found alert
-const ClassroomNotFound = React.memo(({ onBack }) => (
-  <div className="min-h-screen bg-background-light p-8 flex items-center justify-center">
-    <div className="bg-white border border-gray-light p-6 rounded-xl max-w-lg w-full text-center">
-      <div className="text-xl font-semibold text-primary mb-2">Classroom not found</div>
-      <button
-        type="button"
-        onClick={onBack}
-        className="mt-6 px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-        aria-label="Back to Classrooms"
-      >
-        Back to Classrooms
-      </button>
-    </div>
-  </div>
-));
-
-// View switcher
-const ViewSwitcher = React.memo(({ currentView, onSwitch }) => {
-  const buttons = useMemo(() => [
-    { key: 'calendar', label: 'Calendar' },
-    { key: 'materials', label: 'Materials' },
-    { key: 'students', label: 'Students' },
-  ], []);
-  return (
-    <div className="flex space-x-4" role="tablist" aria-label="Classroom content views">
-      {buttons.map(({ key, label }) => (
-        <button
-          key={key}
-          type="button"
-          className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${
-            currentView === key
-              ? 'bg-secondary text-white'
-              : 'bg-gray-light text-primary hover:bg-accent hover:text-white'
-          }`}
-          aria-controls={`view-panel-${key}`}
-          tabIndex={currentView === key ? 0 : -1}
-          onClick={() => onSwitch(key)}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-});
+import ClassroomDetailLoading from '../../components/classroom/ClassroomDetailLoading';
+import ClassroomDetailError from '../../components/classroom/ClassroomDetailError';
+import ClassroomNotFound from '../../components/classroom/ClassroomNotFound';
+import ViewSwitcher from '../../components/classroom/ViewSwitcher';
 
 // Main detail component
 export const ClassroomDetail = () => {
@@ -156,7 +85,7 @@ export const ClassroomDetail = () => {
     }
     if (currentView === 'students') {
       return (
-        <div className="bg-white p-4 rounded-lg">
+        <div className="bg-white p-4 rounded-lg shadow-md border border-gray-light transition-all duration-200">
           <h3 className="text-xl font-semibold mb-4 text-primary">Student List</h3>
           {/* Student list will be implemented here */}
           <p className="text-gray-dark">Student listing functionality will be added here.</p>
@@ -175,20 +104,20 @@ export const ClassroomDetail = () => {
     <div className="min-h-screen bg-background-light">
       <div className="p-4 sm:p-8">
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">{classroom.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-sm">{classroom.name}</h1>
           <button
             type="button"
             onClick={handleBack}
-            className="px-3 sm:px-4 py-2 bg-gray-light rounded-md text-primary hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base"
+            className="px-3 sm:px-4 py-2 bg-gray-light rounded-md text-primary hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base transition-all duration-200 shadow-sm"
             aria-label="Back to All Classrooms"
           >
             Back to All Classrooms
           </button>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-light p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-200">
           <div className="mb-4 sm:mb-6">
-            <p className="text-gray-dark">{classroom.description}</p>
-            <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-dark">
+            <p className="text-gray-dark text-base sm:text-lg leading-relaxed">{classroom.description}</p>
+            <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-dark flex flex-wrap gap-4">
               <p><span className="font-semibold">Students:</span> {classroom.student_count}</p>
               <p><span className="font-semibold">Created:</span> {new Date(classroom.created_at).toLocaleDateString()}</p>
             </div>

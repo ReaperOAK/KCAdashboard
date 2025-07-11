@@ -6,20 +6,20 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
   const badgeClass = useMemo(() => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success text-white';
       case 'completed':
         return 'bg-gray-light text-primary';
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning text-white';
     }
   }, [status]);
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-medium ${badgeClass}`}
+      className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${badgeClass} transition-colors duration-200`}
       aria-label={`Batch status: ${status}`}
       role="status"
     >
-      {status}
+      {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
 });
@@ -27,10 +27,10 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
 // Card for a single batch
 const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManageStudents }) {
   return (
-    <div className="bg-background-light rounded-xl shadow-md border border-gray-light flex flex-col h-full" role="region" aria-labelledby={`batch-title-${batch.id}`}> 
+    <div className="bg-background-light rounded-2xl shadow-lg border border-gray-light flex flex-col h-full hover:shadow-xl transition-shadow duration-300 group" role="region" aria-labelledby={`batch-title-${batch.id}`}> 
       <div className="p-4 sm:p-6 flex-1 flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 sm:mb-4 gap-2">
-          <h3 id={`batch-title-${batch.id}`} className="text-base sm:text-xl font-semibold text-primary" tabIndex={0}>
+          <h3 id={`batch-title-${batch.id}`} className="text-lg sm:text-xl font-semibold text-primary group-hover:text-accent transition-colors duration-200" tabIndex={0}>
             {batch.name}
           </h3>
           <StatusBadge status={batch.status} />
@@ -55,7 +55,7 @@ const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManage
         <button
           type="button"
           onClick={onViewDetails}
-          className="bg-transparent text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 font-medium transition-colors w-full sm:w-auto"
+          className="bg-primary text-white hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-4 py-2 font-medium transition-colors w-full sm:w-auto shadow-sm"
           aria-label={`View details for ${batch.name}`}
         >
           View Details
@@ -63,7 +63,7 @@ const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManage
         <button
           type="button"
           onClick={onManageStudents}
-          className="bg-transparent text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 font-medium transition-colors w-full sm:w-auto"
+          className="bg-accent text-white hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-4 py-2 font-medium transition-colors w-full sm:w-auto shadow-sm"
           aria-label={`Manage students for ${batch.name}`}
         >
           Manage Students
@@ -108,7 +108,7 @@ export const BatchList = React.memo(function BatchList({ batches, onManageStuden
 
   return (
     <section
-      className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 xl:gap-8"
       aria-label="Batch list"
       role="list"
     >

@@ -1,5 +1,7 @@
+
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
 
 // Capitalize and format a breadcrumb segment
 function formatBreadcrumb(name) {
@@ -13,19 +15,17 @@ const BreadcrumbItem = React.memo(function BreadcrumbItem({ to, label, isLast })
   if (isLast) {
     return (
       <li className="flex items-center" aria-current="page">
-        <span className="mx-2 text-gray-dark" aria-hidden="true">/</span>
-        <span className="text-gray-dark font-semibold focus:outline-none">
-          {label}
-        </span>
+        <ChevronRightIcon className="w-4 h-4 mx-1 text-gray-light" aria-hidden="true" />
+        <span className="text-gray-dark font-semibold focus:outline-none text-base">{label}</span>
       </li>
     );
   }
   return (
     <li className="flex items-center">
-      <span className="mx-2 text-gray-dark" aria-hidden="true">/</span>
+      <ChevronRightIcon className="w-4 h-4 mx-1 text-gray-light" aria-hidden="true" />
       <Link
         to={to}
-        className="text-secondary hover:text-accent focus:text-accent focus:outline-none transition-colors"
+        className="text-secondary hover:text-accent focus:text-accent focus:outline-none transition-colors text-base font-medium"
         tabIndex={0}
       >
         {label}
@@ -33,6 +33,7 @@ const BreadcrumbItem = React.memo(function BreadcrumbItem({ to, label, isLast })
     </li>
   );
 });
+
 
 function Breadcrumbs() {
   const location = useLocation();
@@ -43,14 +44,15 @@ function Breadcrumbs() {
 
   // Accessibility: nav with aria-label, ol with role, Home always first
   return (
-    <nav aria-label="Breadcrumb" className="bg-white p-4 rounded-lg shadow-sm mb-6">
-      <ol className="flex flex-wrap items-center text-sm">
+    <nav aria-label="Breadcrumb" className="sticky top-16 z-10 bg-white/80 backdrop-blur p-3 rounded-lg shadow mb-6 transition-all">
+      <ol className="flex flex-wrap items-center text-base">
         <li>
           <Link
             to="/"
-            className="text-secondary hover:text-accent focus:text-accent font-medium focus:outline-none transition-colors"
+            className="flex items-center text-secondary hover:text-accent focus:text-accent font-medium focus:outline-none transition-colors"
             tabIndex={0}
           >
+            <HomeIcon className="w-5 h-5 mr-1 text-accent" />
             Home
           </Link>
         </li>

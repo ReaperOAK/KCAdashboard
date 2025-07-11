@@ -1,7 +1,12 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnalyticsApi } from '../../api/analytics';
-import { Line, Bar, Pie } from 'react-chartjs-2';
+import AnalyticsSkeleton from '../../components/analytics/AnalyticsSkeleton';
+import ErrorAlert from '../../components/analytics/ErrorAlert';
+import TimeRangeSelect from '../../components/analytics/TimeRangeSelect';
+import UserGrowthChart from '../../components/analytics/UserGrowthChart';
+import UserActivityChart from '../../components/analytics/UserActivityChart';
+import PerformanceMetricsChart from '../../components/analytics/PerformanceMetricsChart';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,109 +33,6 @@ ChartJS.register(
   Legend
 );
 
-// Skeleton loader for analytics
-export const AnalyticsSkeleton = React.memo(function AnalyticsSkeleton() {
-  return (
-    <div className="py-8 grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse" aria-busy="true" aria-label="Loading analytics">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-4">
-          <div className="h-6 w-1/3 bg-gray-200 rounded" />
-          <div className="h-48 bg-gray-100 rounded" />
-        </div>
-      ))}
-    </div>
-  );
-});
-
-// Error alert
-export const ErrorAlert = React.memo(function ErrorAlert({ message }) {
-  return (
-    <div className="bg-red-700 border-l-4 border-red-800 text-white px-6 py-4 rounded mb-6" role="alert" aria-live="assertive">
-      {message}
-    </div>
-  );
-});
-
-// Time range selector
-export const TimeRangeSelect = React.memo(function TimeRangeSelect({ value, onChange }) {
-  const handleChange = useCallback((e) => onChange(e.target.value), [onChange]);
-  return (
-    <select
-      value={value}
-      onChange={handleChange}
-      className="px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-secondary"
-      aria-label="Select time range"
-    >
-      <option value="week">Last Week</option>
-      <option value="month">Last Month</option>
-      <option value="year">Last Year</option>
-    </select>
-  );
-});
-
-// User Growth Chart
-export const UserGrowthChart = React.memo(function UserGrowthChart({ userStats }) {
-  const data = useMemo(() => ({
-    labels: userStats?.labels || [],
-    datasets: [{
-      label: 'New Users',
-      data: userStats?.data || [],
-      borderColor: '#461fa3',
-      tension: 0.4
-    }]
-  }), [userStats]);
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-lg" role="region" aria-label="User Growth">
-      <h2 className="text-xl font-semibold text-secondary mb-4">User Growth</h2>
-      <Line data={data} aria-label="User Growth Chart" />
-    </div>
-  );
-});
-
-// User Activity Chart
-export const UserActivityChart = React.memo(function UserActivityChart({ activityStats }) {
-  const data = useMemo(() => ({
-    labels: activityStats?.labels || [],
-    datasets: [{
-      label: 'Active Users',
-      data: activityStats?.data || [],
-      backgroundColor: '#7646eb'
-    }]
-  }), [activityStats]);
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-lg" role="region" aria-label="User Activity">
-      <h2 className="text-xl font-semibold text-secondary mb-4">User Activity</h2>
-      <Bar data={data} aria-label="User Activity Chart" />
-    </div>
-  );
-});
-
-// Performance Metrics Chart
-export const PerformanceMetricsChart = React.memo(function PerformanceMetricsChart({ performanceStats }) {
-  const data = useMemo(() => ({
-    labels: ['Quizzes', 'Games', 'Tournaments', 'Classes'],
-    datasets: [{
-      data: [
-        performanceStats?.quizzes || 0,
-        performanceStats?.games || 0,
-        performanceStats?.tournaments || 0,
-        performanceStats?.classes || 0
-      ],
-      backgroundColor: [
-        '#461fa3',
-        '#7646eb',
-        '#9b6feb',
-        '#c198eb'
-      ]
-    }]
-  }), [performanceStats]);
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-lg" role="region" aria-label="Performance Metrics">
-      <h2 className="text-xl font-semibold text-secondary mb-4">Performance Metrics</h2>
-      <Pie data={data} aria-label="Performance Metrics Chart" />
-    </div>
-  );
-});
 
 // Main analytics page
 const PlatformAnalytics = React.memo(function PlatformAnalytics() {
@@ -161,6 +63,8 @@ const PlatformAnalytics = React.memo(function PlatformAnalytics() {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
+  // Empty state for analytics
+  const isEmpty = !analytics.userStats?.data?.length && !analytics.activityStats?.data?.length && !analytics.performanceStats;
   return (
     <div className="min-h-screen bg-background-light">
       <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8">
@@ -172,6 +76,11 @@ const PlatformAnalytics = React.memo(function PlatformAnalytics() {
           <AnalyticsSkeleton />
         ) : error ? (
           <ErrorAlert message={error} />
+        ) : isEmpty ? (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-dark">
+            <svg className="w-16 h-16 mb-4 text-gray-light" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a4 4 0 0 1 8 0v2m-4 4a4 4 0 0 1-4-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2a4 4 0 0 1-4 4Z" /></svg>
+            <span className="text-lg font-medium">No analytics data available for this range.</span>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <UserGrowthChart userStats={analytics.userStats} />

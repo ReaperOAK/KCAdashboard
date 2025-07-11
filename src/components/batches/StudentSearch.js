@@ -77,13 +77,29 @@ export const StudentSearch = React.memo(function StudentSearch({ onSelectStudent
     }
   }, [search, searchStudents]);
 
-  const handleInputChange = useCallback(e => setSearch(e.target.value), []);
+  const handleInputChange = useCallback(e => {
+    setSearch(e.target.value);
+    if (e.target.value.length < 2) {
+      setSelectedStudent(null);
+      onSelectStudent(null);
+    }
+  }, [onSelectStudent]);
+
   const handleSelect = useCallback(student => {
     setSelectedStudent(student);
     onSelectStudent(student);
   }, [onSelectStudent]);
 
   // Render
+
+  // Always call hooks at the top level
+  useEffect(() => {
+    if (isBatchFull) {
+      setSelectedStudent(null);
+      onSelectStudent(null);
+    }
+  }, [isBatchFull, onSelectStudent]);
+
   if (isBatchFull) {
     return (
       <div className="bg-yellow-50 text-yellow-700 p-3 rounded-md" role="alert">

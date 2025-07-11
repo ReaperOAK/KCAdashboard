@@ -1,12 +1,13 @@
 
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import UserTable from '../../components/user-management/UserTable';
 import Filters from '../../components/user-management/Filters';
 import EditUserModal from '../../components/user-management/Modals/EditUserModal';
+import BulkActionsBar from '../../components/user-management/BulkActionsBar';
+import PermissionsModal from '../../components/user-management/Modals/PermissionsModal';
 import { useAuth } from '../../hooks/useAuth';
 import { UsersApi } from '../../api/users';
-import PERMISSIONS from '../../utils/permissions';
-
 
 const PERMISSIONS_MAP = {
   'user.view': 1,
@@ -20,115 +21,6 @@ const PERMISSIONS_MAP = {
   'batch.delete': 9,
   // Add more mappings as needed
 };
-
-
-// --- BulkActionsBar ---
-const BulkActionsBar = React.memo(function BulkActionsBar({ selectedCount, onActivate, onDeactivate, onDelete }) {
-  return (
-    <div className="mb-4 p-4 bg-white rounded-lg shadow" role="region" aria-label="Bulk actions">
-      <h3 className="text-sm font-medium text-gray-700">{selectedCount} users selected</h3>
-      <div className="mt-2 flex gap-2">
-        <button
-          type="button"
-          onClick={onActivate}
-          className="px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
-          Activate
-        </button>
-        <button
-          type="button"
-          onClick={onDeactivate}
-          className="px-3 py-1 text-sm text-white bg-yellow-600 rounded hover:bg-yellow-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
-        >
-          Deactivate
-        </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  );
-});
-
-
-// --- PermissionsModal ---
-const PermissionsModal = React.memo(function PermissionsModal({
-  open,
-  user,
-  permissions,
-  setPermissions,
-  onClose,
-  onSave,
-  error,
-}) {
-  // Keyboard accessibility: close on Escape
-  React.useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onClose]);
-
-  if (!open || !user) return null;
-  return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="permissions-modal-title">
-      <div className="bg-white rounded-xl p-6 max-w-lg w-full shadow-lg" tabIndex={-1}>
-        <h2 id="permissions-modal-title" className="text-2xl font-bold text-primary mb-4">Manage Permissions</h2>
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded" role="alert">{error}</div>
-        )}
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto" aria-label="Permission categories">
-          {Object.entries(PERMISSIONS).map(([category, perms]) => (
-            <div key={category} className="border-b pb-4">
-              <h3 className="font-medium text-gray-900 mb-2">{category}</h3>
-              <div className="space-y-2">
-                {Object.entries(perms).map(([key, value]) => (
-                  <label key={value} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={permissions?.includes(value) || false}
-                      onChange={(e) => {
-                        const updated = e.target.checked
-                          ? [...(permissions || []), value]
-                          : (permissions || []).filter((p) => p !== value);
-                        setPermissions(updated);
-                      }}
-                      className="rounded border-gray-300 text-secondary focus:ring-secondary"
-                      aria-checked={permissions?.includes(value) || false}
-                    />
-                    <span className="text-sm text-gray-700">{key}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            Save Permissions
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-});
 
 
 const UserManagement = () => {
@@ -326,11 +218,13 @@ const UserManagement = () => {
 
         {/* Main Content */}
         {loading ? (
-          <div className="text-center py-8" role="status" aria-live="polite">Loading...</div>
+          <div className="flex justify-center items-center py-16" role="status" aria-live="polite">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent" aria-label="Loading users" />
+          </div>
         ) : error ? (
           <div className="text-red-500 py-8" role="alert">{error}</div>
         ) : (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-background-light border border-gray-light rounded-xl shadow-lg overflow-x-auto">
             <UserTable {...userTableProps} />
           </div>
         )}

@@ -2,9 +2,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { NotificationsApi } from '../../api/notifications';
+import { BellIcon, EnvelopeIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Memoized switch component for toggles
-const ToggleSwitch = React.memo(function ToggleSwitch({ checked, onChange, label, id }) {
+// Memoized switch component for toggles (with icon)
+const ToggleSwitch = React.memo(function ToggleSwitch({ checked, onChange, label, id, icon }) {
+  const Icon = icon;
   return (
     <label className="inline-flex items-center cursor-pointer" htmlFor={id}>
       <input
@@ -16,22 +19,31 @@ const ToggleSwitch = React.memo(function ToggleSwitch({ checked, onChange, label
         aria-checked={checked}
         tabIndex={0}
       />
-      <div className={`w-11 h-6 rounded-full transition-colors duration-200 ${checked ? 'bg-secondary' : 'bg-gray-light'}`}
+      <div className={`w-11 h-6 rounded-full transition-colors duration-200 flex items-center ${checked ? 'bg-secondary' : 'bg-gray-light'}`}
         aria-hidden="true"
       >
         <div className={`w-5 h-5 rounded-full bg-white shadow transform transition-transform duration-200 ${checked ? 'translate-x-6' : 'translate-x-1'}`}></div>
       </div>
+      {Icon && <Icon className="h-4 w-4 ml-2 text-gray-dark" aria-hidden="true" />}
       {label && <span className="sr-only">{label}</span>}
     </label>
   );
 });
 
-// Memoized table row for preferences
+// Memoized table row for preferences (with animation)
 const PreferenceRow = React.memo(function PreferenceRow({ pref, index, onToggle }) {
   return (
-    <tr className={pref.is_default ? 'bg-gray-light/30' : ''}>
+    <motion.tr
+      className={pref.is_default ? 'bg-gray-light/30' : ''}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.04 }}
+    >
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-text-dark">{pref.label}</div>
+        <div className="text-sm font-medium text-text-dark flex items-center gap-2">
+          <BellIcon className="h-5 w-5 text-primary" aria-hidden="true" />
+          {pref.label}
+        </div>
         <div className="text-sm text-gray-dark">{pref.description}</div>
         {pref.is_default && (
           <span className="text-xs text-gray-dark/70 italic">Default settings</span>
@@ -43,6 +55,7 @@ const PreferenceRow = React.memo(function PreferenceRow({ pref, index, onToggle 
           onChange={() => onToggle(index, 'in_app')}
           label={`Toggle in-app for ${pref.label}`}
           id={`inapp-${pref.category}`}
+          icon={BellIcon}
         />
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
@@ -51,17 +64,20 @@ const PreferenceRow = React.memo(function PreferenceRow({ pref, index, onToggle 
           onChange={() => onToggle(index, 'email')}
           label={`Toggle email for ${pref.label}`}
           id={`email-${pref.category}`}
+          icon={EnvelopeIcon}
         />
       </td>
-    </tr>
+    </motion.tr>
   );
 });
 
 // Memoized loading spinner
+
 const LoadingSpinner = React.memo(function LoadingSpinner() {
   return (
-    <div className="flex justify-center items-center h-64" role="status" aria-label="Loading preferences">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary"></div>
+    <div className="flex flex-col justify-center items-center h-64" role="status" aria-label="Loading preferences">
+      <ArrowPathIcon className="animate-spin h-12 w-12 text-secondary mb-2" aria-label="Loading" />
+      <span className="text-secondary">Loading preferences...</span>
     </div>
   );
 });
@@ -106,17 +122,19 @@ const BulkToggleButtons = React.memo(function BulkToggleButtons({ onInApp, onEma
   );
 });
 
-// Memoized save button
+
+// Memoized save button (with icon)
 const SaveButton = React.memo(function SaveButton({ onClick, saving }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={saving}
-      className={`px-6 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors ${saving ? 'opacity-70 cursor-not-allowed' : ''}`}
+      className={`px-6 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors flex items-center gap-2 ${saving ? 'opacity-70 cursor-not-allowed' : ''}`}
       aria-busy={saving}
     >
-      {saving ? 'Saving...' : 'Save Preferences'}
+      {saving && <ArrowPathIcon className="animate-spin h-5 w-5" aria-hidden="true" />}
+      {saving ? 'Saving...' : <><CheckCircleIcon className="h-5 w-5 text-white" aria-hidden="true" /> Save Preferences</>}
     </button>
   );
 });
@@ -196,14 +214,22 @@ export default function NotificationPreferences() {
     setPreferences(prev => prev.map(pref => ({ ...pref, [field]: enable })));
   }, []);
 
+
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="bg-white  shadow-md rounded-lg overflow-hidden">
-        <div className="p-6 bg-primary text-white">
-          <h1 className="text-2xl font-bold">Notification Preferences</h1>
-          <p className="text-gray-light mt-2">Customize how you want to receive notifications</p>
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="container mx-auto px-4 py-8"
+    >
+      <div className="bg-white shadow-md rounded-lg overflow-hidden border border-accent/10">
+        <div className="p-6 bg-primary text-white flex items-center gap-3">
+          <BellIcon className="h-8 w-8 text-white" aria-hidden="true" />
+          <div>
+            <h1 className="text-2xl font-bold">Notification Preferences</h1>
+            <p className="text-gray-light mt-2">Customize how you want to receive notifications</p>
+          </div>
         </div>
         <div className="p-6">
           <BulkToggleButtons onInApp={bulkToggleHandler('in_app')} onEmail={bulkToggleHandler('email')} />
@@ -216,10 +242,12 @@ export default function NotificationPreferences() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-dark uppercase tracking-wider">Email</th>
                 </tr>
               </thead>
-              <tbody className="bg-white  divide-y divide-gray-light">
-                {preferences.map((pref, index) => (
-                  <PreferenceRow key={pref.category} pref={pref} index={index} onToggle={handleToggle} />
-                ))}
+              <tbody className="bg-white divide-y divide-gray-light">
+                <AnimatePresence>
+                  {preferences.map((pref, index) => (
+                    <PreferenceRow key={pref.category} pref={pref} index={index} onToggle={handleToggle} />
+                  ))}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>
@@ -228,6 +256,6 @@ export default function NotificationPreferences() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

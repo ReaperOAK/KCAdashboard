@@ -26,11 +26,7 @@ const validationSchema = Yup.object({
   description: Yup.string().max(500, 'Description too long'),
   level: Yup.string().oneOf(LEVELS.map(l => l.value)),
   max_students: Yup.number().min(1).max(100).required('Max students required'),
-  teacher_id: Yup.string().when('teachers', {
-    is: (teachers) => !!teachers,
-    then: Yup.string().required('Teacher is required'),
-    otherwise: Yup.string(),
-  }),
+  teacher_id: Yup.string().required('Teacher is required'),
   status: Yup.string().oneOf(STATUS_OPTIONS.map(s => s.value)),
   schedule: Yup.string().test('valid-schedule', 'Invalid schedule', value => {
     try {
@@ -46,8 +42,9 @@ const validationSchema = Yup.object({
 export const ErrorAlert = React.memo(function ErrorAlert({ error }) {
   if (!error) return null;
   return (
-    <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-lg mb-4" role="alert">
-      {error}
+    <div className="bg-error/10 text-error border border-error p-3 rounded-lg mb-4 flex items-center gap-2 animate-fade-in" role="alert">
+      <svg className="w-5 h-5 text-error flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" /></svg>
+      <span>{error}</span>
     </div>
   );
 });
@@ -98,7 +95,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             className={
               `w-full py-2 rounded-lg font-semibold shadow-sm border transition-all focus:outline-none focus:ring-2 focus:ring-accent text-center ` +
               (schedule.days.includes(day)
-                ? 'bg-secondary text-white border-secondary scale-105'
+                ? 'bg-secondary text-white border-secondary scale-105 drop-shadow-md'
                 : 'bg-gray-100 text-primary border-gray-300 hover:bg-accent hover:text-white')
             }
             onClick={() => handleDayToggle(day)}
@@ -121,7 +118,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             type="time"
             value={schedule.time || '09:00'}
             onChange={e => handleFieldChange('time', e.target.value)}
-            className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2"
+            className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2 bg-white"
             aria-label="Batch time"
           />
         </div>
@@ -134,7 +131,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             step="30"
             value={schedule.duration || 60}
             onChange={e => handleFieldChange('duration', parseInt(e.target.value, 10))}
-            className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2"
+            className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2 bg-white"
             aria-label="Batch duration in minutes"
           />
         </div>
@@ -152,6 +149,7 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
   onSubmit,
   initialValues = {},
   teachers = null,
+  currentTeacherId = null,
   mode = 'create',
   loading: externalLoading = false,
   error: externalError = ''
@@ -167,13 +165,13 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
     description: '',
     level: 'beginner',
     max_students: 10,
-    teacher_id: '',
+    teacher_id: (teachers === null && currentTeacherId) ? currentTeacherId : '',
     status: 'active',
     ...initialValues,
     schedule: initialValues.schedule
       ? (typeof initialValues.schedule === 'string' ? initialValues.schedule : JSON.stringify(initialValues.schedule))
       : JSON.stringify(defaultSchedule)
-  }), [initialValues]);
+  }), [initialValues, teachers, currentTeacherId]);
 
   const handleFormikSubmit = useCallback(
     async (values, { setSubmitting }) => {
@@ -326,8 +324,9 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
       enableReinitialize
     >
       {({ values, isSubmitting, setFieldValue }) => (
-        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4" aria-label="Create or edit batch form">
+        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4 animate-fade-in" aria-label="Create or edit batch form">
           <ErrorAlert error={error} />
+          <h2 className="text-2xl text-primary font-semibold mb-2 text-center">{mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}</h2>
           <NameField />
           <DescriptionField />
           <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4">

@@ -14,7 +14,7 @@ import CreateBatchForm from './CreateBatchForm';
  * @param {boolean} [props.loading] - Loading state (optional)
  * @param {string} [props.error] - Error message (optional)
  */
-const BatchModal = ({
+const BatchModal = React.memo(function BatchModal({
   open,
   onClose,
   onSubmit,
@@ -23,24 +23,28 @@ const BatchModal = ({
   teachers = null,
   loading = false,
   error = '',
-}) => {
+  currentTeacherId = null,
+}) {
   if (!open) return null;
   return (
     <Modal
       title={mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}
       onClose={onClose}
+      className="max-w-lg w-full p-0 sm:p-0 bg-background-light rounded-2xl shadow-2xl border border-gray-light animate-fade-in"
+      overlayClassName="bg-black/40 backdrop-blur-sm"
     >
       <CreateBatchForm
         onClose={onClose}
         onSubmit={onSubmit}
         initialValues={initialValues}
         teachers={teachers}
+        currentTeacherId={currentTeacherId}
         mode={mode}
         loading={loading}
         error={error}
       />
     </Modal>
   );
-};
+});
 
-export default React.memo(BatchModal);
+export default BatchModal;

@@ -1,111 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizApi } from '../../api/quiz';
-import { FaPlus, FaEdit, FaTrash, FaChessBoard, FaFilter, FaSearch, FaEye } from 'react-icons/fa';
+import { FaPlus, FaFilter, FaSearch, FaChessBoard } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-
-// Loading skeleton
-const QuizLoadingSkeleton = React.memo(() => (
-  <div className="p-6 text-center" aria-busy="true" aria-label="Loading quizzes">
-    <div className="animate-spin w-8 h-8 border-4 border-secondary border-t-transparent rounded-full mx-auto mb-2"></div>
-    <p>Loading quizzes...</p>
-  </div>
-));
-
-// Error alert
-const QuizErrorAlert = React.memo(({ error }) => (
-  <div className="p-6 text-center text-red-700 bg-red-100 border border-red-800 rounded" role="alert">
-    {error}
-  </div>
-));
-
-// Delete confirmation modal
-const DeleteQuizModal = React.memo(({ open, quiz, onCancel, onConfirm }) => {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-primary">Delete Quiz</h2>
-        <p className="mb-6 text-gray-dark">
-          Are you sure you want to delete "{quiz?.title}"? This action cannot be undone.
-        </p>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-light rounded-md text-gray-dark hover:bg-background-light focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-// Quiz table row
-const QuizTableRow = React.memo(({ quiz, onEdit, onPublish, onDelete, onViewLeaderboard, getStatusClass, getDifficultyClass }) => (
-  <tr className="border-t hover:bg-gray-light">
-    <td className="p-3 sm:p-4">
-      <div className="font-medium text-secondary text-sm sm:text-base">{quiz.title}</div>
-      <div className="text-xs text-gray-dark mt-1 line-clamp-1">{quiz.description}</div>
-    </td>
-    <td className="p-3 sm:p-4">
-      <span className={`px-2 py-1 rounded-full text-xs ${getStatusClass(quiz.status)}`}>{quiz.status}</span>
-    </td>
-    <td className="p-3 sm:p-4">
-      <span className={`px-2 py-1 rounded-full text-xs ${getDifficultyClass(quiz.difficulty)}`}>{quiz.difficulty}</span>
-    </td>
-    <td className="p-3 sm:p-4">{quiz.question_count || '-'}</td>
-    <td className="p-3 sm:p-4">{quiz.time_limit} mins</td>
-    <td className="p-3 sm:p-4">{new Date(quiz.created_at).toLocaleDateString()}</td>
-    <td className="p-3 sm:p-4">
-      <div className="flex space-x-2">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="p-2 text-blue-600 hover:bg-blue-50 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Edit quiz"
-        >
-          <FaEdit />
-        </button>
-        {quiz.status === 'draft' && (
-          <button
-            type="button"
-            onClick={onPublish}
-            className="p-2 text-green-700 hover:bg-green-100 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            aria-label="Publish quiz"
-          >
-            <FaEye />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={onDelete}
-          className="p-2 text-red-700 hover:bg-red-100 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Delete quiz"
-        >
-          <FaTrash />
-        </button>
-        <button
-          type="button"
-          onClick={onViewLeaderboard}
-          className="p-2 text-green-600 hover:bg-green-50 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="View leaderboard"
-        >
-          <FaChessBoard />
-        </button>
-      </div>
-    </td>
-  </tr>
-));
+import QuizLoadingSkeleton from '../../components/quiz/QuizLoadingSkeleton';
+import QuizErrorAlert from '../../components/quiz/QuizErrorAlert';
+import DeleteQuizModal from '../../components/quiz/DeleteQuizModal';
+import QuizTableRow from '../../components/quiz/QuizTableRow';
 
 export const QuizManagement = () => {
   const navigate = useNavigate();
@@ -122,10 +23,18 @@ export const QuizManagement = () => {
   const fetchQuizzes = useCallback(async () => {
     setLoading(true);
     try {
-      const quizzes = await QuizApi.getTeacherQuizzes(filter === 'all' ? undefined : filter);
-      setQuizzes(quizzes);
+      const result = await QuizApi.getTeacherQuizzes(filter === 'all' ? undefined : filter);
+      // Support both array and { quizzes: array } response
+      let quizList = [];
+      if (Array.isArray(result)) {
+        quizList = result;
+      } else if (result && Array.isArray(result.quizzes)) { 
+        quizList = result.quizzes;
+      }
+      setQuizzes(quizList);
       setError(null);
     } catch (err) {
+      setQuizzes([]); // Ensure quizzes is always an array on error
       setError('Failed to load quizzes');
     } finally {
       setLoading(false);
@@ -210,7 +119,7 @@ export const QuizManagement = () => {
           <button
             type="button"
             onClick={handleCreateQuiz}
-            className="px-3 sm:px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent flex items-center focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base"
+            className="px-3 sm:px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent flex items-center focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base transition-all duration-200"
             aria-label="Create New Quiz"
           >
             <FaPlus className="mr-2" /> Create New Quiz
@@ -218,8 +127,8 @@ export const QuizManagement = () => {
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-white rounded-xl shadow-md mb-6 sm:mb-8">
-          <div className="p-4 border-b flex items-center">
+        <div className="bg-white rounded-xl shadow-md mb-6 sm:mb-8 border border-gray-light">
+          <div className="p-4 border-b flex items-center gap-2">
             <FaFilter className="text-secondary mr-2" />
             <h2 className="text-base sm:text-lg font-semibold text-primary">Filter Quizzes</h2>
           </div>
@@ -232,7 +141,7 @@ export const QuizManagement = () => {
                     placeholder="Search by title or description..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-sm transition-all duration-200"
                     aria-label="Search quizzes"
                   />
                   <FaSearch className="absolute left-3 top-3 text-gray-dark" />
@@ -242,7 +151,7 @@ export const QuizManagement = () => {
                 <select
                   value={filter}
                   onChange={e => setFilter(e.target.value)}
-                  className="w-full p-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                  className="w-full p-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-sm transition-all duration-200"
                   aria-label="Filter by difficulty"
                 >
                   <option value="all">All Difficulties</option>
@@ -255,7 +164,7 @@ export const QuizManagement = () => {
                 <select
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
-                  className="w-full p-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                  className="w-full p-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-sm transition-all duration-200"
                   aria-label="Filter by status"
                 >
                   <option value="all">All Status</option>
@@ -268,8 +177,8 @@ export const QuizManagement = () => {
         </div>
 
         {/* Quiz List */}
-        <div className="bg-white rounded-xl shadow-md">
-          <div className="p-4 border-b flex items-center">
+        <div className="bg-white rounded-xl shadow-md border border-gray-light">
+          <div className="p-4 border-b flex items-center gap-2">
             <FaChessBoard className="text-secondary mr-2" />
             <h2 className="text-base sm:text-lg font-semibold text-primary">Your Quizzes</h2>
           </div>
@@ -278,19 +187,20 @@ export const QuizManagement = () => {
           ) : error ? (
             <QuizErrorAlert error={error} />
           ) : filteredQuizzes.length === 0 ? (
-            <div className="p-6 text-center">
+            <div className="p-6 text-center flex flex-col items-center gap-4">
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" className="text-gray-light mb-2"><path d="M12 2v20M2 12h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               <p className="text-gray-dark mb-4">No quizzes found. Create your first quiz!</p>
               <button
                 type="button"
                 onClick={handleCreateQuiz}
-                className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
               >
                 Create Quiz
               </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm sm:text-base">
+              <table className="w-full text-sm sm:text-base min-w-[700px]">
                 <thead>
                   <tr className="bg-gray-light text-primary text-xs sm:text-sm uppercase">
                     <th className="p-3 sm:p-4 text-left">Title</th>

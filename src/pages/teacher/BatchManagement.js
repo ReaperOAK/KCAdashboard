@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { BatchesApi } from '../../api/batches';
 import BatchList from '../../components/batches/BatchList';
 import Modal from '../../components/common/Modal';
@@ -104,6 +105,7 @@ const ManageStudentsModal = React.memo(({
 
 // --- Main Component ---
 export default function BatchManagement() {
+  const { user } = useAuth();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -142,9 +144,10 @@ export default function BatchManagement() {
       if (response && response.success) {
         setStudents(response.students || []);
       }
-      setShowStudentModal(true);
     } catch (err) {
       // Optionally set error state for student fetch
+    } finally {
+      setShowStudentModal(true);
     }
   }, []);
 
@@ -166,6 +169,7 @@ export default function BatchManagement() {
       }
       setAddingStudent(false);
       setSelectedStudent(null);
+      setShowStudentModal(true); // Ensure modal stays open and updates
     } catch (err) {
       alert(err.message || 'Failed to add student');
     }
@@ -194,31 +198,36 @@ export default function BatchManagement() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background-light p-4 sm:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background-light p-2 sm:p-6 flex flex-col">
+      <div className="max-w-7xl w-full mx-auto flex-1 flex flex-col">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Batch Management</h1>
+          <h1 className="text-3xl font-bold text-primary tracking-tight drop-shadow-sm text-center sm:text-left">Batch Management</h1>
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="px-3 sm:px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base w-full sm:w-auto"
+            className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent text-base font-semibold shadow-md transition-colors w-full sm:w-auto"
           >
-            Create New Batch
+            <span className="inline-flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+              Create New Batch
+            </span>
           </button>
         </div>
 
-        {loading ? (
-          <BatchSkeleton />
-        ) : error ? (
-          <ErrorAlert message={error} />
-        ) : batches.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <BatchList
-            batches={batches}
-            onManageStudents={handleManageStudents}
-          />
-        )}
+        <div className="flex-1 flex flex-col">
+          {loading ? (
+            <BatchSkeleton />
+          ) : error ? (
+            <ErrorAlert message={error} />
+          ) : batches.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <BatchList
+              batches={batches}
+              onManageStudents={handleManageStudents}
+            />
+          )}
+        </div>
 
         {/* Create/Edit Batch Modal (shared) */}
         {showCreateModal && (
@@ -230,6 +239,7 @@ export default function BatchManagement() {
               handleCreateSuccess();
             }}
             mode="create"
+            currentTeacherId={user && user.role === 'teacher' ? user.id : null}
           />
         )}
 

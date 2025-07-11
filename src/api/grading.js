@@ -5,6 +5,7 @@ export const GradingApi = {
   submitFeedback: (feedbackData) => post('/grading/submit-feedback.php', feedbackData),
   getFeedbackHistory: (studentId) => get(`/grading/get-student-feedback-history.php?student_id=${studentId}`),
   getPendingGradingSessions: (teacherId) => get('/grading/get-pending.php', { params: { teacher_id: teacherId } }),
+  getAllStudents: () => get('/grading/get-all-students.php'),
   getStudentReportCards: () => get('/grading/get-student-report-cards.php'),
   uploadReportCard: (studentId, file) => {
     const formData = new FormData();

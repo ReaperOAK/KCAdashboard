@@ -5,9 +5,11 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../services/EmailService.php';
 
 class NotificationService {
-    // Sanitize a string for safe DB and email use
+    // Sanitize a string for safe DB and email use (PHP 8+ compatible)
     private function sanitize($str) {
-        return trim(filter_var($str, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+        // Remove low/high ASCII, then escape HTML
+        $str = filter_var($str, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+        return trim(htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
     }
 
     // Validate user ID

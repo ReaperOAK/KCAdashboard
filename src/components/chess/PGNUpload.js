@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { BatchesApi } from '../../api/batches';
 import { parse } from '@mliebelt/pgn-parser';
 import { ChessApi } from '../../api/chess';
 import UploadMethodSelector from './PGNUploadMethodSelector';
@@ -50,8 +51,18 @@ export const PGNUpload = React.memo(function PGNUpload({
   const [isPublic, setIsPublic] = useState(true);
   const [visibility, setVisibility] = useState('public');
   const [visibilityDetails, setVisibilityDetails] = useState({});
-  // TODO: Replace with real data from API
-  const [batchOptions] = useState([{ id: '1', name: 'Batch A' }, { id: '2', name: 'Batch B' }]);
+  const [batchOptions, setBatchOptions] = useState([]);
+  useEffect(() => {
+    async function fetchBatches() {
+      try {
+        const res = await BatchesApi.getBatches();
+        setBatchOptions(res.batches || []);
+      } catch {
+        setBatchOptions([]);
+      }
+    }
+    fetchBatches();
+  }, []);
   const [studentOptions] = useState([{ id: '10', name: 'Student X' }, { id: '11', name: 'Student Y' }]);
 
   /**
@@ -208,7 +219,7 @@ export const PGNUpload = React.memo(function PGNUpload({
         throw new Error('PGN content is empty');
       }
 
-      console.log('Parsing PGN content, length:', content.length);
+      
 
       // Try to parse with @mliebelt/pgn-parser first
       let parsedGames = [];
@@ -218,7 +229,7 @@ export const PGNUpload = React.memo(function PGNUpload({
       try {
         // Parse with @mliebelt/pgn-parser
         parsedGames = parse(content, { startRule: 'games' });
-        console.log('Parser returned games:', parsedGames?.length || 0);
+        
       } catch (parseError) {
         console.warn('PGN parser error, using improved manual parsing:', parseError.message);
         
@@ -232,7 +243,7 @@ export const PGNUpload = React.memo(function PGNUpload({
         throw new Error('No valid games found in PGN');
       }
 
-      console.log('Processing', parsedGames.length, 'games' + (usingFallback ? ' (manual parser)' : ''));
+      
 
       // Extract metadata and validate each game with improved validation
       const gameMetadata = [];

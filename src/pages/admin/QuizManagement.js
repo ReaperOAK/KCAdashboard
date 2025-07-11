@@ -1,99 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizApi } from '../../api/quiz';
-import { FaPlus, FaEdit, FaTrash, FaChessBoard, FaFilter, FaSearch, FaEye } from 'react-icons/fa';
+import { FaPlus, FaChessBoard, FaFilter, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-
-const QuizLoadingSkeleton = React.memo(() => (
-  <div className="p-6 text-center" aria-busy="true" aria-label="Loading quizzes">
-    <div className="animate-spin w-8 h-8 border-4 border-secondary border-t-transparent rounded-full mx-auto mb-2"></div>
-    <p>Loading quizzes...</p>
-  </div>
-));
-
-const QuizErrorAlert = React.memo(({ error }) => (
-  <div className="p-6 text-center text-red-700 bg-red-100 border border-red-800 rounded" role="alert">
-    {error}
-  </div>
-));
-
-const DeleteQuizModal = React.memo(({ open, quiz, onCancel, onConfirm }) => {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-primary">Delete Quiz</h2>
-        <p className="mb-6 text-gray-dark">
-          Are you sure you want to delete "{quiz?.title}"? This action cannot be undone.
-        </p>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-light rounded-md text-gray-dark hover:bg-background-light focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-const QuizTableRow = React.memo(({ quiz, onEdit, onPublish, onDelete, getStatusClass, getDifficultyClass }) => (
-  <tr className="border-t hover:bg-gray-light">
-    <td className="p-3 sm:p-4">
-      <div className="font-medium text-secondary text-sm sm:text-base">{quiz.title}</div>
-      <div className="text-xs text-gray-dark mt-1 line-clamp-1">{quiz.description}</div>
-    </td>
-    <td className="p-3 sm:p-4">
-      <span className={`px-2 py-1 rounded-full text-xs ${getStatusClass(quiz.status)}`}>{quiz.status}</span>
-    </td>
-    <td className="p-3 sm:p-4">
-      <span className={`px-2 py-1 rounded-full text-xs ${getDifficultyClass(quiz.difficulty)}`}>{quiz.difficulty}</span>
-    </td>
-    <td className="p-3 sm:p-4">{quiz.question_count || '-'}</td>
-    <td className="p-3 sm:p-4">{quiz.time_limit} mins</td>
-    <td className="p-3 sm:p-4">{new Date(quiz.created_at).toLocaleDateString()}</td>
-    <td className="p-3 sm:p-4">
-      <div className="flex space-x-2">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="p-2 text-blue-600 hover:bg-blue-50 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Edit quiz"
-        >
-          <FaEdit />
-        </button>
-        {quiz.status === 'draft' && (
-          <button
-            type="button"
-            onClick={onPublish}
-            className="p-2 text-green-700 hover:bg-green-100 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-            aria-label="Publish quiz"
-          >
-            <FaEye />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={onDelete}
-          className="p-2 text-red-700 hover:bg-red-100 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Delete quiz"
-        >
-          <FaTrash />
-        </button>
-      </div>
-    </td>
-  </tr>
-));
+import QuizLoadingSkeleton from '../../components/quiz/QuizLoadingSkeleton';
+import QuizErrorAlert from '../../components/quiz/QuizErrorAlert';
+import DeleteQuizModal from '../../components/quiz/DeleteQuizModal';
+import QuizTableRow from '../../components/quiz/QuizTableRow';
 
 const QuizManagement = () => {
   const navigate = useNavigate();
@@ -111,13 +24,12 @@ const QuizManagement = () => {
     try {
       // Try user key first, then fallback to token
       let stored = localStorage.getItem('user') || localStorage.getItem('token');
-      console.log('[QuizManagement] User/token string:', stored);
       if (!stored) return false;
       // If user key, it may be a JSON object with a role property
       if (stored.startsWith('{')) {
         const userObj = JSON.parse(stored);
         if (userObj.role) {
-          console.log('[QuizManagement] User object:', userObj);
+          
           return userObj.role === 'admin';
         }
         if (userObj.token) stored = userObj.token;
@@ -127,7 +39,7 @@ const QuizManagement = () => {
       // If it's a JWT
       if (stored.includes('.')) {
         const payload = JSON.parse(atob(stored.split('.')[1]));
-        console.log('[QuizManagement] Decoded payload:', payload);
+        
         return payload.role === 'admin';
       }
       return false;
@@ -201,15 +113,15 @@ const QuizManagement = () => {
 
   const getDifficultyClass = useCallback((difficulty) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
+      case 'beginner': return 'bg-success/10 text-success';
+      case 'intermediate': return 'bg-warning/10 text-warning';
+      case 'advanced': return 'bg-error/10 text-error';
       default: return 'bg-gray-light text-primary';
     }
   }, []);
   const getStatusClass = useCallback((status) => {
     switch (status) {
-      case 'published': return 'bg-green-100 text-green-800';
+      case 'published': return 'bg-success/10 text-success';
       case 'draft': return 'bg-gray-light text-primary';
       default: return 'bg-gray-light text-primary';
     }

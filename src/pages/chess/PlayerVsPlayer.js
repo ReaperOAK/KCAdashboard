@@ -8,41 +8,11 @@ import ChessBoard from '../../components/chess/ChessBoard';
 import { ChessApi } from '../../api/chess';
 import { useAuth } from '../../hooks/useAuth';
 import AcceptedGamesModal from '../../components/chess/AcceptedGamesModal';
-
-// Tab Button (memoized)
-const TabButton = React.memo(function TabButton({ isActive, onClick, children, badge, ariaLabel }) {
-  return (
-    <button
-      type="button"
-      className={`px-6 py-3 bg-transparent border-none cursor-pointer text-base transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-        isActive
-          ? 'text-primary font-bold after:content-[""] after:absolute after:-bottom-px after:left-0 after:w-full after:h-0.5 after:bg-primary'
-          : 'text-gray-dark hover:bg-background-light'
-      }`}
-      onClick={onClick}
-      aria-current={isActive ? 'page' : undefined}
-      aria-label={ariaLabel}
-    >
-      {children}
-      {badge}
-    </button>
-  );
-});
-
-// Loading and Error States
-const LoadingState = () => (
-  <div className="max-w-6xl mx-auto px-5 pb-10">
-    <div className="flex justify-center items-center h-96 text-primary font-bold">Loading...</div>
-  </div>
-);
-const ErrorState = ({ error, onRetry }) => (
-  <div className="max-w-6xl mx-auto px-5 pb-10">
-    <div className="flex justify-center items-center h-48 text-red-600 font-bold text-center mb-6">{error}</div>
-    <button onClick={onRetry} className="block mx-auto px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors">
-      Retry
-    </button>
-  </div>
-);
+import TabButton from '../../components/chess/TabButton';
+import LoadingState from '../../components/chess/LoadingState';
+import ErrorState from '../../components/chess/ErrorState';
+import ComputerSettings from '../../components/chess/ComputerSettings';
+import StatsPanel from '../../components/chess/StatsPanel';
 
 export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   const { user } = useAuth();
@@ -193,7 +163,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Memoize tab badge
   const challengesBadge = useMemo(() => (
     challenges.length > 0 ? (
-      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-white text-xs ml-2">
+      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-error text-white text-xs ml-2">
         {challenges.length}
       </span>
     ) : null
@@ -213,13 +183,13 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
         />
       )}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-primary m-0">Play Chess</h1>
-        <div className="bg-accent text-white px-4 py-2 rounded-full font-bold text-base w-full sm:w-auto text-center">
+        <h1 className="text-3xl text-primary font-bold m-0">Play Chess</h1>
+        <div className="bg-accent text-white px-4 py-2 rounded-full font-bold text-base w-full sm:w-auto text-center transition-all duration-200 shadow-md">
           Your Rating: {playerStats ? playerStats.rating : 1200}
         </div>
       </div>
       <ChessNavigation />
-      <div className="flex overflow-x-auto border-b border-gray-dark mb-6 no-scrollbar" role="tablist" aria-label="Chess Tabs">
+      <div className="flex overflow-x-auto border-b border-gray-light mb-6 no-scrollbar" role="tablist" aria-label="Chess Tabs">
         <div className="flex min-w-full sm:min-w-0">
           <TabButton isActive={activeTab === 'players'} onClick={() => setActiveTab('players')} ariaLabel="Online Players Tab">
             Online Players
@@ -264,161 +234,21 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                 playMode="vs-ai"
                 width={520}
                 useOnlineAPI={useOnlineAPI}
-                className="w-full h-auto max-w-full shadow-lg rounded-lg border border-gray-200"
+                className="w-full h-auto max-w-full shadow-lg rounded-lg border border-gray-light transition-all duration-200"
               />
             </div>
-            <div className="w-full lg:flex-1 space-y-6 order-1 lg:order-2">
-              <div className="bg-background-light p-4 sm:p-6 rounded-lg shadow-md">
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-primary mb-2">Engine Level</label>
-                  <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3">
-                    <input
-                      type="range"
-                      min="1"
-                      max="20"
-                      value={engineLevel}
-                      onChange={e => setEngineLevel(parseInt(e.target.value))}
-                      className="flex-1 h-2 bg-gray-light rounded-lg appearance-none cursor-pointer slider:bg-accent min-w-0"
-                      aria-label="Engine Level"
-                    />
-                    <span className="min-w-[24px] text-center font-bold text-primary">{engineLevel}</span>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-primary mb-2">Play as</label>
-                  <div className="flex flex-col xs:flex-row gap-3 xs:gap-5">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="color"
-                        value="white"
-                        checked={engineColor === 'black'}
-                        onChange={() => setEngineColor('black')}
-                        className="w-4 h-4 text-accent bg-gray-light border-gray-light focus:ring-accent"
-                        aria-label="Play as White"
-                      />
-                      <span className="text-gray-dark">White</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="color"
-                        value="black"
-                        checked={engineColor === 'white'}
-                        onChange={() => setEngineColor('white')}
-                        className="w-4 h-4 text-accent bg-gray-light border-gray-light focus:ring-accent"
-                        aria-label="Play as Black"
-                      />
-                      <span className="text-gray-dark">Black</span>
-                    </label>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={useOnlineAPI}
-                      onChange={e => setUseOnlineAPI(e.target.checked)}
-                      className="w-4 h-4 text-accent bg-gray-light border-gray-light rounded focus:ring-accent"
-                      aria-label="Use Online API"
-                    />
-                    <span className="text-gray-dark">Use Online API (more powerful analysis)</span>
-                  </label>
-                  <p className="text-sm text-gray-dark mt-1">
-                    The online API provides stronger analysis but requires an internet connection.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ComputerSettings
+              engineLevel={engineLevel}
+              setEngineLevel={setEngineLevel}
+              engineColor={engineColor}
+              setEngineColor={setEngineColor}
+              useOnlineAPI={useOnlineAPI}
+              setUseOnlineAPI={setUseOnlineAPI}
+            />
           </div>
         )}
         {activeTab === 'stats' && (
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-primary text-center mb-6">Your Chess Statistics</h2>
-            {!playerStats ? (
-              <div className="text-center py-8">
-                <div className="text-primary font-bold text-lg mb-4">Loading your stats...</div>
-                <p className="text-gray-dark">If this is your first time, your stats will appear after playing your first game.</p>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                  <div className="bg-background-light rounded-lg p-4 text-center shadow-sm">
-                    <div className="text-3xl font-bold text-primary mb-2">{playerStats.rating || 1200}</div>
-                    <div className="text-gray-dark">Rating</div>
-                  </div>
-                  <div className="bg-background-light rounded-lg p-4 text-center shadow-sm">
-                    <div className="text-3xl font-bold text-primary mb-2">{playerStats.games_played || 0}</div>
-                    <div className="text-gray-dark">Games Played</div>
-                  </div>
-                  <div className="bg-background-light rounded-lg p-4 text-center shadow-sm">
-                    <div className="text-3xl font-bold text-primary mb-2">{playerStats.win_rate || 0}%</div>
-                    <div className="text-gray-dark">Win Rate</div>
-                  </div>
-                  <div className="bg-background-light rounded-lg p-4 text-center shadow-sm">
-                    <div className="text-3xl font-bold text-primary mb-2">{playerStats.rank || 'N/A'}</div>
-                    <div className="text-gray-dark">Rank</div>
-                  </div>
-                </div>
-                <div className="flex flex-col xs:flex-row justify-between bg-gray-light rounded-lg p-4 mb-8 shadow-sm gap-4 xs:gap-0">
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="text-2xl font-bold text-green-600 mb-1">{playerStats.games_won || 0}</div>
-                    <div className="text-gray-dark">Wins</div>
-                  </div>
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="text-2xl font-bold text-yellow-600 mb-1">{playerStats.games_drawn || 0}</div>
-                    <div className="text-gray-dark">Draws</div>
-                  </div>
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="text-2xl font-bold text-red-600 mb-1">{playerStats.games_lost || 0}</div>
-                    <div className="text-gray-dark">Losses</div>
-                  </div>
-                </div>
-                {playerStats.recent_games && playerStats.recent_games.length > 0 ? (
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <h3 className="text-xl font-semibold text-primary mb-4 border-b border-gray-dark pb-2">Recent Games</h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b-2 border-gray-dark">
-                            <th className="text-left p-3 text-primary">Opponent</th>
-                            <th className="text-left p-3 text-primary">Result</th>
-                            <th className="text-left p-3 text-primary">Color</th>
-                            <th className="text-left p-3 text-primary">Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {playerStats.recent_games.map((game, index) => (
-                            <tr key={index} className="border-b border-gray-light">
-                              <td className="p-3">{game.opponent_name}</td>
-                              <td className={`p-3 font-bold ${
-                                game.result === 'win' ? 'text-green-600' :
-                                game.result === 'loss' ? 'text-red-600' :
-                                game.result === 'draw' ? 'text-yellow-600' : 'text-blue-600'
-                              }`}>
-                                {game.result === 'win' ? 'Won' :
-                                 game.result === 'loss' ? 'Lost' :
-                                 game.result === 'draw' ? 'Draw' : 'Active'}
-                              </td>
-                              <td className="p-3 capitalize">{game.player_color}</td>
-                              <td className="p-3">
-                                {new Date(game.last_move_at).toLocaleDateString()}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-lg p-8 shadow-sm text-center">
-                    <p className="text-gray-dark mb-4">No recent games found.</p>
-                    <p className="text-sm text-gray-dark">Start playing to see your game history!</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <StatsPanel playerStats={playerStats} />
         )}
       </div>
     </div>

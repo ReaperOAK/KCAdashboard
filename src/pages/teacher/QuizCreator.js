@@ -6,10 +6,11 @@ import SharingControls from './SharingControls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
 import { QuizApi } from '../../api/quiz';
+import { BatchesApi } from '../../api/batches';
 import { toast } from 'react-toastify';
-import TagInput from './components/TagInput';
-import MultipleChoiceEditor from './components/MultipleChoiceEditor';
-import ChessQuestionEditor from './components/ChessQuestionEditor';
+import TagInput from '../../components/chess/TagInput';
+import MultipleChoiceEditor from '../../components/chess/MultipleChoiceEditor';
+import ChessQuestionEditor from '../../components/chess/ChessQuestionEditor';
 
 // Quiz Details Form
 const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormChange }) {
@@ -298,13 +299,13 @@ const QuizCreator = () => {
   const [studentLoading, setStudentLoading] = useState(false);
   // Fetch batches and classrooms for sharing
   useEffect(() => {
-    // TODO: Replace with modular batch/classroom APIs if available
     const fetchBatches = async () => {
       try {
-        // Use AdminApi or BatchesApi if available
-        const res = await QuizApi.getBatches?.() || { batches: [] };
+        const res = await BatchesApi.getBatches();
         setBatches(res.batches || []);
-      } catch {}
+      } catch {
+        setBatches([]);
+      }
     };
     const fetchClassrooms = async () => {
       try {

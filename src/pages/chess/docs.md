@@ -19,6 +19,7 @@ pages/chess/
   GameArea.js           # Main game area for playing chess
   InteractiveBoard.js   # Interactive chessboard for gameplay
   PGNManagementPage.js  # Page for managing and analyzing PGN files
+  PGNGameView.js        # Page for viewing a single PGN game in detail
   PlayerVsPlayer.js     # Player vs player chess mode
 ```
 
@@ -37,6 +38,9 @@ pages/chess/
 
 - **PGNManagementPage.js**  
   Interface for uploading, viewing, and managing PGN (Portable Game Notation) files. Allows users to analyze past games and share PGNs.
+
+- **PGNGameView.js**  
+  Displays a single chess game in PGN format. Uses color tokens, beautiful card layout, and accessible error/loading states. Navigation button returns to the PGN library. Fully responsive and single-responsibility.
 
 - **PlayerVsPlayer.js**  
   Dedicated mode for player-vs-player chess games, either locally or online. Manages turns, timers, and game results.

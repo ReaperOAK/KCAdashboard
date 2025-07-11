@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NotificationsApi } from '../api/notifications';
-import { FiBell, FiSettings, FiTrash2 } from 'react-icons/fi';
-import { BsDot } from 'react-icons/bs';
+import { BellIcon, Cog6ToothIcon, TrashIcon, EllipsisVerticalIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const NOTIFICATION_CATEGORIES = [
   { id: 'all', label: 'All' },
@@ -70,7 +70,7 @@ const NotificationList = React.memo(function NotificationList({ notifications, o
   if (notifications.length === 0) {
     return (
       <div className="p-6 text-center text-gray-400 flex flex-col items-center justify-center h-40">
-        <FiBell className="w-12 h-12 mb-2 opacity-40" />
+        <BellIcon className="w-12 h-12 mb-2 opacity-40" />
         <p className="text-base">No notifications in this category</p>
       </div>
     );
@@ -78,8 +78,12 @@ const NotificationList = React.memo(function NotificationList({ notifications, o
   return (
     <div className="overflow-y-auto flex-grow max-h-[60vh] px-2 md:px-4 py-2 scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-w-2">
       {notifications.map((notification) => (
-        <div
+        <motion.div
           key={notification.id}
+          layout
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
           className={`group relative bg-white/80 backdrop-blur-md rounded-xl shadow-md mb-3 px-4 py-3 flex flex-col gap-1 border border-gray-100 transition-all duration-200 hover:scale-[1.01] hover:shadow-lg cursor-pointer ${
             notification.is_read ? '' : 'ring-2 ring-accent/30 bg-accent/10'
           }`}
@@ -92,7 +96,7 @@ const NotificationList = React.memo(function NotificationList({ notifications, o
             <div className="flex items-center gap-2">
               <span className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-xs font-bold shadow ${getCategoryColor(notification.category)}`}>{notification.category[0].toUpperCase()}</span>
               <span className="text-xs text-gray-500 font-medium">{getRelativeTime(notification.created_at)}</span>
-              {!notification.is_read && <BsDot className="text-accent w-6 h-6 animate-pulse" title="Unread" />}
+              {!notification.is_read && <EllipsisVerticalIcon className="text-accent w-5 h-5 animate-pulse" title="Unread" />}
             </div>
             <button
               onClick={e => onDelete(e, notification.id)}
@@ -100,7 +104,7 @@ const NotificationList = React.memo(function NotificationList({ notifications, o
               aria-label="Delete notification"
               tabIndex={0}
             >
-              <FiTrash2 className="w-4 h-4" />
+              <TrashIcon className="w-4 h-4" />
             </button>
           </div>
           <h4 className="font-semibold text-secondary text-base mt-1 leading-tight line-clamp-1">{notification.title}</h4>
@@ -116,13 +120,11 @@ const NotificationList = React.memo(function NotificationList({ notifications, o
                 aria-label="View details"
               >
                 <span>View details</span>
-                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
+                <ExclamationCircleIcon className="w-4 h-4 ml-1 text-accent" />
               </a>
             </div>
           )}
-        </div>
+        </motion.div>
       ))}
     </div>
   );
@@ -140,33 +142,43 @@ const NotificationPanel = React.memo(function NotificationPanel({
   onMarkAllAsRead,
   onSettingsClick
 }) {
-  if (!isOpen) return null;
   return (
-    <div className="fixed md:absolute right-0 left-0 md:left-auto mx-auto md:mx-0 top-20 md:top-12 w-full max-w-md md:max-w-lg lg:max-w-xl bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl z-50 max-h-[90vh] flex flex-col border border-gray-200 transition-all duration-300 animate-fade-in-up min-w-[320px] md:min-w-[400px]">
-      <div className="p-4 border-b flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center bg-gradient-to-r from-primary/80 to-accent/60 rounded-t-2xl">
-        <h3 className="text-lg font-bold text-white tracking-wide flex items-center gap-2"><FiBell className="inline-block" /> Notifications</h3>
-        {unreadCount > 0 && (
-          <button
-            onClick={onMarkAllAsRead}
-            className="text-xs sm:text-sm bg-white/80 text-accent font-semibold px-3 py-1 rounded-full shadow hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent/60 transition-all"
-            aria-label="Mark all as read"
-          >
-            Mark all as read
-          </button>
-        )}
-      </div>
-      <NotificationCategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
-      <NotificationList notifications={notifications} onNotificationClick={onNotificationClick} onDelete={onDelete} />
-      <div className="p-3 border-t flex justify-center items-center gap-2 bg-white/70 rounded-b-2xl">
-        <button
-          onClick={onSettingsClick}
-          className="flex items-center gap-1 text-sm text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-3 py-1 font-medium transition-all"
-          aria-label="Notification Settings"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="notif-panel"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.18 }}
+          className="fixed md:absolute right-0 left-0 md:left-auto mx-auto md:mx-0 top-20 md:top-12 w-full max-w-md md:max-w-lg lg:max-w-xl bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl z-50 max-h-[90vh] flex flex-col border border-gray-200 transition-all duration-300 animate-fade-in-up min-w-[320px] md:min-w-[400px]"
         >
-          <FiSettings className="inline-block" /> Notification Settings
-        </button>
-      </div>
-    </div>
+          <div className="p-4 border-b flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center bg-gradient-to-r from-primary/80 to-accent/60 rounded-t-2xl">
+            <h3 className="text-lg font-bold text-white tracking-wide flex items-center gap-2"><BellIcon className="inline-block w-6 h-6" /> Notifications</h3>
+            {unreadCount > 0 && (
+              <button
+                onClick={onMarkAllAsRead}
+                className="text-xs sm:text-sm bg-white/80 text-accent font-semibold px-3 py-1 rounded-full shadow hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent/60 transition-all"
+                aria-label="Mark all as read"
+              >
+                Mark all as read
+              </button>
+            )}
+          </div>
+          <NotificationCategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
+          <NotificationList notifications={notifications} onNotificationClick={onNotificationClick} onDelete={onDelete} />
+          <div className="p-3 border-t flex justify-center items-center gap-2 bg-white/70 rounded-b-2xl">
+            <button
+              onClick={onSettingsClick}
+              className="flex items-center gap-1 text-sm text-secondary hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent rounded px-3 py-1 font-medium transition-all"
+              aria-label="Notification Settings"
+            >
+              <Cog6ToothIcon className="inline-block w-5 h-5" /> Notification Settings
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 });
 
@@ -263,7 +275,7 @@ export function NotificationBell() {
         aria-label="Notifications"
         tabIndex={0}
       >
-        <FiBell className="w-7 h-7 text-secondary" />
+        <BellIcon className="w-7 h-7 text-secondary" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-gradient-to-br from-red-500 to-accent text-white rounded-full w-6 h-6 text-xs flex items-center justify-center font-bold border-2 border-white shadow-md animate-bounce">
             {unreadCount > 99 ? '99+' : unreadCount}

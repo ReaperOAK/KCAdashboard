@@ -142,7 +142,7 @@ const ChessBoard = ({
   const makeFallbackMove = useCallback((legalMoves, fen) => {
     if (legalMoves.length > 0) {
       const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
-      console.log('Used fallback random move:', randomMove);
+      
       
       const fallbackGameCopy = new Chess(fen);
       fallbackGameCopy.move(randomMove);

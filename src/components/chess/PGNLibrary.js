@@ -331,14 +331,24 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     }
   }, [onGameSelect]);
 
+  const [shareMessage, setShareMessage] = useState('');
   const handleGameAction = useCallback(async (gameId, action) => {
     switch (action) {
       case 'view':
         await loadGameDetails(gameId);
         break;
-      case 'share':
-        // TODO: Implement share functionality
+      case 'share': {
+        // Share: Copy game URL to clipboard and show confirmation
+        const url = `${window.location.origin}/chess/pgn/${gameId}`;
+        try {
+          await navigator.clipboard.writeText(url);
+          setShareMessage('Game link copied to clipboard!');
+        } catch (err) {
+          setShareMessage('Failed to copy link.');
+        }
+        setTimeout(() => setShareMessage(''), 2000);
         break;
+      }
       default:
         break;
     }
@@ -386,6 +396,9 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           </div>
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 font-semibold shadow" role="alert">{error}</div>
+          )}
+          {shareMessage && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 font-semibold shadow" role="status" aria-live="polite">{shareMessage}</div>
           )}
           {loading && (
             <div className="flex justify-center items-center py-16" aria-busy="true">

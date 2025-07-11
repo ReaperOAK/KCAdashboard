@@ -18,4 +18,7 @@ export const UsersApi = {
 
   // Added: Get shareable users for classroom/PGN sharing
   getShareableUsers: () => get('/users/get-shareable-users.php'),
+
+  // Student search for batch/classroom assignment
+  searchStudents: (query) => get(`/users/search-students.php?q=${encodeURIComponent(query)}`),
 };

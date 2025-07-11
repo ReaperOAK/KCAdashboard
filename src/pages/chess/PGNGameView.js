@@ -1,3 +1,8 @@
+
+/**
+ * PGNGameView
+ * Displays a single chess game in PGN format with beautiful, responsive, accessible UI.
+ */
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PGNViewer from '../../components/chess/PGNViewer';
@@ -30,15 +35,31 @@ export default function PGNGameView() {
     fetchPGN();
   }, [id]);
 
-  if (loading) return <div className="p-8 text-center text-lg">Loading game...</div>;
-  if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mr-4" aria-label="Loading" />
+        <span className="text-lg text-primary">Loading game...</span>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="bg-highlight text-white rounded-lg px-6 py-4 shadow max-w-lg w-full text-center text-base font-medium transition-all duration-200">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background-light py-8">
-      <div className="w-full max-w-7xl min-w-[320px] mx-auto bg-white shadow-lg rounded-lg p-2 sm:p-8">
+      <div className="w-full max-w-7xl min-w-[320px] mx-auto bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-lg p-2 sm:p-8">
         <button
-          className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800 font-semibold"
+          className="mb-4 px-4 py-2 bg-secondary text-white rounded hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 font-semibold"
           onClick={() => navigate('/chess/pgn-management')}
+          aria-label="Back to PGN Library"
         >
           ← Back to Library
         </button>

@@ -50,7 +50,6 @@ import EditUserModal from './components/user-management/Modals/EditUserModal';
 {showEditModal && (
   <EditUserModal
     user={selectedUser}
-    setUser={setSelectedUser}
     onSubmit={handleEditSubmit}
     onClose={closeModal}
     error={editError}
@@ -64,6 +63,8 @@ import EditUserModal from './components/user-management/Modals/EditUserModal';
 
 ## Best Practices
 
+- Use local state for editing in modals (e.g., EditUserModal) and only update parent state on submit. This prevents infinite update loops and improves performance.
+
 - Keep modal state (open/close, active tab, user data) in the parent component for clarity.
 - Validate all user input before submitting changes.
 - Use clear error messages and feedback for a better user experience.
@@ -72,6 +73,8 @@ import EditUserModal from './components/user-management/Modals/EditUserModal';
 ---
 
 ## Troubleshooting
+
+- **Infinite update loop in edit modal:** Ensure EditUserModal uses local state for editing and only calls parent on submit. Use the functional form of setUser in UserDetailsForm.
 
 - **Modal not closing:** Ensure the `onClose` handler is passed and correctly implemented.
 - **Form not saving:** Check that the `onSubmit` handler is connected and updates the backend as needed.

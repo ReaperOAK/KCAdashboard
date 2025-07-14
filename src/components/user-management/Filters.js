@@ -1,6 +1,7 @@
 
 import React, { useCallback, memo } from 'react';
 
+
 const SearchInput = memo(function SearchInput({ value, onChange }) {
   const handleChange = useCallback((e) => onChange(e.target.value), [onChange]);
   return (
@@ -9,8 +10,9 @@ const SearchInput = memo(function SearchInput({ value, onChange }) {
       placeholder="Search users..."
       value={value}
       onChange={handleChange}
-      className="w-full px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-accent text-text-dark bg-white"
+      className="w-full px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-accent text-text-dark bg-background-light placeholder-gray-dark transition-all duration-200"
       aria-label="Search users"
+      autoComplete="off"
     />
   );
 });
@@ -21,7 +23,7 @@ const FilterSelect = memo(function FilterSelect({ value, onChange }) {
     <select
       value={value}
       onChange={handleChange}
-      className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-accent text-text-dark bg-white"
+      className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-light focus:outline-none focus:ring-2 focus:ring-accent text-text-dark bg-background-light transition-all duration-200"
       aria-label="Filter users by role"
     >
       <option value="all">All Users</option>
@@ -34,11 +36,13 @@ const FilterSelect = memo(function FilterSelect({ value, onChange }) {
 
 const Filters = memo(function Filters({ searchTerm, setSearchTerm, filter, setFilter }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-4" role="search" aria-label="User filters">
-      <div className="flex-1">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 w-full" role="search" aria-label="User filters">
+      <div className="flex-1 min-w-[180px]">
         <SearchInput value={searchTerm} onChange={setSearchTerm} />
       </div>
-      <FilterSelect value={filter} onChange={setFilter} />
+      <div className="w-full sm:w-56">
+        <FilterSelect value={filter} onChange={setFilter} />
+      </div>
     </div>
   );
 });

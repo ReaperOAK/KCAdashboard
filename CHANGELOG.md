@@ -1,6 +1,18 @@
 # Changelog
 
+
 ## [Unreleased] – July 2025
+
+### User Management UI/UX Refactor & Infinite Loop Fix
+- Refactored all user management components (EditUserModal, UserDetailsForm, UserTable, UserTableRow, etc.) for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/empty/loading states
+  - Performance: React.memo, useCallback, useMemo, and local state for modal editing
+  - Single-responsibility: each file/component now does one job only
+- Fixed "Maximum update depth exceeded" error in EditUserModal by decoupling modal state from parent and using functional setUser
+- Improved error handling and removed all redundant/duplicate handlers
+- Updated all handlers for editing, status/role change, and bulk actions for clarity and correctness
+- Updated and expanded documentation for user management components and modals
 
 ### Major UI/UX Refactor
 - Refactored all tournament-related components for:

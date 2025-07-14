@@ -56,6 +56,28 @@ const UserManagement = () => {
   }, [fetchUsers]);
 
   // --- Handlers ---
+  // Update user details (edit modal submit)
+  const handleEditSubmit = useCallback(async (editedUser) => {
+    setError(null);
+    try {
+      const response = await UsersApi.update({
+        user_id: editedUser.id,
+        full_name: editedUser.full_name,
+        email: editedUser.email,
+        role: editedUser.role,
+        status: editedUser.status,
+        current_user_id: currentUser.id,
+      });
+      if (!response.success) throw new Error(response.message || 'Failed to update user');
+      setShowEditModal(false);
+      setActiveTab('details');
+      await fetchUsers();
+      setError(null);
+    } catch (error) {
+      setError(error.message || 'Failed to update user details');
+    }
+  }, [currentUser, fetchUsers]);
+  // Update user status (table dropdown)
   const handleStatusChange = useCallback(async (userId, status) => {
     setLoading(true);
     setError(null);
@@ -69,40 +91,7 @@ const UserManagement = () => {
     }
   }, [fetchUsers]);
 
-  const handleRoleChange = useCallback(async (userId, newRole) => {
-    setError(null);
-    try {
-      const response = await UsersApi.updateRole(userId, newRole, currentUser.id);
-      if (!response.success) throw new Error(response.message || 'Failed to update role');
-      setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
-      await fetchUsers();
-    } catch (error) {
-      setError(error.message || 'Failed to update user role');
-    }
-  }, [currentUser, fetchUsers]);
-
-  const handleEditSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setError(null);
-    try {
-      const response = await UsersApi.update({
-        user_id: selectedUser.id,
-        full_name: selectedUser.full_name,
-        email: selectedUser.email,
-        role: selectedUser.role,
-        status: selectedUser.status,
-        current_user_id: currentUser.id,
-      });
-      if (!response.success) throw new Error(response.message || 'Failed to update user');
-      setShowEditModal(false);
-      setActiveTab('details');
-      await fetchUsers();
-      setError(null);
-    } catch (error) {
-      setError(error.message || 'Failed to update user details');
-    }
-  }, [selectedUser, currentUser, fetchUsers]);
-
+  // Bulk actions bar
   const handleBulkAction = useCallback(async (action) => {
     setError(null);
     try {
@@ -123,6 +112,20 @@ const UserManagement = () => {
       setError('Failed to perform bulk action');
     }
   }, [selectedUsers, fetchUsers]);
+
+  const handleRoleChange = useCallback(async (userId, newRole) => {
+    setError(null);
+    try {
+      const response = await UsersApi.updateRole(userId, newRole, currentUser.id);
+      if (!response.success) throw new Error(response.message || 'Failed to update role');
+      setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
+      await fetchUsers();
+    } catch (error) {
+      setError(error.message || 'Failed to update user role');
+    }
+  }, [currentUser, fetchUsers]);
+
+  // Removed duplicate handleEditSubmit
 
   const handlePermissionChange = useCallback(async (userId, permissions) => {
     setError(null);
@@ -160,7 +163,7 @@ const UserManagement = () => {
 
   // --- Modal Open/Close Handlers ---
   const openEditModal = useCallback((user) => {
-    setSelectedUser(user);
+    setSelectedUser(user ? { ...user } : null); // clone user to avoid reference issues
     setShowEditModal(true);
   }, []);
 
@@ -195,7 +198,7 @@ const UserManagement = () => {
 
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-4 sm:p-8">
+      <div className="p-2 sm:p-6 md:p-8 max-w-7xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4">User Management</h1>
           <Filters
@@ -222,7 +225,18 @@ const UserManagement = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent" aria-label="Loading users" />
           </div>
         ) : error ? (
-          <div className="text-red-500 py-8" role="alert">{error}</div>
+          <div className="py-8 flex justify-center">
+            <div className="bg-red-700 border border-red-800 text-white rounded-lg px-6 py-4 text-center shadow-md flex items-center gap-2" role="alert">
+              {/* Optionally add an error icon here */}
+              {error}
+            </div>
+          </div>
+        ) : users.length === 0 ? (
+          <div className="py-16 flex flex-col items-center justify-center text-center">
+            <div className="text-4xl mb-2">🧑‍💻</div>
+            <div className="text-lg font-semibold text-text-dark mb-1">No users found</div>
+            <div className="text-gray-dark text-sm">Try adjusting your filters or search.</div>
+          </div>
         ) : (
           <div className="bg-background-light border border-gray-light rounded-xl shadow-lg overflow-x-auto">
             <UserTable {...userTableProps} />
@@ -233,7 +247,6 @@ const UserManagement = () => {
         {showEditModal && selectedUser && (
           <EditUserModal
             user={selectedUser}
-            setUser={setSelectedUser}
             onSubmit={handleEditSubmit}
             onClose={closeEditModal}
             error={error}

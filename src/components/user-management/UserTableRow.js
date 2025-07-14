@@ -4,13 +4,14 @@ import { Menu, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 
 // Memoized action buttons for desktop
+
 const RowActions = memo(function RowActions({ user, onEdit, onPermissions, onDelete }) {
   return (
     <div className="hidden sm:flex gap-2 justify-end">
       <button
         type="button"
         onClick={onEdit}
-        className="text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent px-2 py-1 rounded"
+        className="px-2 py-1 rounded text-accent hover:text-white hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-150"
         aria-label={`Edit ${user.full_name}`}
       >
         Edit
@@ -18,7 +19,7 @@ const RowActions = memo(function RowActions({ user, onEdit, onPermissions, onDel
       <button
         type="button"
         onClick={onPermissions}
-        className="text-secondary hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent px-2 py-1 rounded"
+        className="px-2 py-1 rounded text-secondary hover:text-white hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary transition-all duration-150"
         aria-label={`Manage permissions for ${user.full_name}`}
       >
         Permissions
@@ -26,7 +27,7 @@ const RowActions = memo(function RowActions({ user, onEdit, onPermissions, onDel
       <button
         type="button"
         onClick={onDelete}
-        className="text-red-600 hover:text-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-700 px-2 py-1 rounded"
+        className="px-2 py-1 rounded text-white bg-highlight hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-highlight transition-all duration-150"
         aria-label={`Delete ${user.full_name}`}
       >
         Delete
@@ -36,11 +37,12 @@ const RowActions = memo(function RowActions({ user, onEdit, onPermissions, onDel
 });
 
 // Memoized mobile menu actions
+
 const MobileMenuActions = memo(function MobileMenuActions({ user, onEdit, onPermissions, onDelete }) {
   return (
     <div className="sm:hidden">
       <Menu as="div" className="relative inline-block text-left">
-        <Menu.Button className="p-2" aria-label={`Open actions for ${user.full_name}`}>
+        <Menu.Button className="p-2 rounded-full hover:bg-gray-light focus:outline-none focus-visible:ring-2 focus-visible:ring-accent" aria-label={`Open actions for ${user.full_name}`}>
           <EllipsisVerticalIcon className="h-5 w-5 text-gray-dark" />
         </Menu.Button>
         <Transition
@@ -51,13 +53,13 @@ const MobileMenuActions = memo(function MobileMenuActions({ user, onEdit, onPerm
           leaveFrom="transform scale-100 opacity-100"
           leaveTo="transform scale-95 opacity-0"
         >
-          <Menu.Items className="absolute left-0 right-0 mx-auto mt-2 w-full max-w-xs sm:w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+          <Menu.Items className="absolute left-0 right-0 mx-auto mt-2 w-full max-w-xs sm:w-48 origin-top-right rounded-md bg-background-light shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
             <Menu.Item>
               {({ active }) => (
                 <button
                   type="button"
                   onClick={onEdit}
-                  className={`${active ? 'bg-gray-light' : ''} block px-4 py-2 text-sm w-full text-left`}
+                  className={`block px-4 py-2 text-sm w-full text-left rounded ${active ? 'bg-accent text-white' : 'text-text-dark'}`}
                   aria-label={`Edit ${user.full_name}`}
                 >
                   Edit Details
@@ -69,7 +71,7 @@ const MobileMenuActions = memo(function MobileMenuActions({ user, onEdit, onPerm
                 <button
                   type="button"
                   onClick={onPermissions}
-                  className={`${active ? 'bg-gray-light' : ''} block px-4 py-2 text-sm w-full text-left`}
+                  className={`block px-4 py-2 text-sm w-full text-left rounded ${active ? 'bg-secondary text-white' : 'text-text-dark'}`}
                   aria-label={`Manage permissions for ${user.full_name}`}
                 >
                   Manage Permissions
@@ -81,7 +83,7 @@ const MobileMenuActions = memo(function MobileMenuActions({ user, onEdit, onPerm
                 <button
                   type="button"
                   onClick={onDelete}
-                  className={`${active ? 'bg-gray-light' : ''} block px-4 py-2 text-sm w-full text-left text-red-600`}
+                  className={`block px-4 py-2 text-sm w-full text-left rounded ${active ? 'bg-highlight text-white' : 'text-highlight'}`}
                   aria-label={`Delete ${user.full_name}`}
                 >
                   Delete
@@ -112,13 +114,13 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
   const handleStatusChange = useCallback((e) => onStatusChange(user.id, e.target.value), [onStatusChange, user.id]);
 
   return (
-    <tr className="hover:bg-gray-light focus-within:bg-gray-light align-top">
+    <tr className="hover:bg-gray-light focus-within:bg-gray-light align-top transition-colors duration-150">
       <td className="px-2 py-2 sm:px-3 sm:py-4 align-middle">
         <input
           type="checkbox"
           checked={selectedUsers.includes(user.id)}
           onChange={handleCheckboxChange}
-          className="rounded border-gray-light focus:ring-accent"
+          className="rounded border-gray-light focus:ring-accent focus:outline-none"
           aria-label={`Select ${user.full_name}`}
         />
       </td>
@@ -133,7 +135,7 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
         <select
           value={user.role}
           onChange={handleRoleChange}
-          className="text-xs sm:text-sm text-text-dark rounded-md border-gray-light focus:ring-accent w-full"
+          className="text-xs sm:text-sm text-text-dark rounded-md border-gray-light focus:ring-accent focus:outline-none w-full transition-all duration-150"
           aria-label={`Change role for ${user.full_name}`}
         >
           <option value="student">Student</option>
@@ -145,7 +147,7 @@ const UserTableRow = memo(function UserTableRow({ user, selectedUsers, setSelect
         <select
           value={user.status}
           onChange={handleStatusChange}
-          className="text-xs sm:text-sm rounded-md border-gray-light focus:ring-accent w-full"
+          className="text-xs sm:text-sm rounded-md border-gray-light focus:ring-accent focus:outline-none w-full transition-all duration-150"
           aria-label={`Change status for ${user.full_name}`}
         >
           <option value="active">Active</option>

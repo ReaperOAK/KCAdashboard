@@ -1,14 +1,15 @@
 
 import React, { useEffect, useCallback, memo } from 'react';
 
+
 // Modal header (memoized)
 const ModalHeader = memo(function ModalHeader({ title, onClose }) {
   return (
-    <div className="flex justify-between items-center border-b p-4">
-      <h2 className="text-xl font-bold text-primary">{title}</h2>
+    <div className="flex justify-between items-center border-b border-gray-light dark:border-gray-dark p-4 bg-background-light dark:bg-background-dark rounded-t-xl">
+      <h2 className="text-xl font-bold text-primary dark:text-text-light truncate" title={title}>{title}</h2>
       <button
         onClick={onClose}
-        className="text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+        className="text-gray-500 dark:text-gray-light hover:text-accent dark:hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded transition-colors"
         aria-label="Close modal"
         type="button"
       >
@@ -19,6 +20,7 @@ const ModalHeader = memo(function ModalHeader({ title, onClose }) {
     </div>
   );
 });
+
 
 function Modal({ title, children, onClose }) {
   // Close modal on Escape key
@@ -47,7 +49,7 @@ function Modal({ title, children, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 dark:bg-background-dark/80 backdrop-blur-sm transition-all duration-200"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -55,7 +57,7 @@ function Modal({ title, children, onClose }) {
     >
       <div
         id="modal-root"
-        className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto animate-fade-in focus:outline-none"
+        className="bg-background-light dark:bg-background-dark rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto animate-fade-in focus:outline-none border border-gray-light dark:border-gray-dark"
         onClick={handleModalClick}
         tabIndex={-1}
       >

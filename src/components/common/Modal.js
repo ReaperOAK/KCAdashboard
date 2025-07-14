@@ -49,7 +49,7 @@ function Modal({ title, children, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 dark:bg-background-dark/80 backdrop-blur-sm transition-all duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 dark:bg-background-dark/80 backdrop-blur-sm transition-all duration-200 animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -57,9 +57,10 @@ function Modal({ title, children, onClose }) {
     >
       <div
         id="modal-root"
-        className="bg-background-light dark:bg-background-dark rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto  focus:outline-none border border-gray-light dark:border-gray-dark"
+        className="bg-background-light dark:bg-background-dark rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto focus:outline-none border border-gray-light dark:border-gray-dark animate-modal-in"
         onClick={handleModalClick}
         tabIndex={-1}
+        style={{ transition: 'transform 0.2s cubic-bezier(.4,0,.2,1), opacity 0.2s cubic-bezier(.4,0,.2,1)' }}
       >
         <ModalHeader title={title} onClose={onClose} />
         <div className="p-4">{children}</div>

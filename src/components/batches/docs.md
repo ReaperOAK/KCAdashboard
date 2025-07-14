@@ -6,12 +6,14 @@ The `batches` subfolder under `components` contains React components related to 
 
 ---
 
+
 ## File Structure
 
 ```
 components/batches/
-  BatchList.js         # Displays a list of batches
-  CreateBatchForm.js   # Form for creating a new batch
+  BatchTable.js        # Table for displaying batches (with empty state, icons, and actions)
+  CreateBatchForm.js   # Form for creating or editing a batch (modern, accessible, animated)
+  BatchTableRow.js     # Row for batch table (handles row actions)
   StudentSearch.js     # Component for searching students within batches
 ```
 
@@ -22,8 +24,15 @@ components/batches/
 - **BatchList.js**  
   Displays a list of all batches, allowing users to view, select, or manage batches.
 
+
 - **CreateBatchForm.js**  
-  Provides a form interface for creating a new batch, including input fields for batch details.
+  Provides a beautiful, accessible, and animated form interface for creating or editing a batch, including input fields for batch details, schedule picker, and teacher assignment. Uses Lucide icons, helper texts, and full color token support. All fields are responsive and accessible.
+
+- **BatchTable.js**  
+  Displays a responsive, accessible table of batches with a beautiful empty state (icon, message, and CTA), animated transitions, and action buttons. Uses color tokens and Lucide icons for clarity and visual feedback.
+
+- **BatchTableRow.js**  
+  Handles rendering of a single batch row, including edit and action buttons. Fully accessible and responsive.
 
 - **StudentSearch.js**  
   Allows users to search for students within batches, supporting batch assignment and management.
@@ -46,11 +55,16 @@ components/batches/
 
 ---
 
+
 ## Best Practices
 
-- Keep components focused and reusable.
+- Keep components focused, reusable, and single-responsibility.
+- Use Tailwind color tokens and design system for all UI elements.
+- Use React.memo, useCallback, and useMemo for performance.
+- Ensure all fields and actions are accessible (ARIA, keyboard, focus, etc.).
 - Document component props and usage for maintainability.
 
 ---
+
 
 For more details on the overall frontend structure, see the main `docs.md` in the `src` folder.

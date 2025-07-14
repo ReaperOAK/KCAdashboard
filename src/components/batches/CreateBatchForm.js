@@ -1,25 +1,27 @@
 
 
 
+
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { CheckCircle, Info, Users, User, Calendar, Clock, Hash, BookText } from 'lucide-react';
 
 const defaultSchedule = { days: [], time: '09:00', duration: 60 };
 
-const LEVELS = [
+const LEVELS = Object.freeze([
   { value: 'beginner', label: 'Beginner' },
   { value: 'intermediate', label: 'Intermediate' },
   { value: 'advanced', label: 'Advanced' },
-];
+]);
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS = Object.freeze([
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
   { value: 'completed', label: 'Completed' },
-];
+]);
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAYS = Object.freeze(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Batch name is required'),
@@ -38,18 +40,20 @@ const validationSchema = Yup.object({
   }),
 });
 
-// Error alert for form errors
+
+// Error alert for form errors (with icon and animation)
 export const ErrorAlert = React.memo(function ErrorAlert({ error }) {
   if (!error) return null;
   return (
-    <div className="bg-error/10 text-error border border-error p-3 rounded-lg mb-4 flex items-center gap-2 " role="alert">
-      <svg className="w-5 h-5 text-error flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" /></svg>
+    <div className="bg-error/10 text-error border border-error p-3 rounded-lg mb-4 flex items-center gap-2 animate-fade-in" role="alert">
+      <Info className="w-5 h-5 text-error flex-shrink-0" aria-hidden="true" />
       <span>{error}</span>
     </div>
   );
 });
 
-// Schedule picker for batch schedule
+
+// Schedule picker for batch schedule (with icons and improved accessibility)
 export const SchedulePicker = React.memo(function SchedulePicker({ value, onChange }) {
   const schedule = useMemo(() => {
     try {
@@ -79,7 +83,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
   return (
     <fieldset className="space-y-4" aria-label="Batch schedule">
       <legend className="sr-only">Batch schedule</legend>
-      <label className="text-sm font-medium text-primary">Select Days</label>
+      <label className="text-sm font-medium text-primary flex items-center gap-1"><Calendar className="w-4 h-4" /> Select Days</label>
       <div
         className="grid grid-cols-7 gap-2 w-full mb-2"
         role="group"
@@ -95,7 +99,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             className={
               `w-full py-2 rounded-lg font-semibold shadow-sm border transition-all focus:outline-none focus:ring-2 focus:ring-accent text-center ` +
               (schedule.days.includes(day)
-                ? 'bg-secondary text-white border-secondary scale-105 drop-shadow-md'
+                ? 'bg-secondary text-white border-secondary scale-105 drop-shadow-md animate-bounce-in'
                 : 'bg-gray-100 text-primary border-gray-300 hover:bg-accent hover:text-white')
             }
             onClick={() => handleDayToggle(day)}
@@ -112,7 +116,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
       </div>
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
         <div className="flex-1">
-          <label htmlFor="schedule-time" className="block text-xs font-medium text-gray-dark mb-1">Time</label>
+          <label htmlFor="schedule-time" className="block text-xs font-medium text-gray-dark mb-1 flex items-center gap-1"><Clock className="w-4 h-4" /> Time</label>
           <input
             id="schedule-time"
             type="time"
@@ -121,9 +125,10 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2 bg-white"
             aria-label="Batch time"
           />
+          <span className="text-xs text-gray-dark">Start time for the batch session.</span>
         </div>
         <div className="flex-1">
-          <label htmlFor="schedule-duration" className="block text-xs font-medium text-gray-dark mb-1">Duration (minutes)</label>
+          <label htmlFor="schedule-duration" className="block text-xs font-medium text-gray-dark mb-1 flex items-center gap-1"><Hash className="w-4 h-4" /> Duration (minutes)</label>
           <input
             id="schedule-duration"
             type="number"
@@ -134,6 +139,7 @@ export const SchedulePicker = React.memo(function SchedulePicker({ value, onChan
             className="block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary px-2 py-2 bg-white"
             aria-label="Batch duration in minutes"
           />
+          <span className="text-xs text-gray-dark">Typical session: 30-120 min.</span>
         </div>
       </div>
     </fieldset>
@@ -189,9 +195,11 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
   );
 
   // Form fields as subcomponents for clarity and maintainability
-  const NameField = () => (
+
+  // Memoized field components for performance
+  const NameField = React.useMemo(() => () => (
     <div>
-      <label htmlFor="name" className="block text-sm font-medium text-primary">Batch Name</label>
+      <label htmlFor="name" className="block text-sm font-medium text-primary flex items-center gap-1"><BookText className="w-4 h-4" /> Batch Name</label>
       <Field
         id="name"
         name="name"
@@ -201,13 +209,14 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
         aria-required="true"
         aria-label="Batch name"
       />
+      <span className="text-xs text-gray-dark">Give your batch a unique, descriptive name.</span>
       <ErrorMessage name="name" component="div" className="text-xs text-red-600 mt-1" />
     </div>
-  );
+  ), []);
 
-  const DescriptionField = () => (
+  const DescriptionField = React.useMemo(() => () => (
     <div>
-      <label htmlFor="description" className="block text-sm font-medium text-primary">Description</label>
+      <label htmlFor="description" className="block text-sm font-medium text-primary flex items-center gap-1"><Info className="w-4 h-4" /> Description</label>
       <Field
         as="textarea"
         id="description"
@@ -216,13 +225,14 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
         className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
         aria-label="Batch description"
       />
+      <span className="text-xs text-gray-dark">Optional. Max 500 characters.</span>
       <ErrorMessage name="description" component="div" className="text-xs text-red-600 mt-1" />
     </div>
-  );
+  ), []);
 
-  const LevelField = () => (
+  const LevelField = React.useMemo(() => () => (
     <div>
-      <label htmlFor="level" className="block text-sm font-medium text-primary">Level</label>
+      <label htmlFor="level" className="block text-sm font-medium text-primary flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Level</label>
       <Field
         as="select"
         id="level"
@@ -234,13 +244,14 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
           <option key={l.value} value={l.value}>{l.label}</option>
         ))}
       </Field>
+      <span className="text-xs text-gray-dark">Choose the skill level for this batch.</span>
       <ErrorMessage name="level" component="div" className="text-xs text-red-600 mt-1" />
     </div>
-  );
+  ), []);
 
-  const MaxStudentsField = () => (
+  const MaxStudentsField = React.useMemo(() => () => (
     <div>
-      <label htmlFor="max_students" className="block text-sm font-medium text-primary">Max Students</label>
+      <label htmlFor="max_students" className="block text-sm font-medium text-primary flex items-center gap-1"><Users className="w-4 h-4" /> Max Students</label>
       <Field
         id="max_students"
         name="max_students"
@@ -249,13 +260,14 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
         className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
         aria-label="Maximum students"
       />
+      <span className="text-xs text-gray-dark">Maximum number of students allowed (1-100).</span>
       <ErrorMessage name="max_students" component="div" className="text-xs text-red-600 mt-1" />
     </div>
-  );
+  ), []);
 
-  const TeacherField = () => (
+  const TeacherField = React.useMemo(() => () => (
     <div>
-      <label htmlFor="teacher_id" className="block text-sm font-medium text-primary">Teacher</label>
+      <label htmlFor="teacher_id" className="block text-sm font-medium text-primary flex items-center gap-1"><User className="w-4 h-4" /> Teacher</label>
       <Field
         as="select"
         id="teacher_id"
@@ -271,14 +283,14 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
           </option>
         ))}
       </Field>
+      <span className="text-xs text-gray-dark">Assign a teacher to this batch.</span>
       <ErrorMessage name="teacher_id" component="div" className="text-xs text-red-600 mt-1" />
     </div>
-  );
+  ), [teachers]);
 
-
-  const StatusField = () => (
+  const StatusField = React.useMemo(() => () => (
     <div>
-      <label htmlFor="status" className="block text-sm font-medium text-primary">Status</label>
+      <label htmlFor="status" className="block text-sm font-medium text-primary flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Status</label>
       <Field
         as="select"
         id="status"
@@ -290,31 +302,42 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </Field>
+      <span className="text-xs text-gray-dark">Set the current status of this batch.</span>
       <ErrorMessage name="status" component="div" className="text-xs text-red-600 mt-1" />
     </div>
-  );
+  ), []);
 
-  const Actions = ({ isSubmitting }) => (
+  const Actions = React.useMemo(() => ({ isSubmitting }) => (
     <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2 sm:pt-4">
       <button
         type="button"
         onClick={onClose}
-        className="px-4 py-2 border border-gray-light rounded-md text-primary bg-white hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 w-full sm:w-auto"
+        className="px-4 py-2 border border-gray-light rounded-md text-primary bg-white hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 w-full sm:w-auto flex items-center gap-2"
       >
-        Cancel
+        <span>Cancel</span>
       </button>
       <button
         type="submit"
         disabled={isSubmitting || externalLoading}
-        className="px-4 py-2 bg-accent text-white rounded-md shadow-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 transition-all duration-200 w-full sm:w-auto"
+        className="px-4 py-2 bg-accent text-white rounded-md shadow-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 transition-all duration-200 w-full sm:w-auto flex items-center gap-2"
         aria-busy={isSubmitting || externalLoading}
       >
         {isSubmitting || externalLoading
-          ? (mode === 'edit' ? 'Saving...' : 'Creating...')
-          : (mode === 'edit' ? 'Save Changes' : 'Create Batch')}
+          ? (
+            <>
+              <svg className="animate-spin h-5 w-5 mr-1 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+              {mode === 'edit' ? 'Saving...' : 'Creating...'}
+            </>
+          )
+          : (
+            <>
+              <CheckCircle className="w-4 h-4" />
+              {mode === 'edit' ? 'Save Changes' : 'Create Batch'}
+            </>
+          )}
       </button>
     </div>
-  );
+  ), [externalLoading, mode, onClose]);
 
   return (
     <Formik
@@ -324,9 +347,12 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
       enableReinitialize
     >
       {({ values, isSubmitting, setFieldValue }) => (
-        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4  bg-background-light dark:bg-background-dark rounded-xl shadow-md" aria-label="Create or edit batch form">
+        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4 bg-background-light dark:bg-background-dark rounded-xl shadow-md animate-fade-in" aria-label="Create or edit batch form">
           <ErrorAlert error={error} />
-          <h2 className="text-2xl text-primary font-semibold mb-2 text-center">{mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}</h2>
+          <h2 className="text-2xl text-primary font-semibold mb-2 text-center flex items-center gap-2">
+            <Users className="w-6 h-6 text-accent" />
+            {mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}
+          </h2>
           <NameField />
           <DescriptionField />
           <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4">
@@ -334,7 +360,6 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
             <MaxStudentsField />
           </div>
           {teachers && <TeacherField />}
-          {/* Use only the custom recurring SchedulePicker for full width */}
           <SchedulePicker value={values.schedule} onChange={val => setFieldValue('schedule', val)} />
           {values.status !== undefined && <StatusField />}
           <Actions isSubmitting={isSubmitting} />

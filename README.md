@@ -23,40 +23,21 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
 
 
 
+
 **(July 2025)**
 
-**Admin Dashboard UI/UX Refactor & Modularization**
-- Refactored `AdminDashboard.js` for:
-  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
-  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading states
-  - Performance: React.memo, useCallback, useMemo, and modular stat/error/loading components
+**Batch Management UI/UX Refactor**
+- Refactored all batch management components (`BatchManagement.js`, `CreateBatchForm.js`, `BatchTable.js`, and related modals):
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and the design system (see `colour_scheme.md`)
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading/empty states
+  - Performance: React.memo, useCallback, useMemo, and modular field components
   - Single-responsibility: each file/component now does one job only
-- Created new modular components in `src/components/admin/`:
-  - `StatCard.js`: Animated, accessible stat card for dashboard statistics
-  - `LoadingState.js`: Accessible, visually clear loading state
-  - `ErrorState.js`: Accessible, visually distinct error state
-- Updated all relevant docs and ensured all components use the color system from `colour_scheme.md`.
+  - Consistent iconography (Lucide icons), animated transitions, and visual feedback
+  - All components use the color system and are mobile-first responsive
+- Updated all relevant docs and ensured all batch management components are registered and documented
 
-**User Management UI/UX Refactor & Infinite Loop Fix**
-- Refactored all user management components (EditUserModal, UserDetailsForm, UserTable, UserTableRow, etc.) for:
-  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
-  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/empty/loading states
-  - Performance: React.memo, useCallback, useMemo, and local state for modal editing
-  - Single-responsibility: each file/component now does one job only
-- Fixed "Maximum update depth exceeded" error in EditUserModal by decoupling modal state from parent and using functional setUser
-- Improved error handling and removed all redundant/duplicate handlers
-- Updated all handlers for editing, status/role change, and bulk actions for clarity and correctness
-- Updated and expanded documentation for user management components and modals
-
-- Refactored all tournament-related components for:
-  - Strict adherence to the design system (see `colour_scheme.md`)
-  - Full use of Tailwind color tokens and utility classes
-  - Beautiful, modern, and responsive layouts for all screen sizes
-  - Accessibility: ARIA roles, keyboard navigation, focus management, and visually hidden text
-  - Performance: React.memo, clean prop usage, and single-responsibility components
-  - Consistent iconography (inline SVGs)
-  - Clear loading, error, and empty states with animation and visual cues
-- Updated documentation and code comments for clarity and maintainability
+**Admin Dashboard, User Management, and Tournament UI/UX Refactor**
+- See previous entries for details on admin dashboard, user management, and tournament UI/UX improvements
 
 **Attendance Settings UI/UX Refactor & Modularization**
 - Refactored `AttendanceSettings.js` (admin) for:

@@ -1,5 +1,7 @@
+
 import React from 'react';
 import BatchTableRow from './BatchTableRow';
+import { FileWarning, PlusCircle } from 'lucide-react';
 
 /**
  * BatchTable - Table for displaying batches.
@@ -10,11 +12,23 @@ import BatchTableRow from './BatchTableRow';
 
 const BatchTable = React.memo(function BatchTable({ batches, onEdit }) {
   if (!batches.length) {
-    return <div className="text-center py-8 text-gray-dark" aria-live="polite">No batches found.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-gray-dark animate-fade-in" aria-live="polite">
+        <FileWarning className="w-12 h-12 text-gray-light mb-2" aria-hidden="true" />
+        <div className="text-lg font-semibold mb-1">No batches found</div>
+        <div className="text-sm text-gray-dark mb-4">You haven't created any batches yet.</div>
+        <button
+          onClick={() => onEdit(null)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg shadow hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
+        >
+          <PlusCircle className="w-5 h-5" /> Create New Batch
+        </button>
+      </div>
+    );
   }
   return (
     <div
-      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-x-auto border border-gray-light transition-all duration-300 "
+      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-x-auto border border-gray-light transition-all duration-300 animate-fade-in"
       role="region"
       aria-label="Batch Table"
       tabIndex={0}
@@ -34,7 +48,7 @@ const BatchTable = React.memo(function BatchTable({ batches, onEdit }) {
           {batches.map((batch, idx) => (
             <tr
               key={batch.id}
-              className="hover:bg-gray-light/60 focus-within:bg-accent/10 transition-colors duration-200"
+              className="hover:bg-accent/10 focus-within:bg-accent/20 transition-colors duration-200 group"
               tabIndex={0}
               role="row"
             >

@@ -1,3 +1,7 @@
+#
+# Admin Support & Ticketing UI/UX Refactor (2025-07-14)
+#
+# See `src/components/support/docs.md` for full details on the support/admin UI/UX refactor, including leave requests, ticketing, FAQ, and modal improvements.
 ## Student Attendance Page (Admin)
 
 - **StudentAttendanceList.js** (admin/):

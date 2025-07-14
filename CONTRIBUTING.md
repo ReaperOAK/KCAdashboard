@@ -1,4 +1,16 @@
-# Admin Dashboard UI/UX Refactor (July 2025)
+
+# Support/Admin UI/UX Refactor (July 2025)
+
+All support and admin dashboard UI is now modular, beautiful, and accessible. When contributing to support/admin dashboard components:
+- Use pure, focused, reusable functional React components and Hooks.
+- Follow the KCA color system in `colour_scheme.md` and Tailwind config.
+- All styling must use TailwindCSS and design tokens (no inline styles).
+- Ensure all components are single-responsibility, responsive, and accessible (ARIA, keyboard navigation, focus/hover/disabled states).
+- Use animated transitions for interactive elements and modals.
+- Optimize for performance: use React.memo, useCallback, useMemo where appropriate.
+- Always handle loading, error, and empty states in UI.
+- Document new or modified components in the relevant feature folder and main docs.
+- Update the main README and CHANGELOG with any major UI/UX changes.
 
 All admin dashboard UI is now modular, beautiful, and accessible. When contributing to admin dashboard components:
 - Use pure, focused, reusable functional React components and Hooks.

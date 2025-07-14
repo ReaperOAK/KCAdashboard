@@ -50,13 +50,13 @@ const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClos
   if (!ticket) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 "
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 transition-all duration-300 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="ticket-detail-title"
       ref={modalRef}
     >
-      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative ">
+      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative transition-all duration-300 scale-100 opacity-100 animate-modal-in">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-dark hover:text-accent bg-gray-light/30 hover:bg-accent/10 rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
@@ -89,7 +89,7 @@ const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClos
               <select
                 value={ticket.status}
                 onChange={e => onStatusChange(ticket.id, e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-accent text-text-dark px-3 py-2 text-base transition-all duration-200"
+                className="mt-1 block w-full rounded-full border border-gray-light bg-background-light dark:bg-background-dark shadow-sm focus:border-accent focus:ring-2 focus:ring-accent text-text-dark px-4 py-2 text-base transition-all duration-200"
                 aria-label={`Change status for ticket ${ticket.id}`}
               >
                 {statusOptions.map(opt => (
@@ -117,7 +117,7 @@ const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClos
           <div className="pt-4 border-t border-gray-light">
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-base font-semibold"
+              className="w-full px-4 py-2 bg-secondary text-white rounded-full hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-base font-semibold"
               type="button"
             >
               Close

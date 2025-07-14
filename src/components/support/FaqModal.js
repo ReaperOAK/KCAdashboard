@@ -47,13 +47,13 @@ const FaqModal = React.memo(function FaqModal({ open, onClose, onSubmit, newFaq,
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 "
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 transition-all duration-300"
       role="dialog"
       aria-modal="true"
       aria-labelledby="faq-modal-title"
       ref={modalRef}
     >
-      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-lg w-full relative ">
+      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-lg w-full relative transition-all duration-300 scale-100 opacity-100 animate-modal-in">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-dark hover:text-accent bg-gray-light/30 hover:bg-accent/10 rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
@@ -75,7 +75,7 @@ const FaqModal = React.memo(function FaqModal({ open, onClose, onSubmit, newFaq,
               type="text"
               value={newFaq.question}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary text-text-dark px-3 py-2 text-base transition-all duration-200"
+              className="mt-1 block w-full rounded-full border border-gray-light bg-background-light dark:bg-background-dark shadow-sm focus:border-accent focus:ring-2 focus:ring-accent text-text-dark px-4 py-2 text-base transition-all duration-200"
               required
               ref={firstInputRef}
               autoComplete="off"
@@ -89,7 +89,7 @@ const FaqModal = React.memo(function FaqModal({ open, onClose, onSubmit, newFaq,
               value={newFaq.answer}
               onChange={handleChange}
               rows={4}
-              className="mt-1 block w-full rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary text-text-dark px-3 py-2 text-base transition-all duration-200"
+              className="mt-1 block w-full rounded-2xl border border-gray-light bg-background-light dark:bg-background-dark shadow-sm focus:border-accent focus:ring-2 focus:ring-accent text-text-dark px-4 py-2 text-base transition-all duration-200"
               required
             />
           </div>
@@ -100,7 +100,7 @@ const FaqModal = React.memo(function FaqModal({ open, onClose, onSubmit, newFaq,
               name="category"
               value={newFaq.category}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary text-text-dark px-3 py-2 text-base transition-all duration-200"
+              className="mt-1 block w-full rounded-full border border-gray-light bg-background-light dark:bg-background-dark shadow-sm focus:border-accent focus:ring-2 focus:ring-accent text-text-dark px-4 py-2 text-base transition-all duration-200"
             >
               <option value="general">General</option>
               <option value="technical">Technical</option>
@@ -112,13 +112,13 @@ const FaqModal = React.memo(function FaqModal({ open, onClose, onSubmit, newFaq,
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-accent rounded-lg shadow-sm text-sm font-medium text-accent hover:bg-accent hover:text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
+              className="px-4 py-2 border border-accent rounded-full shadow-sm text-sm font-medium text-accent hover:bg-accent hover:text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
+              className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-secondary hover:bg-accent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
             >
               Add FAQ
             </button>

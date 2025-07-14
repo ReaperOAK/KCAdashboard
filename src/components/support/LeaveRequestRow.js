@@ -35,6 +35,7 @@ const LeaveRequestRow = React.memo(function LeaveRequestRow({ request, onAction,
     'transition-colors group',
     'hover:bg-gray-light/60 focus-within:bg-accent/10',
     rowIndex % 2 === 1 ? 'bg-background-light' : '',
+    'animate-fade-in',
   ].join(' ');
   return (
     <tr className={rowClass} tabIndex={0} aria-label={`Leave request for teacher ${request.teacher_id}`}> 
@@ -55,28 +56,35 @@ const LeaveRequestRow = React.memo(function LeaveRequestRow({ request, onAction,
         {request.status === 'pending' && (
           <div className="flex flex-col xs:flex-row gap-2 w-full">
             <button
-              className="flex items-center gap-1 bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs sm:text-sm font-medium disabled:bg-gray-dark disabled:text-gray-light disabled:cursor-not-allowed shadow-sm group-hover:scale-105 group-active:scale-95"
+              className="flex items-center gap-1 bg-primary text-white px-3 py-1.5 rounded-full hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs sm:text-sm font-medium disabled:bg-gray-dark disabled:text-gray-light disabled:cursor-not-allowed shadow-sm group-hover:scale-105 group-active:scale-95"
               onClick={() => onAction(request.id, 'approved')}
               disabled={actionStatus === 'pending'}
               aria-label="Approve leave request"
               type="button"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              {actionStatus === 'pending' ? (
+                <svg className="w-4 h-4 animate-spin mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 2v4m0 12v4m8-8h-4M4 12H2" /></svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              )}
               <span className="hidden xs:inline">Approve</span>
             </button>
             <button
-              className="flex items-center gap-1 bg-secondary text-white px-3 py-1.5 rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs sm:text-sm font-medium disabled:bg-gray-dark disabled:text-gray-light disabled:cursor-not-allowed shadow-sm group-hover:scale-105 group-active:scale-95"
+              className="flex items-center gap-1 bg-secondary text-white px-3 py-1.5 rounded-full hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs sm:text-sm font-medium disabled:bg-gray-dark disabled:text-gray-light disabled:cursor-not-allowed shadow-sm group-hover:scale-105 group-active:scale-95"
               onClick={() => onAction(request.id, 'rejected')}
               disabled={actionStatus === 'pending'}
               aria-label="Reject leave request"
               type="button"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              {actionStatus === 'pending' ? (
+                <svg className="w-4 h-4 animate-spin mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 2v4m0 12v4m8-8h-4M4 12H2" /></svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              )}
               <span className="hidden xs:inline">Reject</span>
             </button>
           </div>
         )}
-        {actionStatus === 'pending' && <span className="ml-2 text-xs text-gray-dark">Updating...</span>}
       </td>
     </tr>
   );

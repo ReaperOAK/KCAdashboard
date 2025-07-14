@@ -24,17 +24,18 @@ const priorityStyles = {
 };
 
 const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, onViewDetails }) {
-  return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark ">
+  // Desktop/tablet table view
+  const TableView = (
+    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark hidden sm:block">
       <table className="min-w-full text-sm sm:text-base" aria-label="Support tickets">
         <thead>
           <tr className="bg-primary text-white text-xs sm:text-sm uppercase sticky top-0 z-10">
-            <th className="px-4 sm:px-6 py-3 text-left font-semibold tracking-wide">ID</th>
-            <th className="px-4 sm:px-6 py-3 text-left font-semibold tracking-wide">Title</th>
-            <th className="px-4 sm:px-6 py-3 text-left font-semibold tracking-wide">User</th>
-            <th className="px-4 sm:px-6 py-3 text-left font-semibold tracking-wide">Status</th>
-            <th className="px-4 sm:px-6 py-3 text-left font-semibold tracking-wide">Priority</th>
-            <th className="px-4 sm:px-6 py-3 text-left font-semibold tracking-wide">Actions</th>
+            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">ID</th>
+            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Title</th>
+            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">User</th>
+            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Status</th>
+            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Priority</th>
+            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -47,12 +48,12 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
               <tr
                 key={ticket.id}
                 tabIndex={0}
-                className={`focus:outline-accent transition-all duration-200 ${idx % 2 === 1 ? 'bg-background-light' : ''} hover:bg-gray-light/40 cursor-pointer `}
+                className={`focus:outline-accent transition-all duration-200 ${idx % 2 === 1 ? 'bg-background-light' : ''} hover:bg-gray-light/40 cursor-pointer`}
               >
-                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">#{ticket.id}</td>
-                <td className="px-4 sm:px-6 py-4 text-text-dark break-words">{ticket.title}</td>
-                <td className="px-4 sm:px-6 py-4 text-text-dark break-words">{ticket.user_name}</td>
-                <td className="px-4 sm:px-6 py-4">
+                <td className="px-2 py-4 whitespace-nowrap text-text-dark">#{ticket.id}</td>
+                <td className="px-2 py-4 text-text-dark break-words max-w-[120px] sm:max-w-xs md:max-w-sm truncate">{ticket.title}</td>
+                <td className="px-2 py-4 text-text-dark break-words max-w-[100px] sm:max-w-xs md:max-w-sm truncate">{ticket.user_name}</td>
+                <td className="px-2 py-4">
                   <select
                     value={ticket.status}
                     onChange={e => onStatusChange(ticket.id, e.target.value)}
@@ -64,20 +65,16 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
                     ))}
                   </select>
                 </td>
-                <td className="px-4 sm:px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${priorityStyles[ticket.priority] || ''}`}>
-                    {ticket.priority}
-                  </span>
+                <td className="px-2 py-4">
+                  <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${priorityStyles[ticket.priority]}`}>{ticket.priority}</span>
                 </td>
-                <td className="px-4 sm:px-6 py-4">
+                <td className="px-2 py-4">
                   <button
+                    className="bg-accent text-white px-3 py-1.5 rounded-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs sm:text-sm font-medium"
                     onClick={() => onViewDetails(ticket)}
-                    className="flex items-center gap-1 text-secondary hover:text-accent focus:outline-none focus:underline transition-all duration-200 text-sm font-medium"
                     aria-label={`View details for ticket ${ticket.id}`}
-                    type="button"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m6 0a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z" /></svg>
-                    View Details
+                    Details
                   </button>
                 </td>
               </tr>
@@ -86,6 +83,52 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
         </tbody>
       </table>
     </div>
+  );
+
+  // Mobile stacked card view
+  const MobileView = (
+    <div className="block sm:hidden mt-4 space-y-4">
+      {tickets.length === 0 ? (
+        <div className="text-center text-gray-dark text-base">No tickets found.</div>
+      ) : (
+        tickets.map(ticket => (
+          <div key={ticket.id} className="rounded-xl border border-gray-light bg-background-light p-4 shadow-sm flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-primary">#{ticket.id}</span>
+              <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${priorityStyles[ticket.priority]}`}>{ticket.priority}</span>
+            </div>
+            <div className="text-text-dark font-medium">{ticket.title}</div>
+            <div className="text-gray-dark text-xs">User: {ticket.user_name}</div>
+            <div className="flex items-center gap-2">
+              <select
+                value={ticket.status}
+                onChange={e => onStatusChange(ticket.id, e.target.value)}
+                className="rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-accent text-text-dark px-2 py-1 text-xs transition-all duration-200"
+                aria-label={`Change status for ticket ${ticket.id}`}
+              >
+                {statusOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <button
+                className="bg-accent text-white px-3 py-1.5 rounded-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs font-medium"
+                onClick={() => onViewDetails(ticket)}
+                aria-label={`View details for ticket ${ticket.id}`}
+              >
+                Details
+              </button>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {TableView}
+      {MobileView}
+    </>
   );
 });
 

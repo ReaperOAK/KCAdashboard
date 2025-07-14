@@ -87,7 +87,7 @@ const SupportSystem = React.memo(function SupportSystem() {
 
   return (
     <div className="min-h-screen bg-background-light">
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-primary">Support System</h1>
           <TabNav activeTab={activeTab} onTabChange={handleTabChange} />
@@ -102,7 +102,7 @@ const SupportSystem = React.memo(function SupportSystem() {
             <div className="flex justify-end">
               <button
                 onClick={handleFaqModalOpen}
-                className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
+                className="px-4 py-2 rounded-full bg-secondary text-white hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-sm font-medium shadow-sm"
               >
                 Add New FAQ
               </button>

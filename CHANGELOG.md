@@ -1,4 +1,15 @@
 # [Unreleased] - July 2025
+# Support & Admin UI/UX Refactor (2025-07-14)
+- Refactored all support/admin components for leave requests and ticketing:
+  - `LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`, `SupportSystem.js`, `TicketTable.js`, `TicketDetailModal.js`, `FaqModal.js`, `FaqCard.js`.
+  - All components now use the KCA color system (`colour_scheme.md`, `tailwind.config.js`) and are fully responsive for all screen sizes.
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and color contrast validated.
+  - Performance: React.memo, useCallback, and modular field components for minimal re-renders.
+  - Single-responsibility: each file/component does one job only and is documented with JSDoc.
+  - Consistent iconography (inline SVGs), animated transitions, and visual feedback for all actions and statuses.
+  - Custom modals for ticket/FAQ/leave actions, with focus trap and keyboard support.
+  - All interactive elements have accessible focus, hover, and disabled states.
+  - Updated all relevant docs: `README.md`, `src/components/support/docs.md`, `CONTRIBUTING.md`.
 
 ### Quiz Management UI/UX Refactor & Modularization
 - Refactored all quiz management components for both admin and teacher (`QuizManagementPage.js`, `QuizTableRow.js`, `QuizLoadingSkeleton.js`, `QuizErrorAlert.js`, `DeleteQuizModal.js`, and related pages):

@@ -36,15 +36,21 @@
 # Contributing
 
 ## UI/UX & Frontend Coding Standards (June 2024)
-- All major UI/UX changes must:
-  - Use design tokens for color, spacing, and typography.
-  - Ensure accessibility (keyboard navigation, screen reader support, color contrast, ARIA labels where needed).
-  - Use Framer Motion for animation and Heroicons for icons where appropriate.
-  - Be fully responsive and tested on all major device sizes.
-  - Update all relevant documentation and changelogs after significant UI/UX changes.
-  - Follow component and file naming conventions, and keep code modular and well-commented.
+## UI/UX & Component Guidelines (July 2025)
 
-## Documentation & Changelog Updates
+- All UI components must use the design system (see `colour_scheme.md`)
+- Use Tailwind CSS for all styling
+- Ensure accessibility: semantic HTML, ARIA, keyboard navigation
+- Components must be mobile-first and responsive
+- Each file/component should have a single responsibility
+- Use React.memo for pure components
+- Document all new components and update relevant docs
+- Register all new files in their parent modules/routes
+- Do not modify build/output directories
+
+---
+_Last updated: July 2025_
+
 - After any major refactor or feature addition, update:
   - `README.md` with new features and improvements
   - `CHANGELOG.md` with a summary of changes

@@ -295,18 +295,18 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
   );
 
   const Actions = ({ isSubmitting }) => (
-    <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-3 pt-2 sm:pt-4">
+    <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2 sm:pt-4">
       <button
         type="button"
         onClick={onClose}
-        className="px-4 py-2 border border-gray-light rounded-md text-primary hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent w-full sm:w-auto"
+        className="px-4 py-2 border border-gray-light rounded-md text-primary bg-white hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 w-full sm:w-auto"
       >
         Cancel
       </button>
       <button
         type="submit"
         disabled={isSubmitting || externalLoading}
-        className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50 w-full sm:w-auto"
+        className="px-4 py-2 bg-accent text-white rounded-md shadow-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 transition-all duration-200 w-full sm:w-auto"
         aria-busy={isSubmitting || externalLoading}
       >
         {isSubmitting || externalLoading
@@ -324,7 +324,7 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
       enableReinitialize
     >
       {({ values, isSubmitting, setFieldValue }) => (
-        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4 animate-fade-in" aria-label="Create or edit batch form">
+        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4 animate-fade-in bg-background-light dark:bg-background-dark rounded-xl shadow-md" aria-label="Create or edit batch form">
           <ErrorAlert error={error} />
           <h2 className="text-2xl text-primary font-semibold mb-2 text-center">{mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}</h2>
           <NameField />

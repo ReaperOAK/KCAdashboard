@@ -5,11 +5,12 @@ import { SchedulePicker } from '../../components/batches/CreateBatchForm';
  * Edit batch modal form for batch detail page.
  * Accessible, beautiful, and uses color tokens.
  */
+
 const EditBatchModal = ({ open, onClose, formData, onChange, onSubmit }) => {
   if (!open) return null;
   return (
-    <Modal title="Edit Batch" onClose={onClose}>
-      <form onSubmit={onSubmit} className="space-y-4" aria-label="Edit batch form">
+    <Modal title="Edit Batch" onClose={onClose} className="max-w-lg w-full px-2 sm:px-0 py-0 bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl border border-gray-light animate-fade-in focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-300" overlayClassName="bg-black/40 backdrop-blur-sm" aria-modal="true" role="dialog" aria-label="Edit Batch Modal">
+      <form onSubmit={onSubmit} className="space-y-4 p-2 sm:p-6 animate-fade-in" aria-label="Edit batch form">
         <div>
           <label className="block text-sm font-medium text-primary">Batch Name</label>
           <input
@@ -33,7 +34,7 @@ const EditBatchModal = ({ open, onClose, formData, onChange, onSubmit }) => {
             aria-label="Batch description"
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
           <div>
             <label className="block text-sm font-medium text-primary">Level</label>
             <select
@@ -62,7 +63,7 @@ const EditBatchModal = ({ open, onClose, formData, onChange, onSubmit }) => {
               <option value="completed">Completed</option>
             </select>
           </div>
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-primary">Max Students</label>
             <input
               type="number"
@@ -84,17 +85,17 @@ const EditBatchModal = ({ open, onClose, formData, onChange, onSubmit }) => {
             onChange={val => onChange({ target: { name: 'schedule', value: val } })}
           />
         </div>
-        <div className="flex justify-end space-x-3 pt-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-light rounded-md text-primary hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
+            className="px-4 py-2 border border-gray-light rounded-md text-primary bg-white hover:bg-gray-light focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 w-full sm:w-auto"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
+            className="px-4 py-2 bg-accent text-white rounded-md shadow-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-all duration-200 w-full sm:w-auto"
           >
             Save Changes
           </button>

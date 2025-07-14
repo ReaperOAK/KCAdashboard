@@ -1,24 +1,57 @@
+
 import React from 'react';
 import PropTypes from 'prop-types';
+
+// Lucide icons (or Heroicons) via SVG for visual clarity
+const icons = {
+  present: (
+    <svg className="w-6 h-6 text-success mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+  ),
+  absent: (
+    <svg className="w-6 h-6 text-error mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+  ),
+  late: (
+    <svg className="w-6 h-6 text-warning mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" /><circle cx="12" cy="12" r="10" /></svg>
+  ),
+  percent: (
+    <svg className="w-6 h-6 text-accent mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 16l8-8" /><circle cx="9" cy="15" r="1" /><circle cx="15" cy="9" r="1" /></svg>
+  ),
+};
 
 const AttendanceStats = React.memo(function AttendanceStats({ stats }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-      <div className="p-4 sm:p-3 bg-success text-white rounded-lg flex flex-col items-start">
-        <div className="text-sm sm:text-xs opacity-90">Present</div>
-        <div className="text-2xl sm:text-xl font-bold">{stats.present}</div>
+      {/* Present */}
+      <div className="group p-5 sm:p-4 bg-success text-white rounded-xl flex items-center shadow-md border border-success/70 transition-all duration-200 hover:scale-[1.03] hover:shadow-lg focus-within:ring-2 focus-within:ring-accent" tabIndex={0} aria-label={`Present: ${stats.present}`}> 
+        {icons.present}
+        <div>
+          <div className="text-xs opacity-90 font-medium">Present</div>
+          <div className="text-2xl font-bold leading-tight">{stats.present}</div>
+        </div>
       </div>
-      <div className="p-4 sm:p-3 bg-error text-white rounded-lg flex flex-col items-start">
-        <div className="text-sm sm:text-xs opacity-90">Absent</div>
-        <div className="text-2xl sm:text-xl font-bold">{stats.absent}</div>
+      {/* Absent */}
+      <div className="group p-5 sm:p-4 bg-error text-white rounded-xl flex items-center shadow-md border border-error/70 transition-all duration-200 hover:scale-[1.03] hover:shadow-lg focus-within:ring-2 focus-within:ring-accent" tabIndex={0} aria-label={`Absent: ${stats.absent}`}> 
+        {icons.absent}
+        <div>
+          <div className="text-xs opacity-90 font-medium">Absent</div>
+          <div className="text-2xl font-bold leading-tight">{stats.absent}</div>
+        </div>
       </div>
-      <div className="p-4 sm:p-3 bg-warning text-white rounded-lg flex flex-col items-start">
-        <div className="text-sm sm:text-xs opacity-90">Late</div>
-        <div className="text-2xl sm:text-xl font-bold">{stats.late}</div>
+      {/* Late */}
+      <div className="group p-5 sm:p-4 bg-warning text-white rounded-xl flex items-center shadow-md border border-warning/70 transition-all duration-200 hover:scale-[1.03] hover:shadow-lg focus-within:ring-2 focus-within:ring-accent" tabIndex={0} aria-label={`Late: ${stats.late}`}> 
+        {icons.late}
+        <div>
+          <div className="text-xs opacity-90 font-medium">Late</div>
+          <div className="text-2xl font-bold leading-tight">{stats.late}</div>
+        </div>
       </div>
-      <div className="p-4 sm:p-3 bg-accent/20 rounded-lg flex flex-col items-start">
-        <div className="text-sm sm:text-xs text-accent">Attendance %</div>
-        <div className="text-2xl sm:text-xl font-bold text-accent">{stats.attendancePercentage}%</div>
+      {/* Attendance % */}
+      <div className="group p-5 sm:p-4 bg-accent/10 rounded-xl flex items-center shadow-md border border-accent/30 transition-all duration-200 hover:scale-[1.03] hover:shadow-lg focus-within:ring-2 focus-within:ring-accent" tabIndex={0} aria-label={`Attendance Percentage: ${stats.attendancePercentage}%`}>
+        {icons.percent}
+        <div>
+          <div className="text-xs text-accent font-medium">Attendance %</div>
+          <div className="text-2xl font-bold leading-tight text-accent">{stats.attendancePercentage}%</div>
+        </div>
       </div>
     </div>
   );

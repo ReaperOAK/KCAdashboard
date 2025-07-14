@@ -1,3 +1,4 @@
+
 import React, { useCallback } from 'react';
 
 const SettingsModal = React.memo(function SettingsModal({ settings, setSettings, onClose, onSave }) {
@@ -22,15 +23,17 @@ const SettingsModal = React.memo(function SettingsModal({ settings, setSettings,
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div className="flex items-center justify-center min-h-screen px-2 sm:px-4 pt-4 pb-20 text-center sm:p-0">
+        {/* Overlay */}
         <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-          <div className="absolute inset-0 bg-gray-dark opacity-75"></div>
+          <div className="absolute inset-0 bg-gray-dark/80 backdrop-blur-sm"></div>
         </div>
-        <div className="relative inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl">
+        {/* Modal card */}
+        <div className="relative inline-block w-full max-w-lg p-4 sm:p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-background-light border border-gray-light shadow-2xl rounded-2xl scale-95 opacity-0 animate-modal-in">
           <h2 className="text-2xl font-bold text-primary mb-4">Attendance Settings</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="minAttendancePercent">
+              <label className="block text-sm font-medium text-primary mb-1" htmlFor="minAttendancePercent">
                 Minimum Attendance Percentage
               </label>
               <input
@@ -39,14 +42,14 @@ const SettingsModal = React.memo(function SettingsModal({ settings, setSettings,
                 type="number"
                 value={settings.minAttendancePercent}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
+                className="mt-1 block w-full rounded-md border border-gray-light bg-white text-text-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary transition-all duration-200 text-sm"
                 min="0"
                 max="100"
                 aria-label="Minimum attendance percent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="lateThreshold">
+              <label className="block text-sm font-medium text-primary mb-1" htmlFor="lateThreshold">
                 Late Threshold (minutes)
               </label>
               <input
@@ -55,13 +58,13 @@ const SettingsModal = React.memo(function SettingsModal({ settings, setSettings,
                 type="number"
                 value={settings.lateThreshold}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
+                className="mt-1 block w-full rounded-md border border-gray-light bg-white text-text-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary transition-all duration-200 text-sm"
                 min="0"
                 aria-label="Late threshold in minutes"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="autoMarkAbsent">
+              <label className="block text-sm font-medium text-primary mb-1" htmlFor="autoMarkAbsent">
                 Auto-mark Absent After (minutes)
               </label>
               <input
@@ -70,13 +73,13 @@ const SettingsModal = React.memo(function SettingsModal({ settings, setSettings,
                 type="number"
                 value={settings.autoMarkAbsent}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
+                className="mt-1 block w-full rounded-md border border-gray-light bg-white text-text-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary transition-all duration-200 text-sm"
                 min="0"
                 aria-label="Auto-mark absent after minutes"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-primary" htmlFor="reminderBefore">
+              <label className="block text-sm font-medium text-primary mb-1" htmlFor="reminderBefore">
                 Reminder Before Class (minutes)
               </label>
               <input
@@ -85,12 +88,12 @@ const SettingsModal = React.memo(function SettingsModal({ settings, setSettings,
                 type="number"
                 value={settings.reminderBefore}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-light shadow-sm focus:border-secondary focus:ring-secondary"
+                className="mt-1 block w-full rounded-md border border-gray-light bg-white text-text-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-secondary transition-all duration-200 text-sm"
                 min="0"
                 aria-label="Reminder before class in minutes"
               />
             </div>
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-6">
               <button
                 type="button"
                 onClick={onClose}
@@ -116,6 +119,10 @@ const SettingsModal = React.memo(function SettingsModal({ settings, setSettings,
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+          <style>{`
+            @keyframes modal-in { from { opacity: 0; transform: scale(0.97);} to { opacity: 1; transform: scale(1); } }
+            .animate-modal-in { animation: modal-in 0.25s cubic-bezier(.4,0,.2,1); opacity: 1 !important; transform: scale(1) !important; }
+          `}</style>
         </div>
       </div>
     </div>

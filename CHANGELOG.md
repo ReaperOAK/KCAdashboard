@@ -6,12 +6,16 @@
 # 2025-07-11 (cont'd)
 - Refactored `PGNGameView.js` for color token usage, beautiful UI, accessibility, and responsiveness.
 # [Unreleased] - July 2025
-### Modular Quiz Management UI
-## [Unreleased] - July 2025
-### Major UI/UX Refactor: Classroom, Quiz, Analytics, Leaderboard
-## [Unreleased] - July 2025
-
-### Major Tournaments UI Refactor & Modularity
+### Major UI/UX Refactor: Attendance, Classroom, Quiz, Analytics, Leaderboard
+- Refactored all attendance-related components for strict design system adherence (color tokens, spacing, typography)
+- Upgraded all skeleton/loaders to modern shimmer blocks with Tailwind tokens
+- Added icons, improved layouts, and ensured accessibility (ARIA, focus, keyboard nav)
+- Enhanced responsiveness and mobile experience for all tables, forms, and controls
+- Fixed select double-chevron bug and standardized custom select appearance
+- Improved error, alert, and status components with icons and color tokens
+- Ensured single responsibility for all components and optimized with React.memo
+- Updated all interactive elements for hover, focus, and disabled states
+- No build artifacts or orphan files; all new files registered and imported
 
 ## [Unreleased] - June 2024
 ### Major React Frontend Refactor & UI/UX Modernization

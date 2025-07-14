@@ -5,19 +5,37 @@
 
 All student dashboard components have been refactored for a beautiful, modern, and accessible user experience:
 
-- **Consistent design system:** Uses TailwindCSS and custom color tokens (see `colour_scheme.md`)
-- **Responsive & mobile-friendly:** Layouts adapt to all screen sizes
-- **Accessibility:** Keyboard navigation, ARIA labels, and focus states
-- **Performance:** Optimized with React.memo, useCallback, and useMemo
-- **Single Responsibility:** Components are modular and focused
-- **Animated states:** Loading, error, and empty states are visually clear
 
 See `CHANGELOG.md` for details and `colour_scheme.md` for the full color system.
 
 This project is a modern, full-featured dashboard for the Kolkata Chess Academy. It features:
-- React frontend with Tailwind CSS and custom color tokens (see [`colour_scheme.md`](./colour_scheme.md))
-- Modular, accessible, and responsive UI components for quizzes, leaderboard, and more
-- Strict adherence to single-responsibility and best practices for React and Tailwind
+## [July 14, 2025] UI Support Components Refactor
+
+### Summary
+Refactored all support system UI components for strict adherence to the design system, accessibility, performance, and single responsibility. All components now use the custom Tailwind color tokens, are fully responsive, accessible, and have improved UI/UX. Each file now has a clear single responsibility and is documented with JSDoc-style comments.
+
+### Affected Files
+- `src/components/support/EmptyState.js`
+- `src/components/support/ErrorAlert.js`
+- `src/components/support/FaqCard.js`
+- `src/components/support/FaqModal.js`
+- `src/components/support/LeaveRequestRow.js`
+- `src/components/support/LeaveRequestsSkeleton.js`
+- `src/components/support/LeaveRequestsTable.js`
+- `src/components/support/SupportSkeleton.js`
+- `src/components/support/TabNav.js`
+- `src/components/support/TicketDetailModal.js`
+- `src/components/support/TicketTable.js`
+
+### Improvements
+- All components now use the custom color palette and Tailwind tokens.
+- Accessibility: ARIA roles, keyboard navigation, focus management, and live regions added.
+- UI/UX: Sticky headers, skeleton loaders, empty/error states, semantic HTML, and beautiful, modern layouts.
+- Responsiveness: Mobile-first, flex/grid layouts, and adaptive spacing.
+- Performance: All components wrapped in `React.memo` where appropriate.
+- Single Responsibility: Each file does one job only, with clear prop interfaces and JSDoc comments.
+
+See also: `src/components/support/docs.md` for component usage and API details.
 ## Getting Started
 
 1. Install dependencies:

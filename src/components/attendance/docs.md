@@ -9,6 +9,14 @@ Recent updates (July 2025):
 - **UI/UX**: All controls, tables, and modals use color tokens, focus/hover/active states, and are keyboard/ARIA accessible.
 - **Performance**: All components are memoized and single-responsibility.
 
+
+### StudentAttendanceHistory (Admin)
+- Beautiful, accessible, and fully responsive page for viewing a student's attendance history.
+- Uses `AttendanceStats`, `AttendanceTable`, and `StudentAttendanceHistorySkeleton` for modular, single-responsibility UI.
+- Handles loading, error, and empty states with clear feedback and retry option.
+- All color classes use design tokens from `colour_scheme.md` and `tailwind.config.js`.
+- Optimized for performance and accessibility (ARIA, keyboard navigation, focus states).
+
 ### StudentAttendanceTable
 - Beautiful, responsive table for student attendance summary.
 - Alternating row backgrounds, status icons, color tokens, and accessibility improvements.

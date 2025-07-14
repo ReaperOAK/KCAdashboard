@@ -18,7 +18,7 @@ pages/admin/
   PlatformAnalytics.js         # Analytics dashboard for the platform
   QuizManagement.js           # Admin quiz management page (view and manage all quizzes)
   AdminQuizEditor.js          # Admin quiz editing page
-  StudentAttendanceHistory.js  # View student attendance history
+  StudentAttendanceHistory.js  # View student attendance history (refactored July 2025: beautiful, accessible, responsive, modular, handles loading/error/empty states)
   StudentAttendanceList.js     # List of student attendance records
   SupportSystem.js             # Admin support system page
   TournamentManagement.js      # Admin tournament management

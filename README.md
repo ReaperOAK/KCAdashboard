@@ -57,6 +57,17 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
   - All components use the color system and are mobile-first responsive
 - Updated all relevant docs and ensured all batch management components are registered and documented
 
+**Attendance History UI/UX Refactor (July 2025)**
+- Refactored `StudentAttendanceHistory.js` (admin) and related attendance components for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and the design system (see `colour_scheme.md`)
+  - Accessibility: ARIA roles, keyboard navigation, focus/hover/active states, and clear error/loading/empty states
+  - Performance: React.memo, useCallback, and modular field components
+  - Single-responsibility: each file/component now does one job only
+  - Consistent iconography (inline SVGs), animated transitions, and visual feedback
+  - All components use the color system and are mobile-first responsive
+  - Error, loading, and empty states are handled beautifully and accessibly
+  - Updated all relevant docs: `README.md`, `src/pages/admin/docs.md`, `src/components/attendance/docs.md`, `src/pages/docs.md`
+
 **Admin Dashboard, User Management, and Tournament UI/UX Refactor**
 - See previous entries for details on admin dashboard, user management, and tournament UI/UX improvements
 

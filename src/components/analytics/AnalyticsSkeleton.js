@@ -1,7 +1,6 @@
 
 import React from 'react';
 
-// Enhanced AnalyticsSkeleton: beautiful, responsive, accessible, and focused
 const AnalyticsSkeleton = React.memo(function AnalyticsSkeleton() {
   return (
     <section

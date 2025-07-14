@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 
-// Enhanced UserGrowthChart: beautiful, responsive, accessible, and focused
 const UserGrowthChart = React.memo(function UserGrowthChart({ userStats }) {
   const borderColor = '#461fa3'; // secondary
   const backgroundColor = '#7646eb'; // accent

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 
-// Enhanced UserActivityChart: beautiful, responsive, accessible, and focused
 const UserActivityChart = React.memo(function UserActivityChart({ activityStats }) {
   const barColor = '#7646eb'; // accent
   const data = useMemo(() => ({

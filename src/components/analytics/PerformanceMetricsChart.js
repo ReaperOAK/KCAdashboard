@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Pie } from 'react-chartjs-2';
 
-// Enhanced PerformanceMetricsChart: beautiful, responsive, accessible, and focused
 const PerformanceMetricsChart = React.memo(function PerformanceMetricsChart({ performanceStats }) {
   // Memoized color tokens and labels to avoid changing dependencies
   const chartColors = useMemo(() => [

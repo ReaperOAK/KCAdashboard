@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-// Enhanced TimeRangeSelect: beautiful, responsive, accessible, and focused
 const TimeRangeSelect = React.memo(function TimeRangeSelect({ value, onChange }) {
   const handleChange = useCallback((e) => onChange(e.target.value), [onChange]);
   return (

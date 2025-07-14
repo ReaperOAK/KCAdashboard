@@ -1,4 +1,32 @@
 # July 2025: UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard, Admin Dashboard
+
+## Analytics Dashboard & Components (July 2025)
+
+All analytics dashboard UI is now built from modular, single-responsibility React components in `src/components/analytics/` and `src/pages/admin/PlatformAnalytics.js`.
+
+### Components
+- PlatformAnalytics.js: Main analytics dashboard page, lazy-loads all analytics components, handles loading/error/empty states, and is fully responsive and accessible.
+- AnalyticsSkeleton.js: Beautiful, responsive loading skeleton for analytics dashboards. Uses shimmer animation, color tokens, and ARIA roles for accessibility.
+- ErrorAlert.js: Accessible, visually distinct error alert with icon, accent border, and retry button. Handles error, loading, and empty states.
+- TimeRangeSelect.js: Accessible, beautiful select dropdown for time range filtering. Features accent border, dropdown icon, and smooth transitions.
+- UserGrowthChart.js: Responsive, accessible line chart for user growth. Uses color tokens, improved legend, and ARIA roles.
+- UserActivityChart.js: Responsive, accessible bar chart for user activity. Uses color tokens, improved legend, and ARIA roles.
+- PerformanceMetricsChart.js: Responsive, accessible pie chart for performance metrics. Uses color tokens, improved legend, and ARIA roles.
+
+All components use color tokens, are fully responsive, and follow accessibility best practices. See `src/components/analytics/docs.md` for details.
+
+### UI/UX Patterns
+- Modular, single-responsibility components for maintainability
+- Consistent use of color tokens and spacing
+- Loading skeletons, error/empty states, and micro-interactions
+- Responsive layouts for all screen sizes
+- ARIA labels and keyboard navigation for accessibility
+- Lazy loading for performance
+
+See each feature folder's README or docs for details and usage examples.
+
+---
+
 ## Admin Dashboard UI Components (July 2025)
 
 All admin dashboard UI is now built from modular, single-responsibility React components in `src/components/admin/`.

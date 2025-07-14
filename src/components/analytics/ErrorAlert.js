@@ -1,7 +1,6 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-// Enhanced ErrorAlert: beautiful, responsive, accessible, and focused
 const ErrorAlert = React.memo(function ErrorAlert({ error, onRetry }) {
   return (
     <section

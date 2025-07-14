@@ -94,7 +94,7 @@ const AppContent = React.memo(function AppContent() {
             <Sidebar isOpen={isSidebarOpen} toggleSidebar={handleToggleSidebar} />
             <main
               className={[
-                'transition-all duration-300 pt-16 w-full',
+                'transition-all duration-300 w-full',
                 'lg:ml-64',
                 isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0',
                 'min-h-[calc(100vh-4rem)]',

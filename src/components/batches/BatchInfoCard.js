@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { formatSchedule } from '../../utils/formatSchedule';
 import StatusBadge from './StatusBadge';
 
 /**
@@ -38,7 +39,7 @@ const BatchInfoCard = React.memo(function BatchInfoCard({ batch }) {
             </div>
             <div>
               <dt className="font-semibold text-text-dark">Schedule</dt>
-              <dd className="ml-1">{batch.schedule || <span className="text-gray-light">N/A</span>}</dd>
+              <dd className="ml-1">{formatSchedule(batch.schedule) || <span className="text-gray-light">N/A</span>}</dd>
             </div>
             <div>
               <dt className="font-semibold text-text-dark">Students</dt>

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { formatSchedule } from '../../utils/formatSchedule';
 
 // OverviewCard: Pure, focused, beautiful, responsive
 const OverviewCard = React.memo(function OverviewCard({ title, children, icon }) {
@@ -22,7 +23,7 @@ const ClassroomOverviewTab = React.memo(function ClassroomOverviewTab({ classroo
       <h2 className="text-2xl text-text-dark font-semibold mb-6">Class Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <OverviewCard title="Schedule" icon={<svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>}>
-          {classroom.schedule}
+          {formatSchedule(classroom.schedule)}
         </OverviewCard>
         <OverviewCard title="About This Class" icon={<svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19.5 3 21l1.5-4L16.5 3.5z" /></svg>}>
           <span className="text-gray-dark">{classroom.description}</span>

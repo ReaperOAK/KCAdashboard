@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatSchedule } from '../../utils/formatSchedule';
 import { Link } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
 import { CheckCircle } from 'lucide-react';
@@ -19,7 +20,7 @@ const EnrolledClassCard = React.memo(({ classroom }) => (
         </div>
         <div className="flex items-center gap-1">
           <span className="font-semibold text-secondary">Schedule:</span>
-          <span className="text-primary dark:text-text-light font-medium">{classroom.schedule}</span>
+          <span className="text-primary dark:text-text-light font-medium">{formatSchedule(classroom.schedule)}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="font-semibold text-secondary">Status:</span>

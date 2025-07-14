@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { formatSchedule } from '../../utils/formatSchedule';
 import ClassRating from '../../components/student/ClassRating';
 import { useParams } from 'react-router-dom';
 import { ClassroomApi } from '../../api/classroom';
@@ -224,7 +225,7 @@ export const ClassroomDetails = React.memo(() => {
               <p className="text-gray-dark mb-4">{classroom.description}</p>
               <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-dark gap-2 sm:gap-4">
                 <span><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</span>
-                <span><span className="font-semibold">Schedule:</span> {classroom.schedule}</span>
+                <span><span className="font-semibold">Schedule:</span> {formatSchedule(classroom.schedule)}</span>
                 <StatusBadge status={classroom.status} />
               </div>
             </div>

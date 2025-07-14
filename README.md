@@ -28,6 +28,7 @@ See [`colour_scheme.md`](./colour_scheme.md) for the full Tailwind color token s
 
 - [Leaderboard Components](./src/components/leaderboard/docs.md)
 - Quiz and related UI components are documented inline and follow the same design and accessibility standards.
+- All batch and classroom schedule displays now use a unified formatting utility (`formatSchedule`) for clear, user-friendly output (see [`src/utils/formatSchedule.js`](./src/utils/formatSchedule.js)).
 ## Contributing
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for guidelines.

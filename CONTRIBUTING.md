@@ -9,6 +9,7 @@ All student dashboard UI is now modular, beautiful, and accessible. When contrib
 - Optimize for performance: use React.memo, useCallback, useMemo where appropriate.
 - Always handle loading, error, and empty states in UI.
 - Document new or modified components in the relevant feature folder and main docs.
+- Use the `formatSchedule` utility for all batch/classroom schedule displays to ensure consistency and readability. Update `src/utils/docs.md` if schedule display logic changes.
 - Update the main README and CHANGELOG with any major UI/UX changes.
 
 # Resource Center UI/UX Refactor (July 2025)

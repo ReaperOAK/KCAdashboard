@@ -1,4 +1,9 @@
 ## [Unreleased] - 2025-07-14
+### Schedule Display Refactor & Utility Addition
+- Added `formatSchedule` utility to `src/utils/formatSchedule.js` for converting schedule JSON strings/objects to user-friendly strings.
+- Updated all batch and classroom schedule displays to use `formatSchedule` for consistent, readable formatting (e.g., `Mon, Wed, Fri, 09:00 for 60 min` instead of raw JSON).
+- Updated `src/utils/docs.md` with documentation and usage examples for `formatSchedule`.
+
 ### Major UI/UX Refactor & Improvements
 - Refactored all student dashboard components for:
   - Beautiful, modern, and responsive UI using Tailwind and design tokens

@@ -20,6 +20,18 @@ utils/
   pgnApi.js             # Handles PGN file operations and API calls
   StockfishOnlineAPI.js # Integrates with the Stockfish chess engine online
   uploadUtils.js        # Utility functions for file uploads
+  formatSchedule.js     # Formats schedule objects/strings for display
+- **formatSchedule.js**  
+  Utility to format schedule JSON strings or objects into a user-friendly string for display in the UI. Used by all components that show batch or classroom schedules. Example output: `Mon, Wed, Fri, 09:00 for 60 min`.
+- **Schedule Formatting:** Ensures all schedules are displayed in a readable, user-friendly format across the UI.
+- Use `formatSchedule` to display any schedule data in a readable format.
+**Schedule Formatting:**
+```
+import { formatSchedule } from '../utils/formatSchedule';
+const readable = formatSchedule(batch.schedule);
+```
+- Use `formatSchedule` for all schedule displays to ensure consistency and readability.
+- **Schedule formatting issues:** Ensure schedule data is a valid JSON string or object with `days`, `time`, and `duration` fields.
 ```
 
 ---

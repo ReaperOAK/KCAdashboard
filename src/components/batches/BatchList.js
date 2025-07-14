@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { formatSchedule } from '../../utils/formatSchedule';
 import { useNavigate } from 'react-router-dom';
 
 // Badge for batch status (accessible, color contrast from Tailwind config)
@@ -51,7 +52,7 @@ const BatchCard = React.memo(function BatchCard({ batch, onViewDetails, onManage
           </div>
           <div>
             <dt className="inline font-semibold text-text-dark">Schedule:</dt>{' '}
-            <dd className="inline" aria-label="Batch schedule">{batch.schedule || <span className="text-gray-light">N/A</span>}</dd>
+            <dd className="inline" aria-label="Batch schedule">{formatSchedule(batch.schedule) || <span className="text-gray-light">N/A</span>}</dd>
           </div>
           <div>
             <dt className="inline font-semibold text-text-dark">Students:</dt>{' '}

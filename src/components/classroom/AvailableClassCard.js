@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatSchedule } from '../../utils/formatSchedule';
 import { UserPlus2, CheckCircle, Loader2 } from 'lucide-react';
 
 
@@ -15,7 +16,7 @@ const AvailableClassCard = React.memo(({ classroom, enrolling, enrollSuccess, en
       <p className="text-gray-dark dark:text-gray-light mb-4 line-clamp-3">{classroom.description}</p>
       <div className="text-sm text-gray-dark dark:text-gray-light mb-4 space-y-1">
         <p><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</p>
-        <p><span className="font-semibold">Schedule:</span> {classroom.schedule}</p>
+        <p><span className="font-semibold">Schedule:</span> {formatSchedule(classroom.schedule)}</p>
         <p><span className="font-semibold">Level:</span> {classroom.level}</p>
         <p><span className="font-semibold">Availability:</span> <span className="ml-1 text-green-600 font-semibold">{classroom.available_slots} slots left</span></p>
       </div>

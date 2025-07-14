@@ -1,3 +1,21 @@
+## [Unreleased] - 2025-07-14
+### Major UI/UX Refactor & Improvements
+- Refactored all student dashboard components for:
+  - Beautiful, modern, and responsive UI using Tailwind and design tokens
+  - Accessibility, keyboard navigation, and ARIA labels
+  - Performance optimizations with React.memo, useCallback, useMemo
+  - Single Responsibility Principle: extracted focused subcomponents
+  - Consistent use of color tokens and design system
+  - Animated states, clear feedback, and improved empty/loading/error states
+  - No inline styles; all styling via Tailwind
+- Components updated:
+  - `ClassRating.js`: Star rating, feedback, and submission UI
+  - `ClassroomAssignmentsTab.js`: Assignment cards, submission, grading, and empty state
+  - `ClassroomDiscussionsTab.js`: Discussion and reply cards, new discussion UI, empty state
+  - `ClassroomMaterialsTab.js`: Material cards, open button, empty state
+  - `ClassroomOverviewTab.js`: Overview cards for schedule, about, instructor, next session
+  - `QuizCard.js`: Quiz card, difficulty badge, meta info, start button
+
 # July 2025: Resource Center UI/UX Refactor
 
 All resource center UI is now modular, beautiful, and accessible. Components are single-responsibility, responsive, and use the KCA color system from `colour_scheme.md`.

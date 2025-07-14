@@ -1,6 +1,19 @@
 
 # Kolkata Chess Academy Dashboard
 
+## ✨ July 2025 UI/UX Refactor
+
+All student dashboard components have been refactored for a beautiful, modern, and accessible user experience:
+
+- **Consistent design system:** Uses TailwindCSS and custom color tokens (see `colour_scheme.md`)
+- **Responsive & mobile-friendly:** Layouts adapt to all screen sizes
+- **Accessibility:** Keyboard navigation, ARIA labels, and focus states
+- **Performance:** Optimized with React.memo, useCallback, and useMemo
+- **Single Responsibility:** Components are modular and focused
+- **Animated states:** Loading, error, and empty states are visually clear
+
+See `CHANGELOG.md` for details and `colour_scheme.md` for the full color system.
+
 This project is a modern, full-featured dashboard for the Kolkata Chess Academy. It features:
 - React frontend with Tailwind CSS and custom color tokens (see [`colour_scheme.md`](./colour_scheme.md))
 - Modular, accessible, and responsive UI components for quizzes, leaderboard, and more

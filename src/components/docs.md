@@ -1,5 +1,13 @@
 # KCAdashboard Frontend – Components Folder Documentation
 
+## Analytics UI Refactor (2024)
+All analytics-related UI components have been refactored for beauty, performance, accessibility, and responsiveness. See `analytics/docs.md` for details on each analytics component, their design, and usage.
+
+## Design System
+- All components use TailwindCSS and the project's color tokens (see `../../colour_scheme.md`).
+- Components are modular, single-responsibility, and fully accessible.
+- Responsive layouts and semantic HTML are standard.
+
 ## Overview
 
 The `components` folder contains reusable React UI components that form the building blocks of the KCAdashboard frontend. Components are organized by feature and responsibility, making it easy to maintain and extend the user interface. This folder includes both general-purpose UI elements and feature-specific components, grouped into subfolders for clarity.

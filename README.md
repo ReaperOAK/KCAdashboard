@@ -35,6 +35,43 @@ Use the `SecureFileViewer` React component (`src/components/common/SecureFileVie
 Direct access to files in the `uploads/` directory is now blocked at the web server level. All file downloads must go through the backend API, which enforces authentication and authorization. A `web.config` file in the `uploads/` directory returns HTTP 403 Forbidden for any direct access attempts.
 # Kolkata Chess Academy Dashboard
 
+## Analytics UI Refactor (2024)
+
+### Overview
+All analytics-related UI components have been refactored for beauty, performance, accessibility, and responsiveness. The new design system uses TailwindCSS, a custom color palette (see `colour_scheme.md`), and modular, single-responsibility React components. Charts use Chart.js (react-chartjs-2) and Lucide icons for a modern, accessible experience.
+
+### Key Improvements
+- **Beautiful, accessible UI:** All analytics components use color tokens, semantic HTML, ARIA roles, and are fully keyboard navigable.
+- **Performance:** Components are memoized where appropriate, and heavy charts are code-split for faster load times.
+- **Responsiveness:** All layouts are mobile-first and adapt to all screen sizes.
+- **Single-responsibility:** Each file does one job only and is imported where needed.
+- **Consistent design:** Accent borders, shadows, and iconography unify the analytics experience.
+
+### Refactored Analytics Components
+- AnalyticsSkeleton
+- ChartCard
+- ErrorAlert
+- ExportModal
+- LoadingSkeleton
+- PerformanceMetricsChart
+- QuickStats
+- TimeRangeSelect
+- UserActivityChart
+- UserGrowthChart
+
+See `src/components/analytics/docs.md` for details on each component.
+
+### Design System
+- **Colors:** See `colour_scheme.md` for the full palette and usage guidelines.
+- **UI/UX:** All interactive elements have hover, focus, and active states. Loading, error, and empty states are handled throughout.
+- **Accessibility:** All components use semantic HTML, ARIA labels, and are keyboard accessible.
+
+### Documentation
+- Analytics component documentation: `src/components/analytics/docs.md`
+- Component structure and philosophy: `src/components/docs.md`
+
+---
+
 KCAdashboard is a full-featured platform for managing educational, chess, and administrative workflows. It combines a modular PHP backend (API) and a modern React frontend, supporting a wide range of features for admins, teachers, students, and tournament organizers.
 
 ---

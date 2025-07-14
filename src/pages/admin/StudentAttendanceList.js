@@ -1,25 +1,31 @@
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AttendanceApi } from '../../api/attendance';
 import { BatchesApi } from '../../api/batches';
-import StudentAttendanceSkeleton from '../../components/attendance/StudentAttendanceSkeleton';
-import SearchAndBatchFilter from '../../components/attendance/SearchAndBatchFilter';
-import StudentAttendanceTable from '../../components/attendance/StudentAttendanceTable';
+import StudentAttendanceListView from '../../components/attendance/StudentAttendanceListView';
 
+/**
+ * Container component: Handles data fetching, state, and business logic only.
+ * UI rendering is delegated to StudentAttendanceListView (presentational component).
+ */
 const StudentAttendanceList = React.memo(function StudentAttendanceList() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedBatch, setSelectedBatch] = useState('all');
   const [batches, setBatches] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     let isMounted = true;
+    setLoading(true);
+    setError(null);
     const fetchData = async () => {
       try {
         const [studentsData, batchesData] = await Promise.all([
           AttendanceApi.getStudentsAttendance(selectedBatch),
-           BatchesApi.getBatches(),
+          BatchesApi.getBatches(),
         ]);
         if (isMounted) {
           const normalizedStudents = (studentsData.students || []).map(student => ({
@@ -29,9 +35,8 @@ const StudentAttendanceList = React.memo(function StudentAttendanceList() {
           setStudents(normalizedStudents);
           setBatches(batchesData.batches || []);
         }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to fetch data:', error);
+      } catch (err) {
+        if (isMounted) setError('Failed to fetch attendance data. Please try again.');
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -51,23 +56,16 @@ const StudentAttendanceList = React.memo(function StudentAttendanceList() {
   );
 
   return (
-    <div className="px-2 sm:px-4 md:px-6 py-4 sm:py-6 bg-white rounded-xl shadow-lg">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-primary">Student Attendance Records</h2>
-        <SearchAndBatchFilter
-          searchTerm={searchTerm}
-          onSearch={handleSearch}
-          selectedBatch={selectedBatch}
-          onBatchChange={handleBatchChange}
-          batches={batches}
-        />
-      </div>
-      {loading ? (
-        <StudentAttendanceSkeleton />
-      ) : (
-        <StudentAttendanceTable students={filteredStudents} />
-      )}
-    </div>
+    <StudentAttendanceListView
+      students={filteredStudents}
+      loading={loading}
+      error={error}
+      searchTerm={searchTerm}
+      onSearch={handleSearch}
+      selectedBatch={selectedBatch}
+      onBatchChange={handleBatchChange}
+      batches={batches}
+    />
   );
 });
 

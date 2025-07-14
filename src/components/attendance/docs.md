@@ -3,6 +3,10 @@
 
 All attendance components follow the Kolkata Chess Academy design system (see `colour_scheme.md`), are fully accessible, responsive, and optimized for performance.
 Recent updates (July 2025):
+- **StudentAttendanceList**: Now split into container (`StudentAttendanceList.js`) and presentational (`StudentAttendanceListView.js`) components for single-responsibility and maintainability. All UI uses color tokens and is fully responsive and accessible.
+- **StudentAttendanceTable**: Beautiful, responsive table for student attendance summary. Alternating row backgrounds, status icons, color tokens, and accessibility improvements.
+- **StudentAttendanceSkeleton**: Modern shimmer skeleton for attendance data loading.
+- **SearchAndBatchFilter**: Search input and batch select, fully accessible and responsive.
 - **BatchSelect**: Improved accessibility, label, and dropdown visibility. Now fully responsive and beautiful on all screen sizes.
 - **AttendanceSystem**: Heading, batch select, and export controls now stack or wrap naturally at all breakpoints (desktop, mobile, tablet, 8:9, half-screen, etc.).
 - **Layout**: Controls use flex-wrap and adaptive spacing for perfect fit at all aspect ratios.

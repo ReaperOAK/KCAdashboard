@@ -27,6 +27,32 @@ See each feature folder's README or docs for details and usage examples.
 
 ---
 
+
+## Student Attendance UI Components (July 2025)
+
+All student attendance UI is now built from modular, single-responsibility React components in `src/components/attendance/` and `src/pages/admin/StudentAttendanceList.js`.
+
+### Components
+- StudentAttendanceList.js: Container component for attendance list page. Handles data fetching, state, and business logic only.
+- StudentAttendanceListView.js: Presentational component for attendance list page. Handles all UI rendering, receives all data and callbacks as props.
+- StudentAttendanceTable.js: Beautiful, responsive table for student attendance summary. Alternating row backgrounds, status icons, color tokens, and accessibility improvements.
+- StudentAttendanceSkeleton.js: Modern shimmer skeleton for attendance data loading.
+- SearchAndBatchFilter.js: Search input and batch select, fully accessible and responsive.
+
+All components use color tokens, are fully responsive, and follow accessibility best practices. See `src/components/attendance/docs.md` for details.
+
+### UI/UX Patterns
+- Modular, single-responsibility components for maintainability
+- Consistent use of color tokens and spacing
+- Loading skeletons, error/empty states, and micro-interactions
+- Responsive layouts for all screen sizes
+- ARIA labels and keyboard navigation for accessibility
+- Lazy loading for performance
+
+See each feature folder's README or docs for details and usage examples.
+
+---
+
 ## Admin Dashboard UI Components (July 2025)
 
 All admin dashboard UI is now built from modular, single-responsibility React components in `src/components/admin/`.

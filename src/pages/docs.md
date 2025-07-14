@@ -1,3 +1,31 @@
+## Student Attendance Page (Admin)
+
+- **StudentAttendanceList.js** (admin/):
+  - Container component for the admin student attendance page. Handles data fetching, state, and business logic only. Delegates all UI rendering to `StudentAttendanceListView.js`.
+  - Uses React.memo, useCallback, and useMemo for performance.
+  - Handles loading, error, and empty states with clear feedback and retry option.
+  - All color classes use design tokens from `colour_scheme.md` and `tailwind.config.js`.
+  - Follows single-responsibility and performance best practices.
+
+- **StudentAttendanceListView.js** (components/attendance/):
+  - Presentational component for the admin student attendance page. Handles all UI rendering, receives all data and callbacks as props. No business logic or data fetching.
+  - Fully responsive, accessible, and beautiful. Uses color tokens, ARIA, and keyboard navigation.
+  - Handles all UI states (loading, error, empty, data) with clear, modern visuals.
+  - Follows single-responsibility and performance best practices.
+
+- **StudentAttendanceTable.js** (components/attendance/):
+  - Beautiful, responsive table for student attendance summary. Alternating row backgrounds, status icons, color tokens, and accessibility improvements.
+  - Props: `students` (array of student objects)
+
+- **StudentAttendanceSkeleton.js** (components/attendance/):
+  - Modern shimmer skeleton for attendance data loading.
+  - Props: none
+
+- **SearchAndBatchFilter.js** (components/attendance/):
+  - Search input and batch select, fully accessible and responsive.
+  - Props: `searchTerm`, `onSearch`, `selectedBatch`, `onBatchChange`, `batches`
+
+All components use color tokens, are fully responsive, and follow accessibility best practices. See `src/components/attendance/docs.md` for details.
 # Chess PGN Management Page Refactor (2025-07-11)
 
 - Modularized `PGNManagementPage.js` by extracting:

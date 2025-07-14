@@ -51,8 +51,23 @@ components/teacher/
 - **QuizCreator.js**  
   Interface for creating new quizzes, adding questions, and setting quiz parameters.
 
+
 - **QuizManagement.js**  
-  Manage existing quizzes, view results, and edit quiz details.
+  Manage existing quizzes, view results, and edit quiz details. Now uses the new generic `QuizManagementPage` component (July 2025):
+  - Unified, beautiful, and fully responsive UI for quiz management, shared with admin for consistency and maintainability
+  - Strictly follows the design system (see `colour_scheme.md` and `tailwind.config.js`):
+    - Responsive layouts, color tokens, spacing, and typography
+    - Accessible: ARIA roles, keyboard navigation, focus/hover/active states
+    - Handles all states (loading, error, empty, data) with modular components
+  - Modular, single-responsibility components:
+    - `QuizManagementPage`: Orchestrates quiz management UI
+    - `QuizTableRow`: Renders quiz data and actions, fully accessible and responsive
+    - `QuizLoadingSkeleton`: Loading spinner and message
+    - `QuizErrorAlert`: Error message display
+    - `DeleteQuizModal`: Accessible modal for quiz deletion
+  - All components are memoized and optimized for performance (React.memo, useCallback, useMemo, code splitting)
+  - Includes filters for difficulty and status, and a leaderboard button for each quiz
+  - See `src/components/quiz/docs.md` for details and usage patterns.
 
 - **ReportsAnalytics.js**  
   Analytics and reporting tools for tracking student performance and classroom metrics.

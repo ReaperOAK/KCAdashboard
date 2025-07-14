@@ -1,26 +1,29 @@
+
 # Quiz Components Documentation
 
-## Modular Quiz Components (July 2025)
+## Modular Quiz Components & Generic QuizManagementPage (July 2025)
 
-The following modular, single-responsibility components are used in the Quiz Management UI:
+The following modular, single-responsibility components are used in the Quiz Management UI for both admin and teacher roles:
 
+- **QuizManagementPage**: Generic, orchestrating component for quiz management. Handles all states (loading, error, empty, data), filters, and actions. Used by both admin and teacher quiz management pages for a unified, beautiful, and maintainable UI.
+- **QuizTableRow**: Renders a single row in the quiz table, including actions for edit, publish, delete, and leaderboard. Fully accessible, responsive, and uses color tokens.
 - **QuizLoadingSkeleton**: Displays a loading spinner and message while quizzes are being fetched.
 - **QuizErrorAlert**: Shows an error message if quiz data fails to load.
 - **DeleteQuizModal**: Modal dialog for confirming quiz deletion, with accessible ARIA roles and keyboard navigation.
-- **QuizTableRow**: Renders a single row in the quiz table, including actions for edit, publish, and delete, with proper color tokens and ARIA labels.
 
-All components are located in `src/components/quiz/` and are imported into `src/pages/admin/QuizManagement.js`.
+All components are located in `src/components/quiz/` and are imported into both `src/pages/admin/QuizManagement.js` and `src/pages/teacher/QuizManagement.js`.
 
 ### Design & Accessibility
 - All components use Tailwind CSS with project color tokens and spacing.
 - Interactive elements have focus, hover, and disabled states.
 - All modals and alerts use semantic HTML and ARIA attributes for accessibility.
 - Components are fully responsive and tested on all major device sizes.
+- Strictly follow the design system (see `colour_scheme.md` and `tailwind.config.js`).
 
 ### Usage Example
-See `src/pages/admin/QuizManagement.js` for usage patterns and prop documentation.
+See `src/pages/admin/QuizManagement.js` and `src/pages/teacher/QuizManagement.js` for usage patterns and prop documentation.
 
 ---
 
 ## Changelog
-- **July 2025**: Extracted all quiz UI subcomponents for modularity and maintainability. Updated QuizManagement.js to use these imports. Updated docs and changelog.
+- **July 2025**: Extracted all quiz UI subcomponents for modularity and maintainability. Created generic `QuizManagementPage` for both admin and teacher. Updated docs and changelog.

@@ -23,6 +23,18 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
 
 **(July 2025)**
 
+**Quiz Management UI/UX Refactor & Modularization**
+- Refactored all quiz management components for both admin and teacher (`QuizManagementPage.js`, `QuizTableRow.js`, `QuizLoadingSkeleton.js`, `QuizErrorAlert.js`, `DeleteQuizModal.js`, and related pages):
+  - Created a generic, modular `QuizManagementPage` used by both admin and teacher for unified, beautiful, and maintainable UI
+  - Strict adherence to the design system (see `colour_scheme.md` and `tailwind.config.js`)
+  - Fully responsive layouts for all screen sizes
+  - Accessibility: ARIA roles, keyboard navigation, focus/hover/active states, and clear error/loading/empty states
+  - Performance: React.memo, useCallback, useMemo, and code splitting for heavy components
+  - Single-responsibility: each file/component now does one job only
+  - Modular subcomponents: `QuizTableRow`, `QuizLoadingSkeleton`, `QuizErrorAlert`, `DeleteQuizModal`
+  - All states (loading, error, empty, data) handled beautifully and accessibly
+  - Updated all relevant docs: `README.md`, `src/pages/admin/docs.md`, `src/pages/teacher/docs.md`, `src/components/quiz/docs.md`
+
 **Admin Leave Requests & Support UI/UX Refactor**
 - Refactored all admin leave requests components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`):
   - Beautiful, modern, and fully responsive UI using Tailwind color tokens and the design system (see `colour_scheme.md`)

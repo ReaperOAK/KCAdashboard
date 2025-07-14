@@ -58,15 +58,22 @@ pages/admin/
   Dashboard for viewing analytics and reports on platform usage, engagement, and performance.
 
 - **QuizManagement.js**  
-  Admin quiz management page, allowing viewing and managing of all quizzes on the platform.
-  - **Admins** can view, edit, delete, and publish all quizzes on the platform.
-  - **Teachers** can view, edit, delete, and publish their own quizzes.
-  - Includes filters for difficulty and status, and a leaderboard button for each quiz.
-  - Uses modular, single-responsibility components from `src/components/quiz/`:
-    - `QuizLoadingSkeleton`: Loading spinner and message
-    - `QuizErrorAlert`: Error message display
-    - `DeleteQuizModal`: Accessible modal for quiz deletion
-    - `QuizTableRow`: Table row for quiz data and actions
+
+  Admin quiz management page, now fully refactored for beauty, performance, and modularity (July 2025):
+  - Uses a new generic `QuizManagementPage` component for both admin and teacher quiz management, ensuring DRY code and consistent UI/UX.
+  - **Admins** can view, edit, delete, and publish all quizzes; **Teachers** can manage their own quizzes with the same beautiful interface.
+  - All UI is strictly compliant with the design system (see `colour_scheme.md` and `tailwind.config.js`):
+    - Responsive layouts for all screen sizes
+    - Consistent use of color tokens, spacing, and typography
+    - Accessible: ARIA roles, keyboard navigation, focus/hover/active states
+    - Modular, single-responsibility components:
+      - `QuizManagementPage`: Orchestrates quiz management UI, handles all states (loading, error, empty, data)
+      - `QuizTableRow`: Renders quiz data and actions, fully accessible and responsive
+      - `QuizLoadingSkeleton`: Loading spinner and message
+      - `QuizErrorAlert`: Error message display
+      - `DeleteQuizModal`: Accessible modal for quiz deletion
+  - All components are memoized and optimized for performance (React.memo, useCallback, useMemo, code splitting)
+  - Includes filters for difficulty and status, and a leaderboard button for each quiz
   - See `src/components/quiz/docs.md` for details and usage patterns.
 
 - **AdminQuizEditor.js**  

@@ -5,52 +5,11 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { AdminApi } from '../../api/admin';
 import { motion } from 'framer-motion';
-import { UserCircleIcon, AcademicCapIcon, UsersIcon, BuildingLibraryIcon, ClipboardDocumentCheckIcon, ChartBarIcon, ArrowPathIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
+import { UserCircleIcon, AcademicCapIcon, UsersIcon, BuildingLibraryIcon, ClipboardDocumentCheckIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import StatCard from '../../components/admin/StatCard';
+import LoadingState from '../../components/admin/LoadingState';
+import ErrorState from '../../components/admin/ErrorState';
 
-// Stat card (memoized, animated, with Heroicon)
-const statIcons = [UsersIcon, AcademicCapIcon, BuildingLibraryIcon, ClipboardDocumentCheckIcon, ChartBarIcon];
-const StatCard = React.memo(function StatCard({ title, value, iconIdx }) {
-  const Icon = statIcons[iconIdx % statIcons.length] || UsersIcon;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, type: 'spring' }}
-      className="bg-white p-6 rounded-xl shadow-lg border border-accent/10 flex flex-col gap-2"
-      role="region"
-      aria-label={title}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-semibold text-secondary">{title}</h2>
-        <Icon className="h-7 w-7 text-primary" aria-hidden="true" />
-      </div>
-      <p className="text-3xl font-bold text-primary">{value}</p>
-    </motion.div>
-  );
-});
-
-// Loading state (animated)
-const LoadingState = React.memo(function LoadingState() {
-  return (
-    <div className="p-8 bg-background-light min-h-screen flex items-center justify-center" role="status" aria-live="polite">
-      <ArrowPathIcon className="animate-spin h-12 w-12 text-primary mr-4" aria-label="Loading" />
-      <div className="text-xl text-primary">Loading dashboard data...</div>
-    </div>
-  );
-});
-
-// Error state (animated)
-const ErrorState = React.memo(function ErrorState({ error }) {
-  return (
-    <div className="p-8 bg-background-light min-h-screen flex items-center justify-center" role="alert">
-      <div className="bg-red-700 border border-red-800 text-white px-4 py-3 rounded flex items-center gap-2">
-        <ExclamationCircleIcon className="h-5 w-5 text-white" aria-hidden="true" />
-        <span className="font-bold">Error!</span>
-        <span className="block sm:inline"> {error}</span>
-      </div>
-    </div>
-  );
-});
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -69,21 +28,21 @@ export default function AdminDashboard() {
     {
       title: 'User Management',
       description: 'Manage students and teachers',
-      icon: '👥',
+      icon: UsersIcon,
       link: '/admin/users',
       color: 'secondary',
     },
     {
       title: 'Batch Management',
       description: 'Create and manage batches',
-      icon: '📚',
+      icon: BuildingLibraryIcon,
       link: '/admin/batches',
       color: 'accent',
     },
     {
       title: 'Attendance System',
       description: 'Track student attendance',
-      icon: '📋',
+      icon: ClipboardDocumentCheckIcon,
       link: '/admin/attendance',
       color: 'primary',
     },
@@ -115,55 +74,55 @@ export default function AdminDashboard() {
   if (error) return <ErrorState error={error} />;
 
 
-  // Map color names to Tailwind classes
-  const colorClassMap = {
-    secondary: 'bg-secondary',
-    accent: 'bg-accent',
-    primary: 'bg-primary',
-  };
-  const quickAccessIcons = [UsersIcon, BuildingLibraryIcon, ClipboardDocumentCheckIcon];
   return (
-    <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-8 min-h-screen bg-gradient-to-br from-background-light via-white to-background-light">
+    <div className="px-2 sm:px-4 md:px-8 py-6 sm:py-10 min-h-screen bg-gradient-to-br from-background-light via-white to-background-light dark:from-background-dark dark:via-background-dark dark:to-background-dark">
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, type: 'spring' }}
         className="max-w-7xl mx-auto"
+        aria-label="Admin Dashboard Main Content"
       >
         <div className="flex flex-col items-center mb-8">
-          <UserCircleIcon className="h-20 w-20 text-primary mb-2" aria-hidden="true" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary text-center">Welcome, {user.full_name}!</h1>
+          <UserCircleIcon className="h-20 w-20 text-primary dark:text-accent mb-2 drop-shadow-lg" aria-hidden="true" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary dark:text-accent text-center drop-shadow">Welcome, <span className="text-text-dark dark:text-text-light">{user.full_name}</span>!</h1>
         </div>
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <StatCard title="Total Students" value={stats.totalStudents} iconIdx={0} />
-          <StatCard title="Total Teachers" value={stats.totalTeachers} iconIdx={1} />
-          <StatCard title="Active Classes" value={stats.activeClasses} iconIdx={2} />
-          <StatCard title="Total Batches" value={stats.totalBatches} iconIdx={3} />
-          <StatCard title="Attendance Rate" value={`${stats.attendanceRate}%`} iconIdx={4} />
-        </div>
+        <section aria-label="Dashboard Statistics" className="mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+            <StatCard title="Total Students" value={stats.totalStudents} Icon={UsersIcon} color="secondary" />
+            <StatCard title="Total Teachers" value={stats.totalTeachers} Icon={AcademicCapIcon} color="accent" />
+            <StatCard title="Active Classes" value={stats.activeClasses} Icon={BuildingLibraryIcon} color="primary" />
+            <StatCard title="Total Batches" value={stats.totalBatches} Icon={ClipboardDocumentCheckIcon} color="accent" />
+            <StatCard title="Attendance Rate" value={`${stats.attendanceRate}%`} Icon={ChartBarIcon} color="primary" />
+          </div>
+        </section>
         {/* Quick Access Cards */}
-        <h2 className="text-xl sm:text-2xl font-bold text-primary mb-2 sm:mb-4">Quick Access</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {quickAccessCards.map((card, idx) => {
-            const Icon = quickAccessIcons[idx % quickAccessIcons.length] || UsersIcon;
-            return (
-              <motion.div
-                key={card.title}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 + idx * 0.1, type: 'spring' }}
-                className={colorClassMap[card.color] + ' text-white rounded-xl p-4 sm:p-6 transition-transform hover:scale-105 focus-within:scale-105 focus:outline-none'}
-              >
-                <Link to={card.link} tabIndex={0} aria-label={card.title} className="block focus:outline-none">
-                  <Icon className="h-8 w-8 mb-2 sm:mb-4" aria-hidden="true" />
-                  <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">{card.title}</h3>
-                  <p className="text-sm sm:text-base">{card.description}</p>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-primary dark:text-accent mb-4 mt-2">Quick Access</h2>
+        <section aria-label="Quick Access Links">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {quickAccessCards.map((card, idx) => {
+              const Icon = card.icon;
+              return (
+                <motion.div
+                  key={card.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 + idx * 0.1, type: 'spring' }}
+                  className={`group bg-white dark:bg-background-dark border border-gray-light dark:border-gray-dark border-l-4 border-${card.color} text-primary dark:text-text-light rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 focus-within:scale-105 focus:outline-none min-h-[140px] flex flex-col justify-between`}
+                >
+                  <Link to={card.link} tabIndex={0} aria-label={card.title} className="block focus:outline-none">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Icon className={`h-8 w-8 text-${card.color} group-hover:text-accent transition-colors`} aria-hidden="true" />
+                      <h3 className="text-lg sm:text-xl font-bold text-text-dark dark:text-text-light group-hover:text-accent transition-colors duration-200">{card.title}</h3>
+                    </div>
+                    <p className="text-sm sm:text-base text-text-dark dark:text-text-light/80">{card.description}</p>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
       </motion.div>
     </div>
   );

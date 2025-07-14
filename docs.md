@@ -1,4 +1,14 @@
-# July 2025: UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard
+# July 2025: UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard, Admin Dashboard
+## Admin Dashboard UI Components (July 2025)
+
+All admin dashboard UI is now built from modular, single-responsibility React components in `src/components/admin/`.
+
+### Components
+- StatCard.js: Animated, accessible stat card for dashboard statistics.
+- LoadingState.js: Accessible loading state for admin pages.
+- ErrorState.js: Error state with icon and message for admin pages.
+
+All components use color tokens, are fully responsive, and follow accessibility best practices. See `src/components/admin/docs.md` for details.
 
 All classroom, quiz, analytics, and leaderboard UIs are now built from modular, single-responsibility React components in their respective folders (e.g., `src/components/classroom/`, `src/components/analytics/`, `src/components/chess/`).
 

@@ -22,7 +22,20 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
 ## Recent UI/UX & Codebase Improvements
 
 
+
 **(July 2025)**
+
+**Admin Dashboard UI/UX Refactor & Modularization**
+- Refactored `AdminDashboard.js` for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading states
+  - Performance: React.memo, useCallback, useMemo, and modular stat/error/loading components
+  - Single-responsibility: each file/component now does one job only
+- Created new modular components in `src/components/admin/`:
+  - `StatCard.js`: Animated, accessible stat card for dashboard statistics
+  - `LoadingState.js`: Accessible, visually clear loading state
+  - `ErrorState.js`: Accessible, visually distinct error state
+- Updated all relevant docs and ensured all components use the color system from `colour_scheme.md`.
 
 **User Management UI/UX Refactor & Infinite Loop Fix**
 - Refactored all user management components (EditUserModal, UserDetailsForm, UserTable, UserTableRow, etc.) for:

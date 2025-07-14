@@ -29,6 +29,17 @@
 - Updated `README.md` with new UI/UX and design system details
 - All changes follow the guidelines in `CONTRIBUTING.md`
 ## [Unreleased] - 2025-07-14
+### Admin Dashboard UI/UX Refactor & Modularization
+- Refactored `AdminDashboard.js` for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading states
+  - Performance: React.memo, useCallback, useMemo, and modular stat/error/loading components
+  - Single-responsibility: each file/component now does one job only
+- Created new modular components in `src/components/admin/`:
+  - `StatCard.js`: Animated, accessible stat card for dashboard statistics
+  - `LoadingState.js`: Accessible, visually clear loading state
+  - `ErrorState.js`: Accessible, visually distinct error state
+- Updated all relevant docs and ensured all components use the color system from `colour_scheme.md`.
 ### Schedule Display Refactor & Utility Addition
 - Added `formatSchedule` utility to `src/utils/formatSchedule.js` for converting schedule JSON strings/objects to user-friendly strings.
 - Updated all batch and classroom schedule displays to use `formatSchedule` for consistent, readable formatting (e.g., `Mon, Wed, Fri, 09:00 for 60 min` instead of raw JSON).

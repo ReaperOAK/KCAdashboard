@@ -58,6 +58,15 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
   - Clear loading, error, and empty states with animation and visual cues
 - Updated documentation and code comments for clarity and maintainability
 
+**Attendance Settings UI/UX Refactor & Modularization**
+- Refactored `AttendanceSettings.js` (admin) for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading/success states
+  - Performance: React.memo, useCallback, and modular stat/error/loading components
+  - Single-responsibility: each file/component now does one job only
+- Updated all relevant docs and ensured all components use the color system from `colour_scheme.md`.
+- Added success feedback and improved error handling for settings update.
+
 ## Getting Started
 
 1. Install dependencies:

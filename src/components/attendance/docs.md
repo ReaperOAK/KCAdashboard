@@ -37,8 +37,24 @@ All attendance components now follow the Kolkata Chess Academy design system (se
   - `onClose`: function
   - `onSave`: function
 
+### AttendanceSettings (Admin)
+- Container for attendance settings page. Handles state, loading, error, and success feedback.
+- Uses `SettingsForm`, `ErrorAlert`, and `AttendanceSettingsSkeleton`.
+- Fully responsive, accessible, and uses color tokens from `colour_scheme.md`.
+- Success message shown on save, with fade-in animation.
+
+### SettingsForm
+- Modular, focused form for editing attendance settings.
+- All fields use correct color tokens, focus/hover/disabled states, and are keyboard/ARIA accessible.
+- Optimized for performance with React.memo and useCallback.
+
 ### ErrorAlert
 - Error alert with icon, color tokens, and fade-in animation.
+- Used for all error states in attendance settings and other attendance components.
+
+### AttendanceSettingsSkeleton
+- Modern shimmer skeleton for attendance settings loading state.
+- Fully responsive and accessible.
 
 ### General Notes
 - All skeletons use shimmer blocks.

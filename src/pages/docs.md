@@ -56,6 +56,9 @@ pages/
 - **teacher/**  
   Teacher dashboard, batch and classroom management, quiz creation, grading, and analytics.
 
+- **AttendanceSettings.js (admin/)**  
+  The admin attendance settings page. Orchestrates state, loading, error, and success feedback for attendance settings. Uses modular components (`SettingsForm`, `ErrorAlert`, `AttendanceSettingsSkeleton`) for a beautiful, accessible, and responsive UI. All color classes use design tokens from `colour_scheme.md` and `tailwind.config.js`. Follows single-responsibility and performance best practices.
+
 ---
 
 ## Features

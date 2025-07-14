@@ -164,3 +164,14 @@ See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/do
 - Refactored `PlayerVsPlayer.js` into modular subcomponents: `TabButton`, `LoadingState`, `ErrorState`, `ComputerSettings`, `StatsPanel` (all in `src/components/chess/`).
 - Updated documentation for new modular structure and usage.
 
+## [Unreleased] – July 2025
+
+### Attendance Settings UI/UX Refactor & Modularization
+- Refactored `AttendanceSettings.js` (admin) for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading/success states
+  - Performance: React.memo, useCallback, and modular stat/error/loading components
+  - Single-responsibility: each file/component now does one job only
+- Updated all relevant docs and ensured all components use the color system from `colour_scheme.md`.
+- Added success feedback and improved error handling for settings update.
+

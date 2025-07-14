@@ -15,7 +15,7 @@ function formatTime(seconds) {
  */
 const HistoryTable = React.memo(function HistoryTable({ history, loading, error, onRetry, sortBy, sortOrder, onSort }) {
   return (
-    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-5xl mx-auto animate-fade-in">
+    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-5xl mx-auto ">
       <header className="p-6 border-b border-gray-light flex items-center gap-2">
         <h2 className="text-2xl font-semibold text-primary">Quiz Attempts</h2>
       </header>

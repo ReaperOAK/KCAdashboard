@@ -8,7 +8,7 @@ import { ClassroomApi } from '../../api/classroom';
 
 // --- Loading Skeleton ---
 const CalendarLoadingSkeleton = React.memo(() => (
-  <div className="flex flex-col items-center justify-center py-8 animate-fade-in" aria-busy="true" aria-label="Loading calendar">
+  <div className="flex flex-col items-center justify-center py-8 " aria-busy="true" aria-label="Loading calendar">
     <div className="h-6 w-1/3 bg-gray-light rounded mb-4 animate-pulse" />
     <div className="h-4 w-1/2 bg-gray-light rounded animate-pulse" />
   </div>
@@ -16,7 +16,7 @@ const CalendarLoadingSkeleton = React.memo(() => (
 
 // --- Error Alert ---
 const CalendarErrorAlert = React.memo(({ message }) => (
-  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4 animate-fade-in" role="alert" aria-live="polite">
+  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4 " role="alert" aria-live="polite">
     <span className="font-semibold">Error:</span> {message}
   </div>
 ));
@@ -83,7 +83,7 @@ function ClassroomCalendar({ classroomId, onEventClick, onDateSelect, refreshTri
   }), []);
 
   return (
-    <section className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-2xl p-2 sm:p-4 overflow-x-auto animate-fade-in w-full max-w-4xl mx-auto">
+    <section className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-2xl p-2 sm:p-4 overflow-x-auto  w-full max-w-4xl mx-auto">
       {loading && <CalendarLoadingSkeleton />}
       {error && <CalendarErrorAlert message={error} />}
       <div className="min-w-[320px] sm:min-w-0">

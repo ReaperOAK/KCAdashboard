@@ -9,7 +9,7 @@ import React from 'react';
 const LoadingSpinner = React.memo(function LoadingSpinner({ label = 'Loading...', className = '' }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center py-8 w-full animate-fade-in ${className}`}
+      className={`flex flex-col items-center justify-center py-8 w-full  ${className}`}
       role="status"
       aria-live="polite"
       tabIndex={-1}

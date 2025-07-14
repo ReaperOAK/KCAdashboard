@@ -82,7 +82,7 @@ const ClassRating = React.memo(function ClassRating({ classId, onRated }) {
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 p-6 bg-background-light dark:bg-background-dark rounded-lg shadow-md animate-fade-in">
+      <div className="flex flex-col items-center justify-center gap-2 p-6 bg-background-light dark:bg-background-dark rounded-lg shadow-md ">
         <span className="text-2xl text-success font-semibold">Thank you for rating this class!</span>
         <span className="text-gray-dark text-sm">Your feedback helps us improve.</span>
       </div>
@@ -92,7 +92,7 @@ const ClassRating = React.memo(function ClassRating({ classId, onRated }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-md mx-auto bg-background-light dark:bg-background-dark rounded-xl shadow-lg p-6 flex flex-col gap-4 animate-fade-in border border-gray-light"
+      className="w-full max-w-md mx-auto bg-background-light dark:bg-background-dark rounded-xl shadow-lg p-6 flex flex-col gap-4  border border-gray-light"
       aria-label="Class Rating Form"
     >
       <div className="flex flex-col gap-1">
@@ -138,7 +138,7 @@ const ClassRating = React.memo(function ClassRating({ classId, onRated }) {
         ) : 'Submit Rating'}
       </button>
       {error && (
-        <div className="bg-error text-white rounded-md px-3 py-2 mt-2 text-sm border border-error animate-fade-in" role="alert">
+        <div className="bg-error text-white rounded-md px-3 py-2 mt-2 text-sm border border-error " role="alert">
           {error}
         </div>
       )}

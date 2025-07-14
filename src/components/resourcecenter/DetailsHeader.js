@@ -53,7 +53,7 @@ const DetailsHeader = React.memo(function DetailsHeader({ resource, onBookmarkTo
   const dateStr = useMemo(() => resource.created_at ? new Date(resource.created_at).toLocaleDateString() : '', [resource.created_at]);
 
   return (
-    <header className="px-4 py-4 sm:px-6 sm:py-6 bg-primary text-white rounded-t-2xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 shadow-md border-b border-gray-dark animate-fade-in">
+    <header className="px-4 py-4 sm:px-6 sm:py-6 bg-primary text-white rounded-t-2xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 shadow-md border-b border-gray-dark ">
       <div className="flex items-center gap-4 min-w-0">
         <span className="text-3xl sm:text-4xl md:text-5xl flex-shrink-0" aria-hidden>{icon}</span>
         <div className="min-w-0">

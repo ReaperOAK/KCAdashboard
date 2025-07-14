@@ -27,7 +27,7 @@ const TournamentTable = React.memo(function TournamentTable({ tournaments, onEdi
           {safeTournaments.length === 0 ? (
             <tr>
               <td colSpan={7} className="py-10 text-center text-gray-dark bg-background-light">
-                <div className="flex flex-col items-center justify-center gap-2 animate-fade-in">
+                <div className="flex flex-col items-center justify-center gap-2 ">
                   <svg className="w-10 h-10 text-gray-light mb-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" /></svg>
                   <span className="text-lg font-medium text-gray-dark">No tournaments found</span>
                   <span className="text-sm text-gray-light">Create one to get started.</span>

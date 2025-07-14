@@ -50,7 +50,7 @@ const PermissionsModal = React.memo(function PermissionsModal({
   if (!open || !user) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-4 "
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -58,7 +58,7 @@ const PermissionsModal = React.memo(function PermissionsModal({
     >
       <div
         ref={modalRef}
-        className="bg-background-light border border-gray-light rounded-2xl shadow-2xl p-3 sm:p-6 w-full max-w-lg max-h-[92vh] overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-300 animate-fade-in"
+        className="bg-background-light border border-gray-light rounded-2xl shadow-2xl p-3 sm:p-6 w-full max-w-lg max-h-[92vh] overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-300 "
         tabIndex={-1}
         role="document"
         aria-label="Manage user permissions modal content"

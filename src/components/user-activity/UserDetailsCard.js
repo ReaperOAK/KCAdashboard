@@ -10,7 +10,7 @@ const UserDetailsCard = React.memo(function UserDetailsCard({ user }) {
   if (!user) return null;
   return (
     <section
-      className="bg-background-light dark:bg-background-dark px-4 py-4 sm:px-6 sm:py-5 rounded-xl shadow-md mb-6 border border-gray-light flex items-center gap-4 transition-all duration-200 animate-fade-in"
+      className="bg-background-light dark:bg-background-dark px-4 py-4 sm:px-6 sm:py-5 rounded-xl shadow-md mb-6 border border-gray-light flex items-center gap-4 transition-all duration-200 "
       aria-label="User details"
     >
       {/* Avatar or icon */}

@@ -34,7 +34,7 @@ const StudentListItem = React.memo(function StudentListItem({ student, isSelecte
         <p className="text-sm text-gray-dark truncate">{student.email}</p>
       </div>
       {isSelected && (
-        <span className="flex items-center ml-2 animate-fade-in">
+        <span className="flex items-center ml-2 ">
           <svg className="w-4 h-4 text-accent mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 20 20" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l4 4 6-6" /></svg>
           <span className="text-accent font-semibold text-xs">Selected</span>
         </span>

@@ -57,7 +57,7 @@ function Modal({ title, children, onClose }) {
     >
       <div
         id="modal-root"
-        className="bg-background-light dark:bg-background-dark rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto animate-fade-in focus:outline-none border border-gray-light dark:border-gray-dark"
+        className="bg-background-light dark:bg-background-dark rounded-xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto  focus:outline-none border border-gray-light dark:border-gray-dark"
         onClick={handleModalClick}
         tabIndex={-1}
       >

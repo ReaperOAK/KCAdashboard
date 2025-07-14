@@ -13,7 +13,7 @@ const Pagination = React.memo(function Pagination({ page, setPage, hasNext }) {
   const handleNext = useCallback(() => setPage((p) => p + 1), [setPage]);
   return (
     <nav
-      className="w-full max-w-2xl mx-auto px-2 py-3 sm:px-6 flex flex-row justify-between items-center gap-2 border-t border-gray-dark bg-background-light rounded-b-lg shadow-sm transition-all duration-200 animate-fade-in"
+      className="w-full max-w-2xl mx-auto px-2 py-3 sm:px-6 flex flex-row justify-between items-center gap-2 border-t border-gray-dark bg-background-light rounded-b-lg shadow-sm transition-all duration-200 "
       aria-label="Pagination navigation"
       role="navigation"
     >

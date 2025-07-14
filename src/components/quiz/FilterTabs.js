@@ -7,7 +7,7 @@ import React from 'react';
 const FilterTabs = React.memo(function FilterTabs({ filters, activeFilter, onChange }) {
   return (
     <nav
-      className="flex flex-row gap-2 sm:gap-3 overflow-x-auto py-2 px-1 bg-background-light dark:bg-background-dark rounded-xl shadow-sm border border-gray-light w-full max-w-2xl mx-auto animate-fade-in"
+      className="flex flex-row gap-2 sm:gap-3 overflow-x-auto py-2 px-1 bg-background-light dark:bg-background-dark rounded-xl shadow-sm border border-gray-light w-full max-w-2xl mx-auto "
       role="tablist"
       aria-label="Quiz difficulty filters"
     >

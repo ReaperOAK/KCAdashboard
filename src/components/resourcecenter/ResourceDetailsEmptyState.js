@@ -11,7 +11,7 @@ const ResourceDetailsEmptyState = React.memo(function ResourceDetailsEmptyState(
   const message = useMemo(() => 'Resource not found', []);
 
   return (
-    <section className="flex flex-col items-center justify-center py-10 px-4 bg-background-light dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-xl mx-auto animate-fade-in text-center">
+    <section className="flex flex-col items-center justify-center py-10 px-4 bg-background-light dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-xl mx-auto  text-center">
       <span className="mb-4 text-5xl md:text-6xl text-gray-dark/40 select-none" aria-hidden>🔍</span>
       <p className="text-lg md:text-xl text-gray-dark font-semibold mb-2">{message}</p>
       <button

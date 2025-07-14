@@ -26,7 +26,7 @@ const FeaturedResources = React.memo(function FeaturedResources({ featured, onBo
   if (!resourceCards) return null;
 
   return (
-    <section className="mb-10 w-full animate-fade-in" aria-label="Featured Resources">
+    <section className="mb-10 w-full " aria-label="Featured Resources">
       <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-4 px-2 md:px-0">Featured Resources</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {resourceCards}

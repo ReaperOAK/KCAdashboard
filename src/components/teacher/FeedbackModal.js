@@ -24,7 +24,7 @@ const FeedbackModal = React.memo(function FeedbackModal({ open, student, feedbac
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-6 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-6 "
       aria-modal="true"
       role="dialog"
       tabIndex={-1}

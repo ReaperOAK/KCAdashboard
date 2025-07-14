@@ -7,7 +7,7 @@ import React from 'react';
 const StudentsTable = ({ students }) => {
   if (!students.length) return <p className="text-gray-dark">No students enrolled in this batch yet.</p>;
   return (
-    <div className="overflow-x-auto animate-fade-in">
+    <div className="overflow-x-auto ">
       <table className="min-w-full divide-y divide-gray-light" aria-label="Batch students">
         <thead className="bg-background-light">
           <tr>
@@ -26,8 +26,8 @@ const StudentsTable = ({ students }) => {
               <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                 <span className={
                   student.status === 'active'
-                    ? 'bg-accent text-white font-semibold text-xs px-2 py-0.5 rounded-full animate-fade-in'
-                    : 'bg-gray-light text-primary font-medium text-xs px-2 py-0.5 rounded-full animate-fade-in'
+                    ? 'bg-accent text-white font-semibold text-xs px-2 py-0.5 rounded-full '
+                    : 'bg-gray-light text-primary font-medium text-xs px-2 py-0.5 rounded-full '
                 }>
                   {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
                 </span>

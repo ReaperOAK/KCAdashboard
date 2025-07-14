@@ -26,7 +26,7 @@ ReplyCard.displayName = 'ReplyCard';
 // DiscussionCard: Pure, focused, beautiful, responsive
 const DiscussionCard = React.memo(function DiscussionCard({ discussion }) {
   return (
-    <div className="bg-white border border-gray-light rounded-xl shadow-md overflow-hidden animate-fade-in">
+    <div className="bg-white border border-gray-light rounded-xl shadow-md overflow-hidden ">
       <div className="p-4">
         <div className="flex items-start gap-3 mb-3">
           <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
@@ -67,7 +67,7 @@ const ClassroomDiscussionsTab = React.memo(function ClassroomDiscussionsTab({
   submitting
 }) {
   return (
-    <section className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 lg:px-0 animate-fade-in">
+    <section className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 lg:px-0 ">
       <h2 className="text-2xl text-text-dark font-semibold mb-6">Class Discussions</h2>
       <div className="mb-8 bg-background-light rounded-xl shadow-inner border border-gray-light p-4">
         <label className="block text-sm text-gray-dark mb-2 font-medium">Start a New Discussion</label>
@@ -110,7 +110,7 @@ const ClassroomDiscussionsTab = React.memo(function ClassroomDiscussionsTab({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center min-h-[180px] bg-background-light rounded-xl shadow-inner border border-gray-light animate-fade-in">
+        <div className="flex flex-col items-center justify-center min-h-[180px] bg-background-light rounded-xl shadow-inner border border-gray-light ">
           <svg className="h-12 w-12 text-gray-light mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2M15 3h-6a2 2 0 00-2 2v3a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>
           <p className="text-gray-dark text-lg">No discussions have been started yet. Be the first to post!</p>
         </div>

@@ -5,7 +5,7 @@ import { formatSchedule } from '../../utils/formatSchedule';
 // OverviewCard: Pure, focused, beautiful, responsive
 const OverviewCard = React.memo(function OverviewCard({ title, children, icon }) {
   return (
-    <div className="bg-background-light dark:bg-background-dark p-5 rounded-xl shadow-md border border-gray-light flex flex-col gap-2 animate-fade-in min-h-[120px]">
+    <div className="bg-background-light dark:bg-background-dark p-5 rounded-xl shadow-md border border-gray-light flex flex-col gap-2  min-h-[120px]">
       <div className="flex items-center gap-2 mb-1">
         {icon && <span className="text-accent text-xl">{icon}</span>}
         <h3 className="font-medium text-primary text-lg">{title}</h3>
@@ -19,7 +19,7 @@ OverviewCard.displayName = 'OverviewCard';
 
 const ClassroomOverviewTab = React.memo(function ClassroomOverviewTab({ classroom }) {
   return (
-    <section className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 lg:px-0 animate-fade-in">
+    <section className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 lg:px-0 ">
       <h2 className="text-2xl text-text-dark font-semibold mb-6">Class Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <OverviewCard title="Schedule" icon={<svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>}>

@@ -15,7 +15,7 @@ const DeleteQuizModal = React.memo(function DeleteQuizModal({ open, quiz, onCanc
       aria-labelledby="delete-quiz-title"
       aria-describedby="delete-quiz-desc"
     >
-      <div className="bg-white dark:bg-background-dark rounded-2xl shadow-2xl w-full max-w-md p-4 sm:p-6 animate-fade-in border border-gray-light">
+      <div className="bg-white dark:bg-background-dark rounded-2xl shadow-2xl w-full max-w-md p-4 sm:p-6  border border-gray-light">
         <h2 id="delete-quiz-title" className="text-2xl font-semibold text-primary mb-2 text-center">
           Delete Quiz
         </h2>

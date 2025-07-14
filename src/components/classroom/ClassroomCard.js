@@ -5,7 +5,7 @@ import React from 'react';
  */
 const ClassroomCard = ({ classroom, onCardClick, onSchedule, onAssignment, onMaterials }) => (
   <section
-    className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-200 border border-gray-light animate-fade-in w-full max-w-xl mx-auto"
+    className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-200 border border-gray-light  w-full max-w-xl mx-auto"
     tabIndex={0}
     aria-label={`Classroom: ${classroom.name}`}
     onClick={() => onCardClick(classroom)}

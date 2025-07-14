@@ -20,7 +20,7 @@ const PaymentModal = React.memo(function PaymentModal({ tournament, open, onClos
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" role="dialog" aria-modal="true">
       <div
         className={[
-          'bg-background-light rounded-2xl p-4 sm:p-8 w-full max-w-md shadow-2xl relative focus:outline-none animate-fade-in',
+          'bg-background-light rounded-2xl p-4 sm:p-8 w-full max-w-md shadow-2xl relative focus:outline-none ',
           className,
         ].join(' ')}
         tabIndex={-1}

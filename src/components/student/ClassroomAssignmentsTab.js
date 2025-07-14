@@ -39,7 +39,7 @@ const AssignmentCard = React.memo(function AssignmentCard({ assignment, handleFi
       </div>
       {/* Graded Assignment */}
       {assignment.status === 'graded' && (
-        <div className="p-4 border-t border-gray-light bg-white animate-fade-in">
+        <div className="p-4 border-t border-gray-light bg-white ">
           <h4 className="font-medium text-sm mb-2 text-green-800">Feedback & Grading</h4>
           <p className="text-sm text-gray-dark mb-2">{assignment.feedback || 'No written feedback provided.'}</p>
           <p className="font-semibold text-green-700">Grade: {assignment.grade}</p>
@@ -47,7 +47,7 @@ const AssignmentCard = React.memo(function AssignmentCard({ assignment, handleFi
       )}
       {/* Pending Assignment Submission */}
       {assignment.status === 'pending' && due >= now && (
-        <div className="p-4 border-t border-gray-light animate-fade-in">
+        <div className="p-4 border-t border-gray-light ">
           <h4 className="font-medium text-sm mb-2 text-primary">Submit Your Work</h4>
           <div className="space-y-3">
             <div>
@@ -72,10 +72,10 @@ const AssignmentCard = React.memo(function AssignmentCard({ assignment, handleFi
               <div className="text-xs text-gray-dark text-right">{submissionText.length}/500</div>
             </div>
             {submitError && (
-              <div className="bg-error text-white rounded-md px-3 py-2 text-sm border border-error animate-fade-in" role="alert">{submitError}</div>
+              <div className="bg-error text-white rounded-md px-3 py-2 text-sm border border-error " role="alert">{submitError}</div>
             )}
             {submitSuccess && (
-              <div className="bg-success text-white rounded-md px-3 py-2 text-sm border border-success animate-fade-in">Assignment submitted successfully!</div>
+              <div className="bg-success text-white rounded-md px-3 py-2 text-sm border border-success ">Assignment submitted successfully!</div>
             )}
             <button
               onClick={() => handleSubmitAssignment(assignment.id)}
@@ -101,7 +101,7 @@ const AssignmentCard = React.memo(function AssignmentCard({ assignment, handleFi
       )}
       {/* Submitted Assignment */}
       {assignment.status === 'submitted' && (
-        <div className="p-4 border-t border-gray-light bg-blue-50 animate-fade-in">
+        <div className="p-4 border-t border-gray-light bg-blue-50 ">
           <h4 className="font-medium text-sm mb-2 text-blue-800">Assignment Submitted</h4>
           <p className="text-sm text-blue-600 mb-2">
             Submitted on: {new Date(assignment.submission_date).toLocaleString()}
@@ -134,7 +134,7 @@ const AssignmentCard = React.memo(function AssignmentCard({ assignment, handleFi
       )}
       {/* Graded Assignment (detailed) */}
       {assignment.status === 'graded' && (
-        <div className="p-4 border-t border-gray-light bg-green-50 animate-fade-in">
+        <div className="p-4 border-t border-gray-light bg-green-50 ">
           <h4 className="font-medium text-sm mb-2 text-green-800">Assignment Graded</h4>
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
             <span className="font-medium text-green-700">Grade: {assignment.grade}</span>
@@ -170,7 +170,7 @@ const ClassroomAssignmentsTab = React.memo(function ClassroomAssignmentsTab({
   submissionFile
 }) {
   return (
-    <section className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 lg:px-0 animate-fade-in">
+    <section className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 lg:px-0 ">
       <h2 className="text-2xl text-text-dark font-semibold mb-6">Assignments</h2>
       {assignments.length > 0 ? (
         <div className="flex flex-col gap-8">
@@ -189,7 +189,7 @@ const ClassroomAssignmentsTab = React.memo(function ClassroomAssignmentsTab({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center min-h-[200px] bg-background-light rounded-xl shadow-inner border border-gray-light animate-fade-in">
+        <div className="flex flex-col items-center justify-center min-h-[200px] bg-background-light rounded-xl shadow-inner border border-gray-light ">
           <svg className="h-12 w-12 text-gray-light mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a2 2 0 10-4 0v1H9a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           <p className="text-gray-dark text-lg">No assignments have been given for this class yet.</p>
         </div>

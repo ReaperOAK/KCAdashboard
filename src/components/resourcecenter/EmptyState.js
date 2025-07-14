@@ -15,7 +15,7 @@ const EmptyState = React.memo(function EmptyState({ showBookmarksOnly, searchTer
   }, [showBookmarksOnly, searchTerm]);
 
   return (
-    <section className="flex flex-col items-center justify-center py-10 px-4 bg-background-light dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-xl mx-auto animate-fade-in">
+    <section className="flex flex-col items-center justify-center py-10 px-4 bg-background-light dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-xl mx-auto ">
       <span className="mb-4 text-5xl md:text-6xl text-gray-dark/40 select-none" aria-hidden>📭</span>
       <p className="text-lg md:text-xl text-gray-dark text-center font-medium mb-1">{message}</p>
       <p className="text-sm text-gray-dark/70 text-center">Try adjusting your filters or search terms.</p>

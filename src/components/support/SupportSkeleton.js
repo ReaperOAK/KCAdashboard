@@ -7,7 +7,7 @@ import React from 'react';
  */
 const SupportSkeleton = React.memo(function SupportSkeleton() {
   return (
-    <div className="flex flex-col items-center w-full py-10 px-4 animate-fade-in" aria-busy="true" aria-label="Loading support system" role="status">
+    <div className="flex flex-col items-center w-full py-10 px-4 " aria-busy="true" aria-label="Loading support system" role="status">
       <div className="w-full max-w-2xl space-y-5">
         {[...Array(2)].map((_, i) => (
           <div key={i} className="h-32 sm:h-36 w-full rounded-2xl border border-gray-light bg-background-light dark:bg-background-dark shadow-md animate-pulse" />

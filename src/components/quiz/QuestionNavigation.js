@@ -6,7 +6,7 @@ import React from 'react';
  */
 const QuestionNavigation = React.memo(function QuestionNavigation({ questions, currentIndex, onJump, selectedAnswers, chessMoves }) {
   return (
-    <nav className="w-full max-w-3xl mx-auto mt-6 animate-fade-in" aria-label="Quiz question navigation">
+    <nav className="w-full max-w-3xl mx-auto mt-6 " aria-label="Quiz question navigation">
       <div className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light p-4 flex flex-wrap gap-2 justify-center">
         {questions.map((question, index) => {
           const isAnswered = question.type === 'chess'

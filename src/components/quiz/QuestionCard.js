@@ -17,7 +17,7 @@ const QuestionCard = React.memo(function QuestionCard({
   onChessMove,
 }) {
   return (
-    <section className="mb-8 w-full max-w-2xl mx-auto bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light p-4 sm:p-6 animate-fade-in">
+    <section className="mb-8 w-full max-w-2xl mx-auto bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light p-4 sm:p-6 ">
       <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
         <span className="text-sm text-gray-dark">Question {questionIndex + 1} of {totalQuestions}</span>
         <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize shadow-sm

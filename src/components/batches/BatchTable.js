@@ -14,7 +14,7 @@ const BatchTable = React.memo(function BatchTable({ batches, onEdit }) {
   }
   return (
     <div
-      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-x-auto border border-gray-light transition-all duration-300 animate-fade-in"
+      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-x-auto border border-gray-light transition-all duration-300 "
       role="region"
       aria-label="Batch Table"
       tabIndex={0}

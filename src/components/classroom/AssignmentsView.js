@@ -82,7 +82,7 @@ const AssignmentsView = ({ classroomId, refreshTrigger }) => {
   );
 
   return (
-    <section className="animate-fade-in w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4">
+    <section className=" w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4">
       <div className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl p-4 md:p-6">
         {!showSubmissions ? (
           <>

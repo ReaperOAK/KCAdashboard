@@ -6,7 +6,7 @@ import React from 'react';
  */
 const ErrorState = React.memo(function ErrorState({ error, onBack }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] py-10 px-4 bg-background-light dark:bg-background-dark w-full animate-fade-in">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] py-10 px-4 bg-background-light dark:bg-background-dark w-full ">
       <div className="bg-error/10 border border-error rounded-2xl shadow-md p-6 max-w-lg w-full flex flex-col items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"

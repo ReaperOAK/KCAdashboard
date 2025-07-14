@@ -19,7 +19,7 @@ const SettingsForm = React.memo(function SettingsForm({ settings, onChange, onSu
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-3xl mx-auto bg-background-light border border-gray-light rounded-xl shadow-md p-6 md:p-8 space-y-8 animate-fade-in"
+      className="w-full max-w-3xl mx-auto bg-background-light border border-gray-light rounded-xl shadow-md p-6 md:p-8 space-y-8 "
       aria-label="Attendance settings form"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -98,7 +98,7 @@ const SettingsForm = React.memo(function SettingsForm({ settings, onChange, onSu
       </div>
       <style>{`
         @keyframes fade-in { from { opacity: 0; transform: translateY(-8px);} to { opacity: 1; transform: none; } }
-        .animate-fade-in { animation: fade-in 0.3s ease; }
+        . { animation: fade-in 0.3s ease; }
       `}</style>
     </form>
   );

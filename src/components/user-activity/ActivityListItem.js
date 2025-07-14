@@ -13,7 +13,7 @@ const ActivityListItem = React.memo(function ActivityListItem({ activity }) {
 
   return (
     <li
-      className="group bg-background-light dark:bg-background-dark border-b border-gray-dark last:border-b-0 px-4 py-3 sm:px-6 transition-all duration-200 hover:bg-gray-light/60 focus-within:bg-gray-light/80 rounded-md flex flex-col gap-1 animate-fade-in"
+      className="group bg-background-light dark:bg-background-dark border-b border-gray-dark last:border-b-0 px-4 py-3 sm:px-6 transition-all duration-200 hover:bg-gray-light/60 focus-within:bg-gray-light/80 rounded-md flex flex-col gap-1 "
       tabIndex={0}
       aria-label={`Activity by ${activity.user_name || 'Unknown User'}: ${activity.action}`}
       role="listitem"

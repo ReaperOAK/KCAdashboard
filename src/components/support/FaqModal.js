@@ -47,13 +47,13 @@ const FaqModal = React.memo(function FaqModal({ open, onClose, onSubmit, newFaq,
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 "
       role="dialog"
       aria-modal="true"
       aria-labelledby="faq-modal-title"
       ref={modalRef}
     >
-      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-lg w-full relative animate-fade-in">
+      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-lg w-full relative ">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-dark hover:text-accent bg-gray-light/30 hover:bg-accent/10 rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"

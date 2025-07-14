@@ -4,7 +4,7 @@ import { FileText } from 'lucide-react';
 
 const AssignmentCard = React.memo(({ assignment, onViewSubmissions }) => (
   <div
-    className="bg-background-light dark:bg-background-dark border border-gray-light dark:border-gray-dark rounded-2xl p-5 sm:p-7 shadow-md hover:shadow-xl hover:scale-[1.015] focus-within:shadow-xl focus-within:scale-[1.01] transition-all duration-200 group animate-fade-in cursor-pointer"
+    className="bg-background-light dark:bg-background-dark border border-gray-light dark:border-gray-dark rounded-2xl p-5 sm:p-7 shadow-md hover:shadow-xl hover:scale-[1.015] focus-within:shadow-xl focus-within:scale-[1.01] transition-all duration-200 group  cursor-pointer"
     tabIndex={0}
     role="region"
     aria-label={`Assignment: ${assignment.title}`}

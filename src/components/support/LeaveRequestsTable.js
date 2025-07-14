@@ -13,7 +13,7 @@ import LeaveRequestRow from './LeaveRequestRow';
  */
 const LeaveRequestsTable = React.memo(function LeaveRequestsTable({ requests, onAction, actionStatus }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark animate-fade-in">
+    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark ">
       <table className="min-w-full text-sm sm:text-base">
         <thead>
           <tr className="bg-primary text-white text-xs sm:text-sm uppercase sticky top-0 z-10">

@@ -22,7 +22,7 @@ const QuizFilterBar = React.memo(function QuizFilterBar({ quizzes, activeQuiz, o
 
   return (
     <nav
-      className="p-3 sm:p-4 flex flex-col sm:flex-row gap-2 bg-background-light border-b border-gray-light rounded-t-xl shadow-sm animate-fade-in"
+      className="p-3 sm:p-4 flex flex-col sm:flex-row gap-2 bg-background-light border-b border-gray-light rounded-t-xl shadow-sm "
       aria-label="Quiz selection"
     >
       <button

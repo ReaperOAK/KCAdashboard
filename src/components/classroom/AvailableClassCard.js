@@ -5,7 +5,7 @@ import { UserPlus2, CheckCircle, Loader2 } from 'lucide-react';
 
 const AvailableClassCard = React.memo(({ classroom, enrolling, enrollSuccess, enrollError, onEnroll }) => (
   <section
-    className="bg-background-light dark:bg-background-dark border-2 border-dashed border-gray-light rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-200 flex flex-col h-full animate-fade-in"
+    className="bg-background-light dark:bg-background-dark border-2 border-dashed border-gray-light rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-200 flex flex-col h-full "
     aria-label={classroom.name}
   >
     <div className="p-5 sm:p-6 flex-1 flex flex-col">
@@ -40,7 +40,7 @@ const AvailableClassCard = React.memo(({ classroom, enrolling, enrollSuccess, en
         {enrolling === classroom.id ? 'Enrolling...' : enrollSuccess === classroom.id ? 'Enrolled!' : 'Enroll Now'}
       </button>
       {enrollError && enrolling === classroom.id && (
-        <p className="mt-2 text-sm text-red-700 dark:text-red-400 animate-fade-in" aria-live="polite">{enrollError}</p>
+        <p className="mt-2 text-sm text-red-700 dark:text-red-400 " aria-live="polite">{enrollError}</p>
       )}
     </div>
   </section>

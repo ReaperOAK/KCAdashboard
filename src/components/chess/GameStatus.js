@@ -3,7 +3,7 @@ import { UserCheck, UserX } from 'lucide-react';
 
 const GameStatus = React.memo(function GameStatus({ yourTurn, timeLeft, formatTimer }) {
   return (
-    <section className="text-center text-lg font-semibold text-primary mt-4 animate-fade-in" aria-live="polite" aria-atomic="true">
+    <section className="text-center text-lg font-semibold text-primary mt-4 " aria-live="polite" aria-atomic="true">
       {yourTurn ? (
         <span className="inline-flex items-center gap-2"><UserCheck className="w-5 h-5 text-success" />Your Turn</span>
       ) : (

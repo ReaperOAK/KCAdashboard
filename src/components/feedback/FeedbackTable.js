@@ -2,7 +2,7 @@ import React from 'react';
 
 
 const FeedbackTable = React.memo(({ feedback }) => (
-  <div className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg p-4 sm:p-6 overflow-x-auto border border-gray-light dark:border-gray-dark animate-fade-in">
+  <div className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg p-4 sm:p-6 overflow-x-auto border border-gray-light dark:border-gray-dark ">
     <table className="min-w-full divide-y divide-gray-light dark:divide-gray-dark text-sm" aria-label="Feedback Table">
       <thead className="bg-primary text-white">
         <tr>

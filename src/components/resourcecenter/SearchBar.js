@@ -13,7 +13,7 @@ const SearchBar = React.memo(function SearchBar({ value, onChange, onSubmit }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col sm:flex-row gap-2 mb-6 w-full max-w-2xl mx-auto animate-fade-in"
+      className="flex flex-col sm:flex-row gap-2 mb-6 w-full max-w-2xl mx-auto "
       role="search"
       aria-label="Search resources"
     >

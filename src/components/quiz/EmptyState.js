@@ -6,7 +6,7 @@ import React from 'react';
  */
 const EmptyState = React.memo(function EmptyState({ searchQuery, onClear }) {
   return (
-    <div className="flex flex-col items-center justify-center py-10 px-4 bg-background-light dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-xl mx-auto animate-fade-in">
+    <div className="flex flex-col items-center justify-center py-10 px-4 bg-background-light dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-xl mx-auto ">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-16 w-16 text-accent mb-4"

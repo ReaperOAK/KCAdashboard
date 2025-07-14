@@ -11,7 +11,7 @@ const ChevronDownIcon = (
 
 const SearchAndBatchFilter = React.memo(function SearchAndBatchFilter({ searchTerm, onSearch, selectedBatch, onBatchChange, batches }) {
   return (
-    <div className="w-full max-w-2xl mx-auto bg-background-light border border-gray-light rounded-xl shadow-md p-4 flex flex-col sm:flex-row sm:items-center gap-3 mb-4 animate-fade-in">
+    <div className="w-full max-w-2xl mx-auto bg-background-light border border-gray-light rounded-xl shadow-md p-4 flex flex-col sm:flex-row sm:items-center gap-3 mb-4 ">
       {/* Search input with icon */}
       <div className="relative flex-1 min-w-0">
         <input
@@ -41,7 +41,7 @@ const SearchAndBatchFilter = React.memo(function SearchAndBatchFilter({ searchTe
       </div>
       <style>{`
         @keyframes fade-in { from { opacity: 0; transform: translateY(-8px);} to { opacity: 1; transform: none; } }
-        .animate-fade-in { animation: fade-in 0.3s ease; }
+        . { animation: fade-in 0.3s ease; }
       `}</style>
     </div>
   );

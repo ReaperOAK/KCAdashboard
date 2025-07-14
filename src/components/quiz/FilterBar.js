@@ -14,7 +14,7 @@ const FilterBar = React.memo(function FilterBar({ filter, onFilterChange }) {
     { key: 'passed', label: 'Passed Only', active: 'bg-accent text-white', inactive: 'bg-accent/10 text-accent hover:bg-accent/20' },
   ], []);
   return (
-    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light mb-6 w-full max-w-3xl mx-auto animate-fade-in">
+    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light mb-6 w-full max-w-3xl mx-auto ">
       <header className="p-4 border-b border-gray-light flex items-center gap-2">
         <FaFilter className="text-secondary text-lg" aria-hidden="true" />
         <h2 className="text-lg sm:text-xl font-semibold text-primary">Filters</h2>

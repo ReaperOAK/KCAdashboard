@@ -7,7 +7,7 @@ import React from 'react';
 const QuizLoadingSkeleton = React.memo(function QuizLoadingSkeleton() {
   return (
     <div
-      className="flex flex-col items-center justify-center min-h-[180px] p-6 sm:p-8 bg-background-light rounded-xl shadow border border-gray-light animate-fade-in"
+      className="flex flex-col items-center justify-center min-h-[180px] p-6 sm:p-8 bg-background-light rounded-xl shadow border border-gray-light "
       aria-busy="true"
       aria-label="Loading quizzes"
       role="status"

@@ -11,7 +11,7 @@ const ResourceDetailsErrorState = React.memo(function ResourceDetailsErrorState(
   const msg = useMemo(() => message || 'An unexpected error occurred.', [message]);
 
   return (
-    <section className="flex flex-col items-center justify-center py-10 px-4 bg-error/10 border border-error rounded-2xl shadow-md w-full max-w-xl mx-auto animate-fade-in text-center mb-6" role="alert" aria-live="assertive">
+    <section className="flex flex-col items-center justify-center py-10 px-4 bg-error/10 border border-error rounded-2xl shadow-md w-full max-w-xl mx-auto  text-center mb-6" role="alert" aria-live="assertive">
       <span className="mb-4 text-5xl md:text-6xl text-error select-none" aria-hidden>⚠️</span>
       <p className="text-lg md:text-xl text-error font-semibold mb-2">{msg}</p>
       <button

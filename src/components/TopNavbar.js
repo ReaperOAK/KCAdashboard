@@ -61,7 +61,7 @@ const UserSection = React.memo(function UserSection({ user, onLogout }) {
         <ArrowRightOnRectangleIcon className="w-6 h-6" />
       </button>
       {dropdownOpen && (
-        <div className="absolute right-0 top-12 bg-white/90 backdrop-blur-md text-primary rounded shadow-lg py-2 w-44 z-50 animate-fade-in border border-gray-100">
+        <div className="absolute right-0 top-12 bg-white/90 backdrop-blur-md text-primary rounded shadow-lg py-2 w-44 z-50  border border-gray-100">
           <div className="px-4 py-2 text-xs text-gray-500">Signed in as</div>
           <div className="px-4 py-1 font-semibold truncate">{user?.full_name}</div>
           <div className="px-4 py-1 text-xs text-gray-400 capitalize">{user?.role}</div>

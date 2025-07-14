@@ -11,7 +11,7 @@ const ExportControls = React.memo(function ExportControls({ dateRange, setDateRa
   const handleEndChange = useCallback(e => setDateRange(prev => ({ ...prev, end: e.target.value })), [setDateRange]);
   const handleFormatChange = useCallback(e => setExportFormat(e.target.value), [setExportFormat]);
   return (
-    <div className="w-full max-w-2xl mx-auto bg-background-light border border-gray-light rounded-xl shadow-md p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 mb-4 animate-fade-in">
+    <div className="w-full max-w-2xl mx-auto bg-background-light border border-gray-light rounded-xl shadow-md p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 mb-4 ">
       <input
         type="date"
         value={dateRange.start || ''}
@@ -47,7 +47,7 @@ const ExportControls = React.memo(function ExportControls({ dateRange, setDateRa
       </button>
       <style>{`
         @keyframes fade-in { from { opacity: 0; transform: translateY(-8px);} to { opacity: 1; transform: none; } }
-        .animate-fade-in { animation: fade-in 0.3s ease; }
+        . { animation: fade-in 0.3s ease; }
       `}</style>
     </div>
   );

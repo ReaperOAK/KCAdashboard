@@ -3,8 +3,8 @@ import { XCircle } from 'lucide-react';
 
 
 const ClassroomDetailError = React.memo(({ error, onBack }) => (
-  <section className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center p-4 animate-fade-in">
-    <div className="bg-red-700 border border-red-800 text-white p-6 sm:p-8 rounded-2xl max-w-lg w-full text-center shadow-2xl animate-fade-in">
+  <section className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center p-4 ">
+    <div className="bg-red-700 border border-red-800 text-white p-6 sm:p-8 rounded-2xl max-w-lg w-full text-center shadow-2xl ">
       <div className="flex flex-col items-center">
         <XCircle className="w-12 h-12 mb-3 text-white animate-pulse" aria-hidden="true" />
         <div className="font-semibold text-lg sm:text-xl mb-2" aria-live="polite" role="alert">{error}</div>

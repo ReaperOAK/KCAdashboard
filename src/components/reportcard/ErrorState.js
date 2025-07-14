@@ -9,7 +9,7 @@ import React from 'react';
 const ErrorState = React.memo(function ErrorState({ message, className = '' }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-error/10 border border-error text-error rounded-lg px-4 py-5 sm:px-6 sm:py-6 shadow-md animate-fade-in ${className}`}
+      className={`flex flex-col items-center justify-center bg-error/10 border border-error text-error rounded-lg px-4 py-5 sm:px-6 sm:py-6 shadow-md  ${className}`}
       role="alert"
       aria-live="assertive"
       tabIndex={-1}

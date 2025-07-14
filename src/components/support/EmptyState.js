@@ -12,7 +12,7 @@ import React from 'react';
 const EmptyState = React.memo(function EmptyState({ message, icon }) {
   return (
     <section
-      className="flex flex-col items-center justify-center w-full px-4 py-16 sm:py-20 md:py-28 animate-fade-in"
+      className="flex flex-col items-center justify-center w-full px-4 py-16 sm:py-20 md:py-28 "
       aria-label="Empty State"
       tabIndex={-1}
     >

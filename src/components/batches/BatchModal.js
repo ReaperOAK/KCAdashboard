@@ -31,7 +31,7 @@ const BatchModal = React.memo(function BatchModal({
     <Modal
       title={mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}
       onClose={onClose}
-      className="max-w-lg w-full px-2 sm:px-0 py-0 bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl border border-gray-light animate-fade-in focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-300"
+      className="max-w-lg w-full px-2 sm:px-0 py-0 bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl border border-gray-light  focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-300"
       overlayClassName="bg-black/40 backdrop-blur-sm"
       aria-modal="true"
       role="dialog"

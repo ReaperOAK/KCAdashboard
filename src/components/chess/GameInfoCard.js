@@ -1,7 +1,7 @@
 import React from 'react';
 
 const GameInfoCard = React.memo(({ gameData, lastMoveAt, formatIST }) => (
-  <section className="bg-white rounded-lg p-4 sm:p-6 shadow-md max-w-2xl mx-auto mt-6 transition-all duration-200 animate-fade-in">
+  <section className="bg-white rounded-lg p-4 sm:p-6 shadow-md max-w-2xl mx-auto mt-6 transition-all duration-200 ">
     <header>
       <h2 className="text-lg sm:text-xl font-bold text-primary mb-3 sm:mb-4">Game Information</h2>
     </header>

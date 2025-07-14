@@ -62,7 +62,7 @@ const QuizCard = React.memo(function QuizCard({ quiz }) {
 
   return (
     <section
-      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-200 border border-gray-light animate-fade-in w-full max-w-xl mx-auto"
+      className="bg-background-light dark:bg-background-dark rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-200 border border-gray-light  w-full max-w-xl mx-auto"
       aria-label={`Quiz card: ${quiz.title}`}
       tabIndex={0}
     >

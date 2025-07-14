@@ -34,7 +34,7 @@ const SecureFileViewer = ({ resourceId, fileType, token }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] p-6 bg-background-light dark:bg-background-dark rounded-xl border border-red-800 animate-fade-in" role="alert" aria-live="assertive">
+      <div className="flex flex-col items-center justify-center min-h-[40vh] p-6 bg-background-light dark:bg-background-dark rounded-xl border border-red-800 " role="alert" aria-live="assertive">
         <svg className="w-8 h-8 text-red-700 mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" /></svg>
         <span className="text-red-700 font-semibold mb-1">Error loading file</span>
         <span className="text-red-700 text-sm">{error}</span>
@@ -75,7 +75,7 @@ const SecureFileViewer = ({ resourceId, fileType, token }) => {
     );
   }
   return (
-    <div className="flex flex-col items-center justify-center min-h-[40vh] p-6 bg-background-light dark:bg-background-dark rounded-xl border border-gray-light dark:border-gray-dark animate-fade-in">
+    <div className="flex flex-col items-center justify-center min-h-[40vh] p-6 bg-background-light dark:bg-background-dark rounded-xl border border-gray-light dark:border-gray-dark ">
       <span className="text-gray-dark dark:text-gray-light font-semibold">Unsupported file type</span>
     </div>
   );

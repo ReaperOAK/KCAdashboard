@@ -3,7 +3,7 @@ import React from 'react';
 
 const LoadingSpinner = React.memo(() => (
   <div
-    className="flex flex-col items-center justify-center py-10 animate-fade-in"
+    className="flex flex-col items-center justify-center py-10 "
     role="status"
     aria-live="polite"
     aria-label="Loading feedback..."

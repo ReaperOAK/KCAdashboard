@@ -18,7 +18,7 @@ const QuizInstructions = React.memo(function QuizInstructions({ quiz, onStart })
   const difficulty = quiz.difficulty?.toLowerCase() || 'beginner';
   const badgeClass = DIFFICULTY_STYLES[difficulty] || DIFFICULTY_STYLES.beginner;
   return (
-    <section className="min-h-screen bg-background-light flex items-center justify-center px-2 py-8 animate-fade-in">
+    <section className="min-h-screen bg-background-light flex items-center justify-center px-2 py-8 ">
       <div className="w-full max-w-3xl bg-white dark:bg-background-dark rounded-2xl shadow-xl border border-gray-light p-4 sm:p-8 transition-all">
         <header className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2 leading-tight">{quiz.title}</h1>

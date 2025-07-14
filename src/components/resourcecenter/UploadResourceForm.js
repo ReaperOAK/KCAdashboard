@@ -48,7 +48,7 @@ const UploadResourceForm = React.memo(function UploadResourceForm({
   }), []);
 
   return (
-    <section className="bg-background-light dark:bg-background-dark rounded-2xl shadow-md p-6 md:p-8 mb-8 border border-gray-light w-full max-w-2xl mx-auto animate-fade-in">
+    <section className="bg-background-light dark:bg-background-dark rounded-2xl shadow-md p-6 md:p-8 mb-8 border border-gray-light w-full max-w-2xl mx-auto ">
       <h2 className="text-2xl text-primary font-semibold mb-4">Upload New Resource</h2>
       <Formik
         initialValues={initialValues}

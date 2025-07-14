@@ -25,7 +25,7 @@ const priorityStyles = {
 
 const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, onViewDetails }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark animate-fade-in">
+    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark ">
       <table className="min-w-full text-sm sm:text-base" aria-label="Support tickets">
         <thead>
           <tr className="bg-primary text-white text-xs sm:text-sm uppercase sticky top-0 z-10">
@@ -47,7 +47,7 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
               <tr
                 key={ticket.id}
                 tabIndex={0}
-                className={`focus:outline-accent transition-all duration-200 ${idx % 2 === 1 ? 'bg-background-light' : ''} hover:bg-gray-light/40 cursor-pointer animate-fade-in`}
+                className={`focus:outline-accent transition-all duration-200 ${idx % 2 === 1 ? 'bg-background-light' : ''} hover:bg-gray-light/40 cursor-pointer `}
               >
                 <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-text-dark">#{ticket.id}</td>
                 <td className="px-4 sm:px-6 py-4 text-text-dark break-words">{ticket.title}</td>

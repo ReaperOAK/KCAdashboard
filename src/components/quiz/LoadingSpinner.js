@@ -7,7 +7,7 @@ import { FaChessPawn } from 'react-icons/fa';
  */
 const LoadingSpinner = React.memo(function LoadingSpinner() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] py-10 px-4 bg-background-light dark:bg-background-dark w-full animate-fade-in">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] py-10 px-4 bg-background-light dark:bg-background-dark w-full ">
       <div className="flex flex-col items-center gap-2">
         <span className="relative flex h-16 w-16">
           <span className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin" aria-hidden="true"></span>

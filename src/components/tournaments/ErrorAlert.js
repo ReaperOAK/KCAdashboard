@@ -12,7 +12,7 @@ const ErrorAlert = React.memo(function ErrorAlert({ message, className = '' }) {
   return (
     <div
       className={[
-        'flex items-start gap-3 bg-error border-l-4 border-error text-white px-4 py-3 rounded-lg mb-6 shadow-md animate-fade-in',
+        'flex items-start gap-3 bg-error border-l-4 border-error text-white px-4 py-3 rounded-lg mb-6 shadow-md ',
         'sm:px-6 sm:py-4',
         'transition-all duration-200',
         className,

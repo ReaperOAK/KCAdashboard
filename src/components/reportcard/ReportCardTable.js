@@ -9,7 +9,7 @@ import React from 'react';
 const ReportCardTable = React.memo(function ReportCardTable({ reportCards, className = '' }) {
   return (
     <section
-      className={`bg-background-light dark:bg-background-dark rounded-2xl shadow-lg p-4 sm:p-6 overflow-x-auto transition-all duration-200 animate-fade-in ${className}`}
+      className={`bg-background-light dark:bg-background-dark rounded-2xl shadow-lg p-4 sm:p-6 overflow-x-auto transition-all duration-200  ${className}`}
       aria-label="Report Cards"
     >
       {/* Desktop/tablet table */}
@@ -47,7 +47,7 @@ const ReportCardTable = React.memo(function ReportCardTable({ reportCards, class
       {/* Mobile stacked cards */}
       <div className="block md:hidden mt-4 space-y-4">
         {reportCards.map(card => (
-          <div key={card.id} className="bg-white dark:bg-background-dark rounded-xl shadow border border-gray-light flex flex-col gap-2 p-4 animate-fade-in">
+          <div key={card.id} className="bg-white dark:bg-background-dark rounded-xl shadow border border-gray-light flex flex-col gap-2 p-4 ">
             <div className="flex items-center gap-2 text-xs text-gray-dark">
               <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

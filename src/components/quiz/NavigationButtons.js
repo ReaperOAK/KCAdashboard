@@ -14,7 +14,7 @@ const NavigationButtons = React.memo(function NavigationButtons({
   isSubmitting,
 }) {
   return (
-    <nav className="flex flex-row flex-wrap justify-between items-center mt-6 gap-2 w-full max-w-lg mx-auto animate-fade-in" aria-label="Quiz navigation">
+    <nav className="flex flex-row flex-wrap justify-between items-center mt-6 gap-2 w-full max-w-lg mx-auto " aria-label="Quiz navigation">
       <button
         type="button"
         onClick={onPrev}

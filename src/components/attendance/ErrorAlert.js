@@ -11,7 +11,7 @@ const ErrorAlert = React.memo(function ErrorAlert({ error }) {
   if (!error) return null;
   return (
     <div
-      className="mb-4 p-4 flex items-start bg-error text-white border border-error rounded-lg shadow-md animate-fade-in"
+      className="mb-4 p-4 flex items-start bg-error text-white border border-error rounded-lg shadow-md "
       role="alert"
       aria-live="assertive"
     >
@@ -19,7 +19,7 @@ const ErrorAlert = React.memo(function ErrorAlert({ error }) {
       <span className="text-sm font-medium break-words">{error}</span>
       <style>{`
         @keyframes fade-in { from { opacity: 0; transform: translateY(-8px);} to { opacity: 1; transform: none; } }
-        .animate-fade-in { animation: fade-in 0.3s ease; }
+        . { animation: fade-in 0.3s ease; }
       `}</style>
     </div>
   );

@@ -11,7 +11,7 @@ const SubmissionsList = ({ submissions, onGrade }) => {
   const list = useMemo(() => {
     if (submissions.length > 0) {
       return (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4 ">
           {submissions.map((submission) => (
             <SubmissionCard
               key={submission.id}
@@ -25,7 +25,7 @@ const SubmissionsList = ({ submissions, onGrade }) => {
     // Empty state: beautiful, accessible, and animated
     return (
       <div
-        className="flex flex-col items-center justify-center py-12 animate-fade-in bg-background-light dark:bg-background-dark rounded-lg border border-gray-light shadow-md mx-auto max-w-md"
+        className="flex flex-col items-center justify-center py-12  bg-background-light dark:bg-background-dark rounded-lg border border-gray-light shadow-md mx-auto max-w-md"
         aria-live="polite"
         role="status"
       >

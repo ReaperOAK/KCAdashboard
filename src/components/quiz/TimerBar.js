@@ -12,7 +12,7 @@ const TimerBar = React.memo(function TimerBar({ quizTitle, timeLeft }) {
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
   return (
-    <section className="max-w-3xl mx-auto mb-4 bg-white dark:bg-background-dark p-3 sm:p-4 rounded-xl shadow-md border border-gray-light flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 animate-fade-in">
+    <section className="max-w-3xl mx-auto mb-4 bg-white dark:bg-background-dark p-3 sm:p-4 rounded-xl shadow-md border border-gray-light flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 ">
       <h1 className="text-base sm:text-xl font-semibold text-primary truncate w-full sm:w-auto" title={quizTitle}>{quizTitle}</h1>
       <div className="flex items-center gap-2 bg-background-light px-3 py-1 rounded-lg border border-gray-light">
         <FaClock className="text-secondary w-5 h-5" aria-hidden="true" />

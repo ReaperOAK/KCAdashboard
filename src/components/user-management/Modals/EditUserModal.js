@@ -53,7 +53,7 @@ function EditUserModal({ user, onSubmit, onClose, error, activeTab, setActiveTab
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-4 "
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -61,7 +61,7 @@ function EditUserModal({ user, onSubmit, onClose, error, activeTab, setActiveTab
     >
       <div
         ref={modalRef}
-        className="bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl p-3 sm:p-6 w-full max-w-lg max-h-[92vh] overflow-y-auto focus:outline-none border border-gray-light focus:ring-2 focus:ring-accent transition-all duration-300 animate-fade-in"
+        className="bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl p-3 sm:p-6 w-full max-w-lg max-h-[92vh] overflow-y-auto focus:outline-none border border-gray-light focus:ring-2 focus:ring-accent transition-all duration-300 "
         tabIndex={-1}
         role="document"
         aria-label="User details and activity modal content"

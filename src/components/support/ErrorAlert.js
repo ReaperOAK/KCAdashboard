@@ -12,7 +12,7 @@ import React from 'react';
 const ErrorAlert = React.memo(function ErrorAlert({ message, icon }) {
   return (
     <div
-      className="flex items-center w-full max-w-2xl mx-auto px-4 py-3 sm:px-6 sm:py-4 rounded-lg bg-error border-l-4 border-red-800 shadow-md mb-4 animate-fade-in"
+      className="flex items-center w-full max-w-2xl mx-auto px-4 py-3 sm:px-6 sm:py-4 rounded-lg bg-error border-l-4 border-red-800 shadow-md mb-4 "
       role="alert"
       aria-live="assertive"
       tabIndex={-1}

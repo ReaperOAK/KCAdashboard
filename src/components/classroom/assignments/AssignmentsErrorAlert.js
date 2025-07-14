@@ -4,7 +4,7 @@ import { AlertTriangle } from 'lucide-react';
 
 const AssignmentsErrorAlert = React.memo(({ error }) => (
   <div
-    className="bg-error border border-error text-white rounded-xl p-4 sm:p-6 text-center flex flex-col items-center gap-2 shadow-lg animate-fade-in scale-100 animate-[fadeIn_0.4s_ease-in_forwards]"
+    className="bg-error border border-error text-white rounded-xl p-4 sm:p-6 text-center flex flex-col items-center gap-2 shadow-lg  scale-100 animate-[fadeIn_0.4s_ease-in_forwards]"
     role="alert"
     tabIndex={0}
     aria-live="assertive"

@@ -56,7 +56,7 @@ const ResourceCard = React.memo(function ResourceCard({ resource, onBookmarkTogg
 
   return (
     <article
-      className="bg-background-light dark:bg-background-dark rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-200 group focus-within:ring-2 focus-within:ring-accent border border-gray-light flex flex-col h-full animate-fade-in"
+      className="bg-background-light dark:bg-background-dark rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-200 group focus-within:ring-2 focus-within:ring-accent border border-gray-light flex flex-col h-full "
       tabIndex={0}
       role="group"
       aria-label={resource.title}

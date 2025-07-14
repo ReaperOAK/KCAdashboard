@@ -12,7 +12,7 @@ import React from 'react';
 const FaqCard = React.memo(function FaqCard({ faq, onDelete }) {
   return (
     <article
-      className="bg-background-light dark:bg-background-dark p-5 sm:p-6 rounded-2xl border border-gray-light shadow-md hover:shadow-lg transition-all duration-200 animate-fade-in w-full max-w-2xl mx-auto mb-4"
+      className="bg-background-light dark:bg-background-dark p-5 sm:p-6 rounded-2xl border border-gray-light shadow-md hover:shadow-lg transition-all duration-200  w-full max-w-2xl mx-auto mb-4"
       tabIndex={0}
       aria-label={`FAQ: ${faq.question}`}
     >

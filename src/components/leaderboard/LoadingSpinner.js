@@ -7,7 +7,7 @@ import React from 'react';
 const LoadingSpinner = React.memo(function LoadingSpinner() {
   return (
     <div
-      className="flex flex-col items-center justify-center w-full p-8 sm:p-12 bg-background-light rounded-xl shadow-md animate-fade-in"
+      className="flex flex-col items-center justify-center w-full p-8 sm:p-12 bg-background-light rounded-xl shadow-md "
       role="status"
       aria-live="polite"
       tabIndex={-1}

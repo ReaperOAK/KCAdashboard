@@ -16,7 +16,7 @@ const AssignmentsList = React.memo(({ assignments, onViewSubmissions }) => {
         ))}
       </div>
     ) : (
-      <div className="flex flex-col items-center justify-center py-12 animate-fade-in" role="status" aria-live="polite">
+      <div className="flex flex-col items-center justify-center py-12 " role="status" aria-live="polite">
         <FileText className="w-10 h-10 text-accent mb-3" aria-hidden="true" />
         <p className="text-xl font-semibold text-text-dark dark:text-text-light mb-2">No assignments created yet.</p>
         <p className="text-base text-gray-dark dark:text-gray-light mt-2 max-w-xs mx-auto">

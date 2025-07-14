@@ -6,7 +6,7 @@ const UserDetailsForm = memo(function UserDetailsForm({ user, setUser, onSubmit,
   }, [setUser]);
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 animate-fade-in" autoComplete="off">
+    <form onSubmit={onSubmit} className="space-y-4 " autoComplete="off">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-text-dark mb-1">Full Name</label>

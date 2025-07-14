@@ -42,7 +42,7 @@ const validationSchema = Yup.object({
 export const ErrorAlert = React.memo(function ErrorAlert({ error }) {
   if (!error) return null;
   return (
-    <div className="bg-error/10 text-error border border-error p-3 rounded-lg mb-4 flex items-center gap-2 animate-fade-in" role="alert">
+    <div className="bg-error/10 text-error border border-error p-3 rounded-lg mb-4 flex items-center gap-2 " role="alert">
       <svg className="w-5 h-5 text-error flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" /></svg>
       <span>{error}</span>
     </div>
@@ -324,7 +324,7 @@ export const CreateBatchForm = React.memo(function CreateBatchForm({
       enableReinitialize
     >
       {({ values, isSubmitting, setFieldValue }) => (
-        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4 animate-fade-in bg-background-light dark:bg-background-dark rounded-xl shadow-md" aria-label="Create or edit batch form">
+        <Form className="space-y-3 sm:space-y-4 p-2 sm:p-4  bg-background-light dark:bg-background-dark rounded-xl shadow-md" aria-label="Create or edit batch form">
           <ErrorAlert error={error} />
           <h2 className="text-2xl text-primary font-semibold mb-2 text-center">{mode === 'edit' ? 'Edit Batch' : 'Create New Batch'}</h2>
           <NameField />

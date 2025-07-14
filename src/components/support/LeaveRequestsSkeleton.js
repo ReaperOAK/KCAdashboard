@@ -7,7 +7,7 @@ import React from 'react';
  */
 const LeaveRequestsSkeleton = React.memo(function LeaveRequestsSkeleton() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-40 sm:h-48 px-4 animate-fade-in" role="status" aria-busy="true">
+    <div className="flex flex-col items-center justify-center w-full h-40 sm:h-48 px-4 " role="status" aria-busy="true">
       <div className="w-full max-w-3xl space-y-3">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="flex items-center gap-3">

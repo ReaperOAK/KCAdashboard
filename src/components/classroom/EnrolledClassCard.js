@@ -6,7 +6,7 @@ import { CheckCircle } from 'lucide-react';
 
 
 const EnrolledClassCard = React.memo(({ classroom }) => (
-  <section className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg border border-gray-light dark:border-gray-dark hover:shadow-2xl transition-all duration-200 group flex flex-col h-full animate-fade-in w-full max-w-xl mx-auto">
+  <section className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg border border-gray-light dark:border-gray-dark hover:shadow-2xl transition-all duration-200 group flex flex-col h-full  w-full max-w-xl mx-auto">
     <div className="p-5 sm:p-6 flex-1 flex flex-col">
       <h2 className="text-xl md:text-2xl font-bold text-primary dark:text-text-light mb-2 flex items-center gap-2 truncate" title={classroom.name}>
         <CheckCircle className="text-success w-5 h-5" aria-hidden="true" />

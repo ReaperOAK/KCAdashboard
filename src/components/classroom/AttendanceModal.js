@@ -4,14 +4,14 @@ import { ClassroomApi } from '../../api/classroom';
 
 // --- Loading Skeleton ---
 const AttendanceLoadingSkeleton = React.memo(() => (
-  <div className="flex items-center justify-center h-full py-8 animate-fade-in" aria-busy="true" aria-label="Loading attendance">
+  <div className="flex items-center justify-center h-full py-8 " aria-busy="true" aria-label="Loading attendance">
     <div className="h-6 w-1/3 bg-gray-light rounded animate-pulse" />
   </div>
 ));
 
 // --- Error Alert ---
 const AttendanceErrorAlert = React.memo(({ message }) => (
-  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4 animate-fade-in" role="alert" aria-live="polite">
+  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4 " role="alert" aria-live="polite">
     <span className="font-semibold">Error:</span> {message}
   </div>
 ));
@@ -147,8 +147,8 @@ function AttendanceModal({ session, onClose, onAttendanceSubmitted }) {
   )), [students, attendanceRecords, handleStatusChange, handleNotesChange]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-[9999] animate-fade-in" role="dialog" aria-modal="true" aria-label="Attendance Modal">
-      <div className="bg-background-light dark:bg-background-dark border border-gray-light shadow-2xl rounded-2xl p-2 sm:p-6 max-w-full sm:max-w-4xl w-full h-[90vh] sm:h-3/4 flex flex-col animate-fade-in">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-[9999] " role="dialog" aria-modal="true" aria-label="Attendance Modal">
+      <div className="bg-background-light dark:bg-background-dark border border-gray-light shadow-2xl rounded-2xl p-2 sm:p-6 max-w-full sm:max-w-4xl w-full h-[90vh] sm:h-3/4 flex flex-col ">
         <h2 className="text-xl sm:text-2xl font-bold text-primary mb-2 sm:mb-4">Take Attendance: <span className="text-accent">{session.title}</span></h2>
         <p className="text-gray-dark dark:text-gray-light mb-2 sm:mb-4 text-xs sm:text-base">
           {new Date(session.start).toLocaleString()} <span className="mx-2">•</span> <span className="font-medium text-secondary">{session.type === 'online' ? 'Online' : 'In Person'}</span>

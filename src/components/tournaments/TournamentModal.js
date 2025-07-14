@@ -18,7 +18,7 @@ const TournamentModal = React.memo(function TournamentModal({ open, onClose, onS
     <div className="fixed inset-0 flex items-center justify-center z-50" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div
-        className={["bg-background-light rounded-2xl border border-gray-light shadow-2xl p-4 sm:p-8 w-full max-w-2xl relative z-10 animate-fade-in", className].join(' ')}
+        className={["bg-background-light rounded-2xl border border-gray-light shadow-2xl p-4 sm:p-8 w-full max-w-2xl relative z-10 ", className].join(' ')}
         tabIndex={-1}
         ref={modalRef}
       >

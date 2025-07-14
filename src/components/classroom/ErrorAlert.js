@@ -4,7 +4,7 @@ import React from 'react';
  */
 const ErrorAlert = ({ message, onClose }) => (
   <div
-    className="bg-red-700 border border-red-800 text-white rounded-xl px-4 py-3 flex items-center justify-between gap-3 mb-4 shadow-md animate-fade-in"
+    className="bg-red-700 border border-red-800 text-white rounded-xl px-4 py-3 flex items-center justify-between gap-3 mb-4 shadow-md "
     role="alert"
     aria-live="assertive"
   >

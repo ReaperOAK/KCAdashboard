@@ -16,7 +16,7 @@ const GradingModal = React.memo(({ open, onClose, onSubmit, initialValues, stude
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[9999] animate-fade-in" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[9999] " role="dialog" aria-modal="true">
       <div className="bg-background-light dark:bg-background-dark rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative flex flex-col gap-2" tabIndex={-1}>
         <button
           onClick={onClose}

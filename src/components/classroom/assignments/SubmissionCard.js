@@ -4,7 +4,7 @@ import { User, FileDown, CheckCircle2, Pencil } from 'lucide-react';
 
 
 const SubmissionCard = React.memo(({ submission, onGrade }) => (
-  <div className="bg-background-light dark:bg-background-dark border border-gray-light dark:border-gray-dark rounded-2xl p-6 sm:p-8 shadow-md animate-fade-in">
+  <div className="bg-background-light dark:bg-background-dark border border-gray-light dark:border-gray-dark rounded-2xl p-6 sm:p-8 shadow-md ">
     <div className="flex flex-col md:flex-row justify-between items-start gap-4">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-2">

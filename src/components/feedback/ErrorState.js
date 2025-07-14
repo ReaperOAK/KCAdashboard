@@ -4,7 +4,7 @@ import { AlertTriangle } from 'lucide-react';
 
 const ErrorState = React.memo(({ message }) => (
   <div
-    className="flex items-center justify-center min-h-[60px] bg-red-700 border border-red-800 text-white rounded-xl px-4 py-3 mb-6 gap-3 shadow-md animate-fade-in"
+    className="flex items-center justify-center min-h-[60px] bg-red-700 border border-red-800 text-white rounded-xl px-4 py-3 mb-6 gap-3 shadow-md "
     role="alert"
     aria-live="assertive"
   >

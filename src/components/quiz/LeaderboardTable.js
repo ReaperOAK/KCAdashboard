@@ -20,7 +20,7 @@ const trophyColors = [
 
 const LeaderboardTable = React.memo(function LeaderboardTable({ leaderboard, resultData }) {
   return (
-    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-3xl mx-auto animate-fade-in overflow-hidden">
+    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-3xl mx-auto  overflow-hidden">
       <header className="p-6 border-b border-gray-light flex items-center gap-2">
         <FaTrophy className="text-accent text-xl mr-2" aria-hidden="true" />
         <h2 className="text-2xl font-semibold text-primary">Quiz Leaderboard</h2>

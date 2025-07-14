@@ -8,7 +8,7 @@ import React from 'react';
 const ErrorState = React.memo(function ErrorState({ message }) {
   return (
     <div
-      className="w-full max-w-md mx-auto p-6 sm:p-8 bg-error border border-error rounded-xl shadow-lg flex flex-col items-center gap-3 animate-fade-in"
+      className="w-full max-w-md mx-auto p-6 sm:p-8 bg-error border border-error rounded-xl shadow-lg flex flex-col items-center gap-3 "
       role="alert"
       aria-live="assertive"
       tabIndex={-1}

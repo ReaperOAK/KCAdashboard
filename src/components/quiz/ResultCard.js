@@ -8,7 +8,7 @@ import ResultStat from './ResultStat';
  */
 const ResultCard = React.memo(function ResultCard({ quizTitle, percentageScore, isPassing, resultData, timeTaken, onTryAgain, onViewHistory, onBackToQuizzes }) {
   return (
-    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-lg border border-gray-light overflow-hidden mb-8 max-w-2xl mx-auto animate-fade-in">
+    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-lg border border-gray-light overflow-hidden mb-8 max-w-2xl mx-auto ">
       <header className={`p-6 sm:p-8 text-center ${isPassing ? 'bg-green-50' : 'bg-red-50'}`}> 
         <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2 leading-tight">{quizTitle}</h1>
         <p className={`text-xl md:text-2xl font-semibold mb-4 ${isPassing ? 'text-green-700' : 'text-red-700'}`}

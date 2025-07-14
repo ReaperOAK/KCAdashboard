@@ -12,7 +12,7 @@ const ErrorState = React.memo(function ErrorState({ message, className = '' }) {
   return (
     <div
       className={[
-        'flex flex-col items-center justify-center bg-error/10 border-2 border-error rounded-2xl p-6 sm:p-8 text-center shadow-lg animate-fade-in',
+        'flex flex-col items-center justify-center bg-error/10 border-2 border-error rounded-2xl p-6 sm:p-8 text-center shadow-lg ',
         'max-w-xl mx-auto my-8',
         'transition-all duration-200',
         className,

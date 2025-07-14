@@ -23,7 +23,7 @@ const BoardSection = React.memo(function BoardSection({
   goToMove
 }) {
   return (
-    <section className="w-full max-w-full sm:max-w-2xl mx-auto flex justify-center mb-6 animate-fade-in">
+    <section className="w-full max-w-full sm:max-w-2xl mx-auto flex justify-center mb-6 ">
       <div className="w-full">
         {id && pgn && <PGNDownloadButton id={id} pgn={pgn} />}
         <ChessBoard

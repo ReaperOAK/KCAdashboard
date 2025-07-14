@@ -9,8 +9,8 @@ import { SchedulePicker } from '../../components/batches/CreateBatchForm';
 const EditBatchModal = ({ open, onClose, formData, onChange, onSubmit }) => {
   if (!open) return null;
   return (
-    <Modal title="Edit Batch" onClose={onClose} className="max-w-lg w-full px-2 sm:px-0 py-0 bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl border border-gray-light animate-fade-in focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-300" overlayClassName="bg-black/40 backdrop-blur-sm" aria-modal="true" role="dialog" aria-label="Edit Batch Modal">
-      <form onSubmit={onSubmit} className="space-y-4 p-2 sm:p-6 animate-fade-in" aria-label="Edit batch form">
+    <Modal title="Edit Batch" onClose={onClose} className="max-w-lg w-full px-2 sm:px-0 py-0 bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl border border-gray-light  focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-300" overlayClassName="bg-black/40 backdrop-blur-sm" aria-modal="true" role="dialog" aria-label="Edit Batch Modal">
+      <form onSubmit={onSubmit} className="space-y-4 p-2 sm:p-6 " aria-label="Edit batch form">
         <div>
           <label className="block text-sm font-medium text-primary">Batch Name</label>
           <input

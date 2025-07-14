@@ -68,7 +68,7 @@ const InteractiveBoard = React.memo(() => {
         goToMove={handleGoToMove}
       />
       {id && gameData && gameData.status === 'active' && gameData.yourTurn && (
-        <section className="flex justify-center mb-4 animate-fade-in">
+        <section className="flex justify-center mb-4 ">
           <MoveTimer timeLeft={timeLeft} formatTimer={secs => {
             const m = Math.floor(secs / 60);
             const s = secs % 60;

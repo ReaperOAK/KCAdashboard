@@ -30,7 +30,7 @@ const statusIcons = {
 
 const LeaveRequestRow = React.memo(function LeaveRequestRow({ request, onAction, actionStatus }) {
   return (
-    <tr className="border-b border-gray-dark hover:bg-gray-light/40 transition-colors animate-fade-in">
+    <tr className="border-b border-gray-dark hover:bg-gray-light/40 transition-colors ">
       <td className="px-2 py-3 text-text-dark text-sm sm:text-base whitespace-nowrap">{request.teacher_id}</td>
       <td className="px-2 py-3 text-text-dark text-sm sm:text-base whitespace-nowrap">{request.start_datetime}</td>
       <td className="px-2 py-3 text-text-dark text-sm sm:text-base whitespace-nowrap">{request.end_datetime}</td>

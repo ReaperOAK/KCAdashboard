@@ -3,13 +3,14 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import NotificationBell from './NotificationBell';
-import { Bars3Icon, ArrowRightOnRectangleIcon, MoonIcon, SunIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, ArrowRightOnRectangleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
+// Hamburger button for mobile sidebar
 const HamburgerButton = React.memo(function HamburgerButton({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="lg:hidden mr-4 text-white focus:outline-none focus:ring-2 focus:ring-accent rounded"
+      className="lg:hidden mr-2 text-white focus:outline-none focus:ring-2 focus:ring-accent rounded transition-colors hover:bg-secondary/80"
       aria-label="Open sidebar menu"
       tabIndex={0}
     >
@@ -18,14 +19,16 @@ const HamburgerButton = React.memo(function HamburgerButton({ onClick }) {
   );
 });
 
+// Navbar links (desktop only)
 const NavbarLinks = React.memo(function NavbarLinks({ links }) {
+  if (!links || links.length === 0) return null;
   return (
-    <div className="hidden lg:flex ml-10 space-x-4">
+    <div className="hidden lg:flex ml-10 space-x-2">
       {links.map((link) => (
         <Link
           key={link.path}
           to={link.path}
-          className="px-3 py-2 rounded-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent"
+          className="px-3 py-2 rounded-md hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-accent transition-colors font-medium text-white"
         >
           {link.label}
         </Link>
@@ -34,6 +37,7 @@ const NavbarLinks = React.memo(function NavbarLinks({ links }) {
   );
 });
 
+// User section (avatar, notification, menu)
 const UserSection = React.memo(function UserSection({ user, onLogout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
@@ -57,7 +61,7 @@ const UserSection = React.memo(function UserSection({ user, onLogout }) {
         <ArrowRightOnRectangleIcon className="w-6 h-6" />
       </button>
       {dropdownOpen && (
-        <div className="absolute right-0 top-12 bg-white text-primary rounded shadow-lg py-2 w-40 z-50 animate-fade-in">
+        <div className="absolute right-0 top-12 bg-white/90 backdrop-blur-md text-primary rounded shadow-lg py-2 w-44 z-50 animate-fade-in border border-gray-100">
           <div className="px-4 py-2 text-xs text-gray-500">Signed in as</div>
           <div className="px-4 py-1 font-semibold truncate">{user?.full_name}</div>
           <div className="px-4 py-1 text-xs text-gray-400 capitalize">{user?.role}</div>
@@ -71,61 +75,66 @@ const UserSection = React.memo(function UserSection({ user, onLogout }) {
 });
 
 
+// TopNavbar: only logo, hamburger, and user section. All nav links move to sidebar for mobile.
 function TopNavbar({ toggleSidebar }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(false);
+
+  // Only show nav links on desktop
+  const navLinks = useMemo(() => {
+    if (!user) return [];
+    if (user.role === 'admin') {
+      return [
+        { label: 'Dashboard', path: '/admin-dashboard' },
+        { label: 'Users', path: '/admin/users' },
+        { label: 'Batches', path: '/admin/batches' },
+        { label: 'Tournaments', path: '/admin/tournaments' },
+        { label: 'Quizzes', path: '/admin/quizzes' },
+        { label: 'Analytics', path: '/admin/analytics' },
+        { label: 'Support', path: '/admin/support' },
+      ];
+    }
+    if (user.role === 'teacher') {
+      return [
+        { label: 'Dashboard', path: '/teacher-dashboard' },
+        { label: 'Batches', path: '/teacher/batches' },
+        { label: 'Analytics', path: '/teacher/analytics' },
+        { label: 'Students', path: '/teacher/students' },
+        { label: 'Quizzes', path: '/teacher/quizzes' },
+        { label: 'Classroom', path: '/teacher/classroom' },
+        { label: 'Support', path: '/teacher/support' },
+      ];
+    }
+    if (user.role === 'student') {
+      return [
+        { label: 'Dashboard', path: '/student-dashboard' },
+        { label: 'My Classes', path: '/student/classes' },
+        { label: 'Resources', path: '/student/resources' },
+        { label: 'Quiz', path: '/student/quiz' },
+        { label: 'Tournaments', path: '/student/tournaments' },
+        { label: 'Report Cards', path: '/student/report-card' },
+        { label: 'Support', path: '/student/support' },
+      ];
+    }
+    return [];
+  }, [user]);
 
   const handleLogout = useCallback(() => {
     logout();
     navigate('/login');
   }, [logout, navigate]);
 
-  const handleToggleDark = useCallback(() => {
-    setDarkMode((d) => {
-      const next = !d;
-      if (next) document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-      return next;
-    });
-  }, []);
-
-  const commonLinks = useMemo(() => {
-    let supportPath = '/support';
-    if (user?.role === 'admin') supportPath = '/admin/support';
-    else if (user?.role === 'teacher') supportPath = '/teacher/support';
-    else if (user?.role === 'student') supportPath = '/student/support';
-    const links = [
-      { label: 'Dashboard', path: `/${user?.role}-dashboard` },
-      { label: 'Profile', path: '/profile' },
-      { label: 'Support / FAQ', path: supportPath }
-    ];
-    return links;
-  }, [user?.role]);
-
   return (
-    <nav className="bg-primary/90 backdrop-blur text-white fixed w-full z-40 shadow-lg transition-all duration-200">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center">
-            <HamburgerButton onClick={toggleSidebar} />
-            <Link to="/" className="text-xl font-bold ml-1 focus:outline-none focus:ring-2 focus:ring-accent rounded tracking-tight" aria-label="Go to dashboard home">
-              Kolkata Chess Academy
-            </Link>
-            <NavbarLinks links={commonLinks} />
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleToggleDark}
-              className="p-2 rounded hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-accent"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? <SunIcon className="w-6 h-6 text-accent" /> : <MoonIcon className="w-6 h-6 text-accent" />}
-            </button>
-            <UserSection user={user} onLogout={handleLogout} />
-          </div>
-        </div>
+    <nav className="sticky top-0 w-full h-16 flex items-center justify-between px-4 bg-gradient-to-r from-primary to-accent shadow-lg z-50">
+      <div className="flex items-center">
+        <HamburgerButton onClick={toggleSidebar} />
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/kca.ico" alt="KCA Logo" className="h-9 w-9 rounded shadow-md" />
+          <span className="hidden sm:inline text-xl font-bold text-white tracking-wide drop-shadow">KCA Dashboard</span>
+        </Link>
       </div>
+      <NavbarLinks links={navLinks} />
+      <UserSection user={user} onLogout={handleLogout} />
     </nav>
   );
 }

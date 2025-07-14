@@ -2,10 +2,11 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon, ChevronDownIcon, TrophyIcon, BookOpenIcon, UsersIcon, Cog6ToothIcon, ChartBarIcon, ChatBubbleLeftRightIcon, ClipboardDocumentListIcon, AcademicCapIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, TrophyIcon, BookOpenIcon, UsersIcon, Cog6ToothIcon, ChartBarIcon, ChatBubbleLeftRightIcon, ClipboardDocumentListIcon, AcademicCapIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 
 const SIDEBAR_LINKS = {
   admin: [
+    { label: 'Dashboard', path: '/admin-dashboard', icon: ChartBarIcon },
     {
       label: 'Users',
       icon: UsersIcon,
@@ -30,22 +31,26 @@ const SIDEBAR_LINKS = {
     { label: 'Quizzes', path: '/admin/quizzes', icon: ClipboardDocumentListIcon },
     { label: 'Analytics', path: '/admin/analytics', icon: ChartBarIcon },
     { label: 'Support', path: '/admin/support', icon: ChatBubbleLeftRightIcon },
-    { label: 'Settings', path: '/admin/settings', icon: Cog6ToothIcon }
-  ],
+    { label: 'Settings', path: '/admin/settings', icon: Cog6ToothIcon },
+    ],
   teacher: [
+    { label: 'Dashboard', path: '/teacher-dashboard', icon: ChartBarIcon },
     { label: 'Batches', path: '/teacher/batches', icon: AcademicCapIcon },
     { label: 'Analytics', path: '/teacher/analytics', icon: ChartBarIcon },
     { label: 'Students', path: '/teacher/students', icon: UsersIcon },
     { label: 'Quizzes', path: '/teacher/quizzes', icon: ClipboardDocumentListIcon },
-    { label: 'Classroom', path: '/teacher/classroom', icon: Squares2X2Icon }
+    { label: 'Classroom', path: '/teacher/classroom', icon: Squares2X2Icon },
+    { label: 'Support', path: '/teacher/support', icon: ChatBubbleLeftRightIcon },
   ],
   student: [
+    { label: 'Dashboard', path: '/student-dashboard', icon: ChartBarIcon },
     { label: 'My Classes', path: '/student/classes', icon: AcademicCapIcon },
     { label: 'Resources', path: '/student/resources', icon: BookOpenIcon },
     { label: 'Quiz', path: '/student/quiz', icon: ClipboardDocumentListIcon },
     { label: 'Tournaments', path: '/student/tournaments', icon: TrophyIcon },
     { label: 'Report Cards', path: '/student/report-card', icon: ChartBarIcon },
-    { label: 'Feedback & Grading', path: '/student/feedback-history', icon: ChatBubbleLeftRightIcon }
+    { label: 'Feedback & Grading', path: '/student/feedback-history', icon: ChatBubbleLeftRightIcon },
+    { label: 'Support', path: '/student/support', icon: ChatBubbleLeftRightIcon },
   ]
 };
 
@@ -195,21 +200,16 @@ function Sidebar({ isOpen, toggleSidebar }) {
         )}
       </AnimatePresence>
       <motion.nav
-        className={`fixed left-0 top-16 h-full bg-primary text-white transform z-30 w-64 shadow-xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} lg:z-10 flex flex-col`}
+        className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-primary/80 backdrop-blur-lg text-white transform z-30 w-64 shadow-2xl rounded-tr-3xl rounded-br-3xl border-r border-accent/30 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} lg:z-10 flex flex-col transition-all duration-300`}
         role="navigation"
         aria-label="Sidebar navigation"
         initial={false}
         animate={{ x: isOpen || window.innerWidth >= 1024 ? 0 : -256 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
-        <div className="flex justify-end p-4 lg:hidden">
-          <button onClick={toggleSidebar} className="text-white focus:outline-none focus:ring-2 focus:ring-accent rounded" aria-label="Close sidebar">
-            <XMarkIcon className="w-6 h-6" />
-          </button>
-        </div>
-        
+        {/* No close X button here; hamburger in navbar will turn into X when sidebar is open */}
         {/* Make the scrollable area flex-1 and min-h-0 to allow scrolling when content overflows */}
-        <div className="space-y-2 p-4 flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-light scrollbar-track-background-light">
+        <div className="space-y-2 p-4 flex-1 min-h-0 max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-light scrollbar-track-background-light">
           {links.map((link) => {
             const isActive = location.pathname.startsWith(link.path);
             const expanded = expandedItem === link.label;

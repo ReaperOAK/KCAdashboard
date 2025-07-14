@@ -30,7 +30,6 @@ All are used in `TournamentRegistrations.js` (see admin/docs.md for orchestratio
 
 ## How to Extend
 - Add new components here for new tournament UI features.
-- Update this doc and `README.md` after changes.
 
 ## Last updated
 2025-07-11: Major refactor for modularity, beauty, and accessibility.

@@ -1,3 +1,73 @@
+# Kolkata Chess Academy Dashboard
+
+## ✨ July 2025 UI/UX Refactor
+
+All student and teacher dashboard components have been refactored for a beautiful, modern, and accessible user experience:
+
+## Overview
+
+This project is a modern web dashboard for the Kolkata Chess Academy, built with React and Tailwind CSS. It features a beautiful, accessible, and highly responsive UI for managing tournaments, users, resources, and more.
+
+## Features
+
+- User authentication (student, teacher, admin roles)
+- Tournament management (create, edit, view, delete)
+- Resource center for chess materials
+- Notifications and preferences
+- Responsive sidebar and navigation
+- Accessible UI with keyboard navigation and ARIA
+- Theming with Tailwind CSS and custom color tokens
+- Consistent iconography and visual feedback
+
+## Recent UI/UX & Codebase Improvements
+
+**(July 2025)**
+
+- Refactored all tournament-related components for:
+  - Strict adherence to the design system (see `colour_scheme.md`)
+  - Full use of Tailwind color tokens and utility classes
+  - Beautiful, modern, and responsive layouts for all screen sizes
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and visually hidden text
+  - Performance: React.memo, clean prop usage, and single-responsibility components
+  - Consistent iconography (inline SVGs)
+  - Clear loading, error, and empty states with animation and visual cues
+- Updated documentation and code comments for clarity and maintainability
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm start
+   ```
+
+## Design System
+
+This project uses a custom color system defined in `colour_scheme.md` and `tailwind.config.js`. All UI components are built with Tailwind utility classes and follow the design system for consistency, accessibility, and visual clarity.
+
+### Color Tokens
+
+See `colour_scheme.md` for the full palette and usage guide.
+
+### UI/UX Principles
+
+- Responsive layouts for all screen sizes
+- Accessible components (ARIA, keyboard navigation, visually hidden text)
+- Consistent spacing, typography, and color usage
+- Visual hierarchy and clarity
+- Loading, error, and empty states handled in all major components
+- Iconography for actions and statuses
+
+## Contributing
+
+See `CONTRIBUTING.md` for guidelines.
+
+## Changelog
+
+See `CHANGELOG.md` for release notes.
 
 
 # Kolkata Chess Academy Dashboard

@@ -1,3 +1,21 @@
+# Changelog
+
+## [Unreleased] – July 2025
+
+### Major UI/UX Refactor
+- Refactored all tournament-related components for:
+  - Strict adherence to the design system (see `colour_scheme.md`)
+  - Full use of Tailwind color tokens and utility classes
+  - Beautiful, modern, and responsive layouts for all screen sizes
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and visually hidden text
+  - Performance: React.memo, clean prop usage, and single-responsibility components
+  - Consistent iconography (inline SVGs)
+  - Clear loading, error, and empty states with animation and visual cues
+- Updated documentation and code comments for clarity and maintainability
+
+### Docs
+- Updated `README.md` with new UI/UX and design system details
+- All changes follow the guidelines in `CONTRIBUTING.md`
 ## [Unreleased] - 2025-07-14
 ### Schedule Display Refactor & Utility Addition
 - Added `formatSchedule` utility to `src/utils/formatSchedule.js` for converting schedule JSON strings/objects to user-friendly strings.

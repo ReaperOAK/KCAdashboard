@@ -1,3 +1,4 @@
+
 # Kolkata Chess Academy Dashboard
 
 This project is a modern, full-featured dashboard for the Kolkata Chess Academy. It features:
@@ -23,16 +24,23 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for guidelines.
 ## License
 
 MIT
-# July 2025: Major UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard
+
+# July 2025: Major UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard, Resource Center
 
 
-### Beautiful, Modular UI for Classroom, Quiz, Analytics, and Leaderboard
-- All classroom, quiz, analytics, and leaderboard UIs are now built from modular, single-responsibility React components in their respective folders (e.g., `src/components/classroom/`, `src/components/analytics/`, `src/components/chess/`).
+### Beautiful, Modular UI for Classroom, Quiz, Analytics, Leaderboard, and Resource Center
+- All classroom, quiz, analytics, leaderboard, and resource center UIs are now built from modular, single-responsibility React components in their respective folders (e.g., `src/components/classroom/`, `src/components/analytics/`, `src/components/chess/`, `src/components/resourcecenter/`).
 - Fully responsive, accessible, and visually polished with color tokens, dark mode, icons, ARIA roles, and beautiful transitions.
 - All classroom subcomponents (e.g., LoadingSkeleton, LoadingSpinner, ModalOverlay, StatusBadge, ViewSwitcher, ErrorAlert, ErrorState, MaterialCard, etc.) are now extracted, documented, and use the design system.
 - All interactive elements have proper focus/hover/disabled states and are accessible.
 - Error, loading, and empty states now feature icons, animation, and improved clarity.
 - See each feature folder's README or docs for details.
+-
+#### Resource Center UI/UX Refactor (July 2025)
+- All resource center UI is now modular, beautiful, and accessible. Components are single-responsibility, responsive, and use the KCA color system from `colour_scheme.md`.
+- Major components: CategoryTabs, DetailsBody, DetailsHeader, EmptyState, ErrorState, FeaturedResources, LoadingSpinner, ResourceCard, ResourceDetailsEmptyState, ResourceDetailsErrorState, SearchBar, UploadResourceForm, VideoEmbed.
+- All components use Tailwind color tokens, are fully responsive, accessible, and feature improved error/loading/empty states.
+- See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/docs.md) for details.
 
 
 ### Recent Improvements

@@ -1,3 +1,20 @@
+# July 2025: Resource Center UI/UX Refactor
+
+All resource center UI is now modular, beautiful, and accessible. Components are single-responsibility, responsive, and use the KCA color system from `colour_scheme.md`.
+
+**Key Improvements:**
+- Modular, single-responsibility React components for all resource center features
+- Fully responsive layouts (mobile-first, grid/flex)
+- Accessible: ARIA roles, keyboard navigation, focus/hover/disabled states
+- All interactive elements have transitions and clear states
+- Error, loading, and empty states feature icons and improved clarity
+- All components use Tailwind color tokens and spacing
+
+**Components:**
+CategoryTabs, DetailsBody, DetailsHeader, EmptyState, ErrorState, FeaturedResources, LoadingSpinner, ResourceCard, ResourceDetailsEmptyState, ResourceDetailsErrorState, SearchBar, UploadResourceForm, VideoEmbed
+
+See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/docs.md) for details.
+
 # 2025-07-11
 - Refactored `PGNManagementPage.js` for modularity and single responsibility.
 - Extracted subcomponents: `FeatureHighlights`, `TabNav`, `QuickActions`, `UploadHelpSection`.

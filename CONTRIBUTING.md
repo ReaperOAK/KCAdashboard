@@ -1,3 +1,12 @@
+# Resource Center UI/UX Refactor (July 2025)
+
+All resource center UI is now modular, beautiful, and accessible. When contributing to resource center components:
+- Follow the KCA color system in `colour_scheme.md` and Tailwind config.
+- Ensure all components are single-responsibility, responsive, and accessible (ARIA, keyboard navigation, focus/hover/disabled states).
+- Use transitions and clear states for all interactive elements.
+- Document new or modified components in [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/docs.md).
+- Update the main README and CHANGELOG with any major UI/UX changes.
+
 ## Documentation & Changelog Updates
 - After any major refactor or feature addition, update:
   - `README.md` with new features and improvements

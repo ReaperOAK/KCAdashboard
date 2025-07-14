@@ -21,10 +21,19 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
 
 ## Recent UI/UX & Codebase Improvements
 
-
-
-
 **(July 2025)**
+
+**Admin Leave Requests & Support UI/UX Refactor**
+- Refactored all admin leave requests components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`):
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and the design system (see `colour_scheme.md`)
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading/empty states
+  - Performance: React.memo, useCallback, and modular field components
+  - Single-responsibility: each file/component now does one job only
+  - Consistent iconography (inline SVGs), animated transitions, and visual feedback
+  - All components use the color system and are mobile-first responsive
+  - Custom modal for leave approval/rejection comments (no browser prompt)
+  - Odd row striping, hover/focus states, and clear action buttons
+- Updated all relevant docs and ensured all support/leave requests components are registered and documented
 
 **Batch Management UI/UX Refactor**
 - Refactored all batch management components (`BatchManagement.js`, `CreateBatchForm.js`, `BatchTable.js`, and related modals):
@@ -47,7 +56,6 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
   - Single-responsibility: each file/component now does one job only
 - Updated all relevant docs and ensured all components use the color system from `colour_scheme.md`.
 - Added success feedback and improved error handling for settings update.
-
 ## Getting Started
 
 1. Install dependencies:

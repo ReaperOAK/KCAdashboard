@@ -93,3 +93,10 @@ See the notifications documentation for more details on usage and features.
 ---
 
 For more details on feature-specific components, see the `docs.md` files in each subfolder.
+
+---
+
+## July 2025: Admin Leave Requests & Support UI/UX Refactor
+
+- All admin leave requests and support components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`) have been refactored for a beautiful, modern, and accessible UI/UX.
+- See `components/support/docs.md` for full documentation and usage details.

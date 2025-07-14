@@ -1,3 +1,17 @@
+# [Unreleased] - July 2025
+
+### Admin Leave Requests & Support UI/UX Refactor
+- Refactored all admin leave requests components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`) for:
+  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system (see `colour_scheme.md`)
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading/empty states
+  - Performance: React.memo, useCallback, and modular field components
+  - Single-responsibility: each file/component now does one job only
+  - Consistent iconography (inline SVGs), animated transitions, and visual feedback
+  - All components use the color system and are mobile-first responsive
+  - Custom modal for leave approval/rejection comments (no browser prompt)
+  - Odd row striping, hover/focus states, and clear action buttons
+- Updated all relevant docs and ensured all support/leave requests components are registered and documented
+
 # Changelog
 
 

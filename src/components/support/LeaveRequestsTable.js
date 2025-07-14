@@ -13,8 +13,8 @@ import LeaveRequestRow from './LeaveRequestRow';
  */
 const LeaveRequestsTable = React.memo(function LeaveRequestsTable({ requests, onAction, actionStatus }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark ">
-      <table className="min-w-full text-sm sm:text-base">
+    <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark animate-fade-in">
+      <table className="min-w-full text-xs sm:text-sm md:text-base">
         <thead>
           <tr className="bg-primary text-white text-xs sm:text-sm uppercase sticky top-0 z-10">
             <th className="px-2 py-3 text-left font-semibold tracking-wide">Teacher ID</th>
@@ -32,12 +32,13 @@ const LeaveRequestsTable = React.memo(function LeaveRequestsTable({ requests, on
               <td colSpan={7} className="text-center py-8 text-gray-dark text-base sm:text-lg">No leave requests found.</td>
             </tr>
           ) : (
-            requests.map(r => (
+            requests.map((r, i) => (
               <LeaveRequestRow
                 key={r.id}
                 request={r}
                 onAction={onAction}
                 actionStatus={actionStatus[r.id]}
+                rowIndex={i}
               />
             ))
           )}

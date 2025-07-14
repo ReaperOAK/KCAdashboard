@@ -123,4 +123,11 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 
 ---
 
+---
+
+## July 2025: Admin Leave Requests & Support UI/UX Refactor
+
+- All admin leave requests and support pages/components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`) have been refactored for a beautiful, modern, and accessible UI/UX.
+- See `components/support/docs.md` for full documentation and usage details.
+
 For more details on the overall frontend structure, see the main `docs.md` in the `src` folder.

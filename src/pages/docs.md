@@ -58,6 +58,7 @@ pages/
 
 - **AttendanceSettings.js (admin/)**  
   The admin attendance settings page. Orchestrates state, loading, error, and success feedback for attendance settings. Uses modular components (`SettingsForm`, `ErrorAlert`, `AttendanceSettingsSkeleton`) for a beautiful, accessible, and responsive UI. All color classes use design tokens from `colour_scheme.md` and `tailwind.config.js`. Follows single-responsibility and performance best practices.
+  - **2025-07**: AttendanceSystem and related components now feature a fully modular, beautiful, and responsive UI. Controls and headings stack or wrap at all breakpoints, including half-screen and 8:9 aspect ratios. BatchSelect is accessible and visually improved. All UI uses the design system and is optimized for performance.
 
 ---
 

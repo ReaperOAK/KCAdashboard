@@ -1,6 +1,13 @@
-## Attendance Components (July 2025 UI/UX Overhaul)
 
-All attendance components now follow the Kolkata Chess Academy design system (see `colour_scheme.md`), are fully accessible, responsive, and optimized for performance.
+## Attendance Components (July 2025 UI/UX Overhaul & Responsive Improvements)
+
+All attendance components follow the Kolkata Chess Academy design system (see `colour_scheme.md`), are fully accessible, responsive, and optimized for performance.
+Recent updates (July 2025):
+- **BatchSelect**: Improved accessibility, label, and dropdown visibility. Now fully responsive and beautiful on all screen sizes.
+- **AttendanceSystem**: Heading, batch select, and export controls now stack or wrap naturally at all breakpoints (desktop, mobile, tablet, 8:9, half-screen, etc.).
+- **Layout**: Controls use flex-wrap and adaptive spacing for perfect fit at all aspect ratios.
+- **UI/UX**: All controls, tables, and modals use color tokens, focus/hover/active states, and are keyboard/ARIA accessible.
+- **Performance**: All components are memoized and single-responsibility.
 
 ### StudentAttendanceTable
 - Beautiful, responsive table for student attendance summary.
@@ -13,7 +20,8 @@ All attendance components now follow the Kolkata Chess Academy design system (se
 - Props: none
 
 ### BatchSelect
-- Dropdown for selecting a batch, with custom chevron icon and appearance-none.
+- Dropdown for selecting a batch, with custom chevron icon, visible label, and improved accessibility.
+- Fully responsive: stacks or aligns horizontally as needed.
 - Props:
   - `batches`: array of batch objects
   - `selectedBatch`: string (selected batch id)
@@ -21,6 +29,7 @@ All attendance components now follow the Kolkata Chess Academy design system (se
 
 ### ExportControls
 - Controls for selecting date range and export format, and exporting attendance reports.
+- Responsive and accessible, with improved spacing and focus states.
 - Props:
   - `dateRange`: {start, end}
   - `setDateRange`: function
@@ -42,6 +51,7 @@ All attendance components now follow the Kolkata Chess Academy design system (se
 - Uses `SettingsForm`, `ErrorAlert`, and `AttendanceSettingsSkeleton`.
 - Fully responsive, accessible, and uses color tokens from `colour_scheme.md`.
 - Success message shown on save, with fade-in animation.
+- **Modularized**: All logic and UI are separated for maintainability and performance.
 
 ### SettingsForm
 - Modular, focused form for editing attendance settings.
@@ -60,3 +70,4 @@ All attendance components now follow the Kolkata Chess Academy design system (se
 - All skeletons use shimmer blocks.
 - All tables, forms, and controls use correct color tokens, icons, and improved layouts.
 - All interactive elements have proper focus/hover/disabled states and are keyboard navigable.
+- **Layout**: All controls and headings are now beautiful and usable at all breakpoints, including half-screen and 8:9 aspect ratios.

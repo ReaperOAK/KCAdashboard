@@ -41,6 +41,10 @@ pages/admin/
 
 - **AttendanceSystem.js**  
   Centralized attendance management, allowing admins to view, edit, and audit attendance records.
+  - **2025-07**: Major UI/UX and responsive overhaul. Heading, batch select, and export controls now stack or wrap at all breakpoints (desktop, mobile, tablet, 8:9, half-screen, etc.).
+  - BatchSelect is now fully accessible, with visible label and improved dropdown.
+  - All controls and tables use color tokens, focus/hover/active states, and are keyboard/ARIA accessible.
+  - All logic and UI are modular and single-responsibility for performance and maintainability.
 
 - **BatchManagement.js**  
   Manage student batches, including creation, editing, and assignment of students and teachers.

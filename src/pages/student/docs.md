@@ -13,7 +13,7 @@ The `student` folder under `pages` contains all top-level page components for st
 pages/student/
   ClassroomDetails.js    # Shows details of a classroom for students
   ClassroomPage.js       # Main classroom page for students
-  FeedbackHistory.js     # Displays feedback history for students
+  FeedbackHistory.js     # Displays feedback history for students (see teacher modals for details)
   LeaderboardPage.js     # Shows leaderboard for students
   QuizDetailPage.js      # Detailed view of a quiz
   QuizHistoryPage.js     # Shows quiz history for a student
@@ -37,7 +37,7 @@ pages/student/
   The main classroom interface for students, showing announcements, assignments, and classroom activities.
 
 - **FeedbackHistory.js**  
-  Shows a history of feedback received by the student from teachers or the system.
+  Shows a history of feedback received by the student from teachers or the system. See `components/teacher/FeedbackHistoryModal.js` for modal UI details.
 
 - **LeaderboardPage.js**  
   Displays student rankings and achievements within a class, batch, or the platform.

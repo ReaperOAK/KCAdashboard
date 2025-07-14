@@ -21,7 +21,23 @@
   - `ClassroomOverviewTab.js`: Overview cards for schedule, about, instructor, next session
   - `QuizCard.js`: Quiz card, difficulty badge, meta info, start button
 
-# July 2025: Resource Center UI/UX Refactor
+
+# July 2025: Teacher Modals & Feedback UI/UX Refactor
+
+All teacher modal and feedback UI components are now modular, beautiful, and accessible. Components are single-responsibility, responsive, and use the KCA color system from `colour_scheme.md`.
+
+**Key Improvements:**
+- Modular, single-responsibility React components for all teacher modal/feedback features
+- Fully responsive layouts (mobile-first, grid/flex)
+- Accessible: ARIA roles, keyboard navigation, focus/hover/disabled states
+- All interactive elements have transitions and clear states
+- Error, loading, and empty states feature icons and improved clarity
+- All components use Tailwind color tokens and spacing
+
+**Components:**
+AttendanceModal, FeedbackModal, FeedbackHistoryModal, PerformanceModal
+
+See [`src/components/teacher/docs.md`](./src/components/teacher/docs.md) for details.
 
 All resource center UI is now modular, beautiful, and accessible. Components are single-responsibility, responsive, and use the KCA color system from `colour_scheme.md`.
 

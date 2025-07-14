@@ -1,18 +1,24 @@
 
+
 # Kolkata Chess Academy Dashboard
 
 ## ✨ July 2025 UI/UX Refactor
 
-All student dashboard components have been refactored for a beautiful, modern, and accessible user experience:
+All student and teacher dashboard components have been refactored for a beautiful, modern, and accessible user experience:
 
+- **Teacher Modals & Feedback:**
+  - `AttendanceModal.js`, `FeedbackModal.js`, `FeedbackHistoryModal.js`, `PerformanceModal.js` (see `src/components/teacher/docs.md`)
+  - All modals are single-responsibility, accessible, responsive, and use the KCA color system
+  - Improved UI/UX, ARIA, keyboard navigation, and performance (React.memo)
 
 See `CHANGELOG.md` for details and `colour_scheme.md` for the full color system.
 
 This project is a modern, full-featured dashboard for the Kolkata Chess Academy. It features:
-## [July 14, 2025] UI Support Components Refactor
+
+## [July 14, 2025] UI Support & Teacher Modals Refactor
 
 ### Summary
-Refactored all support system UI components for strict adherence to the design system, accessibility, performance, and single responsibility. All components now use the custom Tailwind color tokens, are fully responsive, accessible, and have improved UI/UX. Each file now has a clear single responsibility and is documented with JSDoc-style comments.
+Refactored all support system and teacher modal UI components for strict adherence to the design system, accessibility, performance, and single responsibility. All components now use the custom Tailwind color tokens, are fully responsive, accessible, and have improved UI/UX. Each file now has a clear single responsibility and is documented with JSDoc-style comments.
 
 ### Affected Files
 - `src/components/support/EmptyState.js`
@@ -26,6 +32,10 @@ Refactored all support system UI components for strict adherence to the design s
 - `src/components/support/TabNav.js`
 - `src/components/support/TicketDetailModal.js`
 - `src/components/support/TicketTable.js`
+- `src/components/teacher/AttendanceModal.js`
+- `src/components/teacher/FeedbackModal.js`
+- `src/components/teacher/FeedbackHistoryModal.js`
+- `src/components/teacher/PerformanceModal.js`
 
 ### Improvements
 - All components now use the custom color palette and Tailwind tokens.
@@ -35,7 +45,8 @@ Refactored all support system UI components for strict adherence to the design s
 - Performance: All components wrapped in `React.memo` where appropriate.
 - Single Responsibility: Each file does one job only, with clear prop interfaces and JSDoc comments.
 
-See also: `src/components/support/docs.md` for component usage and API details.
+See also: `src/components/support/docs.md` and `src/components/teacher/docs.md` for component usage and API details.
+
 ## Getting Started
 
 1. Install dependencies:

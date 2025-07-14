@@ -8,6 +8,7 @@ The `teacher` folder under `pages` contains all top-level page components for te
 
 ## File Structure
 
+
 ```
 pages/teacher/
   BatchDetail.js                     # Shows details of a batch for teachers
@@ -20,6 +21,12 @@ pages/teacher/
   ReportsAnalytics.js                # Analytics and reports for teachers
   TeacherDashboard.js                # Dashboard for teacher users
   TeacherQuizLeaderboardPage.js      # View leaderboard for a specific quiz
+
+components/teacher/
+  AttendanceModal.js                 # Modal for marking attendance (see component docs)
+  FeedbackModal.js                   # Modal for submitting feedback (see component docs)
+  FeedbackHistoryModal.js            # Modal for viewing feedback history (see component docs)
+  PerformanceModal.js                # Modal for viewing performance summary (see component docs)
 ```
 
 ---
@@ -58,12 +65,14 @@ pages/teacher/
 
 ---
 
+
 ## Features
 
-- **Comprehensive Teacher Portal:** Dashboards, batch/classroom management, quizzes, grading, and analytics in one place.
+- **Comprehensive Teacher Portal:** Dashboards, batch/classroom management, quizzes, grading, analytics, and beautiful modals for attendance, feedback, and performance.
 - **Assignment & Quiz Tools:** Create, manage, and grade assignments and quizzes.
 - **Progress Tracking:** Analytics and reports for monitoring student and class performance.
 - **Seamless Navigation:** Pages are organized for easy access to all teacher features.
+- **Modern Modals:** All modals are single-responsibility, accessible, responsive, and use the KCA color system. See `components/teacher/docs.md` for details.
 
 ---
 

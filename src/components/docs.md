@@ -3,10 +3,12 @@
 ## Analytics UI Refactor (2024)
 All analytics-related UI components have been refactored for beauty, performance, accessibility, and responsiveness. See `analytics/docs.md` for details on each analytics component, their design, and usage.
 
+
 ## Design System
 - All components use TailwindCSS and the project's color tokens (see `../../colour_scheme.md`).
 - Components are modular, single-responsibility, and fully accessible.
 - Responsive layouts and semantic HTML are standard.
+- All classroom UI components (skeletons, spinners, modals, badges, alerts, view switchers, etc.) have been refactored for strict design system adherence, dark mode, accessibility, and responsiveness (July 2025).
 
 ## Overview
 
@@ -79,10 +81,13 @@ See the notifications documentation for more details on usage and features.
 
 ---
 
+
 ## Best Practices
 
 - Keep components focused and reusable.
 - Use subfolders to organize feature-specific components.
+- All classroom UI components now use color tokens, dark mode, ARIA labels, and accessible states.
+- Use React.memo for performance and single responsibility.
 - Document component props and usage for maintainability.
 
 ---

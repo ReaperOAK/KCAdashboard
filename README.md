@@ -1,18 +1,22 @@
 # July 2025: Major UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard
 
+
 ### Beautiful, Modular UI for Classroom, Quiz, Analytics, and Leaderboard
 - All classroom, quiz, analytics, and leaderboard UIs are now built from modular, single-responsibility React components in their respective folders (e.g., `src/components/classroom/`, `src/components/analytics/`, `src/components/chess/`).
-- Fully responsive, accessible, and visually polished with color tokens, icons, ARIA roles, and beautiful transitions.
-- All subcomponents (e.g., LoadingSkeleton, ErrorAlert, ViewSwitcher, ChartCard, QuickStats, ExportModal, TagInput, LeaderboardTable) are now extracted and documented.
-- All interactive elements have proper focus/hover states and are accessible.
+- Fully responsive, accessible, and visually polished with color tokens, dark mode, icons, ARIA roles, and beautiful transitions.
+- All classroom subcomponents (e.g., LoadingSkeleton, LoadingSpinner, ModalOverlay, StatusBadge, ViewSwitcher, ErrorAlert, ErrorState, MaterialCard, etc.) are now extracted, documented, and use the design system.
+- All interactive elements have proper focus/hover/disabled states and are accessible.
+- Error, loading, and empty states now feature icons, animation, and improved clarity.
 - See each feature folder's README or docs for details.
+
 
 ### Recent Improvements
 - **Classroom Management, Quiz Creator, Analytics, and Leaderboard UIs refactored:**
-  - Modularized all subcomponents for single responsibility and maintainability.
+  - Modularized all classroom subcomponents for single responsibility, maintainability, and performance (React.memo, composable structure).
   - Improved color usage, spacing, and visual hierarchy using the color system in `colour_scheme.md`.
-  - Added ARIA labels, keyboard navigation, and responsive layouts for accessibility.
-  - Added loading skeletons, error/empty states, and micro-interactions for a beautiful, production-ready UI.
+  - Added dark mode, ARIA labels, keyboard navigation, and responsive layouts for accessibility.
+  - Upgraded all skeletons, spinners, modals, badges, alerts, and view switchers for a modern, beautiful, and accessible UI.
+  - Error, loading, and empty states now feature icons, animation, and improved clarity.
   - Updated all relevant docs and changelogs.
 # Tournaments UI Refactor (July 2025)
 

@@ -6,12 +6,12 @@
   - For classroom, quiz, analytics, and leaderboard UI/UX changes, document all new/updated components and patterns in the relevant feature folder and main docs.
 # Classroom, Quiz, Analytics, Leaderboard, and Attendance UI/UX Refactor (July 2025)
 - All classroom, quiz, analytics, leaderboard, and attendance UIs must use modular, single-responsibility React components in their respective folders.
-- All new or updated components must be documented in the relevant feature folder and `docs.md`.
-- Ensure all interactive elements are accessible, responsive, and use color tokens and icons as per the design system in `colour_scheme.md`.
-- All skeleton/loading components must use shimmer blocks for a modern loading experience.
-- All tables, forms, and controls must use correct color tokens, icons, and improved layouts.
-- All select elements with custom icons must use appearance-none to avoid double icons.
-- All components must be optimized for performance (React.memo, minimal re-renders).
+- All new or updated classroom components (e.g., LoadingSkeleton, LoadingSpinner, ModalOverlay, StatusBadge, ViewSwitcher, ErrorAlert, ErrorState, MaterialCard, etc.) are now documented in the relevant feature folder and `docs.md`.
+- All interactive elements are accessible, responsive, and use color tokens, dark mode, and icons as per the design system in `colour_scheme.md`.
+- All skeleton/loading components use shimmer blocks for a modern loading experience.
+- All tables, forms, and controls use correct color tokens, icons, and improved layouts.
+- All select elements with custom icons use appearance-none to avoid double icons.
+- All components are optimized for performance (React.memo, minimal re-renders).
 - After any major UI/UX change, update the main `README.md` and `CHANGELOG.md`.
 ## Tournaments UI Modularity & Documentation (July 2025)
 - All tournament-related UI must use modular, single-responsibility React components in `src/components/tournaments/`.

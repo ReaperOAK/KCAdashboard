@@ -3,39 +3,48 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ClassroomApi } from '../../api/classroom';
 import UploadUtils from '../../utils/uploadUtils';
 
+
 // --- Loading Skeleton ---
 const MaterialsLoadingSkeleton = React.memo(() => (
-  <div className="flex justify-center items-center p-8" aria-busy="true" aria-label="Loading materials">
-    <div className="h-6 w-1/3 bg-gray-light rounded animate-pulse" />
+  <div
+    className="flex flex-col items-center justify-center py-10 animate-pulse"
+    aria-busy="true"
+    aria-label="Loading materials"
+  >
+    <div className="h-7 w-2/3 max-w-xs bg-gray-light dark:bg-gray-700 rounded mb-4 transition-all duration-300" style={{ minWidth: 120 }} />
+    <div className="h-4 w-1/2 max-w-sm bg-gray-light dark:bg-gray-700 rounded transition-all duration-300" style={{ minWidth: 80 }} />
+    <span className="sr-only">Loading...</span>
   </div>
 ));
 
 // --- Error Alert ---
 const MaterialsErrorAlert = React.memo(({ message }) => (
-  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4" role="alert">
+  <div className="bg-red-700 border border-red-800 text-white rounded-lg px-4 py-3 mb-4 flex items-center gap-2 animate-fade-in" role="alert" aria-live="assertive">
+    <svg className="w-5 h-5 text-white flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" /></svg>
     <span className="font-semibold">Error:</span> {message}
   </div>
 ));
 
+// --- Material Card ---
 const MaterialCard = React.memo(function MaterialCard({ material, onOpen, getFileIcon }) {
   return (
     <button
       type="button"
       key={material.id}
-      className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-accent"
+      className="bg-background-light dark:bg-background-dark border border-gray-light dark:border-gray-dark shadow-md hover:shadow-lg hover:border-accent transition-all cursor-pointer text-left w-full rounded-xl p-5 focus:outline-none focus:ring-2 focus:ring-accent group"
       onClick={() => onOpen(material)}
       aria-label={`Open material: ${material.title}`}
     >
       <div className="flex flex-col sm:flex-row items-start mb-4 gap-3 sm:gap-0">
-        <div className="bg-background-light p-4 rounded-lg sm:mr-4 mb-3 sm:mb-0 flex-shrink-0">
-          <i className={`${getFileIcon(material.type)} text-secondary text-xl`} aria-hidden="true"></i>
+        <div className="bg-gray-light dark:bg-gray-dark p-4 rounded-lg sm:mr-4 mb-3 sm:mb-0 flex-shrink-0 flex items-center justify-center transition-all group-hover:bg-accent">
+          <i className={`${getFileIcon(material.type)} text-secondary dark:text-accent text-2xl`} aria-hidden="true"></i>
         </div>
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-primary mb-1">{material.title}</h3>
-          <p className="text-xs sm:text-sm text-gray-dark">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
+          <h3 className="text-base sm:text-lg font-semibold text-primary dark:text-text-light mb-1 line-clamp-2">{material.title}</h3>
+          <p className="text-xs sm:text-sm text-gray-dark dark:text-gray-light">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
         </div>
       </div>
-      <div className="text-xs text-gray-dark flex flex-col sm:flex-row justify-between gap-1 sm:gap-0">
+      <div className="text-xs text-gray-dark dark:text-gray-light flex flex-col sm:flex-row justify-between gap-1 sm:gap-0">
         <span>Added by: {material.created_by_name}</span>
         <span>{material.created_at_formatted}</span>
       </div>
@@ -101,8 +110,8 @@ function MaterialsView({ classroomId, refreshTrigger = 0 }) {
   if (error) return <MaterialsErrorAlert message={error} />;
   if (materials.length === 0) {
     return (
-      <div className="bg-background-light p-4 sm:p-6 text-center rounded-lg">
-        <p className="text-gray-dark text-sm sm:text-base">No materials have been added to this classroom yet.</p>
+      <div className="bg-background-light dark:bg-background-dark border border-gray-light dark:border-gray-dark p-6 sm:p-8 text-center rounded-xl shadow-md animate-fade-in">
+        <p className="text-gray-dark dark:text-gray-light text-sm sm:text-base">No materials have been added to this classroom yet.</p>
       </div>
     );
   }

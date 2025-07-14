@@ -1,9 +1,9 @@
+
 import React, { useCallback } from 'react';
 import { FaClock } from 'react-icons/fa';
 
 /**
- * Timer bar for quiz.
- * @param {Object} props
+ * TimerBar: Beautiful, accessible, and responsive timer bar for quiz.
  */
 const TimerBar = React.memo(function TimerBar({ quizTitle, timeLeft }) {
   const formatTime = useCallback((seconds) => {
@@ -12,17 +12,18 @@ const TimerBar = React.memo(function TimerBar({ quizTitle, timeLeft }) {
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
   return (
-    <div className="max-w-3xl mx-auto mb-4 bg-white p-4 rounded-lg shadow flex flex-col sm:flex-row justify-between items-center gap-4">
-      <h1 className="text-xl font-bold text-primary truncate" title={quizTitle}>{quizTitle}</h1>
-      <div className="flex items-center">
-        <FaClock className="text-secondary mr-2" aria-hidden="true" />
-        <span className={`font-mono text-xl font-semibold ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-gray-dark'}`}
+    <section className="max-w-3xl mx-auto mb-4 bg-white dark:bg-background-dark p-3 sm:p-4 rounded-xl shadow-md border border-gray-light flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 animate-fade-in">
+      <h1 className="text-base sm:text-xl font-semibold text-primary truncate w-full sm:w-auto" title={quizTitle}>{quizTitle}</h1>
+      <div className="flex items-center gap-2 bg-background-light px-3 py-1 rounded-lg border border-gray-light">
+        <FaClock className="text-secondary w-5 h-5" aria-hidden="true" />
+        <span
+          className={`font-mono text-lg sm:text-xl font-bold ${timeLeft < 60 ? 'text-highlight animate-pulse' : 'text-gray-dark'}`}
           aria-live="polite"
         >
           {formatTime(timeLeft)}
         </span>
       </div>
-    </div>
+    </section>
   );
 });
 

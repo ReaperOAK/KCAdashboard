@@ -1,9 +1,7 @@
+
 import React from 'react';
 import { FaTrophy } from 'react-icons/fa';
 
-/**
- * Leaderboard table for quiz results page.
- */
 function formatTime(seconds) {
   if (!seconds && seconds !== 0) return '-';
   const minutes = Math.floor(seconds / 60);
@@ -11,18 +9,28 @@ function formatTime(seconds) {
   return `${minutes}m ${secs}s`;
 }
 
+/**
+ * LeaderboardTable: Beautiful, accessible, responsive leaderboard table for quiz results page.
+ */
+const trophyColors = [
+  'text-yellow-400 drop-shadow', // 1st
+  'text-gray-400', // 2nd
+  'text-amber-700', // 3rd
+];
+
 const LeaderboardTable = React.memo(function LeaderboardTable({ leaderboard, resultData }) {
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="p-6 border-b border-gray-light">
-        <h2 className="text-xl font-bold text-primary">Quiz Leaderboard</h2>
-      </div>
-      <div className="p-6">
+    <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-3xl mx-auto animate-fade-in overflow-hidden">
+      <header className="p-6 border-b border-gray-light flex items-center gap-2">
+        <FaTrophy className="text-accent text-xl mr-2" aria-hidden="true" />
+        <h2 className="text-2xl font-semibold text-primary">Quiz Leaderboard</h2>
+      </header>
+      <div className="p-4 sm:p-6">
         {leaderboard.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
-                <tr className="border-b border-gray-light">
+                <tr className="bg-primary text-white text-sm uppercase">
                   <th className="py-2 px-4 text-left">Rank</th>
                   <th className="py-2 px-4 text-left">Student</th>
                   <th className="py-2 px-4 text-left">Score</th>
@@ -31,36 +39,40 @@ const LeaderboardTable = React.memo(function LeaderboardTable({ leaderboard, res
                 </tr>
               </thead>
               <tbody>
-                {leaderboard.map((entry, index) => (
-                  <tr
-                    key={index}
-                    className={`border-b border-gray-light ${resultData.user_id === entry.user_id ? 'bg-background-light' : ''}`}
-                  >
-                    <td className="py-2 px-4">
-                      {index === 0 ? (
-                        <span className="flex items-center"><FaTrophy className="text-yellow-500 mr-1" aria-hidden="true" /> 1</span>
-                      ) : index === 1 ? (
-                        <span className="flex items-center"><FaTrophy className="text-gray-400 mr-1" aria-hidden="true" /> 2</span>
-                      ) : index === 2 ? (
-                        <span className="flex items-center"><FaTrophy className="text-amber-700 mr-1" aria-hidden="true" /> 3</span>
-                      ) : (
-                        index + 1
-                      )}
-                    </td>
-                    <td className="py-2 px-4">{entry.student_name}</td>
-                    <td className="py-2 px-4">{entry.score}</td>
-                    <td className="py-2 px-4">{formatTime(entry.time_taken)}</td>
-                    <td className="py-2 px-4">{new Date(entry.completed_at).toLocaleDateString()}</td>
-                  </tr>
-                ))}
+                {leaderboard.map((entry, index) => {
+                  const isCurrentUser = resultData.user_id === entry.user_id;
+                  return (
+                    <tr
+                      key={index}
+                      className={`border-b border-gray-light ${isCurrentUser ? 'bg-accent/10 font-semibold' : 'hover:bg-gray-light/40'} transition-colors`}
+                    >
+                      <td className="py-2 px-4">
+                        {index < 3 ? (
+                          <span className={`flex items-center gap-1 ${trophyColors[index]}`}> <FaTrophy aria-hidden="true" /> {index + 1}</span>
+                        ) : (
+                          <span className="text-primary font-medium">{index + 1}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4 whitespace-nowrap">{entry.student_name}</td>
+                      <td className="py-2 px-4">
+                        <span className="bg-secondary text-white px-2 py-1 rounded-full text-xs font-semibold">{entry.score}</span>
+                      </td>
+                      <td className="py-2 px-4 whitespace-nowrap">{formatTime(entry.time_taken)}</td>
+                      <td className="py-2 px-4 whitespace-nowrap">{new Date(entry.completed_at).toLocaleDateString()}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-center text-gray-dark py-4">No leaderboard data available yet.</p>
+          <div className="flex flex-col items-center justify-center py-8">
+            <FaTrophy className="text-gray-light text-4xl mb-2" aria-hidden="true" />
+            <p className="text-center text-gray-dark text-base">No leaderboard data available yet.</p>
+          </div>
         )}
       </div>
-    </div>
+    </section>
   );
 });
 

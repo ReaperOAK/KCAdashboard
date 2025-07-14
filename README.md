@@ -1,3 +1,28 @@
+# Kolkata Chess Academy Dashboard
+
+This project is a modern, full-featured dashboard for the Kolkata Chess Academy. It features:
+- React frontend with Tailwind CSS and custom color tokens (see [`colour_scheme.md`](./colour_scheme.md))
+- Modular, accessible, and responsive UI components for quizzes, leaderboard, and more
+- Strict adherence to single-responsibility and best practices for React and Tailwind
+## Getting Started
+
+1. Install dependencies:
+## Color System
+
+See [`colour_scheme.md`](./colour_scheme.md) for the full Tailwind color token system and usage guide. All UI components use these tokens for consistent theming and accessibility.
+## Component Docs
+
+- [Leaderboard Components](./src/components/leaderboard/docs.md)
+- Quiz and related UI components are documented inline and follow the same design and accessibility standards.
+## Contributing
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for guidelines.
+## Changelog
+
+- July 2025: Major UI/UX refactor for all quiz and leaderboard components. Improved accessibility, responsiveness, and visual polish. All code now follows KCA React and Tailwind guidelines. See [Leaderboard Components Docs](./src/components/leaderboard/docs.md) for details.
+## License
+
+MIT
 # July 2025: Major UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard
 
 

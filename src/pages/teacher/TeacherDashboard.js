@@ -6,6 +6,7 @@ import { AttendanceApi } from '../../api/attendance';
 import { GradingApi } from '../../api/grading';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserCircleIcon, AcademicCapIcon, CalendarDaysIcon, CheckCircleIcon, ExclamationCircleIcon, ArrowPathIcon, ClipboardDocumentCheckIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 // --- Grading Prompt Modal (animated) ---
 const GradingPrompt = ({ sessions, onClose }) => {
@@ -279,7 +280,7 @@ export default function TeacherDashboard() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light">
+    <main className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light animate-fade-in">
       <AnimatePresence>
         {showAttendancePrompt && pendingAttendance.length > 0 && (
           <AttendancePrompt sessions={pendingAttendance} onClose={() => setShowAttendancePrompt(false)} />
@@ -288,21 +289,35 @@ export default function TeacherDashboard() {
           <GradingPrompt sessions={pendingGrading} onClose={() => setShowGradingPrompt(false)} />
         )}
       </AnimatePresence>
-      <motion.div
+      <motion.section
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, type: 'spring' }}
         className="p-4 sm:p-8 max-w-6xl mx-auto"
+        aria-label="Teacher dashboard main content"
       >
-        <div className="flex flex-col items-center mb-8">
-          <UserCircleIcon className="h-20 w-20 text-primary mb-2" aria-hidden="true" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary text-center break-words">
-            Welcome, {user.full_name}!
+        <header className="flex flex-col items-center mb-8">
+          <UserCircleIcon className="h-20 w-20 text-primary mb-2 drop-shadow-lg" aria-hidden="true" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary text-center break-words drop-shadow-sm">
+            Welcome, <span className="text-accent">{user.full_name}</span>!
           </h1>
-        </div>
-        <StatsGrid stats={stats} />
-        <RecentActivities activities={recentActivities} />
-      </motion.div>
-    </div>
+          <button
+            type="button"
+            onClick={() => window.location.href = '/teacher/support#leave'}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white font-semibold shadow-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
+            aria-label="Request Leave"
+          >
+            <ArrowTopRightOnSquareIcon className="h-5 w-5" aria-hidden="true" />
+            Request Leave
+          </button>
+        </header>
+        <section className="mb-8">
+          <StatsGrid stats={stats} />
+        </section>
+        <section>
+          <RecentActivities activities={recentActivities} />
+        </section>
+      </motion.section>
+    </main>
   );
 }

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Select from 'react-select';
+import { FaShareAlt } from 'react-icons/fa';
 
 const SharingControls = React.memo(function SharingControls({
   quiz,
@@ -30,9 +31,12 @@ const SharingControls = React.memo(function SharingControls({
   const student_ids = Array.isArray(quiz.student_ids) ? quiz.student_ids : [];
 
   return (
-    <div className="bg-background-light border border-gray-light rounded-xl shadow-md mb-6 sm:mb-8 transition-all duration-200">
-      <div className="p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-primary">Quiz Sharing & Access</h2>
+    <section className="bg-background-light border border-gray-light rounded-xl shadow-md mb-6 sm:mb-8 transition-all duration-200 animate-fade-in">
+      <header className="p-4 sm:p-6 flex items-center gap-2 mb-2">
+        <FaShareAlt className="text-accent w-6 h-6 mr-1" aria-hidden="true" />
+        <h2 className="text-lg sm:text-xl font-semibold text-primary">Quiz Sharing & Access</h2>
+      </header>
+      <div className="px-4 sm:px-6 pb-6">
         <div className="mb-4 flex items-center gap-3">
           <input
             type="checkbox"
@@ -114,7 +118,7 @@ const SharingControls = React.memo(function SharingControls({
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 });
 

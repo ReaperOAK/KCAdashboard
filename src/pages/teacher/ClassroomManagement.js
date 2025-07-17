@@ -208,11 +208,15 @@ function ClassroomManagement() {
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background-light">
+    <main className="min-h-screen bg-background-light animate-fade-in">
       <div className="p-4 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Classroom Management</h1>
-        </div>
+        {/* Header */}
+        <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center gap-2 drop-shadow-sm">
+            <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" /></svg>
+            Classroom Management
+          </h1>
+        </section>
 
         {loading ? (
           <LoadingSkeleton />
@@ -220,7 +224,7 @@ function ClassroomManagement() {
           <ErrorAlert message={error} onClose={handleCloseError} />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8" aria-label="Classroom list">
               {classrooms.map((classroom) => (
                 <ClassroomCard
                   key={classroom.id}
@@ -243,12 +247,15 @@ function ClassroomManagement() {
                   }}
                 />
               ))}
-            </div>
+            </section>
 
             {selectedClass && (
-              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+              <section className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-200">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
-                  <h2 className="text-xl sm:text-2xl font-bold text-primary">{selectedClass.name}</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary flex items-center gap-2">
+                    <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+                    {selectedClass.name}
+                  </h2>
                   <ViewSwitcher currentView={currentView} onSwitch={setCurrentView} />
                 </div>
                 {currentView === 'calendar' && (
@@ -270,15 +277,15 @@ function ClassroomManagement() {
                     refreshTrigger={refreshTrigger}
                   />
                 )}
-              </div>
+              </section>
             )}
 
             {!selectedClass && classrooms.length > 0 && (
-              <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-lg">
+              <section className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-lg">
                 <p className="text-base sm:text-lg text-gray-600">
                   Select a classroom to view its calendar and materials.
                 </p>
-              </div>
+              </section>
             )}
           </>
         )}
@@ -287,7 +294,10 @@ function ClassroomManagement() {
         {showScheduleModal && (
           <ModalOverlay onClose={handleCloseScheduleModal}>
             <div className="bg-white rounded-xl p-6 max-w-lg w-full" role="dialog" aria-modal="true" aria-labelledby="schedule-modal-title">
-              <h2 id="schedule-modal-title" className="text-2xl font-bold text-primary mb-4">Schedule Class</h2>
+              <h2 id="schedule-modal-title" className="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+                Schedule Class
+              </h2>
               <form onSubmit={handleScheduleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700" htmlFor="schedule-title">Title</label>
@@ -402,7 +412,10 @@ function ClassroomManagement() {
         {showMaterialsModal && (
           <ModalOverlay onClose={handleCloseMaterialsModal}>
             <div className="bg-white rounded-xl p-6 max-w-lg w-full" role="dialog" aria-modal="true" aria-labelledby="materials-modal-title">
-              <h2 id="materials-modal-title" className="text-2xl font-bold text-primary mb-4">Add Study Material</h2>
+              <h2 id="materials-modal-title" className="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 9V7a5 5 0 0 1 10 0v2" /></svg>
+                Add Study Material
+              </h2>
               <form onSubmit={handleMaterialSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700" htmlFor="material-title">Title</label>
@@ -470,7 +483,10 @@ function ClassroomManagement() {
         {showAssignmentModal && (
           <ModalOverlay onClose={handleCloseAssignmentModal}>
             <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="assignment-modal-title">
-              <h2 id="assignment-modal-title" className="text-2xl font-bold text-primary mb-4">Create Assignment</h2>
+              <h2 id="assignment-modal-title" className="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+                Create Assignment
+              </h2>
               <form onSubmit={handleAssignmentSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700" htmlFor="assignment-title">Assignment Title</label>
@@ -577,7 +593,7 @@ function ClassroomManagement() {
           />
         )}
       </div>
-    </div>
+    </main>
   );
 }
 

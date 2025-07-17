@@ -10,6 +10,7 @@ import AttendanceModal from '../../components/teacher/AttendanceModal';
 import FeedbackModal from '../../components/teacher/FeedbackModal';
 import FeedbackHistoryModal from '../../components/teacher/FeedbackHistoryModal';
 import PerformanceModal from '../../components/teacher/PerformanceModal';
+import { FaUserGraduate, FaSearch, FaUpload, FaClipboardList, FaStar, FaHistory, FaChartLine, FaCheckCircle } from 'react-icons/fa';
 
 // --- Utility helpers ---
 const formatDate = dateString => dateString ? new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
@@ -253,26 +254,32 @@ const StudentManagement = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">Student Management</h1>
-      <div className="bg-white p-4 rounded shadow">
+    <main className="max-w-7xl mx-auto py-8 animate-fade-in">
+      <header className="flex items-center gap-2 mb-4">
+        <FaUserGraduate className="text-accent w-7 h-7 mr-1" aria-hidden="true" />
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary">Student Management</h1>
+      </header>
+      <section className="bg-background-light border border-gray-light rounded-xl shadow-md p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
           <div className="flex gap-2 items-center">
-            <label htmlFor="batch-select" className="font-medium">Batch:</label>
-            <select id="batch-select" value={selectedBatch} onChange={e => setSelectedBatch(e.target.value)} className="border rounded px-2 py-1">
+            <label htmlFor="batch-select" className="font-medium text-text-dark">Batch:</label>
+            <select id="batch-select" value={selectedBatch} onChange={e => setSelectedBatch(e.target.value)} className="border border-gray-light rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent">
               <option value="all">All Batches</option>
               {batches.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}
             </select>
           </div>
-          <input type="text" placeholder="Search students..." value={search} onChange={e => setSearch(e.target.value)} className="border rounded px-2 py-1 w-full sm:w-64" />
+          <div className="relative w-full sm:w-64">
+            <input type="text" placeholder="Search students..." value={search} onChange={e => setSearch(e.target.value)} className="border border-gray-light rounded px-2 py-1 w-full pl-8 focus:outline-none focus:ring-2 focus:ring-accent transition-all" />
+            <FaSearch className="absolute left-2 top-2.5 text-gray-dark w-4 h-4" aria-hidden="true" />
+          </div>
         </div>
-        {loading && <div>Loading...</div>}
-        {error && <div className="text-red-600">{error}</div>}
-        {actionError && <div className="text-red-600">{actionError}</div>}
+        {loading && <div className="py-8 text-center text-gray-dark">Loading...</div>}
+        {error && <div className="text-red-700 bg-red-100 border border-red-400 rounded px-4 py-2 mb-2">{error}</div>}
+        {actionError && <div className="text-red-700 bg-red-100 border border-red-400 rounded px-4 py-2 mb-2">{actionError}</div>}
         {!loading && !error && (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50">
+            <table className="min-w-full text-sm sm:text-base divide-y divide-gray-light">
+              <thead className="bg-primary text-white text-sm uppercase">
                 <tr>
                   <th className="px-3 py-2 cursor-pointer" onClick={() => handleSort('name')}>Student {sortKey === 'name' && (sortDir === 'asc' ? '▲' : '▼')}</th>
                   <th className="px-3 py-2 cursor-pointer" onClick={() => handleSort('batch_name')}>Batch {sortKey === 'batch_name' && (sortDir === 'asc' ? '▲' : '▼')}</th>
@@ -282,36 +289,79 @@ const StudentManagement = () => {
                   <th className="px-3 py-2">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-light">
                 {filteredStudents.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 text-gray-500">No students found</td>
+                    <td colSpan="6" className="text-center py-4 text-gray-dark">No students found</td>
                   </tr>
                 ) : filteredStudents.map(stu => (
                   <tr key={stu.id}>
                     <td className="px-3 py-2">
-                      <div className="font-medium">{stu.name}</div>
-                      <div className="text-xs text-gray-500">{stu.email}</div>
+                      <div className="font-medium text-text-dark">{stu.name}</div>
+                      <div className="text-xs text-gray-dark">{stu.email}</div>
                     </td>
-                    <td className="px-3 py-2">{stu.batch_name}</td>
-                    <td className="px-3 py-2">{stu.last_rating ? <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRatingColor(stu.last_rating)}`}>{stu.last_rating}/5</span> : <span className="text-gray-400">Not rated</span>}</td>
-                    <td className="px-3 py-2">{stu.last_feedback_date ? formatDate(stu.last_feedback_date) : 'No feedback yet'}</td>
+                    <td className="px-3 py-2 text-text-dark">{stu.batch_name}</td>
+                    <td className="px-3 py-2">{stu.last_rating ? <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRatingColor(stu.last_rating)}`}>{stu.last_rating}/5 <FaStar className="ml-1 text-yellow-500 w-3 h-3" aria-hidden="true" /></span> : <span className="text-gray-400">Not rated</span>}</td>
+                    <td className="px-3 py-2 text-text-dark">{stu.last_feedback_date ? formatDate(stu.last_feedback_date) : 'No feedback yet'}</td>
                     <td className="px-3 py-2">
-                      {stu.report_card_url ? (
-                        <a href={stu.report_card_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>
-                      ) : <span className="text-gray-400">None</span>}
-                      <form className="inline-block ml-2" onSubmit={e => { e.preventDefault(); handleReportCardUpload(stu, e.target.report_card.files[0]); }}>
-                        <input type="file" name="report_card" accept="application/pdf,image/*" className="hidden" id={`report-card-upload-${stu.id}`} />
-                        <label htmlFor={`report-card-upload-${stu.id}`} className="cursor-pointer text-secondary hover:text-accent text-xs border px-2 py-1 rounded bg-gray-50" tabIndex={0}>Upload</label>
-                        <button type="submit" className="text-xs px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700 ml-1" disabled={uploading}>Upload</button>
-                      </form>
+                      <div className="flex flex-col gap-1 min-w-[120px]">
+                        {stu.report_card_url ? (
+                          <a
+                            href={stu.report_card_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent hover:underline flex items-center gap-1 group"
+                            title="View uploaded report card"
+                            aria-label={`View report card for ${stu.name}`}
+                          >
+                            <FaClipboardList className="w-4 h-4 group-hover:text-secondary transition-colors" aria-hidden="true" />
+                            <span>View</span>
+                          </a>
+                        ) : (
+                          <span className="text-gray-400">None</span>
+                        )}
+                        <form
+                          className="flex gap-1 items-center mt-1"
+                          onSubmit={e => {
+                            e.preventDefault();
+                            handleReportCardUpload(stu, e.target.report_card.files[0]);
+                          }}
+                          aria-label={`Upload report card for ${stu.name}`}
+                        >
+                          <input
+                            type="file"
+                            name="report_card"
+                            accept="application/pdf,image/*"
+                            className="hidden"
+                            id={`report-card-upload-${stu.id}`}
+                          />
+                          <label
+                            htmlFor={`report-card-upload-${stu.id}`}
+                            className="cursor-pointer text-secondary hover:text-accent text-xs border border-secondary px-2 py-1 rounded bg-gray-50 flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                            tabIndex={0}
+                            title="Upload PDF or image"
+                          >
+                            <FaUpload className="w-3 h-3" aria-hidden="true" />
+                            <span>Upload</span>
+                          </label>
+                          <button
+                            type="submit"
+                            className="text-xs px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700 ml-1 flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled={uploading}
+                            title={uploading ? 'Uploading...' : 'Submit report card'}
+                          >
+                            <FaCheckCircle className="w-3 h-3" aria-hidden="true" />
+                            <span>{uploading ? 'Uploading...' : 'Upload'}</span>
+                          </button>
+                        </form>
+                      </div>
                     </td>
                     <td className="px-3 py-2">
                       <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => handleMarkAttendance(stu)} className="text-secondary hover:text-accent focus:outline-none border px-2 py-1 rounded" aria-label={`Mark attendance for ${stu.name}`}>Attendance</button>
-                        <button type="button" onClick={() => handleOpenFeedbackModal(stu)} className="text-secondary hover:text-accent focus:outline-none border px-2 py-1 rounded" aria-label={`Add feedback for ${stu.name}`}>Feedback</button>
-                        <button type="button" onClick={() => handleViewHistory(stu)} className="text-secondary hover:text-accent focus:outline-none border px-2 py-1 rounded" aria-label={`View feedback history for ${stu.name}`}>History</button>
-                        <button type="button" onClick={() => handleViewPerformance(stu)} className="text-secondary hover:text-accent focus:outline-none border px-2 py-1 rounded" aria-label={`View performance for ${stu.name}`}>Performance</button>
+                        <button type="button" onClick={() => handleMarkAttendance(stu)} className="text-secondary hover:text-accent focus:outline-none border border-secondary px-2 py-1 rounded flex items-center gap-1 transition-all" aria-label={`Mark attendance for ${stu.name}`}><FaClipboardList className="w-4 h-4" aria-hidden="true" />Attendance</button>
+                        <button type="button" onClick={() => handleOpenFeedbackModal(stu)} className="text-secondary hover:text-accent focus:outline-none border border-secondary px-2 py-1 rounded flex items-center gap-1 transition-all" aria-label={`Add feedback for ${stu.name}`}><FaStar className="w-4 h-4" aria-hidden="true" />Feedback</button>
+                        <button type="button" onClick={() => handleViewHistory(stu)} className="text-secondary hover:text-accent focus:outline-none border border-secondary px-2 py-1 rounded flex items-center gap-1 transition-all" aria-label={`View feedback history for ${stu.name}`}><FaHistory className="w-4 h-4" aria-hidden="true" />History</button>
+                        <button type="button" onClick={() => handleViewPerformance(stu)} className="text-secondary hover:text-accent focus:outline-none border border-secondary px-2 py-1 rounded flex items-center gap-1 transition-all" aria-label={`View performance for ${stu.name}`}><FaChartLine className="w-4 h-4" aria-hidden="true" />Performance</button>
                       </div>
                     </td>
                   </tr>
@@ -324,8 +374,8 @@ const StudentManagement = () => {
         <FeedbackModal open={showFeedbackModal} student={selectedStudent} feedback={feedback} setFeedback={setFeedback} onClose={handleCloseFeedbackModal} onSubmit={handleSubmitFeedback} />
         <FeedbackHistoryModal open={showHistoryModal} student={selectedStudent} feedbackHistory={feedbackHistory} onClose={handleCloseHistoryModal} formatDate={formatDate} getRatingColor={getRatingColor} />
         <PerformanceModal open={showPerformanceModal} student={selectedStudent} performanceData={performanceData} selectedTimeframe={selectedTimeframe} onTimeframeChange={handleTimeframeChange} onClose={handleClosePerformanceModal} formatDate={formatDate} getRatingColor={getRatingColor} />
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

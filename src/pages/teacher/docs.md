@@ -1,5 +1,15 @@
 # KCAdashboard Frontend – Teacher Pages Documentation
 
+## July 2025 UI/UX Overhaul
+
+All teacher pages now use the full color system, accessibility, and modularity guidelines. See the main `docs.md` and `colour_scheme.md` for details.
+
+- All dashboards, management, analytics, and quiz pages are fully responsive, accessible, and visually grouped.
+- Section headers use icons and color tokens for clarity.
+- All interactive elements have clear focus/hover states.
+
+---
+
 ## Overview
 
 The `teacher` folder under `pages` contains all top-level page components for teacher-facing features in the KCAdashboard application. These pages provide dashboards, batch and classroom management, quiz creation and management, grading, feedback, and analytics. They are designed to empower teachers with tools for managing classes, assignments, and student progress.

@@ -2,7 +2,7 @@
 
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import SharingControls from './SharingControls';
+import SharingControls from '../../components/quiz/SharingControls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
 import { QuizApi } from '../../api/quiz';
@@ -687,20 +687,24 @@ const QuizCreator = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-background-light p-4 sm:p-8">
+    <main className="min-h-screen bg-background-light p-4 sm:p-8 animate-fade-in">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+        {/* Header */}
+        <section className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <button
             onClick={() => navigate('/teacher/quizzes')}
-            className="p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-accent"
+            className="p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-accent transition-all"
             aria-label="Back to Quiz Management"
           >
             <FaArrowLeft />
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center gap-2">
+            <span className="inline-block">
+              <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+            </span>
             {isEditing ? 'Edit Quiz' : 'Create New Quiz'}
           </h1>
-        </div>
+        </section>
         <QuizDetailsForm quiz={quiz} handleFormChange={handleFormChange} />
         <SharingControls
           quiz={quiz}
@@ -712,11 +716,14 @@ const QuizCreator = () => {
           setStudentSearch={setStudentSearch}
           studentLoading={studentLoading}
         />
-        <div className="bg-white rounded-lg shadow-md mb-6 sm:mb-8">
-          <div className="p-4 sm:p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <h2 className="text-lg sm:text-xl font-semibold">Questions</h2>
+        <section className="bg-white rounded-lg shadow-md mb-6 sm:mb-8 transition-all duration-200">
+          <header className="p-4 sm:p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+              <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+              Questions
+            </h2>
             <AddQuestionButtons handleAddQuestion={handleAddQuestion} />
-          </div>
+          </header>
           <QuestionsList
             quiz={quiz}
             handleRemoveQuestion={handleRemoveQuestion}
@@ -734,14 +741,14 @@ const QuizCreator = () => {
             removeCorrectMove={removeCorrectMove}
             handleAddQuestion={handleAddQuestion}
           />
-          <div className="p-4 sm:p-6">
+          <footer className="p-4 sm:p-6">
             <AddQuestionButtons handleAddQuestion={handleAddQuestion} />
-          </div>
-        </div>
-        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+          </footer>
+        </section>
+        <section className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
           <button
             onClick={() => navigate('/teacher/quizzes')}
-            className="px-4 py-2 text-gray-dark hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent flex items-center justify-center text-sm sm:text-base"
+            className="px-4 py-2 text-gray-dark hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent flex items-center justify-center text-sm sm:text-base transition-all"
           >
             <FaArrowLeft className="mr-2" />
             Back to Quizzes
@@ -750,7 +757,7 @@ const QuizCreator = () => {
             <button
               onClick={handleSaveDraft}
               disabled={saving}
-              className={`px-4 sm:px-6 py-2 sm:py-3 bg-gray-dark text-gray-light rounded-lg flex items-center justify-center text-sm sm:text-base ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 bg-gray-dark text-gray-light rounded-lg flex items-center justify-center text-sm sm:text-base transition-all ${
                 saving ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-600'
               }`}
             >
@@ -760,7 +767,7 @@ const QuizCreator = () => {
             <button
               onClick={handlePublish}
               disabled={saving}
-              className={`px-4 sm:px-6 py-2 sm:py-3 bg-secondary text-white rounded-lg flex items-center justify-center text-sm sm:text-base ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 bg-secondary text-white rounded-lg flex items-center justify-center text-sm sm:text-base transition-all ${
                 saving ? 'opacity-70 cursor-not-allowed' : 'hover:bg-accent'
               }`}
             >
@@ -768,9 +775,9 @@ const QuizCreator = () => {
               {saving ? 'Publishing...' : 'Publish Quiz'}
             </button>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -12,19 +12,22 @@ function formatTime(seconds) {
   return `${minutes}m ${secs}s`;
 }
 
+
 const LoadingSkeleton = () => (
-  <div className="flex justify-center items-center h-64">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent" aria-label="Loading leaderboard" />
+  <div className="flex justify-center items-center h-64 bg-background-light rounded-xl shadow-inner">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-accent" aria-label="Loading leaderboard" />
   </div>
 );
 
 
+
 const LeaderboardTable = React.memo(function LeaderboardTable({ leaderboard }) {
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-light overflow-hidden transition-all duration-200">
-      <div className="p-6 border-b border-gray-light bg-background-light">
+    <section className="bg-white rounded-xl shadow-lg border border-gray-light overflow-hidden transition-all duration-200" aria-label="Quiz Leaderboard">
+      <header className="p-6 border-b border-gray-light bg-background-light flex items-center gap-2">
+        <FaTrophy className="text-accent h-6 w-6 mr-2" aria-hidden="true" />
         <h2 className="text-xl font-bold text-primary">Quiz Leaderboard</h2>
-      </div>
+      </header>
       <div className="p-0 sm:p-6">
         {leaderboard.length > 0 ? (
           <div className="overflow-x-auto">
@@ -55,7 +58,7 @@ const LeaderboardTable = React.memo(function LeaderboardTable({ leaderboard }) {
                   return (
                     <tr
                       key={index}
-                      className={`border-b border-gray-light transition-colors duration-150 hover:bg-gray-light/60 focus-within:bg-accent/10 ${rowBg}`}
+                      className={`border-b border-gray-light transition-colors duration-150 hover:bg-accent/10 focus-within:bg-accent/20 ${rowBg}`}
                       tabIndex={0}
                       aria-label={`Rank ${index + 1}, Student ${entry.student_name}, Score ${entry.score}`}
                     >
@@ -76,7 +79,7 @@ const LeaderboardTable = React.memo(function LeaderboardTable({ leaderboard }) {
           <p className="text-center text-gray-dark py-4">No leaderboard data available yet.</p>
         )}
       </div>
-    </div>
+    </section>
   );
 });
 
@@ -106,11 +109,11 @@ const TeacherQuizLeaderboardPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 sm:py-8">
+    <main className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light px-2 sm:px-4 md:px-8 py-6 sm:py-8 animate-fade-in">
       <div className="max-w-4xl mx-auto">
         <LeaderboardTable leaderboard={leaderboard} />
       </div>
-    </div>
+    </main>
   );
 };
 

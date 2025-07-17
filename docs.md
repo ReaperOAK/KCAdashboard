@@ -1,3 +1,46 @@
+# KCAdashboard – UI/UX & Accessibility Overhaul (July 2025)
+
+## Summary of Major Changes
+
+### 1. UI/UX Modernization & Design System Enforcement
+- All teacher dashboard, management, analytics, and quiz pages now use the full Kolkata Chess Academy color system and Tailwind tokens.
+- Consistent use of gradients, shadows, rounded corners, and spacing for a modern, beautiful look.
+- All interactive elements (buttons, tabs, table rows) have clear hover, focus, and active states.
+- Section headers now include icons for clarity and visual hierarchy.
+- All cards, panels, and tables are fully responsive and visually grouped.
+
+### 2. Accessibility & Semantic HTML
+- Added ARIA labels, roles, and improved keyboard navigation for all major components.
+- Used semantic HTML elements (`main`, `section`, `header`, etc.) for better structure and accessibility.
+- Improved color contrast and focus indicators for WCAG compliance.
+
+### 3. Performance & Modularity
+- All major components are memoized with `React.memo` and use hooks for state and effects.
+- Each file/component does one job only; no orphan or unreferenced files.
+- Code-splitting and lazy loading for large pages.
+
+### 4. New Features & UX Improvements
+- Teacher Dashboard: Added prominent "Request Leave" button (deep-links to Support Center tab).
+- Support Center: Tab selection now syncs with URL hash for deep-linking and browser navigation.
+- Student Management: Report card upload/view UI is grouped, accessible, and visually clear.
+- Quiz Management/Creator: All forms, tables, and sharing controls are visually grouped, accessible, and responsive.
+- Analytics: All charts, stats, and export controls are visually grouped, accessible, and responsive.
+
+### 5. File Moves & Refactors
+- `SharingControls` moved to `components/quiz/` for reusability and modularity.
+- All teacher pages/components updated for design system, accessibility, and modularity.
+
+## How to Use
+- All UI is fully responsive and accessible.
+- Use the dashboard and management pages as before; all features are now more beautiful and user-friendly.
+- Deep-link to Support Center tabs using URL hashes (e.g., `/teacher/support#leave`).
+
+## See Also
+- `colour_scheme.md` for color tokens and design system.
+- `CONTRIBUTING.md` for coding and UI/UX guidelines.
+
+---
+
 # July 2025: UI/UX Refactor – Classroom, Quiz, Analytics, Leaderboard, Admin Dashboard
 
 ## Analytics Dashboard & Components (July 2025)

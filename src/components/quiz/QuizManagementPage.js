@@ -82,10 +82,14 @@ const QuizManagementPage = React.memo(function QuizManagementPage({
   }), [quizzes, searchQuery, statusFilter]);
 
   return (
-    <div className="min-h-screen bg-background-light p-4 sm:p-8">
+    <main className="min-h-screen bg-background-light p-4 sm:p-8 animate-fade-in">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-text-dark">{title}</h1>
+        {/* Header */}
+        <section className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-primary flex items-center gap-2">
+            <FaChessBoard className="w-7 h-7 text-accent mr-2" aria-hidden="true" />
+            {title}
+          </h1>
           <button
             type="button"
             onClick={onCreate}
@@ -94,13 +98,13 @@ const QuizManagementPage = React.memo(function QuizManagementPage({
           >
             <FaPlus className="mr-2" /> Create New Quiz
           </button>
-        </div>
+        </section>
         {/* Search and Filter */}
-        <div className="bg-background-light dark:bg-background-dark rounded-xl shadow-md mb-6 sm:mb-8 border border-gray-light">
-          <div className="p-4 border-b flex items-center gap-2">
-            <FaFilter className="text-secondary mr-2" />
+        <section className="bg-background-light dark:bg-background-dark rounded-xl shadow-md mb-6 sm:mb-8 border border-gray-light animate-fade-in">
+          <header className="p-4 border-b flex items-center gap-2">
+            <FaFilter className="text-secondary mr-2" aria-hidden="true" />
             <h2 className="text-base sm:text-lg font-semibold text-primary">Filter Quizzes</h2>
-          </div>
+          </header>
           <div className="p-4 sm:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
               <div className="sm:col-span-2">
@@ -113,7 +117,7 @@ const QuizManagementPage = React.memo(function QuizManagementPage({
                     className="w-full pl-10 pr-4 py-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-sm transition-all duration-200"
                     aria-label="Search quizzes"
                   />
-                  <FaSearch className="absolute left-3 top-3 text-gray-dark" />
+                  <FaSearch className="absolute left-3 top-3 text-gray-dark" aria-hidden="true" />
                 </div>
               </div>
               <div>
@@ -143,27 +147,28 @@ const QuizManagementPage = React.memo(function QuizManagementPage({
               </div>
             </div>
           </div>
-        </div>
+        </section>
         {/* Quiz List */}
-        <div className="bg-background-light dark:bg-background-dark rounded-xl shadow-md border border-gray-light">
-          <div className="p-4 border-b flex items-center gap-2">
-            <FaChessBoard className="text-secondary mr-2" />
+        <section className="bg-background-light dark:bg-background-dark rounded-xl shadow-md border border-gray-light animate-fade-in">
+          <header className="p-4 border-b flex items-center gap-2">
+            <FaChessBoard className="text-secondary mr-2" aria-hidden="true" />
             <h2 className="text-base sm:text-lg font-semibold text-primary">All Quizzes</h2>
-          </div>
+          </header>
           {loading ? (
             <QuizLoadingSkeleton />
           ) : error ? (
             <QuizErrorAlert error={error} />
           ) : filteredQuizzes.length === 0 ? (
-            <div className="p-6 text-center flex flex-col items-center gap-4">
-              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" className="text-gray-light mb-2"><path d="M12 2v20M2 12h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div className="p-6 text-center flex flex-col items-center gap-4 animate-fade-in">
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" className="text-gray-light mb-2" aria-hidden="true"><path d="M12 2v20M2 12h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               <p className="text-gray-dark mb-4">No quizzes found. Create your first quiz!</p>
               <button
                 type="button"
                 onClick={onCreate}
                 className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200"
+                aria-label="Create Quiz"
               >
-                Create Quiz
+                <FaPlus className="mr-2" /> Create Quiz
               </button>
             </div>
           ) : (
@@ -197,7 +202,7 @@ const QuizManagementPage = React.memo(function QuizManagementPage({
               </table>
             </div>
           )}
-        </div>
+        </section>
       </div>
       <DeleteQuizModal
         open={deleteModalOpen}
@@ -205,7 +210,7 @@ const QuizManagementPage = React.memo(function QuizManagementPage({
         onCancel={handleCancelDelete}
         onConfirm={handleConfirmDelete}
       />
-    </div>
+    </main>
   );
 });
 

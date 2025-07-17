@@ -101,20 +101,27 @@ export const ClassroomDetail = () => {
   if (!classroom) return <ClassroomNotFound onBack={handleBack} />;
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <main className="min-h-screen bg-background-light animate-fade-in">
       <div className="p-4 sm:p-8">
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-sm">{classroom.name}</h1>
+        {/* Header */}
+        <section className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-sm flex items-center gap-2">
+            <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" /></svg>
+            {classroom.name}
+          </h1>
           <button
             type="button"
             onClick={handleBack}
-            className="px-3 sm:px-4 py-2 bg-gray-light rounded-md text-primary hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base transition-all duration-200 shadow-sm"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-light rounded-md text-primary hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent text-sm sm:text-base transition-all duration-200 shadow-sm"
             aria-label="Back to All Classrooms"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             Back to All Classrooms
           </button>
-        </div>
-        <div className="bg-white rounded-xl shadow-lg border border-gray-light p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-200">
+        </section>
+
+        {/* Classroom Info Card */}
+        <section className="bg-white rounded-xl shadow-lg border border-gray-light p-4 sm:p-6 mb-6 sm:mb-8 transition-all duration-200">
           <div className="mb-4 sm:mb-6">
             <p className="text-gray-dark text-base sm:text-lg leading-relaxed">{classroom.description}</p>
             <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-dark flex flex-wrap gap-4">
@@ -123,13 +130,16 @@ export const ClassroomDetail = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-2xl font-bold text-primary">Classroom Content</h2>
+            <h2 className="text-lg sm:text-2xl font-bold text-primary flex items-center gap-2">
+              <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
+              Classroom Content
+            </h2>
             <ViewSwitcher currentView={currentView} onSwitch={handleSwitchView} />
           </div>
           <div id={`view-panel-${currentView}`} role="tabpanel" className="mt-2">
             {contentPanel}
           </div>
-        </div>
+        </section>
       </div>
       {/* Attendance Modal */}
       {showAttendanceModal && selectedSession && (
@@ -139,7 +149,7 @@ export const ClassroomDetail = () => {
           onAttendanceSubmitted={handleAttendanceSubmitted}
         />
       )}
-    </div>
+    </main>
   );
 };
 

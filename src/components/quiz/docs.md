@@ -1,3 +1,12 @@
+# July 2025 UI/UX Overhaul
+
+All quiz-related components now follow the Kolkata Chess Academy color system, accessibility, and modularity guidelines. See the main `docs.md` and `colour_scheme.md` for details.
+
+- All forms, tables, and sharing controls are visually grouped, accessible, and responsive.
+- Section headers use icons and color tokens for clarity.
+- All interactive elements have clear focus/hover states.
+
+---
 
 # Quiz Components Documentation
 

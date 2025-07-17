@@ -1,3 +1,13 @@
+# July 2025 UI/UX Overhaul
+
+This project underwent a major UI/UX, accessibility, and modularity overhaul in July 2025. Please review the following before contributing:
+
+- All UI must use the color tokens and design system in `colour_scheme.md` and Tailwind config.
+- Follow the accessibility, modularity, and performance guidelines in `docs.md` (see the July 2025 summary section).
+- Use semantic HTML, ARIA labels, and ensure all interactive elements are keyboard accessible.
+- Deep-linking to Support Center tabs is supported via URL hashes (e.g., `/teacher/support#leave`).
+
+---
 
 # Support/Admin UI/UX Refactor (July 2025)
 

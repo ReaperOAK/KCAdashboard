@@ -33,6 +33,7 @@ ChartJS.register(
   Legend
 );
 
+
 export const ReportsAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,9 +52,7 @@ export const ReportsAnalytics = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     try {
-      // Use AnalyticsApi for teacher stats
       const batchId = selectedBatch !== 'all' ? selectedBatch : 'all';
       const response = await AnalyticsApi.getTeacherStats(batchId);
       if (response && response.success) {
@@ -88,10 +87,14 @@ export const ReportsAnalytics = () => {
   const doughnutOptions = useMemo(() => ({ responsive: true, plugins: { legend: { position: 'bottom' } } }), []);
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <main className="min-h-screen bg-background-light animate-fade-in">
       <div className="p-4 sm:p-8 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Reports & Analytics</h1>
+        {/* Header */}
+        <section className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center gap-2">
+            <svg className="w-7 h-7 text-accent mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3V3zm3 6h12M9 3v6m6-6v6" /></svg>
+            Reports & Analytics
+          </h1>
           <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto">
             <select
               value={selectedBatch}
@@ -106,22 +109,27 @@ export const ReportsAnalytics = () => {
             </select>
             <button
               onClick={handleRefresh}
-              className="px-3 py-2 rounded-lg bg-secondary text-white hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full md:w-auto"
+              className="px-3 py-2 rounded-lg bg-secondary text-white hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent w-full md:w-auto flex items-center gap-2 transition-all"
+              aria-label="Refresh analytics"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582M20 20v-5h-.581M5 19A9 9 0 1 1 19 5" />
+              </svg>
               Refresh
             </button>
             <button
               onClick={() => setShowExportModal(true)}
-              className="px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 flex items-center justify-center w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 flex items-center justify-center w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-green-400 gap-2 transition-all"
+              aria-label="Export analytics data"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Export Data
             </button>
           </div>
-        </div>
-       
+        </section>
+        {/* Analytics Content */}
         {loading ? (
           <LoadingSkeleton />
         ) : error ? (
@@ -168,7 +176,7 @@ export const ReportsAnalytics = () => {
           batches={batches}
         />
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -68,16 +68,19 @@ export default function QuizPage() {
   const handleLeaderboard = useCallback(() => navigate('/student/leaderboard'), [navigate]);
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Chess Quizzes</h1>
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-8">
+        {/* Header and Actions */}
+        <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-2 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight leading-tight">Chess Quizzes</h1>
           <ActionButtons onHistory={handleHistory} onLeaderboard={handleLeaderboard} />
-        </div>
-        <div className="flex flex-col md:flex-row justify-between mb-4 sm:mb-6 gap-4">
+        </section>
+        {/* Search and Filter */}
+        <section className="flex flex-col md:flex-row justify-between gap-4 mb-4 sm:mb-6">
           <SearchBar value={searchQuery} onChange={handleSearchChange} />
           <FilterTabs filters={FILTERS} activeFilter={activeFilter} onChange={handleFilterChange} />
-        </div>
+        </section>
+        {/* Quiz List */}
         {loading ? (
           <LoadingSpinner />
         ) : error ? (
@@ -85,7 +88,7 @@ export default function QuizPage() {
         ) : filteredQuizzes.length === 0 ? (
           <EmptyState searchQuery={searchQuery} onClear={handleClearSearch} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredQuizzes.map((quiz) => (
               <QuizCard key={quiz.id} quiz={quiz} />
             ))}

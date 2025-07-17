@@ -76,24 +76,25 @@ const QuizHistoryPage = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center">
-            <FaHistory className="mr-3" aria-hidden="true" /> Quiz History
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col gap-8">
+        {/* Header and Action */}
+        <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-2 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center gap-2 tracking-tight leading-tight">
+            <FaHistory className="text-accent mr-2" aria-hidden="true" /> Quiz History
           </h1>
           <button
             type="button"
             onClick={handleTakeFirstQuiz}
-            className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200"
+            className="px-5 py-2.5 bg-secondary text-white rounded-lg shadow-md hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 text-base font-semibold"
             aria-label="Take new quiz"
           >
             Take New Quiz
           </button>
-        </div>
+        </section>
         {stats && <StatsCards stats={stats} />}
         <FilterBar filter={filter} onFilterChange={handleFilterChange} />
-        <div className="mt-6">
+        <section className="mt-6">
           <HistoryTable
             history={sortedHistory}
             loading={loading}
@@ -103,7 +104,7 @@ const QuizHistoryPage = () => {
             sortOrder={sortOrder}
             onSort={handleSort}
           />
-        </div>
+        </section>
       </div>
     </div>
   );

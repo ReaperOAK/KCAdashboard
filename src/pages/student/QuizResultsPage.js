@@ -67,8 +67,8 @@ const QuizResultsPage = () => {
   if (!resultData) return null;
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col gap-8">
         <ResultCard
           quizTitle={quizTitle}
           percentageScore={percentageScore}
@@ -79,9 +79,9 @@ const QuizResultsPage = () => {
           onViewHistory={handleViewHistory}
           onBackToQuizzes={handleBackToQuizzes}
         />
-        <div className="mt-8">
+        <section className="bg-white/95 rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 mt-2">
           <LeaderboardTable leaderboard={leaderboard} resultData={resultData} />
-        </div>
+        </section>
       </div>
     </div>
   );

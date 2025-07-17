@@ -75,10 +75,11 @@ const ResourceCenter = () => {
   }, [setResources, setFeatured]);
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Resource Center</h1>
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-8">
+        {/* Header and Actions */}
+        <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-2 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight leading-tight">Resource Center</h1>
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={handleToggleBookmarks}
@@ -104,7 +105,8 @@ const ResourceCenter = () => {
               </button>
             )}
           </div>
-        </div>
+        </section>
+        {/* Upload Form */}
         {showUploadForm && (
           <UploadResourceForm
             resourceTypes={RESOURCE_TYPES}
@@ -116,9 +118,11 @@ const ResourceCenter = () => {
             onCancel={handleToggleUploadForm}
           />
         )}
-        <div className="mb-4 sm:mb-6">
+        {/* Search Bar */}
+        <section className="mb-4 sm:mb-6">
           <SearchBar value={searchTerm} onChange={handleSearchTermChange} onSubmit={handleSearchSubmit} />
-        </div>
+        </section>
+        {/* Featured Resources */}
         {!showBookmarksOnly && !searchTerm && (
           <FeaturedResources
             featured={featured}
@@ -126,7 +130,9 @@ const ResourceCenter = () => {
             onResourceClick={handleResourceClick}
           />
         )}
+        {/* Category Tabs */}
         <CategoryTabs categories={CATEGORIES} activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
+        {/* Resource List */}
         {loading ? (
           <LoadingSpinner label="Loading resources..." />
         ) : error ? (
@@ -134,7 +140,7 @@ const ResourceCenter = () => {
         ) : resources.length === 0 ? (
           <EmptyState showBookmarksOnly={showBookmarksOnly} searchTerm={searchTerm} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {resources.map(resource => (
               <ResourceCard
                 key={resource.id}

@@ -79,22 +79,27 @@ const LeaderboardPage = () => {
 
   return (
     <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
-      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col">
-        <header className="mb-4 sm:mb-8 text-center">
-          <h1 className="text-2xl sm:text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
+      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col gap-8">
+        {/* Header */}
+        <header className="mb-2 sm:mb-6 text-center flex flex-col items-center gap-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-primary flex items-center justify-center gap-2 tracking-tight leading-tight">
             <FaTrophy className="text-yellow-500 drop-shadow-lg" aria-hidden="true" />
             <span>Chess Quiz Leaderboards</span>
           </h1>
           <p className="text-gray-dark text-base sm:text-lg">Compare your performance with other students</p>
         </header>
-        <section className="bg-white rounded-2xl shadow-lg mb-4 sm:mb-6 overflow-hidden border border-gray-light" aria-label="Quiz filter">
+
+        {/* Quiz Filter Bar */}
+        <section className="bg-white/95 rounded-2xl shadow-lg mb-2 sm:mb-4 overflow-hidden border border-gray-light" aria-label="Quiz filter">
           <div className="p-4 border-b bg-gray-light flex items-center gap-2">
             <FaFilter className="text-secondary mr-2 text-lg sm:text-xl" aria-hidden="true" />
             <h2 className="text-lg font-semibold text-primary">Select Quiz</h2>
           </div>
           <QuizFilterBar quizzes={quizzes} activeQuiz={activeQuiz} onQuizChange={handleQuizChange} />
         </section>
-        <section className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-light flex-1 flex flex-col" aria-label="Leaderboard table">
+
+        {/* Leaderboard Table */}
+        <section className="bg-white/95 rounded-2xl shadow-lg overflow-hidden border border-gray-light flex-1 flex flex-col" aria-label="Leaderboard table">
           <div className="p-4 sm:p-6 border-b flex items-center justify-between bg-background-light">
             <h2 className="text-lg sm:text-xl font-bold text-primary">
               {activeQuiz === 'overall'

@@ -13,7 +13,7 @@ const EnrolledClassCard = React.memo(({ classroom }) => (
         <span>{classroom.name}</span>
       </h2>
       <p className="text-base md:text-lg text-gray-dark dark:text-gray-light mb-4 leading-relaxed break-words whitespace-pre-line">{classroom.description}</p>
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-base">
+      <div className="flex flex-col sm:flex-col gap-2 sm:gap-6 text-base">
         <div className="flex items-center gap-1">
           <span className="font-semibold text-secondary">Teacher:</span>
           <span className="text-primary dark:text-text-light font-medium">{classroom.teacher_name}</span>

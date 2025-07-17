@@ -4,6 +4,17 @@
 All analytics-related UI components have been refactored for beauty, performance, accessibility, and responsiveness. See `analytics/docs.md` for details on each analytics component, their design, and usage.
 
 
+
+## July 2025 Student UI/UX Overhaul
+- All student-facing components (dashboard, classroom, feedback, leaderboard, quiz, report card, resource center, tournaments) have been refactored for:
+  - Strict adherence to the KCA color system and Tailwind config (see `../../colour_scheme.md`)
+  - Modular, single-responsibility, and fully accessible design
+  - Responsive layouts and semantic HTML
+  - ARIA roles, keyboard navigation, and color contrast
+  - Animated transitions for interactive elements
+  - Consistent use of cards, panels, tables, and badges
+  - All states (loading, error, empty, data) handled beautifully and accessibly
+
 ## Design System
 - All components use TailwindCSS and the project's color tokens (see `../../colour_scheme.md`).
 - Components are modular, single-responsibility, and fully accessible.

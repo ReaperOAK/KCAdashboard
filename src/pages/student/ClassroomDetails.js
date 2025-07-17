@@ -11,38 +11,48 @@ import ClassroomAssignmentsTab from '../../components/student/ClassroomAssignmen
 import ClassroomDiscussionsTab from '../../components/student/ClassroomDiscussionsTab';
 
 
-// Loading spinner (accessible, reusable)
+
+// Loading spinner (accessible, reusable, visually beautiful)
 const LoadingSpinner = React.memo(() => (
-  <div className="flex items-center justify-center min-h-screen bg-background-light" role="status" aria-live="polite">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4" aria-label="Loading"></div>
-      <p className="text-secondary">Loading classroom...</p>
+  <div className="flex items-center justify-center min-h-[60vh] bg-background-light" role="status" aria-live="polite">
+    <div className="flex flex-col items-center gap-4">
+      <div className="animate-spin rounded-full h-14 w-14 border-4 border-accent border-t-transparent shadow-lg" aria-label="Loading"></div>
+      <p className="text-accent font-semibold text-lg tracking-wide">Loading classroom...</p>
     </div>
   </div>
 ));
 
-// Error state (accessible, reusable)
+// Error state (accessible, reusable, visually beautiful)
 const ErrorState = React.memo(({ error }) => (
-  <div className="flex items-center justify-center min-h-screen bg-background-light" role="alert" aria-live="assertive">
+  <div className="flex items-center justify-center min-h-[60vh] bg-background-light" role="alert" aria-live="assertive">
     <div className="text-center">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+      <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl shadow-md mb-4 font-semibold text-lg">
         {error}
       </div>
     </div>
   </div>
 ));
 
-// Status badge (memoized)
+// Status badge (memoized, beautiful, accessible)
 const StatusBadge = React.memo(({ status }) => {
   let badgeClass = 'bg-gray-light text-gray-dark';
-  if (status === 'active') badgeClass = 'bg-green-100 text-green-800';
-  else if (status === 'upcoming') badgeClass = 'bg-blue-100 text-blue-800';
+  let label = status;
+  if (status === 'active') {
+    badgeClass = 'bg-green-100 text-green-800 border border-green-300';
+    label = 'Active';
+  } else if (status === 'upcoming') {
+    badgeClass = 'bg-blue-100 text-blue-800 border border-blue-300';
+    label = 'Upcoming';
+  } else if (status === 'completed') {
+    badgeClass = 'bg-gray-200 text-gray-700 border border-gray-300';
+    label = 'Completed';
+  }
   return (
-    <span className={`px-2 py-1 rounded-full text-xs ${badgeClass}`}>{status}</span>
+    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${badgeClass}`}>{label}</span>
   );
 });
 
-// Tab navigation (memoized)
+// Tab navigation (memoized, responsive, beautiful)
 const TabNav = React.memo(({ activeTab, onTabChange }) => {
   const tabs = useMemo(() => [
     { key: 'overview', label: 'Overview' },
@@ -51,16 +61,16 @@ const TabNav = React.memo(({ activeTab, onTabChange }) => {
     { key: 'discussions', label: 'Discussions' },
   ], []);
   return (
-    <nav className="flex" role="tablist">
+    <nav className="flex flex-wrap gap-2 sm:gap-0 border-b bg-background-light" role="tablist">
       {tabs.map(tab => (
         <button
           key={tab.key}
           onClick={() => onTabChange(tab.key)}
-          className={`px-6 py-4 text-sm font-medium focus:outline-none focus:underline ${
-            activeTab === tab.key
-              ? 'text-secondary border-b-2 border-secondary'
-              : 'text-gray-dark hover:text-secondary'
-          }`}
+          className={`px-4 sm:px-6 py-3 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-t-md
+            ${activeTab === tab.key
+              ? 'text-accent border-b-2 border-accent bg-white shadow-sm'
+              : 'text-gray-dark hover:text-accent hover:bg-gray-light'}
+          `}
           role="tab"
           aria-selected={activeTab === tab.key}
           tabIndex={activeTab === tab.key ? 0 : -1}
@@ -216,28 +226,32 @@ export const ClassroomDetails = React.memo(() => {
   if (error) return <ErrorState error={error} />;
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col gap-6">
         {classroom && (
           <>
-            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">{classroom.name}</h1>
-              <p className="text-gray-dark mb-4">{classroom.description}</p>
-              <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-dark gap-2 sm:gap-4">
-                <span><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</span>
-                <span><span className="font-semibold">Schedule:</span> {formatSchedule(classroom.schedule)}</span>
+            {/* Header Card */}
+            <section className="bg-white/90 dark:bg-background-dark rounded-2xl shadow-lg p-4 sm:p-6 mb-2 flex flex-col gap-2 sm:gap-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1 tracking-tight leading-tight">{classroom.name}</h1>
+              <p className="text-gray-dark text-base mb-2 max-w-2xl">{classroom.description}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-dark gap-2 sm:gap-6">
+                <span className="flex items-center gap-1"><span className="font-semibold">Teacher:</span> {classroom.teacher_name}</span>
+                <span className="flex items-center gap-1"><span className="font-semibold">Schedule:</span> {formatSchedule(classroom.schedule)}</span>
                 <StatusBadge status={classroom.status} />
               </div>
-            </div>
-            {/* Show class rating for ended sessions */}
-            <div className="mb-6">
+            </section>
+
+            {/* Session Rating Card */}
+            <section className="bg-white/90 dark:bg-background-dark rounded-2xl shadow-md p-4 sm:p-6 mb-2 flex flex-col gap-2">
+              <h2 className="text-lg font-semibold text-primary mb-2">Session Feedback</h2>
               {sessions.length > 0 ? (
-                <>
-                  <label className="block mb-2 font-medium">Select Session to Rate:</label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <label className="block font-medium text-gray-dark" htmlFor="session-select">Select Session to Rate:</label>
                   <select
+                    id="session-select"
                     value={selectedSessionId || ''}
                     onChange={e => setSelectedSessionId(Number(e.target.value))}
-                    className="mb-4 p-2 border rounded"
+                    className="mb-2 sm:mb-0 p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:outline-none transition"
                   >
                     {sessions.map(s => (
                       <option key={s.id} value={s.id}>
@@ -246,17 +260,19 @@ export const ClassroomDetails = React.memo(() => {
                     ))}
                   </select>
                   {selectedSessionId && (
-                    <ClassRating classId={selectedSessionId} />
+                    <div className="flex-1 min-w-[180px]">
+                      <ClassRating classId={selectedSessionId} />
+                    </div>
                   )}
-                </>
+                </div>
               ) : (
-                <div>No ended sessions available for rating yet.</div>
+                <div className="text-gray-500 italic">No ended sessions available for rating yet.</div>
               )}
-            </div>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="border-b">
-                <TabNav activeTab={activeTab} onTabChange={handleTabChange} />
-              </div>
+            </section>
+
+            {/* Main Content Card with Tabs */}
+            <section className="bg-white/95 dark:bg-background-dark rounded-2xl shadow-lg overflow-hidden flex flex-col">
+              <TabNav activeTab={activeTab} onTabChange={handleTabChange} />
               <div className="p-4 sm:p-6">
                 {activeTab === 'overview' && (
                   <ClassroomOverviewTab classroom={classroom} />
@@ -287,7 +303,7 @@ export const ClassroomDetails = React.memo(() => {
                   />
                 )}
               </div>
-            </div>
+            </section>
           </>
         )}
       </div>

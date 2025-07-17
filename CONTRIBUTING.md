@@ -32,13 +32,14 @@ All admin dashboard UI is now modular, beautiful, and accessible. When contribut
 - Always handle loading, error, and empty states in UI.
 - Document new or modified components in the relevant feature folder and main docs.
 - Update the main README and CHANGELOG with any major UI/UX changes.
-# Student Dashboard UI/UX Refactor (July 2025)
 
-All student dashboard UI is now modular, beautiful, and accessible. When contributing to student dashboard components:
+# Student Dashboard & Pages UI/UX Overhaul (July 2025)
+
+All student-facing pages and components are now modular, beautiful, and accessible. When contributing to student dashboard or page components:
 - Use pure, focused, reusable functional React components and Hooks.
 - Follow the KCA color system in `colour_scheme.md` and Tailwind config.
 - All styling must use TailwindCSS and design tokens (no inline styles).
-- Ensure all components are single-responsibility, responsive, and accessible (ARIA, keyboard navigation, focus/hover/disabled states).
+- Ensure all components are single-responsibility, responsive, and accessible (semantic HTML, ARIA, keyboard navigation, focus/hover/disabled states).
 - Use animated transitions for interactive elements.
 - Optimize for performance: use React.memo, useCallback, useMemo where appropriate.
 - Always handle loading, error, and empty states in UI.

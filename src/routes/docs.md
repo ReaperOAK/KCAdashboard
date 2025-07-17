@@ -1,4 +1,11 @@
+
 # KCAdashboard Frontend – Routes Documentation
+
+## July 2025 Student UI/UX Overhaul
+- All student-facing routes have been reviewed and updated for:
+  - Modular, role-based routing for all student dashboard and page features
+  - Consistent use of protected routes and access control
+  - Registration of all new/refactored student pages and components
 
 ## Overview
 

@@ -102,41 +102,43 @@ const QuizDetailPage = () => {
   const currentQuestion = quiz.questions ? quiz.questions[currentQuestionIndex] : null;
 
   return (
-    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 sm:py-8">
-      <TimerBar quizTitle={quiz.title} timeLeft={timeLeft} />
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-3 sm:p-6 md:p-8">
-        {currentQuestion ? (
-          <>
-            <QuestionCard
-              question={currentQuestion}
-              questionIndex={currentQuestionIndex}
-              totalQuestions={quiz.questions.length}
-              quizDifficulty={quiz.difficulty}
-              selectedAnswers={selectedAnswers}
-              onAnswerSelect={handleAnswerSelect}
-              chessMoves={chessMoves}
-              onChessMove={handleChessMove}
-            />
-            <NavigationButtons
-              currentIndex={currentQuestionIndex}
-              totalQuestions={quiz.questions.length}
-              onPrev={handlePreviousQuestion}
-              onNext={handleNextQuestion}
-              onSubmit={handleSubmitQuiz}
-              isSubmitting={isSubmitting}
-            />
-          </>
-        ) : (
-          <p className="text-center text-gray-dark">No questions found for this quiz.</p>
-        )}
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
+        <TimerBar quizTitle={quiz.title} timeLeft={timeLeft} />
+        <div className="bg-white/95 rounded-2xl shadow-lg p-3 sm:p-6 md:p-8 flex flex-col gap-6">
+          {currentQuestion ? (
+            <>
+              <QuestionCard
+                question={currentQuestion}
+                questionIndex={currentQuestionIndex}
+                totalQuestions={quiz.questions.length}
+                quizDifficulty={quiz.difficulty}
+                selectedAnswers={selectedAnswers}
+                onAnswerSelect={handleAnswerSelect}
+                chessMoves={chessMoves}
+                onChessMove={handleChessMove}
+              />
+              <NavigationButtons
+                currentIndex={currentQuestionIndex}
+                totalQuestions={quiz.questions.length}
+                onPrev={handlePreviousQuestion}
+                onNext={handleNextQuestion}
+                onSubmit={handleSubmitQuiz}
+                isSubmitting={isSubmitting}
+              />
+            </>
+          ) : (
+            <div className="text-center text-gray-dark text-lg font-medium py-8">No questions found for this quiz.</div>
+          )}
+        </div>
+        <QuestionNavigation
+          questions={quiz.questions}
+          currentIndex={currentQuestionIndex}
+          onJump={handleJumpToQuestion}
+          selectedAnswers={selectedAnswers}
+          chessMoves={chessMoves}
+        />
       </div>
-      <QuestionNavigation
-        questions={quiz.questions}
-        currentIndex={currentQuestionIndex}
-        onJump={handleJumpToQuestion}
-        selectedAnswers={selectedAnswers}
-        chessMoves={chessMoves}
-      />
     </div>
   );
 };

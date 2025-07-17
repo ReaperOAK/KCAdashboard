@@ -254,7 +254,6 @@ MIT
 
 ## Recent Improvements
 - **Tournaments UI refactored:** All tournament-related UI is now modular, beautiful, and accessible. See `src/components/tournaments/`.
-## Secure Uploads Viewer Route
 
 Direct links to `/uploads/...` are now blocked. To view a file, redirect users to `/uploads/view/:resourceId?type=pdf|img`, which renders the secure React viewer. Update all frontend usages and links accordingly.
 ## Secure File Viewer
@@ -266,7 +265,6 @@ Direct access to files in the `uploads/` directory is now blocked at the web ser
 # Kolkata Chess Academy Dashboard
 
 ## Analytics UI Refactor (2024)
-
 ### Overview
 All analytics-related UI components have been refactored for beauty, performance, accessibility, and responsiveness. The new design system uses TailwindCSS, a custom color palette (see `colour_scheme.md`), and modular, single-responsibility React components. Charts use Chart.js (react-chartjs-2) and Lucide icons for a modern, accessible experience.
 
@@ -281,7 +279,6 @@ All analytics-related UI components have been refactored for beauty, performance
 - AnalyticsSkeleton
 - ChartCard
 - ErrorAlert
-- ExportModal
 - LoadingSkeleton
 - PerformanceMetricsChart
 - QuickStats
@@ -293,7 +290,6 @@ See `src/components/analytics/docs.md` for details on each component.
 
 ### Design System
 - **Colors:** See `colour_scheme.md` for the full palette and usage guidelines.
-- **UI/UX:** All interactive elements have hover, focus, and active states. Loading, error, and empty states are handled throughout.
 - **Accessibility:** All components use semantic HTML, ARIA labels, and are keyboard accessible.
 
 ### Documentation
@@ -302,7 +298,6 @@ See `src/components/analytics/docs.md` for details on each component.
 
 ---
 
-KCAdashboard is a full-featured platform for managing educational, chess, and administrative workflows. It combines a modular PHP backend (API) and a modern React frontend, supporting a wide range of features for admins, teachers, students, and tournament organizers.
 
 ---
 

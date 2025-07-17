@@ -9,8 +9,8 @@ import { UserCircleIcon, AcademicCapIcon, TrophyIcon, CalendarDaysIcon, ChartBar
 const LoadingSpinner = React.memo(() => (
   <div className="flex items-center justify-center min-h-screen bg-background-light" role="status" aria-live="polite">
     <div className="text-center">
-      <ArrowPathIcon className="animate-spin h-12 w-12 text-secondary mx-auto mb-4" aria-label="Loading" />
-      <p className="text-secondary">Loading dashboard...</p>
+      <ArrowPathIcon className="animate-spin h-12 w-12 text-accent mx-auto mb-4" aria-label="Loading" />
+      <p className="text-accent font-medium">Loading dashboard...</p>
     </div>
   </div>
 ));
@@ -26,13 +26,13 @@ const ErrorState = React.memo(({ error, onRetry }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background-light" role="alert" aria-live="assertive">
       <div className="text-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2" role="alert">
-          <ExclamationCircleIcon className="h-5 w-5 text-red-700" aria-hidden="true" />
-          {error}
+        <div className="bg-highlight/10 border border-highlight text-highlight px-4 py-3 rounded-lg mb-4 flex items-center gap-2" role="alert">
+          <ExclamationCircleIcon className="h-5 w-5 text-highlight" aria-hidden="true" />
+          <span className="font-medium">{error}</span>
         </div>
         <button
           onClick={handleRetry}
-          className="bg-secondary text-white px-4 py-2 rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent flex items-center gap-2"
+          className="bg-secondary text-white px-4 py-2 rounded hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent flex items-center gap-2 transition-all duration-200"
           aria-label="Retry loading dashboard"
           disabled={retrying}
         >
@@ -62,13 +62,13 @@ const StatCard = React.memo(({ title, value, children, iconIdx }) => {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, type: 'spring' }}
-      className="bg-white p-6 rounded-xl shadow-md border border-accent/10 flex flex-col items-start gap-2"
+      className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-2xl flex flex-col items-start gap-2 p-6 transition-all duration-200"
       role="region"
       aria-label={title}
     >
-      <Icon className="h-7 w-7 text-primary mb-1" aria-hidden="true" />
-      <h2 className="text-lg font-semibold text-secondary">{title}</h2>
-      <p className="text-3xl font-bold text-primary">{value}</p>
+      <Icon className="h-7 w-7 text-accent mb-1" aria-hidden="true" />
+      <h2 className="text-lg font-semibold text-primary">{title}</h2>
+      <p className="text-3xl font-bold text-secondary">{value}</p>
       {children}
     </motion.div>
   );
@@ -77,13 +77,13 @@ const StatCard = React.memo(({ title, value, children, iconIdx }) => {
 // Recent activity badge (memoized, with icon)
 const ActivityBadge = React.memo(({ type }) => {
   const badgeClass = type === 'quiz'
-    ? 'bg-blue-100 text-blue-800'
-    : 'bg-green-100 text-green-800';
+    ? 'bg-accent/10 text-accent border border-accent'
+    : 'bg-secondary/10 text-secondary border border-secondary';
   const Icon = type === 'quiz' ? ChartBarIcon : PuzzlePieceIcon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${badgeClass}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full font-semibold ${badgeClass} transition-all duration-200`}>
       <Icon className="h-4 w-4" aria-hidden="true" />
-      {type}
+      {type.charAt(0).toUpperCase() + type.slice(1)}
     </span>
   );
 });
@@ -94,7 +94,7 @@ const RecentActivities = React.memo(({ activities }) => (
     initial={{ opacity: 0, y: 24 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, type: 'spring' }}
-    className="bg-white p-6 rounded-xl shadow-md mt-4 border border-accent/10"
+    className="bg-background-light dark:bg-background-dark p-6 rounded-2xl shadow-md mt-4 border border-gray-light"
     role="region"
     aria-label="Recent Activities"
   >
@@ -103,7 +103,7 @@ const RecentActivities = React.memo(({ activities }) => (
       {activities.map((activity, idx) => (
         <div key={idx} className="flex items-center justify-between p-3 bg-gray-light/30 rounded-lg">
           <div>
-            <h3 className="font-medium text-primary">{activity.title}</h3>
+            <h3 className="font-medium text-secondary">{activity.title}</h3>
             {activity.activity_type === 'quiz' && (
               <p className="text-sm text-gray-dark">Score: {activity.score}%</p>
             )}
@@ -232,7 +232,7 @@ export const StudentDashboard = React.memo(() => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light px-4 sm:px-6 md:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light px-2 sm:px-4 md:px-8 py-8">
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
@@ -240,8 +240,8 @@ export const StudentDashboard = React.memo(() => {
         className="max-w-7xl mx-auto"
       >
         <div className="flex flex-col items-center mb-8">
-          <UserCircleIcon className="h-20 w-20 text-primary mb-2" aria-hidden="true" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary text-center">Welcome, {user.full_name}!</h1>
+          <UserCircleIcon className="h-20 w-20 text-accent mb-2" aria-hidden="true" />
+          <h1 className="text-3xl sm:text-4xl font-bold text-primary text-center">Welcome, <span className="text-secondary">{user.full_name}</span>!</h1>
         </div>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">

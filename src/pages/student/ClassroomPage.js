@@ -95,47 +95,52 @@ export const ClassroomPage = React.memo(() => {
   if (error) return <ErrorState error={error} />;
 
   return (
-    <div className="min-h-screen bg-background-light px-4 sm:px-6 md:px-8 py-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 md:mb-8 gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">My Classes</h1>
+    <div className="min-h-screen bg-background-light px-2 sm:px-4 md:px-8 py-6 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-8">
+        {/* Header and Action */}
+        <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2 sm:mb-4 md:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight leading-tight">My Classes</h1>
           <button
             onClick={handleShowAvailable}
-            className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
+            className="px-5 py-2.5 bg-secondary text-white rounded-lg shadow-md hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 text-base font-semibold"
             aria-label={showAvailable ? 'Hide available classes' : 'Browse available classes'}
           >
             {showAvailable ? 'Hide Available Classes' : 'Browse Available Classes'}
           </button>
-        </div>
+        </section>
+
         {/* Enrolled Classes */}
-        {classes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            {enrolledClassCards}
-          </div>
-        ) : (
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md text-center">
-            <p className="text-gray-dark mb-4">You are not enrolled in any classes yet.</p>
-            <button
-              onClick={handleShowAvailableTrue}
-              className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent"
-              aria-label="Browse available classes"
-            >
-              Browse Available Classes
-            </button>
-          </div>
-        )}
+        <section>
+          {classes.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              {enrolledClassCards}
+            </div>
+          ) : (
+            <div className="bg-white/95 p-6 rounded-2xl shadow-lg text-center flex flex-col items-center gap-4">
+              <p className="text-gray-dark text-lg mb-2">You are not enrolled in any classes yet.</p>
+              <button
+                onClick={handleShowAvailableTrue}
+                className="px-5 py-2.5 bg-secondary text-white rounded-lg shadow-md hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 text-base font-semibold"
+                aria-label="Browse available classes"
+              >
+                Browse Available Classes
+              </button>
+            </div>
+          )}
+        </section>
+
         {/* Available Classes for Enrollment */}
         {showAvailable && (
-          <div className="mt-8 sm:mt-12">
+          <section className="mt-8 sm:mt-12">
             <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4 sm:mb-6">Available Classes</h2>
             {availableClasses.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                 {availableClassCards}
               </div>
             ) : (
               <p className="text-center text-gray-dark">No available classes found at the moment.</p>
             )}
-          </div>
+          </section>
         )}
       </div>
     </div>

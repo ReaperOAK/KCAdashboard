@@ -1,4 +1,13 @@
-#
+## July 2025 Student UI/UX Overhaul
+- All student-facing pages (dashboard, classroom, feedback, leaderboard, quiz, report card, resource center, tournaments) have been refactored for:
+  - Strict adherence to the KCA color system and Tailwind config (see `../../colour_scheme.md`)
+  - Modular, single-responsibility, and fully accessible design
+  - Responsive layouts and semantic HTML
+  - ARIA roles, keyboard navigation, and color contrast
+  - Animated transitions for interactive elements
+  - Consistent use of cards, panels, tables, and badges
+  - All states (loading, error, empty, data) handled beautifully and accessibly
+
 # Admin Support & Ticketing UI/UX Refactor (2025-07-14)
 #
 # See `src/components/support/docs.md` for full details on the support/admin UI/UX refactor, including leave requests, ticketing, FAQ, and modal improvements.

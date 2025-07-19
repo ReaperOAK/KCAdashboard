@@ -9,30 +9,30 @@ import { ChessApi } from '../../api/chess';
 
 // --- Loading Spinner ---
 const LoadingSpinner = React.memo(({ label }) => (
-  <div className="flex items-center justify-center py-8 text-primary font-semibold" role="status" aria-live="polite">
-    <svg className="animate-spin h-6 w-6 text-accent mr-3" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <div className="flex items-center justify-center py-8 text-accent font-semibold" role="status" aria-live="polite">
+    <svg className="animate-spin h-8 w-8 text-accent mr-3" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
     </svg>
-    <span>{label}</span>
+    <span className="text-lg">{label}</span>
   </div>
 ));
 
 // --- Game Over Banner ---
 const GameOverBanner = React.memo(({ result, reason }) => (
-  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mt-2" role="status" aria-live="polite">
-    <div className="text-blue-900 font-semibold">Game Over: {result}</div>
-    <div className="text-blue-700 text-sm">Reason: {reason}</div>
+  <div className="bg-success/10 border border-success p-4 rounded-xl mt-2 flex flex-col items-center" role="status" aria-live="polite">
+    <div className="text-success font-semibold text-lg">Game Over: {result}</div>
+    <div className="text-success text-sm">Reason: {reason}</div>
   </div>
 ));
 
 // --- Engine Error Banner ---
 const EngineErrorBanner = React.memo(() => (
-  <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-2">
-    <p className="text-yellow-800 mb-3">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
+  <div className="bg-warning/10 border border-warning p-4 rounded-xl mb-2">
+    <p className="text-warning mb-3">Using lightweight chess engine. Some advanced analysis features may be limited.</p>
     <div className="flex gap-2">
       <button 
-        className="px-3 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="px-4 py-2 bg-warning text-white rounded-lg text-sm hover:bg-warning/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         onClick={() => window.open('/stockfish/test.html', '_blank')}
         type="button"
       >
@@ -44,8 +44,8 @@ const EngineErrorBanner = React.memo(() => (
 
 // --- Online API Banner ---
 const OnlineAPIBanner = React.memo(() => (
-  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-2">
-    <p className="text-blue-800">Using Stockfish Online API for analysis</p>
+  <div className="bg-info/10 border border-info p-3 rounded-xl mb-2">
+    <p className="text-info">Using Stockfish Online API for analysis</p>
   </div>
 ));
 
@@ -53,7 +53,7 @@ const OnlineAPIBanner = React.memo(() => (
 const PGNExportButton = React.memo(({ onExport }) => (
   <button
     onClick={onExport}
-    className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition-colors mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-secondary transition-colors mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
     type="button"
     aria-label="Export PGN"
   >
@@ -532,13 +532,13 @@ const ChessBoard = ({
 
   // Render the chess board with controls
   return (
-    <div className="flex flex-col space-y-6 w-full max-w-full px-2 sm:px-4 md:px-8 py-4 md:py-6 bg-white rounded-xl shadow-lg mx-auto">
+    <div className="flex flex-col space-y-6 w-full max-w-full px-2 sm:px-4 md:px-8 py-4 md:py-6 bg-background-light dark:bg-background-dark rounded-2xl shadow-xl mx-auto">
       {engineLoadError && <EngineErrorBanner />}
       {engineLoadError && <PGNExportButton onExport={exportPGN} />}
       {useOnlineAPI && <OnlineAPIBanner />}
       <div className="flex flex-col md:flex-row gap-8 w-full items-stretch">
-        <div className="relative w-full flex justify-center md:justify-start md:w-2/3 lg:w-1/2">
-          <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg aspect-square">
+        <div className="relative w-full flex justify-center md:justify-start md:w-2/3 lg:w-3/4">
+          <div className="w-full max-w-full sm:max-w-sm md:max-w-md lg:max-w-full aspect-square">
             <Chessboard
               id="chess-board"
               position={fen}
@@ -550,20 +550,20 @@ const ChessBoard = ({
               arePiecesDraggable={allowMoves && !isThinking}
               showBoardNotation={showNotation}
             />
-            {isThinking && <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10"><LoadingSpinner label="Thinking..." /></div>}
+            {isThinking && <div className="absolute inset-0 flex items-center justify-center bg-background-light/80 dark:bg-background-dark/80 z-10"><LoadingSpinner label="Thinking..." /></div>}
           </div>
         </div>
-        <div className="flex flex-col gap-3 w-full md:w-1/3 lg:w-1/2 justify-center md:justify-start">
+        <div className="flex flex-col gap-4 w-full md:w-1/3 lg:w-1/2 justify-center md:justify-start">
           <button
             onClick={flipBoard}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
+            className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
             type="button"
           >
             Flip Board
           </button>
           <button
             onClick={resetBoard}
-            className="px-4 py-2 bg-gray-dark text-gray-light rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
+            className="px-4 py-2 bg-gray-dark text-gray-light rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
             disabled={isThinking}
             type="button"
           >
@@ -571,18 +571,18 @@ const ChessBoard = ({
           </button>
           <button
             onClick={handleResign}
-            className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full"
+            className="px-4 py-2 bg-highlight text-white rounded-xl hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-highlight w-full"
             disabled={isThinking || gameOver.isOver || resignLoading || !gameId}
             type="button"
           >
             {resignLoading ? 'Resigning...' : 'Resign'}
           </button>
           {gameOver.isOver && <GameOverBanner result={gameOver.result} reason={gameOver.reason} />}
-        </div>
-      </div>
-      <div className="min-w-0 flex-1 w-full mt-4">
+          <div className="min-w-0 flex-1 w-full mt-4">
         {showHistory && <MoveHistory history={history} currentMove={currentMove} goToMove={goToMove} />}
         {showAnalysis && <EngineAnalysis engineEvaluation={engineEvaluation} />}
+      </div>
+        </div>
       </div>
     </div>
   );

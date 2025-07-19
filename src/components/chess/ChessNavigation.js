@@ -10,8 +10,10 @@ const NAV_ITEMS = [
 
 const getNavItemClass = (isActive) =>
   [
-    'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-    isActive ? 'bg-primary text-white' : 'text-primary hover:bg-background-light',
+    'flex items-center gap-2 px-3 py-2 rounded-xl text-base font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+    isActive
+      ? 'bg-accent text-white shadow-md border border-accent'
+      : 'text-primary hover:bg-background-light hover:text-accent border border-transparent',
   ].join(' ');
 
 const ChessNavigation = React.memo(() => {
@@ -20,8 +22,8 @@ const ChessNavigation = React.memo(() => {
 
   // Accessibility: nav has aria-label, each link has aria-current if active
   return (
-    <div className="mb-6">
-      <nav className="flex flex-wrap gap-2 p-4 bg-background-light rounded-lg" aria-label="Chess navigation">
+    <div className="mb-6 w-full">
+      <nav className="flex flex-wrap gap-3 p-3 bg-background-light dark:bg-background-dark rounded-2xl shadow-md justify-center md:justify-start" aria-label="Chess navigation">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -30,8 +32,12 @@ const ChessNavigation = React.memo(() => {
               to={item.path}
               className={getNavItemClass(isActive)}
               aria-current={isActive ? 'page' : undefined}
+              tabIndex={0}
             >
-              <i className={`fas fa-${item.icon}`} aria-hidden="true"></i>
+              {/* Use Lucide icons if available, fallback to FontAwesome */}
+              <span className="inline-flex items-center justify-center w-6 h-6">
+                <i className={`fas fa-${item.icon} text-lg`} aria-hidden="true"></i>
+              </span>
               <span>{item.name}</span>
             </Link>
           );

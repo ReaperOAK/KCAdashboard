@@ -4,16 +4,17 @@ import React, { useState, useMemo, useCallback } from 'react';
 // Tag chip component for clarity and accessibility
 const TagChip = React.memo(function TagChip({ tag, onRemove }) {
   return (
-    <span className="bg-secondary text-white px-2 py-1 rounded-full text-xs flex items-center mr-1 mb-1" tabIndex={0} aria-label={`Tag: ${tag}`}>
+    <span className="bg-secondary text-white px-2 py-1 rounded-full text-xs flex items-center mr-1 mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200" tabIndex={0} aria-label={`Tag: ${tag}`}>
       {tag}
       <button
         type="button"
-        className="ml-1 text-accent hover:text-highlight focus:outline-none focus:ring-2 focus:ring-accent rounded-full px-1"
+        className="ml-1 text-accent hover:text-highlight focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-full px-1 flex items-center"
         onClick={onRemove}
         aria-label={`Remove tag ${tag}`}
         tabIndex={0}
       >
-        <span aria-hidden="true">×</span>
+        {/* Lucide icon: XCircle */}
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2" /><line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2" /></svg>
       </button>
     </span>
   );
@@ -21,11 +22,11 @@ const TagChip = React.memo(function TagChip({ tag, onRemove }) {
 
 const SuggestionList = React.memo(function SuggestionList({ suggestions, onSelect }) {
   return (
-    <ul className="absolute z-10 bg-white border border-gray-light rounded shadow mt-1 w-full max-h-32 overflow-auto" role="listbox">
+    <ul className="absolute z-10 bg-background-light dark:bg-background-dark border border-gray-light rounded-lg shadow mt-1 w-full max-h-40 overflow-auto transition-all duration-200" role="listbox">
       {suggestions.map(tag => (
         <li
           key={tag}
-          className="px-3 py-2 hover:bg-accent hover:text-white cursor-pointer text-sm"
+          className="px-3 py-2 flex items-center gap-2 hover:bg-accent hover:text-white cursor-pointer text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200"
           role="option"
           tabIndex={0}
           onMouseDown={() => onSelect(tag)}
@@ -37,6 +38,8 @@ const SuggestionList = React.memo(function SuggestionList({ suggestions, onSelec
           }}
           aria-selected={false}
         >
+          {/* Lucide icon: Tag */}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.59 13.41l-8.59-8.59a2 2 0 00-2.83 0l-5.59 5.59a2 2 0 000 2.83l8.59 8.59a2 2 0 002.83 0l5.59-5.59a2 2 0 000-2.83z" /></svg>
           {tag}
         </li>
       ))}
@@ -105,7 +108,7 @@ export const TagInput = React.memo(function TagInput({ value, onChange, suggesti
       </div>
       <input
         type="text"
-        className="w-full p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-text-dark placeholder:text-gray-dark"
+        className="w-full p-2 sm:p-3 border border-gray-light rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-transparent bg-background-light dark:bg-background-dark text-text-dark placeholder:text-gray-dark transition-all duration-200"
         placeholder="Add tag..."
         value={input}
         onChange={handleInputChange}

@@ -21,6 +21,18 @@ This project is a modern web dashboard for the Kolkata Chess Academy, built with
 
 ## Recent UI/UX & Codebase Improvements
 
+**Chess Dashboard UI/UX Refactor (July 2025)**
+- Refactored all chess-related pages and components for a beautiful, modern, and accessible user experience:
+  - `ChessHome.js`, `GameArea.js`, `InteractiveBoard.js`, `PGNGameView.js`, `PGNManagementPage.js`, `PlayerVsPlayer.js`, and all related chess components
+  - Applied Kolkata Chess Academy design system and Tailwind color tokens throughout
+  - Enhanced visual hierarchy, spacing, and typography for clarity and polish
+  - Improved accessibility: ARIA labels, keyboard navigation, focus-visible rings
+  - Optimized performance with memoization and modular, single-responsibility components
+  - Updated loading/error/empty states for better UX feedback
+  - Consistent card/panel styling, transitions, and responsive layouts
+  - All interactive elements are keyboard navigable and responsive
+  - Updated all relevant docs: `README.md`, `CONTRIBUTING.md`, feature docs
+
 **Support & Admin UI/UX Refactor (July 2025)**
 - Refactored all support/admin components for leave requests and ticketing:
   - `LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`, `SupportSystem.js`, `TicketTable.js`, `TicketDetailModal.js`, `FaqModal.js`, `FaqCard.js`.

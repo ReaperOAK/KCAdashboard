@@ -163,9 +163,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   // Memoize tab badge
   const challengesBadge = useMemo(() => (
     challenges.length > 0 ? (
-      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-error text-white text-xs ml-2">
-        {challenges.length}
-      </span>
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-error text-white text-xs ml-2 font-bold shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200" role="status" aria-label={`You have ${challenges.length} challenges`}>{challenges.length}</span>
     ) : null
   ), [challenges.length]);
 
@@ -173,7 +171,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
   if (error) return <ErrorState error={error} onRetry={handleRefresh} />;
 
   return (
-    <div className="max-w-6xl mx-auto px-5 pb-10">
+    <main className="max-w-7xl mx-auto px-5 pb-10 rounded-2xl transition-all duration-200" aria-label="Player vs Player Chess" role="main" tabIndex={0}>
       {showAcceptedGamesModal && acceptedGames.length > 0 && (
         <AcceptedGamesModal
           games={acceptedGames}
@@ -182,14 +180,14 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
           onClose={() => setShowAcceptedGamesModal(false)}
         />
       )}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-        <h1 className="text-3xl text-primary font-bold m-0">Play Chess</h1>
-        <div className="bg-accent text-white px-4 py-2 rounded-full font-bold text-base w-full sm:w-auto text-center transition-all duration-200 shadow-md">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary m-0 tracking-tight">Play Chess</h1>
+        <div className="bg-accent text-white px-6 py-3 rounded-full font-bold text-lg w-full sm:w-auto text-center transition-all duration-200 shadow-lg" aria-label="Your Rating">
           Your Rating: {playerStats ? playerStats.rating : 1200}
         </div>
       </div>
       <ChessNavigation />
-      <div className="flex overflow-x-auto border-b border-gray-light mb-6 no-scrollbar" role="tablist" aria-label="Chess Tabs">
+      <div className="flex overflow-x-auto border-b border-gray-light mb-8 no-scrollbar" role="tablist" aria-label="Chess Tabs">
         <div className="flex min-w-full sm:min-w-0">
           <TabButton isActive={activeTab === 'players'} onClick={() => setActiveTab('players')} ariaLabel="Online Players Tab">
             Online Players
@@ -234,7 +232,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
                 playMode="vs-ai"
                 width={520}
                 useOnlineAPI={useOnlineAPI}
-                className="w-full h-auto max-w-full shadow-lg rounded-lg border border-gray-light transition-all duration-200"
+                className="w-full h-auto max-w-full shadow-lg rounded-2xl border border-gray-light transition-all duration-200"
               />
             </div>
             <ComputerSettings
@@ -251,7 +249,7 @@ export const PlayerVsPlayer = React.memo(function PlayerVsPlayer() {
           <StatsPanel playerStats={playerStats} />
         )}
       </div>
-    </div>
+    </main>
   );
 });
 

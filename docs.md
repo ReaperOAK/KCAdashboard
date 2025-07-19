@@ -3,7 +3,9 @@
 ## Summary of Major Changes
 
 ### 1. UI/UX Modernization & Design System Enforcement
-- All teacher dashboard, management, analytics, and quiz pages now use the full Kolkata Chess Academy color system and Tailwind tokens.
+### 1. UI/UX Modernization & Design System Enforcement
+- All chess dashboard pages and components now use the full Kolkata Chess Academy color system and Tailwind tokens.
+- Refactored: `ChessHome.js`, `GameArea.js`, `InteractiveBoard.js`, `PGNGameView.js`, `PGNManagementPage.js`, `PlayerVsPlayer.js`, and all related chess components
 - Consistent use of gradients, shadows, rounded corners, and spacing for a modern, beautiful look.
 - All interactive elements (buttons, tabs, table rows) have clear hover, focus, and active states.
 - Section headers now include icons for clarity and visual hierarchy.

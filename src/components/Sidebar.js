@@ -61,6 +61,19 @@ const CHESS_LINKS = [
   { label: 'PGN Management', path: '/chess/pgn-management', icon: BookOpenIcon }
 ];
 
+// Custom hook to detect if screen is large (matches lg:)
+function useIsLargeScreen() {
+  const [isLarge, setIsLarge] = React.useState(() => window.innerWidth >= 1024);
+  React.useEffect(() => {
+    function handleResize() {
+      setIsLarge(window.innerWidth >= 1024);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return isLarge;
+}
+
 const SidebarLink = React.memo(function SidebarLink({ link, isActive, expanded, onClick, children }) {
   const Icon = link.icon;
   return (
@@ -146,6 +159,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
   const location = useLocation();
   const [expandedItem, setExpandedItem] = useState(null);
   const navigate = useNavigate();
+  const isLargeScreen = useIsLargeScreen();
 
   const links = useMemo(() => SIDEBAR_LINKS[user?.role] || [], [user?.role]);
 
@@ -228,7 +242,10 @@ function Sidebar({ isOpen, toggleSidebar }) {
             );
           })}
           <div className="my-4 border-t border-gray-light" aria-hidden="true"></div>
-          <ChessSection links={CHESS_LINKS} activePath={location.pathname} onNavigate={handleNavigation} />
+          {/* Only show chess links in sidebar if not visible in TopNavbar (i.e., not large screen) */}
+          {!isLargeScreen && (
+            <ChessSection links={CHESS_LINKS} activePath={location.pathname} onNavigate={handleNavigation} />
+          )}
         </div>
       </motion.nav>
     </>

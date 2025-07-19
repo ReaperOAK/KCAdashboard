@@ -1,4 +1,5 @@
 
+
 import React, { useCallback, useMemo } from 'react';
 
 // Helper: Format time in IST
@@ -21,18 +22,18 @@ const MoveRow = React.memo(function MoveRow({ moveItem, index, currentMove, onMo
   const isWhiteCurrent = moveItem.white && currentMove === index * 2;
   const isBlackCurrent = moveItem.black && currentMove === index * 2 + 1;
   return (
-    <tr className="border-b border-gray-light">
-      <td className="px-2 py-1 text-gray-600 font-mono">{moveItem.moveNumber}.</td>
+    <tr className="border-b border-gray-light hover:bg-gray-light/40 transition-colors">
+      <td className="px-2 py-1 text-gray-dark font-mono text-xs sm:text-sm">{moveItem.moveNumber}.</td>
       <td>
         <button
           type="button"
           className={
-            `px-2 py-1 w-full text-left font-mono rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors ` +
+            `px-2 py-1 w-full text-left font-mono rounded focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 ` +
             (moveItem.white
               ? isWhiteCurrent
-                ? 'bg-accent text-white font-semibold'
-                : 'text-gray-800 hover:bg-accent/10'
-              : 'text-gray-400 cursor-default')
+                ? 'bg-accent text-white font-semibold shadow-sm'
+                : 'text-primary hover:bg-accent/10'
+              : 'text-gray-light cursor-default')
           }
           onClick={moveItem.white ? () => onMoveClick(index * 2) : undefined}
           aria-current={isWhiteCurrent ? 'step' : undefined}
@@ -47,12 +48,12 @@ const MoveRow = React.memo(function MoveRow({ moveItem, index, currentMove, onMo
         <button
           type="button"
           className={
-            `px-2 py-1 w-full text-left font-mono rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors ` +
+            `px-2 py-1 w-full text-left font-mono rounded focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 ` +
             (moveItem.black
               ? isBlackCurrent
-                ? 'bg-accent text-white font-semibold'
-                : 'text-gray-800 hover:bg-accent/10'
-              : 'text-gray-400 cursor-default')
+                ? 'bg-accent text-white font-semibold shadow-sm'
+                : 'text-primary hover:bg-accent/10'
+              : 'text-gray-light cursor-default')
           }
           onClick={moveItem.black ? () => onMoveClick(index * 2 + 1) : undefined}
           aria-current={isBlackCurrent ? 'step' : undefined}
@@ -63,7 +64,7 @@ const MoveRow = React.memo(function MoveRow({ moveItem, index, currentMove, onMo
           {moveItem.black ? moveItem.black.san : ''}
         </button>
       </td>
-      <td className="px-2 py-1 text-gray-500 font-mono">
+      <td className="px-2 py-1 text-gray-dark font-mono text-xs sm:text-sm">
         {moveItem.white && moveItem.white.created_at
           ? formatIST(moveItem.white.created_at)
           : moveItem.black && moveItem.black.created_at
@@ -101,22 +102,22 @@ export const MoveHistory = React.memo(function MoveHistory({ history, currentMov
 
   return (
     <section
-      className="bg-background-light rounded-lg p-4 shadow-md"
+      className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl p-4 sm:p-6 w-full max-w-2xl mx-auto"
       aria-label="Move History"
       tabIndex={0}
     >
-      <h3 className="text-xl font-semibold text-primary mb-3">Move History</h3>
-      <div className="max-h-80 overflow-y-auto">
+      <h3 className="text-2xl text-primary font-medium mb-4">Move History</h3>
+      <div className="max-h-80 overflow-y-auto rounded-lg border border-gray-light">
         {history.length === 0 ? (
-          <div className="text-gray-500 text-center py-4" role="status">No moves yet</div>
+          <div className="text-gray-dark text-center py-6" role="status">No moves yet</div>
         ) : (
-          <table className="w-full text-sm" aria-label="Chess move history">
-            <thead className="bg-primary text-white text-sm uppercase">
+          <table className="w-full text-xs sm:text-sm" aria-label="Chess move history">
+            <thead className="bg-primary text-white text-xs sm:text-sm uppercase sticky top-0 z-10">
               <tr>
-                <th className="px-2 py-1 text-left font-medium">#</th>
-                <th className="px-2 py-1 text-left font-medium">White</th>
-                <th className="px-2 py-1 text-left font-medium">Black</th>
-                <th className="px-2 py-1 text-left font-medium">Time</th>
+                <th className="px-2 py-2 text-left font-medium">#</th>
+                <th className="px-2 py-2 text-left font-medium">White</th>
+                <th className="px-2 py-2 text-left font-medium">Black</th>
+                <th className="px-2 py-2 text-left font-medium">Time</th>
               </tr>
             </thead>
             <tbody>{moveRows}</tbody>

@@ -37,27 +37,27 @@ export default function PGNGameView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mr-4" aria-label="Loading" />
-        <span className="text-lg text-primary">Loading game...</span>
-      </div>
+      <section className="flex flex-col items-center justify-center min-h-[40vh] h-[60vh] text-center bg-background-light px-4 transition-all duration-200 border border-gray-light shadow-lg rounded-2xl" aria-live="polite" aria-label="Loading PGN game" role="status">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-accent mb-4" aria-label="Loading" />
+        <span className="text-lg text-primary font-semibold">Loading game...</span>
+      </section>
     );
   }
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="bg-highlight text-white rounded-lg px-6 py-4 shadow max-w-lg w-full text-center text-base font-medium transition-all duration-200">
+      <section className="flex flex-col items-center justify-center min-h-[40vh] h-[60vh] text-center bg-background-light px-4 transition-all duration-200 border border-gray-light shadow-lg rounded-2xl" aria-live="polite" aria-label="PGN game error" role="alert">
+        <div className="bg-highlight text-white rounded-lg px-6 py-4 shadow max-w-lg w-full text-center text-base font-semibold transition-all duration-200">
           {error}
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-light py-8">
-      <div className="w-full max-w-7xl min-w-[320px] mx-auto bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-lg p-2 sm:p-8">
+    <main className="min-h-screen bg-background-light py-8" aria-label="PGN Game Viewer" role="main" tabIndex={0}>
+      <section className="w-full max-w-7xl min-w-[320px] mx-auto bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-2xl p-2 sm:p-8 transition-all duration-200">
         <button
-          className="mb-4 px-4 py-2 bg-secondary text-white rounded hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 font-semibold"
+          className="mb-4 px-5 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 font-semibold"
           onClick={() => navigate('/chess/pgn-management')}
           aria-label="Back to PGN Library"
         >
@@ -73,7 +73,7 @@ export default function PGNGameView() {
           theme="light"
           className="w-full mx-auto"
         />
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

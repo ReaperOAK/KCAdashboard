@@ -1,3 +1,4 @@
+
 # July 2025 UI/UX Overhaul
 
 This project underwent a major UI/UX, accessibility, and modularity overhaul in July 2025. Please review the following before contributing:
@@ -9,9 +10,9 @@ This project underwent a major UI/UX, accessibility, and modularity overhaul in 
 
 ---
 
-# Support/Admin UI/UX Refactor (July 2025)
+# Chess Dashboard UI/UX Refactor (July 2025)
 
-All support and admin dashboard UI is now modular, beautiful, and accessible. When contributing to support/admin dashboard components:
+All chess dashboard pages and components are now modular, beautiful, and accessible. When contributing to chess dashboard components:
 - Use pure, focused, reusable functional React components and Hooks.
 - Follow the KCA color system in `colour_scheme.md` and Tailwind config.
 - All styling must use TailwindCSS and design tokens (no inline styles).
@@ -22,41 +23,8 @@ All support and admin dashboard UI is now modular, beautiful, and accessible. Wh
 - Document new or modified components in the relevant feature folder and main docs.
 - Update the main README and CHANGELOG with any major UI/UX changes.
 
-All admin dashboard UI is now modular, beautiful, and accessible. When contributing to admin dashboard components:
-- Use pure, focused, reusable functional React components and Hooks.
-- Follow the KCA color system in `colour_scheme.md` and Tailwind config.
-- All styling must use TailwindCSS and design tokens (no inline styles).
-- Ensure all components are single-responsibility, responsive, and accessible (ARIA, keyboard navigation, focus/hover/disabled states).
-- Use animated transitions for interactive elements.
-- Optimize for performance: use React.memo, useCallback, useMemo where appropriate.
-- Always handle loading, error, and empty states in UI.
-- Document new or modified components in the relevant feature folder and main docs.
-- Update the main README and CHANGELOG with any major UI/UX changes.
-
-# Student Dashboard & Pages UI/UX Overhaul (July 2025)
-
-All student-facing pages and components are now modular, beautiful, and accessible. When contributing to student dashboard or page components:
-- Use pure, focused, reusable functional React components and Hooks.
-- Follow the KCA color system in `colour_scheme.md` and Tailwind config.
-- All styling must use TailwindCSS and design tokens (no inline styles).
-- Ensure all components are single-responsibility, responsive, and accessible (semantic HTML, ARIA, keyboard navigation, focus/hover/disabled states).
-- Use animated transitions for interactive elements.
-- Optimize for performance: use React.memo, useCallback, useMemo where appropriate.
-- Always handle loading, error, and empty states in UI.
-- Document new or modified components in the relevant feature folder and main docs.
-- Use the `formatSchedule` utility for all batch/classroom schedule displays to ensure consistency and readability. Update `src/utils/docs.md` if schedule display logic changes.
-- Update the main README and CHANGELOG with any major UI/UX changes.
-
-# Resource Center UI/UX Refactor (July 2025)
-
-All resource center UI is now modular, beautiful, and accessible. When contributing to resource center components:
-- Follow the KCA color system in `colour_scheme.md` and Tailwind config.
-- Ensure all components are single-responsibility, responsive, and accessible (ARIA, keyboard navigation, focus/hover/disabled states).
-- Use transitions and clear states for all interactive elements.
-- Document new or modified components in [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/docs.md).
-- Update the main README and CHANGELOG with any major UI/UX changes.
-
-## Documentation & Changelog Updates
+# Support/Admin UI/UX Refactor (July 2025)
+...existing code...
 
 ### User Management UI/UX Refactor (July 2025)
 - All user management UI is now modular, beautiful, and accessible. When contributing to user management components:

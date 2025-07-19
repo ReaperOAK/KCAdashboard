@@ -8,11 +8,11 @@ import ChessEngine from '../../utils/ChessEngine';
 const FeedbackMessage = React.memo(function FeedbackMessage({ feedback, feedbackType }) {
   if (!feedback) return null;
   let colorClass = '';
-  if (feedbackType === 'correct') colorClass = 'bg-green-100 text-green-800';
-  else if (feedbackType === 'incorrect') colorClass = 'bg-red-100 text-red-800';
-  else colorClass = 'bg-accent/10 text-primary';
+  if (feedbackType === 'correct') colorClass = 'bg-success/10 text-success';
+  else if (feedbackType === 'incorrect') colorClass = 'bg-highlight/10 text-highlight';
+  else colorClass = 'bg-accent/10 text-accent';
   return (
-    <div className={`mt-3 p-2 rounded-lg text-sm font-medium ${colorClass}`} role="status" aria-live="polite">
+    <div className={`mt-3 p-3 rounded-xl text-base font-semibold shadow-sm ${colorClass}`} role="status" aria-live="polite">
       {feedback}
     </div>
   );
@@ -22,9 +22,9 @@ const FeedbackMessage = React.memo(function FeedbackMessage({ feedback, feedback
 const DisabledOverlay = React.memo(function DisabledOverlay({ isWaiting, disabled }) {
   if (!isWaiting && !disabled) return null;
   return (
-    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center z-10" aria-label={isWaiting ? 'Computer is thinking' : 'Position locked'}>
-      <div className="bg-white rounded-lg px-4 py-2 shadow-lg">
-        <span className="text-gray-dark">{isWaiting ? 'Computer is thinking...' : 'Position locked'}</span>
+    <div className="absolute inset-0 bg-background-light/80 dark:bg-background-dark/80 flex items-center justify-center z-10" aria-label={isWaiting ? 'Computer is thinking' : 'Position locked'}>
+      <div className="bg-white dark:bg-background-dark rounded-xl px-6 py-3 shadow-xl">
+        <span className="text-gray-dark dark:text-text-light text-base font-medium">{isWaiting ? 'Computer is thinking...' : 'Position locked'}</span>
       </div>
     </div>
   );
@@ -43,48 +43,52 @@ const BoardControls = React.memo(function BoardControls({
   disabled
 }) {
   return (
-    <div className="mt-3 flex gap-2 items-center">
-      <button
-        type="button"
-        onClick={onStepBackward}
-        className="px-2 py-1 bg-gray-light hover:bg-gray-dark/20 text-primary rounded text-sm flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        disabled={!canStepBackward}
-        title="Previous move"
-        aria-label="Previous move"
-      >
-        <FaStepBackward />
-      </button>
-      <button
-        type="button"
-        onClick={onStepForward}
-        className="px-2 py-1 bg-gray-light hover:bg-gray-dark/20 text-primary rounded text-sm flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        disabled={!canStepForward}
-        title="Next move"
-        aria-label="Next move"
-      >
-        <FaStepForward />
-      </button>
-      <span className="text-xs text-gray-dark ml-2">
+    <div className="mt-4 flex flex-wrap gap-3 items-center justify-between w-full">
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={onStepBackward}
+          className="px-3 py-2 bg-gray-light hover:bg-gray-dark/20 text-primary rounded-xl text-base flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm"
+          disabled={!canStepBackward}
+          title="Previous move"
+          aria-label="Previous move"
+        >
+          <FaStepBackward />
+        </button>
+        <button
+          type="button"
+          onClick={onStepForward}
+          className="px-3 py-2 bg-gray-light hover:bg-gray-dark/20 text-primary rounded-xl text-base flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm"
+          disabled={!canStepForward}
+          title="Next move"
+          aria-label="Next move"
+        >
+          <FaStepForward />
+        </button>
+      </div>
+      <span className="text-sm text-gray-dark ml-2">
         Move {moveIndex + 1} of {totalMoves}
       </span>
-      <button
-        type="button"
-        onClick={onReset}
-        className="ml-auto px-3 py-1 bg-background-light hover:bg-gray-light text-primary rounded text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        disabled={disabled}
-        aria-label="Reset position"
-      >
-        Reset
-      </button>
-      <button
-        type="button"
-        onClick={onHint}
-        className="px-3 py-1 bg-accent/10 hover:bg-accent/20 text-primary rounded text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        disabled={disabled || !canStepForward}
-        aria-label="Show hint"
-      >
-        Hint
-      </button>
+      <div className="flex gap-2 ml-auto">
+        <button
+          type="button"
+          onClick={onReset}
+          className="px-4 py-2 bg-background-light hover:bg-gray-light text-primary rounded-xl text-base font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm"
+          disabled={disabled}
+          aria-label="Reset position"
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          onClick={onHint}
+          className="px-4 py-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-xl text-base font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm"
+          disabled={disabled || !canStepForward}
+          aria-label="Show hint"
+        >
+          Hint
+        </button>
+      </div>
     </div>
   );
 });
@@ -338,19 +342,19 @@ export function ChessPGNBoard({
 
   return (
     <section className={`chess-pgn-board ${className}`.trim()} aria-label="Chess PGN Board">
-      <header className="flex items-center gap-2 mb-2">
-        <span className="font-semibold text-sm">PGN Visualizer</span>
+      <header className="flex items-center gap-2 mb-4">
+        <span className="font-semibold text-lg text-primary">PGN Visualizer</span>
         <FaQuestionCircle className="text-accent ml-1" aria-label="Help" title="Paste a PGN game. Use the arrows to step through the moves. Errors will be shown below if the PGN is invalid." />
       </header>
       {question && (
-        <div className="mb-2">
-          <h3 className="text-base font-semibold text-primary">{question}</h3>
-          <p className="text-xs text-gray-dark mt-1">
-            Play as {expectedPlayerColor}. Follow the game line by making the correct moves.
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-primary">{question}</h3>
+          <p className="text-sm text-gray-dark mt-1">
+            Play as <span className="font-semibold text-accent">{expectedPlayerColor}</span>. Follow the game line by making the correct moves.
           </p>
         </div>
       )}
-      <div className="relative flex justify-center">
+      <div className="relative flex justify-center items-center w-full py-2">
         <Chessboard
           position={game.fen()}
           onPieceDrop={handleDrop}

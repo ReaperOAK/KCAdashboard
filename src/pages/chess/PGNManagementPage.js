@@ -74,16 +74,16 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
 
   // --- Render ---
   return (
-    <div className="min-h-screen bg-background-light py-6 sm:py-8">
+    <main className="min-h-screen bg-background-light py-6 sm:py-8" aria-label="PGN Management Page" role="main" tabIndex={0}>
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-        <header className="mb-6 sm:mb-8" aria-label="Page header">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-4">Chess PGN Manager</h1>
-          <p className="text-base sm:text-lg text-text-dark mb-4 sm:mb-6">
+        <header className="mb-8 sm:mb-10" aria-label="Page header">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mb-4 sm:mb-6 tracking-tight">Chess PGN Manager</h1>
+          <p className="text-base sm:text-lg text-text-dark mb-6 sm:mb-8">
             Upload, analyze, and manage your chess game collection with support for complex PGNs, variations, comments, and annotations.
           </p>
           <FeatureHighlights />
         </header>
-        <section className="mb-6 sm:mb-8">
+        <section className="mb-8 sm:mb-10">
           <TabNav activeTab={activeTab} onTabChange={handleTabChange} tabs={tabs} />
         </section>
         <section className="tab-content w-full" id={`tabpanel-${activeTab}`} role="tabpanel" aria-labelledby={activeTab}>
@@ -100,7 +100,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
                   showMoveList
                   autoPlay={false}
                   theme="light"
-                  className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg w-full h-auto"
+                  className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-2xl p-2 sm:p-6 w-full h-auto transition-all duration-200"
                 />
               </div>
             </>
@@ -108,7 +108,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
           {activeTab === 'upload' && (
             <div className="w-full">
               {user && user.role && user.role.toLowerCase() === 'student' ? (
-                <div className="bg-warning border border-warning text-white rounded-lg p-6 text-center">
+                <div className="bg-warning border border-warning text-white rounded-2xl p-6 text-center font-semibold shadow-md transition-all duration-200" role="alert" aria-label="Upload not allowed">
                   Students are not allowed to upload PGN files.
                 </div>
               ) : (
@@ -116,7 +116,7 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
                   <PGNUpload
                     onPGNParsed={handlePGNParsed}
                     onUploadComplete={handleUploadComplete}
-                    className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg w-full h-auto"
+                    className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-2xl p-2 sm:p-6 w-full h-auto transition-all duration-200"
                   />
                   <UploadHelpSection />
                 </>
@@ -128,13 +128,13 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
               <PGNLibrary
                 onGameSelect={handleGameSelect}
                 showViewer
-                className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-lg p-4 sm:p-6 w-full h-auto"
+                className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-2xl p-4 sm:p-6 w-full h-auto transition-all duration-200"
               />
             </div>
           )}
         </section>
       </div>
-    </div>
+    </main>
   );
 });
 

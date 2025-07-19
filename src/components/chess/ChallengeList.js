@@ -1,4 +1,3 @@
-
 import React, { useMemo, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ChessApi } from '../../api/chess';
@@ -14,23 +13,45 @@ const formatTimeControl = (timeControl) => {
   return timeControl;
 };
 
+// Helper: Format time in IST
+const formatIST = (dateString) => {
+  if (!dateString) return '';
+  try {
+    let s = dateString;
+    if (s && !s.includes('T')) s = s.replace(' ', 'T');
+    if (s && !s.endsWith('Z')) s += 'Z';
+    const d = new Date(s);
+    return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+  } catch {
+    return dateString;
+  }
+};
+
 // Util: Format time ago
 const formatTimeAgo = (dateString) => {
+  if (!dateString) return '';
   try {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    let s = dateString;
+    if (s && !s.includes('T')) s = s.replace(' ', 'T');
+    if (s && !s.endsWith('Z')) s += 'Z';
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return dateString;
+    return formatDistanceToNow(d, { addSuffix: true });
   } catch {
     return dateString;
   }
 };
 
 // Button: Accept/Decline/Cancel
-const ChallengeActionButton = React.memo(function ChallengeActionButton({ label, onClick, colorClass, ariaLabel }) {
+const ChallengeActionButton = React.memo(function ChallengeActionButton({ label, onClick, colorClass, ariaLabel, disabled = false }) {
   return (
     <button
       type="button"
-      className={`px-3 py-1 rounded text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors ${colorClass}`}
+      className={`px-4 py-2 rounded-lg text-sm font-semibold shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 ${colorClass} ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
       onClick={onClick}
       aria-label={ariaLabel || label}
+      disabled={disabled}
+      tabIndex={0}
     >
       {label}
     </button>
@@ -40,38 +61,39 @@ const ChallengeActionButton = React.memo(function ChallengeActionButton({ label,
 // Card: Challenge
 const ChallengeCard = React.memo(function ChallengeCard({ challenge, type, onAccept, onDecline }) {
   const isIncoming = type === 'incoming';
-  const borderColor = isIncoming ? 'border-green-500' : 'border-blue-500';
+  const borderColor = isIncoming ? 'border-green-600' : 'border-accent';
   const playerLabel = isIncoming
     ? `You play as: ${challenge.color === 'white' ? 'Black' : 'White'}`
     : `You play as: ${challenge.color}`;
   return (
     <div
-      className={`bg-white border-l-4 ${borderColor} p-4 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4`}
+      className={`bg-background-light dark:bg-background-dark border-l-4 ${borderColor} p-4 rounded-xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all duration-200`}
       role="region"
       aria-label={isIncoming ? `Challenge from ${challenge.challenger.name}` : `Challenge to ${challenge.recipient.name}`}
       tabIndex={0}
     >
       <div className="flex-1 w-full">
-        <div className="font-semibold text-primary mb-1">
+        <div className="font-semibold text-primary mb-1 text-lg">
           {isIncoming ? challenge.challenger.name : `To: ${challenge.recipient.name}`}
         </div>
         <div className="text-sm text-gray-dark mb-2">{formatTimeControl(challenge.time_control)}</div>
-        <div className="text-xs text-gray-dark">{playerLabel}</div>
+        <div className="text-xs text-secondary font-medium mb-1">{playerLabel}</div>
         <div className="text-xs text-gray-dark">{formatTimeAgo(challenge.created_at)}</div>
+        <div className="text-xs text-gray-dark">{formatIST(challenge.created_at)}</div>
       </div>
-      <div className="flex gap-2 ml-0 sm:ml-4 w-full sm:w-auto justify-end sm:justify-start">
+      <div className="flex gap-2 w-full md:w-auto justify-end md:justify-start">
         {isIncoming ? (
           <>
             <ChallengeActionButton
               label="Accept"
               onClick={onAccept}
-              colorClass="bg-green-600 text-white hover:bg-green-700"
+              colorClass="bg-success text-white hover:bg-green-700 focus:ring-success"
               ariaLabel={`Accept challenge from ${challenge.challenger.name}`}
             />
             <ChallengeActionButton
               label="Decline"
               onClick={onDecline}
-              colorClass="bg-red-600 text-white hover:bg-red-700"
+              colorClass="bg-highlight text-white hover:bg-red-700 focus:ring-highlight"
               ariaLabel={`Decline challenge from ${challenge.challenger.name}`}
             />
           </>
@@ -79,7 +101,7 @@ const ChallengeCard = React.memo(function ChallengeCard({ challenge, type, onAcc
           <ChallengeActionButton
             label="Cancel"
             onClick={onDecline}
-            colorClass="bg-gray-dark text-white hover:bg-gray-600"
+            colorClass="bg-gray-dark text-white hover:bg-gray-light focus:ring-gray-dark"
             ariaLabel={`Cancel challenge to ${challenge.recipient.name}`}
           />
         )}
@@ -130,18 +152,18 @@ export const ChallengeList = React.memo(function ChallengeList({ challenges, onA
   );
 
   return (
-    <section className="space-y-4" aria-label="Chess Challenges" >
-      <h3 className="text-lg font-semibold text-primary">Chess Challenges</h3>
+    <section className="space-y-6 w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto px-2 sm:px-0" aria-label="Chess Challenges" >
+      <h3 className="text-2xl font-semibold text-text-dark mb-4">Chess Challenges</h3>
 
       {challenges.length === 0 ? (
-        <div className="bg-background-light p-6 rounded-lg text-center">
-          <p className="text-gray-dark">No pending challenges</p>
+        <div className="bg-background-light dark:bg-background-dark p-8 rounded-xl text-center shadow-md">
+          <p className="text-gray-dark text-lg">No pending challenges</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {incomingChallenges.length > 0 && (
-            <section aria-label="Incoming Challenges" className="space-y-3">
-              <h4 className="text-md font-medium text-secondary mb-3">Incoming Challenges</h4>
+            <section aria-label="Incoming Challenges" className="space-y-4">
+              <h4 className="text-xl font-medium text-secondary mb-4">Incoming Challenges</h4>
               {incomingChallenges.map(challenge => (
                 <ChallengeCard
                   key={challenge.id}
@@ -154,8 +176,8 @@ export const ChallengeList = React.memo(function ChallengeList({ challenges, onA
             </section>
           )}
           {outgoingChallenges.length > 0 && (
-            <section aria-label="Outgoing Challenges" className="space-y-3">
-              <h4 className="text-md font-medium text-secondary mb-3">Outgoing Challenges</h4>
+            <section aria-label="Outgoing Challenges" className="space-y-4">
+              <h4 className="text-xl font-medium text-secondary mb-4">Outgoing Challenges</h4>
               {outgoingChallenges.map(challenge => (
                 <ChallengeCard
                   key={challenge.id}
@@ -169,12 +191,14 @@ export const ChallengeList = React.memo(function ChallengeList({ challenges, onA
         </div>
       )}
 
-      <ChallengeActionButton
-        label="Refresh Challenges"
-        onClick={onRefresh}
-        colorClass="w-full px-4 py-2 bg-accent text-white rounded hover:bg-secondary"
-        ariaLabel="Refresh chess challenges"
-      />
+      <div className="mt-6">
+        <ChallengeActionButton
+          label="Refresh Challenges"
+          onClick={onRefresh}
+          colorClass="w-full px-4 py-2 bg-accent text-white rounded-xl hover:bg-secondary focus:ring-accent"
+          ariaLabel="Refresh chess challenges"
+        />
+      </div>
     </section>
   );
 });

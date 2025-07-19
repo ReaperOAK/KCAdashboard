@@ -11,10 +11,10 @@ function FileDropArea({
   // Memoize drop area classes for performance and color contrast
   const dropAreaClasses = useMemo(
     () =>
-      `border-2 border-dashed rounded-lg p-8 text-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+      `rounded-lg  p-8 text-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent ${
         isDragging
-          ? 'border-accent bg-accent/10'
-          : 'border-gray-light  hover:border-accent '
+          ? 'bg-accent/10'
+          : ''
       }`,
     [isDragging]
   );
@@ -75,33 +75,33 @@ export const PGNFileDrop = React.memo(function PGNFileDrop({
 }) {
   const fileInputId = useMemo(() => 'pgn-file-input', []);
   return (
-    <div className="mb-6">
+    <section
+      className="mb-6 w-full max-w-7xl mx-auto bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl p-6 flex flex-col items-center justify-center"
+      aria-label="PGN File Upload"
+      tabIndex={0}
+    >
       <FileDropArea
         isDragging={isDragging}
         handleDragOver={handleDragOver}
         handleDragLeave={handleDragLeave}
         handleDrop={handleDrop}
       >
-        <ArrowUpTrayIcon className="w-12 h-12 mx-auto text-gray-light mb-4" aria-hidden="true" />
-        <p className="text-lg font-medium text-text-dark  mb-2">
-          Drop your PGN file here
-        </p>
-        <p className="text-gray-dark  mb-4">or click to browse</p>
+        <ArrowUpTrayIcon className="w-14 h-14 mx-auto text-accent mb-4" aria-hidden="true" />
+        <p className="text-xl font-medium text-primary mb-2">Drop your PGN file here</p>
+        <p className="text-gray-dark mb-4">or click to browse</p>
         <FileInput allowedFormats={allowedFormats} handleFileInputChange={handleFileInputChange} id={fileInputId} />
         <label
           htmlFor={fileInputId}
-          className="inline-block px-6 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 transition-colors"
+          className="inline-block px-6 py-2 bg-accent text-white rounded-lg cursor-pointer hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-colors text-base font-semibold"
           tabIndex={0}
           role="button"
           aria-label="Choose PGN file"
         >
           Choose File
         </label>
-        <p className="text-xs text-gray-dark  mt-2">
-          Max size: {Math.round(maxFileSize / 1024 / 1024)}MB | Formats: {allowedFormats.join(', ')}
-        </p>
+        <p className="text-xs text-gray-dark mt-2">Max size: {Math.round(maxFileSize / 1024 / 1024)}MB | Formats: {allowedFormats.join(', ')}</p>
       </FileDropArea>
-    </div>
+    </section>
   );
 });
 

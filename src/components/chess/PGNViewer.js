@@ -400,16 +400,13 @@ export const PGNViewer = React.memo(function PGNViewer({
   }, []);
 
 
-  const themeClasses = localTheme === 'dark'
-    ? 'bg-background-dark text-text-light border-gray-dark'
-    : 'bg-background-light text-text-dark border-gray-light';
-
   const currentGameData = games[currentGameIndex];
 
   return (
-    <div
-      className={`pgn-viewer border rounded-xl shadow-lg mx-auto my-4 px-2 py-4 sm:p-6 md:p-8 max-w-7xl w-full ${themeClasses} ${className}`}
+    <section
+      className={`pgn-viewer rounded-2xl mx-auto sm:p-6 md:p-8 max-w-7xl w-full ${className}`}
       style={{ minHeight: 400 }}
+      aria-label="PGN Viewer Panel"
     >
       {error && <ErrorBanner error={error} />}
       <ViewerHeader
@@ -427,9 +424,9 @@ export const PGNViewer = React.memo(function PGNViewer({
           localTheme={localTheme}
         />
       )}
-      <div className="flex flex-col md:flex-row flex-wrap gap-6 md:gap-8 items-stretch">
+      <div className="flex flex-col md:flex-row flex-wrap gap-8 items-stretch">
         <div
-          className="flex flex-col items-center md:items-start"
+          className="flex flex-col items-center md:items-start rounded-xl md:mb-0"
           style={{
             flex: `0 1 ${responsiveBoardWidth}px`,
             minWidth: 220,
@@ -468,7 +465,7 @@ export const PGNViewer = React.memo(function PGNViewer({
           )}
         </div>
         <div
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-6"
           style={{
             flex: '1 1 300px',
             minWidth: 220,
@@ -493,17 +490,18 @@ export const PGNViewer = React.memo(function PGNViewer({
         </div>
       </div>
       {gameHistory.length > 0 && (
-        <div className="mt-6">
+        <div className="mt-8">
           <ProgressIndicator currentMoveIndex={currentMoveIndex} gameHistoryLength={gameHistory.length} />
         </div>
       )}
-    </div>
+    </section>
   );
 });
 
 function ErrorBanner({ error }) {
   return (
-    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded" role="alert">
+    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded shadow-md" role="alert" aria-live="assertive">
+      <span className="font-semibold mr-2">Error:</span>
       {error}
     </div>
   );
@@ -511,10 +509,10 @@ function ErrorBanner({ error }) {
 
 function ViewerHeader({ localTheme, toggleTheme, showSettings, setShowSettings, handleFileUpload }) {
   return (
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-bold">PGN Viewer</h2>
+    <header className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-primary">PGN Viewer</h2>
       <div className="flex items-center space-x-2">
-        <label className="cursor-pointer p-2 rounded hover:bg-gray-light ">
+        <label className="cursor-pointer p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:bg-gray-light transition-all duration-200" aria-label="Upload PGN file">
           <ArrowUpTrayIcon className="w-5 h-5" />
           <input
             type="file"
@@ -525,31 +523,31 @@ function ViewerHeader({ localTheme, toggleTheme, showSettings, setShowSettings, 
         </label>
         <button
           onClick={toggleTheme}
-          className="p-2 rounded hover:bg-gray-light "
+          className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:bg-gray-light transition-all duration-200"
           aria-label="Toggle theme"
         >
           {localTheme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
         </button>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="p-2 rounded hover:bg-gray-light "
+          className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent hover:bg-gray-light transition-all duration-200"
           aria-label="Show settings"
         >
           <Cog6ToothIcon className="w-5 h-5" />
         </button>
       </div>
-    </div>
+    </header>
   );
 }
 
 function GameSelector({ games, currentGameIndex, selectGame, localTheme }) {
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-medium mb-2">Select Game:</label>
+    <div className="mb-6 bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl p-4">
+      <label className="block text-sm font-medium mb-2 text-primary">Select Game:</label>
       <select
         value={currentGameIndex}
         onChange={e => selectGame(parseInt(e.target.value))}
-        className={`w-full p-2 border rounded ${localTheme === 'dark' ? 'bg-gray-dark border-gray-dark' : 'bg-background-light border-gray-light'}`}
+        className={`w-full p-2 border rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 ${localTheme === 'dark' ? 'bg-gray-dark border-gray-dark text-text-light' : 'bg-background-light border-gray-light text-text-dark'}`}
         aria-label="Select game"
       >
         {games.map((game, index) => {
@@ -589,11 +587,11 @@ function NavigationControls({
   gameHistoryLength
 }) {
   return (
-    <div className="flex items-center justify-center space-x-2 mt-1">
+    <div className="flex items-center justify-center gap-2 mt-1">
       <button
         onClick={goToFirst}
         disabled={currentMoveIndex <= -1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
+        className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 hover:bg-gray-light transition-all duration-200"
         aria-label="First move"
       >
         <ChevronDoubleLeftIcon className="w-5 h-5" />
@@ -601,7 +599,7 @@ function NavigationControls({
       <button
         onClick={goToPrevious}
         disabled={currentMoveIndex <= -1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
+        className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 hover:bg-gray-light transition-all duration-200"
         aria-label="Previous move"
       >
         <BackwardIcon className="w-5 h-5" />
@@ -609,7 +607,7 @@ function NavigationControls({
       <button
         onClick={toggleAutoPlay}
         disabled={gameHistoryLength === 0}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
+        className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 hover:bg-gray-light transition-all duration-200"
         aria-label={isPlaying ? 'Pause autoplay' : 'Play autoplay'}
       >
         {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
@@ -617,7 +615,7 @@ function NavigationControls({
       <button
         onClick={goToNext}
         disabled={currentMoveIndex >= gameHistoryLength - 1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
+        className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 hover:bg-gray-light transition-all duration-200"
         aria-label="Next move"
       >
         <ForwardIcon className="w-5 h-5" />
@@ -625,7 +623,7 @@ function NavigationControls({
       <button
         onClick={goToLast}
         disabled={currentMoveIndex >= gameHistoryLength - 1}
-        className="p-2 rounded disabled:opacity-50 hover:bg-gray-light "
+        className="p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 hover:bg-gray-light transition-all duration-200"
         aria-label="Last move"
       >
         <ChevronDoubleRightIcon className="w-5 h-5" />
@@ -636,8 +634,12 @@ function NavigationControls({
 
 function GameHeadersPanel({ gameHeaders, localTheme }) {
   return (
-    <div className={`p-3 border rounded ${localTheme === 'dark' ? 'border-gray-dark bg-gray-dark' : 'border-gray-light bg-background-light'}`}>
-      <h3 className="font-semibold mb-2">Game Information</h3>
+    <div className={`p-3 border rounded shadow-sm ${localTheme === 'dark' ? 'border-gray-dark bg-gray-dark' : 'border-gray-light bg-background-light'}`}>
+      <h3 className="font-semibold text-primary mb-2 flex items-center gap-2">
+        {/* Lucide icon: Info */}
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+        Game Information
+      </h3>
       <div className="space-y-1 text-sm">
         {Object.entries(gameHeaders).map(([key, value]) => {
           let displayValue = value;
@@ -664,8 +666,12 @@ function GameHeadersPanel({ gameHeaders, localTheme }) {
 
 function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotations, variations, localTheme }) {
   return (
-    <div className={`p-3 border rounded ${localTheme === 'dark' ? 'border-gray-dark bg-gray-dark' : 'border-gray-light bg-background-light'}`}>
-      <h3 className="font-semibold mb-2">Moves</h3>
+    <div className={`p-3 border rounded shadow-sm ${localTheme === 'dark' ? 'border-gray-dark bg-gray-dark' : 'border-gray-light bg-background-light'}`}>
+      <h3 className="font-semibold text-primary mb-2 flex items-center gap-2">
+        {/* Lucide icon: List */}
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+        Moves
+      </h3>
       <div className="max-h-96 overflow-y-auto">
         <div className="grid grid-cols-2 gap-1 text-sm">
           {gameHistory.map((move, index) => {
@@ -679,15 +685,21 @@ function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotation
                 )}
                 <button
                   onClick={() => goToMove(index)}
-                  className={`text-left px-2 py-1 rounded hover:bg-accent/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${isCurrentMove ? 'bg-accent/20 ' : ''}`}
+                  className={`text-left px-2 py-1 rounded hover:bg-accent/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 ${isCurrentMove ? 'bg-accent/20 ' : ''}`}
                   aria-label={`Go to move ${index + 1}`}
                 >
                   {move.san}
                   {moveAnnotations[index] && (
-                    <span className="ml-1 text-xs text-accent">💬</span>
+                    <span className="ml-1 text-xs text-accent" title="Comment">
+                      {/* Lucide icon: MessageCircle */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7A8.38 8.38 0 013 12.5c0-4.7 4.5-8.5 10-8.5s10 3.8 10 8.5z" /></svg>
+                    </span>
                   )}
                   {variations[index] && (
-                    <span className="ml-1 text-xs text-green-600 ">🌳</span>
+                    <span className="ml-1 text-xs text-green-600" title="Variation">
+                      {/* Lucide icon: Branch */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 3v12a3 3 0 003 3h6a3 3 0 003-3V3" /></svg>
+                    </span>
                   )}
                 </button>
               </React.Fragment>
@@ -695,7 +707,9 @@ function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotation
           })}
         </div>
         {moveAnnotations[currentMoveIndex] && (
-          <div className="mt-3 p-2 bg-accent/10  rounded text-sm">
+          <div className="mt-3 p-2 bg-accent/10 rounded text-sm flex items-center gap-2">
+            {/* Lucide icon: MessageCircle */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7A8.38 8.38 0 013 12.5c0-4.7 4.5-8.5 10-8.5s10 3.8 10 8.5z" /></svg>
             <strong>Comment:</strong> {moveAnnotations[currentMoveIndex]}
           </div>
         )}
@@ -707,12 +721,12 @@ function MoveListPanel({ gameHistory, currentMoveIndex, goToMove, moveAnnotation
 function ProgressIndicator({ currentMoveIndex, gameHistoryLength }) {
   const percent = Math.round(((currentMoveIndex + 1) / gameHistoryLength) * 100);
   return (
-    <div className="mt-4">
-      <div className="flex justify-between text-sm text-gray-dark  mb-1">
+    <div className="mt-4 bg-background-light dark:bg-background-dark border border-gray-light shadow-sm rounded-xl p-3">
+      <div className="flex justify-between text-sm text-gray-dark mb-1">
         <span>Move {currentMoveIndex + 1} of {gameHistoryLength}</span>
         <span>{percent}%</span>
       </div>
-      <div className="w-full bg-gray-light  rounded-full h-2">
+      <div className="w-full bg-gray-light rounded-full h-2">
         <div
           className="bg-accent h-2 rounded-full transition-all duration-300"
           style={{ width: `${percent}%` }}

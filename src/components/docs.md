@@ -6,7 +6,7 @@ All analytics-related UI components have been refactored for beauty, performance
 
 
 ## July 2025 Student UI/UX Overhaul
-- All student-facing components (dashboard, classroom, feedback, leaderboard, quiz, report card, resource center, tournaments) have been refactored for:
+-- All student-facing and chess dashboard components (dashboard, classroom, feedback, leaderboard, quiz, report card, resource center, tournaments, chess) have been refactored for:
   - Strict adherence to the KCA color system and Tailwind config (see `../../colour_scheme.md`)
   - Modular, single-responsibility, and fully accessible design
   - Responsive layouts and semantic HTML

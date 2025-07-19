@@ -1,4 +1,5 @@
 
+
 import React, { useCallback } from 'react';
 import { FaCheck } from 'react-icons/fa';
 
@@ -20,12 +21,12 @@ const AnswerOption = React.memo(function AnswerOption({
   }, [handleAnswerChange, questionIndex, answerIndex]);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-2 mb-2" role="listitem">
+    <div className="flex flex-col sm:flex-row items-center gap-2 mb-3" role="listitem">
       <button
         type="button"
-        className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center border-2 focus:outline-none focus:ring-2 focus:ring-accent ${
+        className={`w-7 h-7 rounded-full mr-3 flex items-center justify-center border-2 focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 shadow-sm ${
           answer.is_correct
-            ? 'bg-green-600 text-white border-green-700'
+            ? 'bg-success text-white border-success'
             : 'bg-gray-light text-primary border-gray-dark hover:bg-gray-dark hover:text-white'
         }`}
         onClick={handleMarkCorrect}
@@ -39,7 +40,7 @@ const AnswerOption = React.memo(function AnswerOption({
         type="text"
         value={answer.answer_text}
         onChange={handleTextChange}
-        className="flex-1 p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-text-dark placeholder:text-gray-dark"
+        className="flex-1 p-2 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent bg-background-light dark:bg-background-dark text-text-dark placeholder:text-gray-dark text-sm transition-all duration-200"
         placeholder={`Answer ${answerIndex + 1}`}
         aria-label={`Answer ${answerIndex + 1}`}
       />
@@ -49,9 +50,14 @@ const AnswerOption = React.memo(function AnswerOption({
 
 export const MultipleChoiceEditor = React.memo(function MultipleChoiceEditor({ question, questionIndex, handleAnswerChange }) {
   return (
-    <div className="mb-2" role="group" aria-label="Multiple choice answers">
-      <label className="block text-sm font-medium text-text-dark mb-1">Answers</label>
-      <p className="text-sm text-gray-dark mb-2">Select the correct answer</p>
+    <section
+      className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl p-4 sm:p-6 w-full max-w-2xl mx-auto mb-4"
+      role="group"
+      aria-label="Multiple choice answers"
+      tabIndex={0}
+    >
+      <label className="block text-lg font-medium text-primary mb-2">Answers</label>
+      <p className="text-sm text-gray-dark mb-3">Select the correct answer below:</p>
       <div role="list">
         {question.answers && question.answers.map((answer, answerIndex) => (
           <AnswerOption
@@ -63,7 +69,7 @@ export const MultipleChoiceEditor = React.memo(function MultipleChoiceEditor({ q
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 });
 

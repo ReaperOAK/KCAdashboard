@@ -1,6 +1,14 @@
+
 import React, { useCallback } from 'react';
 
-const PGNDownloadButton = React.memo(({ id, pgn }) => {
+/**
+ * PGNDownloadButton
+ * Beautiful, accessible download button for chess PGN files.
+ * - Responsive, right-aligned card/panel
+ * - Strict Tailwind color tokens and design system
+ * - Accessibility: ARIA label, keyboard navigation
+ */
+const PGNDownloadButton = React.memo(function PGNDownloadButton({ id, pgn }) {
   const handleDownload = useCallback(() => {
     const blob = new Blob([pgn], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -14,18 +22,19 @@ const PGNDownloadButton = React.memo(({ id, pgn }) => {
       URL.revokeObjectURL(url);
     }, 100);
   }, [id, pgn]);
+
   return (
-    <div className="mb-4 flex justify-end">
+    <section className="w-full flex justify-end mb-4" aria-label="Download PGN">
       <button
         type="button"
-        className="px-4 py-2 bg-accent text-white rounded hover:bg-secondary transition-all duration-200 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:ring-offset-2"
+        className="px-5 py-2 bg-accent text-white rounded-lg shadow-md hover:bg-secondary transition-all duration-200 font-semibold focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 text-sm sm:text-base"
         onClick={handleDownload}
         aria-label="Download PGN file"
         tabIndex={0}
       >
         Download PGN
       </button>
-    </div>
+    </section>
   );
 });
 

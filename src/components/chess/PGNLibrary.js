@@ -16,9 +16,9 @@ import usePGNView from '../../hooks/usePGNView';
 import { useNavigate } from 'react-router-dom';
 
 // --- Custom Styles ---
-const gradientBg = 'bg-gradient-to-br from-blue-50 via-white to-accent/10';
-const cardShadow = 'shadow-lg hover:shadow-2xl transition-shadow duration-300';
-const glass = 'backdrop-blur-md bg-white/80';
+const gradientBg = 'bg-background-light dark:bg-background-dark';
+const cardShadow = 'shadow-md hover:shadow-lg transition-shadow duration-200';
+const glass = 'bg-background-light dark:bg-background-dark';
 
 // --- Utility Functions ---
 const formatFileSize = (bytes) => {
@@ -47,23 +47,23 @@ const SearchBar = React.memo(({ value, onChange }) => (
       placeholder="Search games by title or description..."
       value={value}
       onChange={onChange}
-      className="w-full pl-12 pr-4 py-3 border-2 border-accent/30 rounded-xl bg-white/80 text-text-dark text-lg focus:ring-2 focus:ring-accent focus:border-accent shadow-sm transition-all duration-200"
+      className="w-full pl-12 pr-4 py-3 border border-gray-light rounded-xl bg-background-light dark:bg-background-dark text-text-dark text-base focus:ring-2 focus:ring-accent focus:border-accent shadow-sm transition-all duration-200"
       aria-label="Search games"
     />
   </div>
 ));
 
 const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange, showPublicOnly, onPublicOnlyChange, showUserOnly, onUserOnlyChange }) => (
-  <div className={`p-6 rounded-2xl ${glass} border border-accent/10 shadow-md space-y-4`} aria-label="Filters">
+  <section className={`p-6 rounded-xl ${glass} border border-gray-light shadow-md space-y-4`} aria-label="Filters">
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       <div>
         <label className="block text-base font-semibold text-accent mb-2">Category</label>
-        <select
-          value={selectedCategory}
-          onChange={onCategoryChange}
-          className="w-full p-3 border-2 border-accent/20 rounded-xl bg-white/90 text-text-dark text-base focus:ring-2 focus:ring-accent focus:border-accent"
-          aria-label="Category filter"
-        >
+    <select
+      value={selectedCategory}
+      onChange={onCategoryChange}
+      className="w-full p-3 border border-gray-light rounded-lg bg-background-light dark:bg-background-dark text-text-dark text-base focus:ring-2 focus:ring-accent focus:border-accent"
+      aria-label="Category filter"
+    >
           {categories.map((cat) => (
             <option key={cat.value} value={cat.value}>{cat.label}</option>
           ))}
@@ -96,7 +96,7 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
         </label>
       </div>
     </div>
-  </div>
+  </section>
 ));
 
 
@@ -104,8 +104,8 @@ const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange
 function GameCard({ game, onView, onShare }) {
   const navigate = useNavigate();
   return (
-    <div
-      className={`relative ${glass} ${cardShadow} border border-accent/10 rounded-2xl p-5 cursor-pointer group transition-all duration-300 min-h-[180px] flex flex-col justify-between`}
+    <section
+      className={`relative ${glass} ${cardShadow} border border-gray-light rounded-xl p-5 cursor-pointer group transition-all duration-200 min-h-[180px] flex flex-col justify-between`}
       tabIndex={0}
       role="button"
       aria-label={`View game: ${game.title}`}
@@ -136,21 +136,21 @@ function GameCard({ game, onView, onShare }) {
         </div>
       </div>
       {game.description && (
-        <p className="text-base text-gray-600 mb-2 line-clamp-2 italic">{game.description}</p>
+        <p className="text-base text-gray-dark mb-2 line-clamp-2 italic">{game.description}</p>
       )}
       <div className="flex flex-wrap gap-2 mb-2">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
           <TagIcon className="w-4 h-4 mr-1" />
           {game.category}
         </span>
         {game.is_public && (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Public</span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success text-white">Public</span>
         )}
         {game.metadata?.totalGames > 1 && (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">{game.metadata.totalGames} games</span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary text-white">{game.metadata.totalGames} games</span>
         )}
       </div>
-      <div className="flex justify-between items-center text-xs text-gray-500 mt-auto pt-2 border-t border-accent/10">
+      <div className="flex justify-between items-center text-xs text-gray-dark mt-auto pt-2 border-t border-gray-light">
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <UserIcon className="w-4 h-4 mr-1" />
@@ -166,7 +166,7 @@ function GameCard({ game, onView, onShare }) {
           {formatFileSize(game.content_size)}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -185,7 +185,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded-full border border-accent/20 bg-white/80 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-2 rounded-full border border-gray-light bg-background-light dark:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Previous page"
       >
         <ChevronLeftIcon className="w-5 h-5" />
@@ -198,7 +198,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
           className={`px-4 py-2 rounded-full border font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
             page === currentPage
               ? 'bg-accent text-white border-accent shadow-md'
-              : 'border-accent/20 bg-white/80 hover:bg-accent/10 text-accent'
+              : 'border-gray-light bg-background-light dark:bg-background-dark hover:bg-accent/10 text-accent'
           }`}
           aria-current={page === currentPage ? 'page' : undefined}
           aria-label={`Go to page ${page}`}
@@ -210,7 +210,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
         type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-full border border-accent/20 bg-white/80 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="p-2 rounded-full border border-gray-light bg-background-light dark:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-label="Next page"
       >
         <ChevronRightIcon className="w-5 h-5" />
@@ -261,7 +261,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
         ...(showPublicOnly && { public_only: true }),
         ...(showUserOnly && { user_only: true }),
       };
-      const response = await ChessApi.getGames(params);
+      const response = await ChessApi.getPGNGames(params);
       if (response.success) {
         setAllGames(response.data);
         setTotalGames(response.total || response.data.length);
@@ -356,14 +356,14 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   // --- Render ---
   return (
-    <div className={`pgn-library w-full max-w-full min-h-screen px-1 sm:px-0 ${gradientBg} ${className}`}>
+    <section className={`pgn-library w-full max-w-full min-h-screen px-1 sm:px-0 ${gradientBg} ${className}`} aria-label="PGN Library">
       <div className="flex flex-col w-full gap-8 max-w-6xl mx-auto py-8">
         {/* Games list */}
-        <div className="w-full">
+        <section className="w-full">
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <h2 className="text-3xl font-extrabold text-primary tracking-tight drop-shadow-sm">PGN Library</h2>
-              <div className="text-base text-accent font-semibold bg-accent/10 px-4 py-2 rounded-xl shadow-sm">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
+              <div className="text-base text-accent font-semibold bg-accent/10 px-4 py-2 rounded-lg shadow-sm">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
             </div>
             <div className="space-y-4">
               <SearchBar value={searchTerm} onChange={handleSearch} />
@@ -407,7 +407,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           )}
           {!loading && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {games.map((game) => (
                   <GameCard
                     key={game.id}
@@ -428,8 +428,8 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
               )}
               {games.length === 0 && !loading && (
                 <div className="text-center py-16">
-                  <DocumentIcon className="mx-auto h-16 w-16 text-gray-300 mb-6" aria-hidden="true" />
-                  <h3 className="text-2xl font-bold text-text-dark mb-2">No games found</h3>
+                  <DocumentIcon className="mx-auto h-16 w-16 text-gray-light mb-6" aria-hidden="true" />
+                  <h3 className="text-2xl font-bold text-primary mb-2">No games found</h3>
                   <p className="text-lg text-gray-dark">
                     {searchTerm || selectedCategory || showPublicOnly || showUserOnly
                       ? 'Try adjusting your search criteria or filters.'
@@ -439,10 +439,10 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
               )}
             </>
           )}
-        </div>
+        </section>
         {/* No viewer panel here, as viewing is now in a new page */}
       </div>
-    </div>
+    </section>
   );
 });
 

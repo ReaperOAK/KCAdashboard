@@ -11,15 +11,16 @@ const ChessModeButton = React.memo(function ChessModeButton({ active, onClick, i
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg border flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent ${
+      className={`px-5 py-3 rounded-xl border flex items-center gap-2 font-semibold text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm transition-all duration-200 ${
         active
-          ? 'bg-secondary text-white border-secondary'
-          : 'bg-white text-text-dark border-gray-light hover:bg-gray-light'
+          ? 'bg-accent text-white border-accent shadow-md'
+          : 'bg-background-light text-primary border-gray-light hover:bg-accent/10 hover:text-accent'
       }`}
       aria-pressed={active}
       aria-label={ariaLabel}
+      tabIndex={0}
     >
-      <Icon className="mr-2" aria-hidden="true" />
+      <Icon className="mr-2 text-lg" aria-hidden="true" />
       {children}
     </button>
   );
@@ -101,7 +102,7 @@ const FenModeSection = React.memo(function FenModeSection({
   removeCorrectMove
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
       <div className="w-full max-w-full">
         <label className="block text-sm font-medium text-text-dark mb-2">Setup Chess Position</label>
         <p className="text-sm text-gray-dark mb-3">
@@ -116,7 +117,7 @@ const FenModeSection = React.memo(function FenModeSection({
           />
     </div>
       </div>
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-text-dark mb-1">Board Orientation</label>
           <select
@@ -161,9 +162,9 @@ const FenModeSection = React.memo(function FenModeSection({
           <button
             type="button"
             onClick={() => addCorrectMove(questionIndex)}
-            className="px-3 py-1 bg-accent text-white rounded-lg hover:bg-secondary text-sm focus:outline-none focus:ring-2 focus:ring-accent mt-2"
+            className="px-4 py-2 bg-accent text-white rounded-xl hover:bg-secondary text-base font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm mt-2 transition-all duration-200"
           >
-            <FaPlus className="mr-1" aria-hidden="true" /> Add Move
+            <FaPlus className="mr-2 text-lg" aria-hidden="true" /> Add Move
           </button>
         </div>
       </div>
@@ -188,7 +189,7 @@ const PgnModeSection = React.memo(function PgnModeSection({
     }
   }, [handlePGNUpload, questionIndex]);
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
       <div className="w-full max-w-full">
         <label className="block text-sm font-medium text-text-dark mb-2">PGN Data</label>
         <p className="text-sm text-gray-dark mb-3">
@@ -203,11 +204,11 @@ const PgnModeSection = React.memo(function PgnModeSection({
             onChange={handleFileChange}
           />
           <label htmlFor={`pgn-upload-${questionIndex}`}
-            className="px-3 py-1 bg-accent text-white rounded-lg hover:bg-secondary cursor-pointer text-sm border border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+            className="px-4 py-2 bg-accent text-white rounded-xl hover:bg-secondary cursor-pointer text-base font-semibold border border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm transition-all duration-200"
             tabIndex={0}
             aria-label="Upload PGN file"
           >
-            <FaFileAlt className="inline mr-1" aria-hidden="true" /> Upload PGN
+            <FaFileAlt className="inline mr-2 text-lg" aria-hidden="true" /> Upload PGN
           </label>
           {question.pgn_data && question.pgn_data.length > 0 && (
             <span className="text-green-700 text-xs ml-2">PGN loaded</span>
@@ -216,7 +217,7 @@ const PgnModeSection = React.memo(function PgnModeSection({
         <textarea
           value={question.pgn_data || ''}
           onChange={e => handlePGNChange(questionIndex, e.target.value)}
-          className="w-full p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm font-mono min-h-[120px]"
+          className="w-full p-4 border border-gray-light rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent text-base font-mono min-h-[120px] shadow-sm"
           rows="10"
           placeholder="1. e4 e5 2. Nf3 Nc6 3. Bb5 a6..."
           aria-label="PGN data"
@@ -226,7 +227,7 @@ const PgnModeSection = React.memo(function PgnModeSection({
         </p>
         <div className="text-xs text-accent break-all mt-2">PGN state: {JSON.stringify(question.pgn_data)}</div>
       </div>
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-text-dark mb-1">Expected Player Color</label>
           <select
@@ -286,7 +287,7 @@ export const ChessQuestionEditor = React.memo(function ChessQuestionEditor({
   const handleFenMode = useCallback(() => handleChessModeChange(questionIndex, 'fen'), [handleChessModeChange, questionIndex]);
   const handlePgnMode = useCallback(() => handleChessModeChange(questionIndex, 'pgn'), [handleChessModeChange, questionIndex]);
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 w-full">
       {/* Chess Mode Selector */}
       <div>
         <label className="block text-sm font-medium text-text-dark mb-2">Chess Question Mode</label>
@@ -337,7 +338,7 @@ export const ChessQuestionEditor = React.memo(function ChessQuestionEditor({
       )}
       <div>
         <label className="block text-sm font-medium text-text-dark mb-2">Question Preview</label>
-        <div className="border border-gray-light rounded-lg p-4 bg-background-light w-full max-w-[300px] mx-auto">
+        <div className="border border-gray-light rounded-xl p-6 bg-background-light w-full max-w-[320px] mx-auto shadow-md">
           {/* FENPreview handles invalid FEN gracefully */}
           {(() => {
             try {

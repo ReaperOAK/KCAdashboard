@@ -22,21 +22,22 @@ function getWinPercentage(evaluation) {
   return Math.min(Math.max(percentage, 0), 100);
 }
 
+// Optional: pass icon as prop for analysis state
 const AnalysisBar = React.memo(function AnalysisBar({ whitePercentage, blackPercentage }) {
-  // Accessibility: aria-label for bar, role for progressbar
+  // Use Tailwind tokens for bar colors
   return (
     <div
-      className="relative w-8 h-32 bg-gray-200 rounded mx-auto mb-4"
+      className="relative w-8 h-32 bg-gray-light rounded-lg mx-auto mb-4 border border-gray-light shadow"
       aria-label="Engine evaluation bar"
       role="presentation"
     >
       <div
-        className="absolute bottom-0 left-0 w-full bg-gray-800 rounded-b transition-all duration-300"
+        className="absolute bottom-0 left-0 w-full bg-accent rounded-b-lg transition-all duration-300"
         style={{ height: `${whitePercentage}%` }}
         aria-label={`White win chance: ${Math.round(whitePercentage)}%`}
       />
       <div
-        className="absolute top-0 left-0 w-full bg-white rounded-t transition-all duration-300"
+        className="absolute top-0 left-0 w-full bg-highlight rounded-t-lg transition-all duration-300"
         style={{ height: `${blackPercentage}%` }}
         aria-label={`Black win chance: ${Math.round(blackPercentage)}%`}
       />
@@ -44,7 +45,7 @@ const AnalysisBar = React.memo(function AnalysisBar({ whitePercentage, blackPerc
   );
 });
 
-const EngineAnalysis = React.memo(function EngineAnalysis({ engineEvaluation }) {
+const EngineAnalysis = React.memo(function EngineAnalysis({ engineEvaluation, icon = null }) {
   const whitePercentage = useMemo(
     () => getWinPercentage(engineEvaluation),
     [engineEvaluation]
@@ -55,23 +56,31 @@ const EngineAnalysis = React.memo(function EngineAnalysis({ engineEvaluation }) 
   );
 
   return (
-    <section className="bg-white rounded-lg p-4 shadow-md" aria-label="Engine analysis panel">
-      <h3 className="text-lg font-semibold text-primary mb-3">Engine Analysis</h3>
+    <section
+      className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl p-4 sm:p-6 max-w-md mx-auto flex flex-row items-center justify-center transition-all duration-200"
+      aria-label="Engine analysis panel"
+    >
+      {icon && (
+        <div className="mb-2 text-accent text-3xl" aria-hidden="true">{icon}</div>
+      )}
+      <h3 className="text-xl font-semibold text-primary mb-3">Engine Analysis</h3>
       {!engineEvaluation ? (
-        <div className="text-gray-500 text-center py-4" role="status">Waiting for analysis...</div>
+        <div className="text-gray-dark text-center py-4 text-base font-medium flex flex-col items-center gap-2" role="status">
+          <span>Waiting for analysis...</span>
+        </div>
       ) : (
         <>
           <AnalysisBar whitePercentage={whitePercentage} blackPercentage={blackPercentage} />
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             <div className="text-center">
-              <span className="text-xl font-bold text-primary font-mono">
+              <span className="text-2xl font-bold text-primary font-mono">
                 {formatEvaluation(engineEvaluation)}
               </span>
             </div>
-            <div className="text-center space-y-1">
-              <div className="text-sm text-gray-600">Depth: {engineEvaluation.depth}</div>
+            <div className="text-center space-y-1"> 
+              <div className="text-sm text-gray-dark">Depth: {engineEvaluation.depth}</div>
               {engineEvaluation.bestMove && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-dark">
                   Best: <span className="font-mono font-semibold">{engineEvaluation.bestMove}</span>
                 </div>
               )}

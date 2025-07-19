@@ -520,7 +520,10 @@ export const PGNUpload = React.memo(function PGNUpload({
   };
 
   return (
-    <div className={`pgn-upload p-4 sm:p-6 bg-background-light rounded-lg shadow-md w-full max-w-full ${className}`}>
+    <section
+      className={`pgn-upload bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-xl w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6 ${className}`}
+      aria-label="PGN Upload Panel"
+    >
       <HeaderSection />
       <UploadMethodSelector uploadMethod={uploadMethod} setUploadMethod={setUploadMethod} />
       <div className="flex flex-col gap-4">
@@ -542,8 +545,16 @@ export const PGNUpload = React.memo(function PGNUpload({
             handleParseText={handleParseText}
           />
         )}
-        <PGNStatusMessage uploadStatus={uploadStatus} statusMessage={statusMessage} onClose={handleStatusClose} />
-        <PGNParsingResults parsedGames={parsedGames} metadata={metadata} formatFileSize={formatFileSize} />
+        <PGNStatusMessage
+          uploadStatus={uploadStatus}
+          statusMessage={statusMessage}
+          onClose={() => setUploadStatus(null)}
+        />
+        <PGNParsingResults
+          parsedGames={parsedGames}
+          metadata={metadata}
+          formatFileSize={formatFileSize}
+        />
         {parsedGames.length > 0 && (
           <PGNUploadDetailsForm
             uploadTitle={uploadTitle}
@@ -573,24 +584,21 @@ export const PGNUpload = React.memo(function PGNUpload({
           />
         )}
       </div>
-    </div>
+    </section>
   );
 });
 
 function HeaderSection() {
   return (
-    <div className="mb-6">
-      <h2 className="text-2xl font-bold text-primary mb-2">Upload PGN Files</h2>
-      <p className="text-gray-dark ">
+    <header className="mb-4">
+      <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2">Upload PGN Files</h2>
+      <p className="text-gray-dark text-base md:text-lg">
         Upload chess games in PGN format. Supports multiple games, variations, comments, and annotations.
       </p>
-    </div>
+    </header>
   );
 }
 
-function handleStatusClose() {
-  // For accessibility: clear status on close
-  this?.setUploadStatus?.(null);
-}
+
 
 export default PGNUpload;

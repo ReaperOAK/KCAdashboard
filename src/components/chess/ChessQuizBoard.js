@@ -3,16 +3,34 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 
+// Color tokens from Tailwind config
+const COLORS = {
+  correctBg: 'bg-success',
+  correctText: 'text-white',
+  incorrectBg: 'bg-error',
+  incorrectText: 'text-white',
+  infoBg: 'bg-info',
+  infoText: 'text-white',
+  cardBg: 'bg-background-light dark:bg-background-dark',
+  cardBorder: 'border border-gray-light shadow-md',
+  button: {
+    base: 'transition-all duration-200 px-3 py-1 rounded text-sm focus:outline-none focus:ring-2 focus:ring-accent',
+    primary: 'bg-primary text-white hover:bg-secondary',
+    accent: 'bg-accent text-white hover:bg-secondary',
+    disabled: 'bg-gray-dark text-gray-light cursor-not-allowed',
+    outline: 'border border-accent text-accent hover:bg-accent hover:text-white',
+  },
+};
+
 // Feedback message component
 const FeedbackMessage = React.memo(({ feedback, feedbackType }) => {
   if (!feedback) return null;
-  const colorClass = feedbackType === 'correct'
-    ? 'bg-green-100 text-green-800'
-    : feedbackType === 'incorrect'
-    ? 'bg-red-100 text-red-800'
-    : 'bg-blue-100 text-blue-800';
+  let colorClass = '';
+  if (feedbackType === 'correct') colorClass = `${COLORS.correctBg} ${COLORS.correctText}`;
+  else if (feedbackType === 'incorrect') colorClass = `${COLORS.incorrectBg} ${COLORS.incorrectText}`;
+  else colorClass = `${COLORS.infoBg} ${COLORS.infoText}`;
   return (
-    <div className={`mt-3 p-2 rounded-lg text-sm font-medium ${colorClass}`} role="status">
+    <div className={`mt-4 p-2 rounded-lg text-sm font-semibold shadow ${colorClass} transition-all duration-200`} role="status">
       {feedback}
     </div>
   );
@@ -20,22 +38,23 @@ const FeedbackMessage = React.memo(({ feedback, feedbackType }) => {
 
 // Disabled overlay
 const DisabledOverlay = React.memo(() => (
-  <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center" aria-label="Position locked">
-    <div className="bg-white rounded-lg px-4 py-2 shadow-lg">
-      <span className="text-gray-dark">Position locked</span>
+  <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10" aria-label="Position locked">
+    <div className="bg-background-light dark:bg-background-dark rounded-lg px-4 py-2 shadow-lg border border-gray-light">
+      <span className="text-gray-dark font-medium">Position locked</span>
     </div>
   </div>
 ));
 
 // Controls
 const BoardControls = React.memo(({ onReset, onShowAnswer, showAnswer, correctMoves, disabled }) => (
-  <div className="mt-3 flex gap-2">
+  <div className="mt-4 flex flex-wrap gap-2">
     <button
       type="button"
       onClick={onReset}
-      className="px-3 py-1 bg-gray-light hover:bg-accent hover:text-white text-primary rounded text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+      className={`${COLORS.button.base} ${COLORS.button.outline} ${disabled ? COLORS.button.disabled : ''}`}
       disabled={disabled}
       aria-label="Reset Position"
+      tabIndex={0}
     >
       Reset Position
     </button>
@@ -43,8 +62,9 @@ const BoardControls = React.memo(({ onReset, onShowAnswer, showAnswer, correctMo
       <button
         type="button"
         onClick={onShowAnswer}
-        className="px-3 py-1 bg-accent text-white hover:bg-secondary rounded text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        className={`${COLORS.button.base} ${COLORS.button.accent}`}
         aria-label="Show Answer"
+        tabIndex={0}
       >
         Show Answer
       </button>
@@ -81,13 +101,17 @@ export const ChessQuizBoard = React.memo(({
   }, [initialPosition]);
 
   // Memoize custom square styles
-  const customSquareStyles = useMemo(() => ({
-    ...moveSquares,
-    ...(lastMove && !showAnswer ? {
-      [lastMove.from]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
-      [lastMove.to]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' }
-    } : {})
-  }), [moveSquares, lastMove, showAnswer]);
+  const customSquareStyles = useMemo(() => {
+    // Use Tailwind color tokens for highlights
+    const lastMoveColor = 'rgba(118, 70, 235, 0.3)'; // accent
+    return {
+      ...moveSquares,
+      ...(lastMove && !showAnswer ? {
+        [lastMove.from]: { backgroundColor: lastMoveColor },
+        [lastMove.to]: { backgroundColor: lastMoveColor }
+      } : {})
+    };
+  }, [moveSquares, lastMove, showAnswer]);
 
   // Handle piece drop
   const handleDrop = useCallback((sourceSquare, targetSquare) => {
@@ -114,15 +138,15 @@ export const ChessQuizBoard = React.memo(({
         setFeedback('Correct move!');
         setFeedbackType('correct');
         setMoveSquares({
-          [sourceSquare]: { backgroundColor: 'rgba(0, 255, 0, 0.4)' },
-          [targetSquare]: { backgroundColor: 'rgba(0, 255, 0, 0.4)' }
+          [sourceSquare]: { backgroundColor: 'rgba(67, 160, 71, 0.5)' },
+          [targetSquare]: { backgroundColor: 'rgba(67, 160, 71, 0.5)' }
         });
       } else {
         setFeedback('Not the best move. Try again!');
         setFeedbackType('incorrect');
         setMoveSquares({
-          [sourceSquare]: { backgroundColor: 'rgba(255, 0, 0, 0.4)' },
-          [targetSquare]: { backgroundColor: 'rgba(255, 0, 0, 0.4)' }
+          [sourceSquare]: { backgroundColor: 'rgba(229, 57, 53, 0.5)' },
+          [targetSquare]: { backgroundColor: 'rgba(229, 57, 53, 0.5)' }
         });
       }
     }
@@ -155,21 +179,35 @@ export const ChessQuizBoard = React.memo(({
     const from = typeof correctMove === 'string' ? correctMove.slice(0, 2) : correctMove.from;
     const to = typeof correctMove === 'string' ? correctMove.slice(2, 4) : correctMove.to;
     setMoveSquares({
-      [from]: { backgroundColor: 'rgba(0, 255, 0, 0.6)' },
-      [to]: { backgroundColor: 'rgba(0, 255, 0, 0.6)' }
+      [from]: { backgroundColor: 'rgba(67, 160, 71, 0.7)' },
+      [to]: { backgroundColor: 'rgba(67, 160, 71, 0.7)' }
     });
     setFeedback('Correct move highlighted');
     setFeedbackType('correct');
   }, [correctMoves]);
 
+  // Responsive board width
+  const getBoardWidth = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 480) return 280;
+      if (window.innerWidth < 768) return 340;
+      if (window.innerWidth < 1024) return 380;
+    }
+    return width;
+  };
+
   return (
-    <div className={`chess-quiz-board ${className}`}>
+    <div
+      className={`chess-quiz-board ${COLORS.cardBg} ${COLORS.cardBorder} rounded-xl p-4 max-w-full mx-auto shadow-lg ${className}`}
+      role="region"
+      aria-label="Chess Quiz Board"
+    >
       {question && (
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-primary">{question}</h3>
+          <h3 className="text-xl font-semibold text-primary leading-tight">{question}</h3>
         </div>
       )}
-      <div className="relative">
+      <div className="relative flex justify-center items-center">
         <Chessboard
           position={game.fen()}
           onPieceDrop={handleDrop}
@@ -182,7 +220,7 @@ export const ChessQuizBoard = React.memo(({
             window._moveFromQuizBoard = null;
           }}
           customSquareStyles={customSquareStyles}
-          boardWidth={width}
+          boardWidth={getBoardWidth()}
           boardOrientation={orientation}
           areArrowsAllowed={false}
           arePiecesDraggable={allowMoves && !disabled}

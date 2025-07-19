@@ -39,7 +39,12 @@ const InteractiveBoard = React.memo(() => {
   if (error) return <ErrorState message={error} onReload={() => window.location.reload()} />;
 
   return (
-    <main className="max-w-6xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10" role="main">
+    <main
+      className="max-w-7xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10 bg-background-light border border-gray-light shadow-lg rounded-2xl transition-all duration-200"
+      role="main"
+      aria-label={id ? 'Chess Game Board' : 'Chess Analysis Board'}
+      tabIndex={0}
+    >
       <HeaderBar title={id ? 'Game Board' : 'Analysis Board'} />
       {canShowGameSwitcher && (
         <div className="mb-4">
@@ -68,7 +73,7 @@ const InteractiveBoard = React.memo(() => {
         goToMove={handleGoToMove}
       />
       {id && gameData && gameData.status === 'active' && gameData.yourTurn && (
-        <section className="flex justify-center mb-4 ">
+        <section className="flex justify-center mb-4" aria-label="Move Timer">
           <MoveTimer timeLeft={timeLeft} formatTimer={secs => {
             const m = Math.floor(secs / 60);
             const s = secs % 60;

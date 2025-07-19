@@ -6,11 +6,13 @@ import { InformationCircleIcon } from '@heroicons/react/24/outline';
  * Uses design tokens and is fully responsive.
  */
 const UploadHelpSection = React.memo(() => (
-  <section aria-label="PGN format help" className="bg-background-light dark:bg-background-dark border border-accent rounded-lg p-6 transition-all duration-200">
-    <div className="flex items-start">
-      <InformationCircleIcon className="w-6 h-6 text-accent mr-3 mt-0.5" aria-hidden="true" />
+  <section aria-label="PGN format help" className="bg-background-light dark:bg-background-dark border border-accent shadow-md rounded-xl p-5 sm:p-6 transition-all duration-200 max-w-7xl mx-auto mb-6">
+    <div className="flex items-start gap-3">
+      <span className="flex-shrink-0">
+        <InformationCircleIcon className="w-7 h-7 text-accent transition-all duration-200" aria-hidden="true" />
+      </span>
       <div>
-        <h3 className="text-lg font-semibold text-primary">PGN Format Help</h3>
+        <h3 className="text-xl font-semibold text-primary mb-2">PGN Format Help</h3>
         <div className="text-sm text-accent space-y-2">
           <p><strong>Supported features:</strong> Multiple games, variations, comments, NAGs, headers</p>
           <p><strong>File formats:</strong> .pgn, .txt files up to 10MB</p>

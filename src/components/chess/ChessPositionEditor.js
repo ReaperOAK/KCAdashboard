@@ -76,13 +76,13 @@ const PIECE_TYPES = [
 // --- PiecePalette: Memoized for performance ---
 const PiecePalette = React.memo(function PiecePalette({ selectedPiece, onSelect }) {
   return (
-    <div className="flex flex-wrap gap-2 justify-center mb-2" role="toolbar" aria-label="Piece palette">
+    <div className="flex flex-wrap gap-3 justify-center mb-4 w-full" role="toolbar" aria-label="Piece palette">
       {PIECE_TYPES.map(piece => (
         <button
           key={piece.code}
           type="button"
           className={
-            `px-2 py-1 rounded border flex items-center gap-1 text-xs font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedPiece === piece.code ? 'bg-accent/20 border-accent text-primary' : 'bg-white border-gray-light hover:bg-accent/10'}`
+            `px-3 py-2 rounded-xl border flex items-center gap-1 text-sm font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm transition-all duration-200 ${selectedPiece === piece.code ? 'bg-accent/20 border-accent text-accent' : 'bg-background-light border-gray-light hover:bg-accent/10 hover:text-accent'}`
           }
           aria-pressed={selectedPiece === piece.code}
           aria-label={piece.label}
@@ -94,7 +94,7 @@ const PiecePalette = React.memo(function PiecePalette({ selectedPiece, onSelect 
       ))}
       <button
         type="button"
-        className={`px-2 py-1 rounded border text-xs font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedPiece === 'empty' ? 'bg-red-200 border-red-500 text-primary' : 'bg-white border-gray-light hover:bg-red-100'}`}
+        className={`px-3 py-2 rounded-xl border text-sm font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm transition-all duration-200 ${selectedPiece === 'empty' ? 'bg-highlight/20 border-highlight text-highlight' : 'bg-background-light border-gray-light hover:bg-highlight/10 hover:text-highlight'}`}
         aria-pressed={selectedPiece === 'empty'}
         aria-label="Remove piece"
         tabIndex={0}
@@ -109,25 +109,25 @@ const PiecePalette = React.memo(function PiecePalette({ selectedPiece, onSelect 
 // --- ControlBar: Memoized for performance ---
 const ControlBar = React.memo(function ControlBar({ onReset, onClear }) {
   return (
-    <div className="mb-4 flex gap-2 justify-center">
+    <div className="mb-6 flex gap-4 justify-center w-full">
       <button
         type="button"
         onClick={onReset}
-        className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-sm flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="px-4 py-2 bg-success/10 text-success hover:bg-success/20 rounded-xl text-base flex items-center gap-2 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm transition-all duration-200"
         title="Reset to starting position"
         aria-label="Reset to starting position"
       >
-        <FaHome className="w-3 h-3" aria-hidden="true" />
+        <FaHome className="w-4 h-4" aria-hidden="true" />
         Start
       </button>
       <button
         type="button"
         onClick={onClear}
-        className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded text-sm flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="px-4 py-2 bg-highlight/10 text-highlight hover:bg-highlight/20 rounded-xl text-base flex items-center gap-2 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-sm transition-all duration-200"
         title="Clear board"
         aria-label="Clear board"
       >
-        <FaEraser className="w-3 h-3" aria-hidden="true" />
+        <FaEraser className="w-4 h-4" aria-hidden="true" />
         Clear
       </button>
     </div>
@@ -137,9 +137,9 @@ const ControlBar = React.memo(function ControlBar({ onReset, onClear }) {
 // --- FENDisplay: Memoized for performance ---
 const FENDisplay = React.memo(function FENDisplay({ fen }) {
   return (
-    <div className="mt-3 text-center">
-      <div className="text-xs text-gray-dark bg-gray-light p-2 rounded font-mono break-all select-all" aria-label="FEN string">
-        FEN: {fen}
+    <div className="mt-4 text-center w-full">
+      <div className="text-sm text-gray-dark bg-gray-light p-3 rounded-xl font-mono break-all select-all shadow-sm" aria-label="FEN string">
+        <span className="font-semibold text-primary">FEN:</span> {fen}
       </div>
     </div>
   );
@@ -237,14 +237,14 @@ export function ChessPositionEditor({
 
   // --- Render ---
   return (
-    <section className={`chess-position-editor ${className}`} aria-label="Chess Position Editor">
-      <header className="flex items-center gap-2 mb-2">
-        <span className="font-semibold text-sm">FEN Builder</span>
+    <section className={`chess-position-editor ${className}`.trim()} aria-label="Chess Position Editor">
+      <header className="flex items-center gap-2 mb-4">
+        <span className="font-semibold text-lg text-primary">FEN Builder</span>
         <FaQuestionCircle className="text-accent ml-1" aria-hidden="true" title="Drag pieces or use the palette to set up a position. FEN is a chess position notation. Use 'Clear' to start from empty, 'Start' for the standard opening." />
       </header>
       <PiecePalette selectedPiece={selectedPiece} onSelect={handleSelectPiece} />
       <ControlBar onReset={handleResetToStart} onClear={handleClearBoard} />
-      <div className="relative flex justify-center">
+      <div className="relative flex justify-center items-center w-full py-2">
         <Chessboard
           position={fen}
           onPieceDrop={handleDrop}

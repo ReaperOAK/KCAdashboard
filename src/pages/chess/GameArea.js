@@ -128,8 +128,8 @@ function GameArea() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10">
-      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-5">Chess Game Area</h1>
+    <div className="max-w-6xl mx-auto px-3 sm:px-5 pb-8 sm:pb-10 bg-background-light border border-gray-light shadow-lg rounded-2xl transition-all duration-200" role="main" aria-label="Chess Game Area">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mb-6 tracking-tight">Chess Game Area</h1>
       <ChessNavigation />
       <TabNav
         activeTab={activeTab}
@@ -138,14 +138,15 @@ function GameArea() {
       />
 
       {activeTab === 'games' && (
-        <section aria-labelledby="games-heading">
-          <div className="flex flex-col sm:flex-row sm:justify-end gap-3 mb-5">
+        <section aria-labelledby="games-heading" className="mt-6">
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3 mb-6">
             <label htmlFor="game-status" className="sr-only">Game Status</label>
             <select
               id="game-status"
               value={gameStatus}
               onChange={handleGameStatusChange}
-              className="px-2 sm:px-3 py-2 border border-gray-light rounded text-base bg-white min-w-32 sm:min-w-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="px-3 py-2 border border-gray-light rounded-lg text-base bg-white min-w-32 sm:min-w-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200"
+              aria-label="Filter games by status"
             >
               <option value="active">Active Games</option>
               <option value="completed">Completed Games</option>
@@ -159,7 +160,7 @@ function GameArea() {
           ) : games.length === 0 ? (
             <EmptyState message="No games found. Challenge someone to play!" actionLabel="Find Opponents" onAction={handleFindOpponents} />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" role="list" aria-label="Game list">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" role="list" aria-label="Game list">
               {gameCards}
             </div>
           )}
@@ -167,13 +168,14 @@ function GameArea() {
       )}
 
       {activeTab === 'practice' && (
-        <section aria-labelledby="practice-heading">
+        <section aria-labelledby="practice-heading" className="mt-6">
           {canUploadPractice && (
-            <div className="mb-5 flex flex-col sm:flex-row sm:justify-end gap-3">
+            <div className="mb-6 flex flex-col sm:flex-row sm:justify-end gap-3">
               <button
                 type="button"
-                className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="px-5 py-2 bg-primary text-white rounded-lg hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 font-semibold"
                 onClick={openUploadModal}
+                aria-label="Upload Practice Position"
               >
                 Upload Practice Position
               </button>
@@ -195,7 +197,7 @@ function GameArea() {
           ) : practicePositions.length === 0 ? (
             <EmptyState message="No practice positions found." />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" role="list" aria-label="Practice positions">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" role="list" aria-label="Practice positions">
               {practiceCards}
             </div>
           )}

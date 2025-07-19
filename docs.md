@@ -3,13 +3,35 @@
 ## Summary of Major Changes
 
 ### 1. UI/UX Modernization & Design System Enforcement
-### 1. UI/UX Modernization & Design System Enforcement
-- All chess dashboard pages and components now use the full Kolkata Chess Academy color system and Tailwind tokens.
-- Refactored: `ChessHome.js`, `GameArea.js`, `InteractiveBoard.js`, `PGNGameView.js`, `PGNManagementPage.js`, `PlayerVsPlayer.js`, and all related chess components
-- Consistent use of gradients, shadows, rounded corners, and spacing for a modern, beautiful look.
-- All interactive elements (buttons, tabs, table rows) have clear hover, focus, and active states.
-- Section headers now include icons for clarity and visual hierarchy.
-- All cards, panels, and tables are fully responsive and visually grouped.
+
+All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.
+
+#### Key Features
+- User authentication (student, teacher, admin roles)
+- Tournament management (create, edit, view, delete)
+- Resource center for chess materials
+- Quiz system (create, manage, take quizzes, leaderboards)
+- Notifications and preferences
+- Responsive sidebar and navigation
+- Accessible UI with keyboard navigation and ARIA
+- Theming with Tailwind CSS and custom color tokens
+- Consistent iconography and visual feedback
+
+#### UI/UX Principles
+- Consistent use of gradients, shadows, rounded corners, and spacing
+- All interactive elements (buttons, tabs, table rows) have clear hover, focus, and active states
+- Section headers include icons for clarity and visual hierarchy
+- All cards, panels, and tables are fully responsive and visually grouped
+
+#### Accessibility & Semantic HTML
+- ARIA labels, roles, and improved keyboard navigation for all major components
+- Semantic HTML elements (`main`, `section`, `header`, etc.) for better structure and accessibility
+- Improved color contrast and focus indicators for WCAG compliance
+
+#### Recent UI/UX & Codebase Improvements
+- All chess-related pages and components refactored for a beautiful, modern, and accessible user experience
+
+For more details on individual features, see the relevant docs in `src/components/docs.md` and subfolders.
 
 ### 2. Accessibility & Semantic HTML
 - Added ARIA labels, roles, and improved keyboard navigation for all major components.

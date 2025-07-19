@@ -1,12 +1,35 @@
-
 # July 2025 UI/UX Overhaul
 
 This project underwent a major UI/UX, accessibility, and modularity overhaul in July 2025. Please review the following before contributing:
 
 - All UI must use the color tokens and design system in `colour_scheme.md` and Tailwind config.
-- Follow the accessibility, modularity, and performance guidelines in `docs.md` (see the July 2025 summary section).
+- Follow the accessibility, modularity, and performance guidelines in [docs.md](docs.md) (see the July 2025 summary section).
 - Use semantic HTML, ARIA labels, and ensure all interactive elements are keyboard accessible.
 - Deep-linking to Support Center tabs is supported via URL hashes (e.g., `/teacher/support#leave`).
+
+## Contribution Guidelines
+
+All code must be modular, single-responsibility, and follow the KCA color system and Tailwind config.
+All components and pages must be fully accessible (ARIA, keyboard navigation, focus/hover/disabled states).
+Responsive design is required for all UI.
+Use pure, focused, reusable functional React components and Hooks.
+Update all relevant docs after code changes.
+No build artifacts or orphan files.
+Register new files/components in the correct modules, routes, or parent components.
+
+Before submitting a pull request, please review all linked documentation and recent changelog entries to ensure compliance with project standards.
+
+## See Also
+- [UI/UX, Design System, Accessibility](docs.md)
+- [Frontend Component Standards](src/components/docs.md)
+- [Changelog](CHANGELOG.md)
+- Strictly follow the design system and accessibility standards ([docs.md](docs.md), [colour_scheme.md](colour_scheme.md)).
+
+## For Full Standards & Feature Details
+
+- See [docs.md](docs.md) for UI/UX, design system, and accessibility standards.
+- See feature docs in `src/components/` and `src/pages/` for details on each module.
+- See [CHANGELOG.md](CHANGELOG.md) for recent changes and refactors.
 
 ---
 
@@ -24,7 +47,16 @@ All chess dashboard pages and components are now modular, beautiful, and accessi
 - Update the main README and CHANGELOG with any major UI/UX changes.
 
 # Support/Admin UI/UX Refactor (July 2025)
-...existing code...
+
+All support and admin pages and components are now modular, beautiful, and accessible. When contributing to support or admin components:
+- Use pure, focused, reusable functional React components and Hooks.
+- Follow the KCA color system in `colour_scheme.md` and Tailwind config.
+- All styling must use TailwindCSS and design tokens (no inline styles).
+- Ensure all components are single-responsibility, responsive, and accessible (ARIA, keyboard navigation, focus/hover/disabled states).
+- Optimize for performance: use React.memo, useCallback, useMemo where appropriate.
+- Always handle loading, error, and empty states in UI.
+- Document new or modified components in the relevant feature folder and main docs.
+- Update the main README and CHANGELOG with any major UI/UX changes.
 
 ### User Management UI/UX Refactor (July 2025)
 - All user management UI is now modular, beautiful, and accessible. When contributing to user management components:

@@ -1,39 +1,39 @@
 # [Unreleased] - July 2025
-# Support & Admin UI/UX Refactor (2025-07-14)
+
+## Major UI/UX & Codebase Refactors
+
+### Chess Dashboard, Student & Teacher Dashboard Overhaul
+- Refactored all chess, student, and teacher dashboard components for modern, beautiful, and accessible UI/UX
+- Full design system enforcement (see docs.md), accessibility improvements, and modular code
+- Updated all relevant docs: docs.md, src/components/chess/docs.md, src/pages/student/docs.md, src/pages/teacher/docs.md, CONTRIBUTING.md
+
+### Support & Admin UI/UX Refactor (2025-07-14)
 - Refactored all support/admin components for leave requests and ticketing:
-  - `LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`, `SupportSystem.js`, `TicketTable.js`, `TicketDetailModal.js`, `FaqModal.js`, `FaqCard.js`.
-  - All components now use the KCA color system (`colour_scheme.md`, `tailwind.config.js`) and are fully responsive for all screen sizes.
-  - Accessibility: ARIA roles, keyboard navigation, focus management, and color contrast validated.
-  - Performance: React.memo, useCallback, and modular field components for minimal re-renders.
-  - Single-responsibility: each file/component does one job only and is documented with JSDoc.
-  - Consistent iconography (inline SVGs), animated transitions, and visual feedback for all actions and statuses.
-  - Custom modals for ticket/FAQ/leave actions, with focus trap and keyboard support.
-  - All interactive elements have accessible focus, hover, and disabled states.
-  - Updated all relevant docs: `README.md`, `src/components/support/docs.md`, `CONTRIBUTING.md`.
+  - LeaveRequestsAdmin.js, LeaveRequestsTable.js, LeaveRequestRow.js, LeaveRequestsSkeleton.js, ErrorAlert.js, EmptyState.js, SupportSystem.js, TicketTable.js, TicketDetailModal.js, FaqModal.js, FaqCard.js
+- Updated all relevant docs: src/components/support/docs.md, CONTRIBUTING.md
 
 ### Quiz Management UI/UX Refactor & Modularization
-- Refactored all quiz management components for both admin and teacher (`QuizManagementPage.js`, `QuizTableRow.js`, `QuizLoadingSkeleton.js`, `QuizErrorAlert.js`, `DeleteQuizModal.js`, and related pages):
-  - Created a generic, modular `QuizManagementPage` used by both admin and teacher for unified, beautiful, and maintainable UI
-  - Strict adherence to the design system (see `colour_scheme.md` and `tailwind.config.js`)
-  - Fully responsive layouts for all screen sizes
-  - Accessibility: ARIA roles, keyboard navigation, focus/hover/active states, and clear error/loading/empty states
+Refactored all quiz management components for both admin and teacher roles:
+  - Unified, generic `QuizManagementPage` component for both admin and teacher quiz management
+  - Modular subcomponents: `QuizTableRow`, `QuizLoadingSkeleton`, `QuizErrorAlert`, `DeleteQuizModal`
+  - Fully responsive UI using Tailwind color tokens and design system
+  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/empty/loading states
   - Performance: React.memo, useCallback, useMemo, and code splitting for heavy components
   - Single-responsibility: each file/component now does one job only
-  - Modular subcomponents: `QuizTableRow`, `QuizLoadingSkeleton`, `QuizErrorAlert`, `DeleteQuizModal`
   - All states (loading, error, empty, data) handled beautifully and accessibly
-  - Updated all relevant docs: `README.md`, `src/pages/admin/docs.md`, `src/pages/teacher/docs.md`, `src/components/quiz/docs.md`
+  - Strict adherence to the design system (see `colour_scheme.md` and `tailwind.config.js`)
+  - Improved documentation in `src/pages/admin/docs.md`, `src/pages/teacher/docs.md`, and `src/components/quiz/docs.md`
 
-### Admin Leave Requests & Support UI/UX Refactor
-- Refactored all admin leave requests components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`) for:
-  - Beautiful, modern, and fully responsive UI using Tailwind color tokens and design system (see `colour_scheme.md`)
-  - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/loading/empty states
-  - Performance: React.memo, useCallback, and modular field components
-  - Single-responsibility: each file/component now does one job only
-  - Consistent iconography (inline SVGs), animated transitions, and visual feedback
-  - All components use the color system and are mobile-first responsive
-  - Custom modal for leave approval/rejection comments (no browser prompt)
-  - Odd row striping, hover/focus states, and clear action buttons
-- Updated all relevant docs and ensured all support/leave requests components are registered and documented
+See [src/components/quiz/docs.md](src/components/quiz/docs.md), [src/pages/admin/docs.md](src/pages/admin/docs.md), and [src/pages/teacher/docs.md](src/pages/teacher/docs.md) for full details.
+
+### Design System & Accessibility
+- Enforced KCA color system and Tailwind design tokens across all UI
+- Improved accessibility: ARIA, keyboard navigation, focus states, WCAG compliance
+- See docs.md and CONTRIBUTING.md for standards
+
+---
+
+For full details, see the referenced documentation files.
 
 # Changelog
 
@@ -163,6 +163,11 @@ See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/do
 ### Added
 ### Changed
 ### Added
+
+## Chess Dashboard UI/UX Refactor (July 2025)
+- Refactored all chess-related pages and components for a beautiful, modern, and accessible user experience
+- All student and teacher dashboard components refactored for modern UI/UX, accessibility, and responsiveness
+- See `docs.md` and feature docs for details
 ### Changed
 ### Added
 ### Changed

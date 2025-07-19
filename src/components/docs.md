@@ -6,9 +6,27 @@ All analytics-related UI components have been refactored for beauty, performance
 
 
 ## July 2025 Student UI/UX Overhaul
--- All student-facing and chess dashboard components (dashboard, classroom, feedback, leaderboard, quiz, report card, resource center, tournaments, chess) have been refactored for:
   - Strict adherence to the KCA color system and Tailwind config (see `../../colour_scheme.md`)
   - Modular, single-responsibility, and fully accessible design
+
+## Feature Overview
+
+KCAdashboard includes modular, single-responsibility React components for:
+- Chess dashboard and gameplay (see `chess/`)
+- Quiz management and participation (see `quiz/`)
+- Tournaments (see `tournaments/`)
+- User management (see `user-management/`)
+- Classroom management (see `classroom/`)
+- Resource center (see `resourcecenter/`)
+- Notifications (see `../NotificationBell.js` and `../../pages/notifications/`)
+
+All components are:
+- Pure, focused, and reusable
+- Strictly follow the KCA color system and Tailwind config
+- Fully accessible (ARIA, keyboard navigation, focus/hover/disabled states)
+- Responsive and visually grouped
+
+For details on each feature, see the subfolder docs and the main `docs.md`.
   - Responsive layouts and semantic HTML
   - ARIA roles, keyboard navigation, and color contrast
   - Animated transitions for interactive elements

@@ -1,227 +1,41 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import SearchBar from './pgnlibrary/SearchBar';
+import FilterPanel from './pgnlibrary/FilterPanel';
+import GameCard from './pgnlibrary/GameCard';
+import Pagination from './pgnlibrary/Pagination';
 import {
-  MagnifyingGlassIcon,
   FunnelIcon,
-  EyeIcon,
-  ShareIcon,
-  CalendarIcon,
-  UserIcon,
   DocumentIcon,
-  TagIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { ChessApi } from '../../api/chess';
 import usePGNView from '../../hooks/usePGNView';
-import { useNavigate } from 'react-router-dom';
 
 // --- Custom Styles ---
 const gradientBg = 'bg-background-light dark:bg-background-dark';
-const cardShadow = 'shadow-md hover:shadow-lg transition-shadow duration-200';
-const glass = 'bg-background-light dark:bg-background-dark';
 
-// --- Utility Functions ---
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 // --- Subcomponents ---
 
-const SearchBar = React.memo(({ value, onChange }) => (
-  <div className="relative" role="search">
-    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-accent w-6 h-6 pointer-events-none" aria-hidden="true" />
-    <input
-      type="text"
-      placeholder="Search games by title or description..."
-      value={value}
-      onChange={onChange}
-      className="w-full pl-12 pr-4 py-3 border border-gray-light rounded-xl bg-background-light dark:bg-background-dark text-text-dark text-base focus:ring-2 focus:ring-accent focus:border-accent shadow-sm transition-all duration-200"
-      aria-label="Search games"
-    />
-  </div>
-));
-
-const FilterPanel = React.memo(({ categories, selectedCategory, onCategoryChange, showPublicOnly, onPublicOnlyChange, showUserOnly, onUserOnlyChange }) => (
-  <section className={`p-6 rounded-xl ${glass} border border-gray-light shadow-md space-y-4`} aria-label="Filters">
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      <div>
-        <label className="block text-base font-semibold text-accent mb-2">Category</label>
-    <select
-      value={selectedCategory}
-      onChange={onCategoryChange}
-      className="w-full p-3 border border-gray-light rounded-lg bg-background-light dark:bg-background-dark text-text-dark text-base focus:ring-2 focus:ring-accent focus:border-accent"
-      aria-label="Category filter"
-    >
-          {categories.map((cat) => (
-            <option key={cat.value} value={cat.value}>{cat.label}</option>
-          ))}
-        </select>
-      </div>
-      <div className="flex items-center">
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showPublicOnly}
-            onChange={onPublicOnlyChange}
-            className="rounded border-accent/30 focus:ring-accent w-5 h-5"
-            aria-checked={showPublicOnly}
-            aria-label="Show public games only"
-          />
-          <span className="text-base text-gray-dark font-medium">Public games only</span>
-        </label>
-      </div>
-      <div className="flex items-center">
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showUserOnly}
-            onChange={onUserOnlyChange}
-            className="rounded border-accent/30 focus:ring-accent w-5 h-5"
-            aria-checked={showUserOnly}
-            aria-label="Show my games only"
-          />
-          <span className="text-base text-gray-dark font-medium">My games only</span>
-        </label>
-      </div>
-    </div>
-  </section>
-));
-
-
-
-function GameCard({ game, onView, onShare }) {
-  const navigate = useNavigate();
-  return (
-    <section
-      className={`relative ${glass} ${cardShadow} border border-gray-light rounded-xl p-5 cursor-pointer group transition-all duration-200 min-h-[180px] flex flex-col justify-between`}
-      tabIndex={0}
-      role="button"
-      aria-label={`View game: ${game.title}`}
-      onClick={() => navigate(`/chess/pgn/${game.id}`)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/chess/pgn/${game.id}`); }}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-bold text-lg text-primary line-clamp-2 group-hover:text-accent transition-colors duration-200">{game.title}</h3>
-        <div className="flex space-x-1 ml-2">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); window.open(`/chess/pgn/${game.id}`, '_blank'); }}
-            className="p-2 rounded-full bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            title="View"
-            aria-label={`View game: ${game.title}`}
-          >
-            <EyeIcon className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            onClick={onShare}
-            className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
-            title="Share"
-            aria-label={`Share game: ${game.title}`}
-          >
-            <ShareIcon className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-      {game.description && (
-        <p className="text-base text-gray-dark mb-2 line-clamp-2 italic">{game.description}</p>
-      )}
-      <div className="flex flex-wrap gap-2 mb-2">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
-          <TagIcon className="w-4 h-4 mr-1" />
-          {game.category}
-        </span>
-        {game.is_public && (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success text-white">Public</span>
-        )}
-        {game.metadata?.totalGames > 1 && (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary text-white">{game.metadata.totalGames} games</span>
-        )}
-      </div>
-      <div className="flex justify-between items-center text-xs text-gray-dark mt-auto pt-2 border-t border-gray-light">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center">
-            <UserIcon className="w-4 h-4 mr-1" />
-            {game.teacher_name || 'Unknown'}
-          </div>
-          <div className="flex items-center">
-            <CalendarIcon className="w-4 h-4 mr-1" />
-            {formatDate(game.created_at)}
-          </div>
-        </div>
-        <div className="flex items-center">
-          <DocumentIcon className="w-4 h-4 mr-1" />
-          {formatFileSize(game.content_size)}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
-  // Calculate visible page numbers
-  const pageNumbers = useMemo(() => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (currentPage <= 3) return [1, 2, 3, 4, 5];
-    if (currentPage >= totalPages - 2) return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-    return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
-  }, [currentPage, totalPages]);
-
-  return (
-    <nav className="flex flex-wrap justify-center items-center gap-2 mt-4" aria-label="Pagination">
-      <button
-        type="button"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-2 rounded-full border border-gray-light bg-background-light dark:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        aria-label="Previous page"
-      >
-        <ChevronLeftIcon className="w-5 h-5" />
-      </button>
-      {pageNumbers.map((page) => (
-        <button
-          key={page}
-          type="button"
-          onClick={() => onPageChange(page)}
-          className={`px-4 py-2 rounded-full border font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-            page === currentPage
-              ? 'bg-accent text-white border-accent shadow-md'
-              : 'border-gray-light bg-background-light dark:bg-background-dark hover:bg-accent/10 text-accent'
-          }`}
-          aria-current={page === currentPage ? 'page' : undefined}
-          aria-label={`Go to page ${page}`}
-        >
-          {page}
-        </button>
-      ))}
-      <button
-        type="button"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="p-2 rounded-full border border-gray-light bg-background-light dark:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        aria-label="Next page"
-      >
-        <ChevronRightIcon className="w-5 h-5" />
-      </button>
-    </nav>
-  );
-});
+// ...existing code...
 
 // --- Main Component ---
 
-export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, showViewer = true, className = '' }) {
+const CATEGORY_CONFIG = {
+  student: [
+    { id: 'public', label: 'Public Resources' },
+  ],
+  teacher: [
+    { id: 'public', label: 'Public Resources' },
+    { id: 'private', label: 'My Private Resources' },
+    { id: 'shared', label: 'My Shared Resources' },
+  ],
+  admin: [
+    { id: 'public', label: 'Public Resources' },
+    { id: 'coach', label: 'Resources Categorised by Coach' },
+  ],
+};
+
+export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, showViewer = true, userRole = 'student', className = '' }) {
   // --- State ---
   const [games, setGames] = useState([]);
   const [allGames, setAllGames] = useState([]);
@@ -229,6 +43,9 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
   const [error, setError] = useState('');
   const [selectedGame, setSelectedGame] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  // Resource category selection for role
+  const [activeResourceCategory, setActiveResourceCategory] = useState('public');
+  // Game category filter (opening, tactics, etc.)
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showPublicOnly, setShowPublicOnly] = useState(false);
   const [showUserOnly, setShowUserOnly] = useState(false);
@@ -238,6 +55,13 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
   const [totalGames, setTotalGames] = useState(0);
   const gamesPerPage = 12;
 
+  // Resource categories for current role
+  const resourceCategories = useMemo(() => {
+    if (CATEGORY_CONFIG[userRole]) return CATEGORY_CONFIG[userRole];
+    return CATEGORY_CONFIG.student;
+  }, [userRole]);
+
+  // Game categories (opening, tactics, etc.)
   const categories = useMemo(() => [
     { value: '', label: 'All Categories' },
     { value: 'opening', label: 'Opening' },
@@ -260,6 +84,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
         ...(selectedCategory && { category: selectedCategory }),
         ...(showPublicOnly && { public_only: true }),
         ...(showUserOnly && { user_only: true }),
+        ...(activeResourceCategory && { resource_category: activeResourceCategory }),
       };
       const response = await ChessApi.getPGNGames(params);
       if (response.success) {
@@ -276,7 +101,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, selectedCategory, showPublicOnly, showUserOnly]);
+  }, [searchTerm, selectedCategory, showPublicOnly, showUserOnly, activeResourceCategory]);
 
   const applyPagination = useCallback(() => {
     const totalPages = Math.ceil(allGames.length / gamesPerPage);
@@ -297,6 +122,11 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   const handleCategoryChange = useCallback((e) => {
     setSelectedCategory(e.target.value);
+    setCurrentPage(1);
+  }, []);
+
+  const handleResourceCategoryChange = useCallback((catId) => {
+    setActiveResourceCategory(catId);
     setCurrentPage(1);
   }, []);
 
@@ -389,6 +219,9 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
                     onPublicOnlyChange={handlePublicOnlyChange}
                     showUserOnly={showUserOnly}
                     onUserOnlyChange={handleUserOnlyChange}
+                    resourceCategories={resourceCategories}
+                    activeResourceCategory={activeResourceCategory}
+                    onResourceCategoryChange={handleResourceCategoryChange}
                   />
                 </div>
               )}

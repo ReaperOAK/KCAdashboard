@@ -1,5 +1,16 @@
 # KCAdashboard – UI/UX & Accessibility Overhaul (July 2025)
 
+## PGN Library Filters & UI (July 2025)
+
+- Unified filter panel: Resource type (role-based) and game category filters are now dropdowns, side-by-side on desktop, stacked on mobile.
+- Role-based resource categories:
+  - Students: Public Resources
+  - Teachers: Public, My Private, My Shared Resources (Private not visible in Shared)
+  - Admins: Public, Resources Categorised by Coach (restricted to selected admins)
+- Removed redundant checkboxes for public/my games; filtering is now clear and non-redundant.
+- Accessibility, responsiveness, and design system improvements (Tailwind, colour_scheme.md).
+- All components follow single-responsibility principle and are modular.
+
 ## Summary of Major Changes
 
 ### 1. UI/UX Modernization & Design System Enforcement

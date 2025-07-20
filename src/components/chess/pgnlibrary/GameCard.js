@@ -1,0 +1,91 @@
+import React from 'react';
+import { EyeIcon, ShareIcon, CalendarIcon, UserIcon, DocumentIcon, TagIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+
+// Utility functions
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+const GameCard = ({ game, onView, onShare, glass, cardShadow }) => {
+  const navigate = useNavigate();
+  return (
+    <section
+      className={`relative ${glass} ${cardShadow} border border-gray-light rounded-xl p-5 cursor-pointer group transition-all duration-200 min-h-[180px] flex flex-col justify-between`}
+      tabIndex={0}
+      role="button"
+      aria-label={`View game: ${game.title}`}
+      onClick={() => navigate(`/chess/pgn/${game.id}`)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/chess/pgn/${game.id}`); }}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="font-bold text-lg text-primary line-clamp-2 group-hover:text-accent transition-colors duration-200">{game.title}</h3>
+        <div className="flex space-x-1 ml-2">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); window.open(`/chess/pgn/${game.id}`, '_blank'); }}
+            className="p-2 rounded-full bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            title="View"
+            aria-label={`View game: ${game.title}`}
+          >
+            <EyeIcon className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={onShare}
+            className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+            title="Share"
+            aria-label={`Share game: ${game.title}`}
+          >
+            <ShareIcon className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+      {game.description && (
+        <p className="text-base text-gray-dark mb-2 line-clamp-2 italic">{game.description}</p>
+      )}
+      <div className="flex flex-wrap gap-2 mb-2">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
+          <TagIcon className="w-4 h-4 mr-1" />
+          {game.category}
+        </span>
+        {game.is_public && (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success text-white">Public</span>
+        )}
+        {game.metadata?.totalGames > 1 && (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary text-white">{game.metadata.totalGames} games</span>
+        )}
+      </div>
+      <div className="flex justify-between items-center text-xs text-gray-dark mt-auto pt-2 border-t border-gray-light">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <UserIcon className="w-4 h-4 mr-1" />
+            {game.teacher_name || 'Unknown'}
+          </div>
+          <div className="flex items-center">
+            <CalendarIcon className="w-4 h-4 mr-1" />
+            {formatDate(game.created_at)}
+          </div>
+        </div>
+        <div className="flex items-center">
+          <DocumentIcon className="w-4 h-4 mr-1" />
+          {formatFileSize(game.content_size)}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default GameCard;

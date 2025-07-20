@@ -2,6 +2,20 @@
 
 ## Major UI/UX & Codebase Refactors
 
+### PGN Library UI/UX Overhaul & Role-Based Resource Categories (2025-07-20)
+- Unified filter panel: Resource type (role-based) and game category filters are now dropdowns, side-by-side on desktop, stacked on mobile.
+- Role-based resource categories:
+  - Students: Public Resources
+  - Teachers: Public, My Private, My Shared Resources (Private not visible in Shared)
+  - Admins: Public, Resources Categorised by Coach (restricted to selected admins)
+- Removed redundant checkboxes for public/my games; filtering is now clear and non-redundant.
+- Accessibility, responsiveness, and design system improvements (Tailwind, colour_scheme.md).
+- All components follow single-responsibility principle and are modular.
+- Removed ResourceCategories.js (logic merged into FilterPanel.js).
+- Cleaned up unused state, props, and ESLint warnings in PGNLibrary.js.
+- Updated FilterPanel.js for minimal, beautiful, and accessible UI.
+- Updated docs.md and README.md to document new features and UI/UX improvements.
+
 ### Chess Dashboard, Student & Teacher Dashboard Overhaul
 - Refactored all chess, student, and teacher dashboard components for modern, beautiful, and accessible UI/UX
 - Full design system enforcement (see docs.md), accessibility improvements, and modular code

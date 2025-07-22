@@ -20,6 +20,52 @@ The following modular, single-responsibility components are used in the Quiz Man
 - **QuizErrorAlert**: Shows an error message if quiz data fails to load.
 - **DeleteQuizModal**: Modal dialog for confirming quiz deletion, with accessible ARIA roles and keyboard navigation.
 
+## Drag & Drop Quiz Question Reordering (July 2025)
+
+New components for enabling teachers to drag and drop questions to reorder them:
+
+- **SortableQuestionsList**: Main container component that wraps all questions in a drag-and-drop context. Features:
+  - Visual instructions for users ("Drag & Drop to Reorder")
+  - Status indicators for unsaved changes
+  - Save button for persisting question order changes
+  - Keyboard accessibility with arrow key navigation
+  - Beautiful drag overlay animations
+
+- **DraggableQuestionCard**: Wrapper component for individual questions that provides:
+  - Drag handle (⋮) with hover effects and grab cursor
+  - Question header with number and type badges
+  - Delete button integrated into the card header
+  - Visual feedback during dragging (shadows, scaling, rotation)
+  - Accessibility labels and ARIA support
+
+### Usage Example:
+```jsx
+<SortableQuestionsList
+  questions={quiz.questions}
+  onQuestionsReorder={handleQuestionsReorder}
+  onSaveQuestionOrder={handleSaveQuestionOrder}
+  showSaveButton={true}
+>
+  {(question, questionIndex, isDragDisabled) => (
+    <DraggableQuestionCard
+      key={question.id || question.tempId}
+      question={question}
+      questionIndex={questionIndex}
+      handleRemoveQuestion={handleRemoveQuestion}
+      isDragDisabled={isDragDisabled}
+    >
+      <QuestionCard question={question} questionIndex={questionIndex} {...handlers} />
+    </DraggableQuestionCard>
+  )}
+</SortableQuestionsList>
+```
+
+### Technical Implementation:
+- Built with @dnd-kit/core and @dnd-kit/sortable for modern, accessible drag and drop
+- Uses framer-motion for smooth animations and transitions
+- Persists changes via `QuizApi.reorderQuestions()` endpoint
+- Database support through `order_index` column in `quiz_questions` table
+
 All components are located in `src/components/quiz/` and are imported into both `src/pages/admin/QuizManagement.js` and `src/pages/teacher/QuizManagement.js`.
 
 ### Design & Accessibility

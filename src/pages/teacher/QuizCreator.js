@@ -3,6 +3,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SharingControls from '../../components/quiz/SharingControls';
+import SortableQuestionsList from '../../components/quiz/SortableQuestionsList';
+import DraggableQuestionCard from '../../components/quiz/DraggableQuestionCard';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaImage, FaCheck, FaChess, FaFileAlt } from 'react-icons/fa';
 import { QuizApi } from '../../api/quiz';
@@ -73,11 +75,10 @@ const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormCh
   );
 });
 
-// Question Card
+// Question Card - Content only (header now handled by DraggableQuestionCard)
 const QuestionCard = React.memo(function QuestionCard({
   question,
   questionIndex,
-  handleRemoveQuestion,
   handleQuestionChange,
   handleImageUpload,
   handleAnswerChange,
@@ -105,27 +106,9 @@ const QuestionCard = React.memo(function QuestionCard({
   const handleTagsChange = useCallback(tags => handleQuestionChange(questionIndex, 'tags', tags), [handleQuestionChange, questionIndex]);
   // Question text change handler
   const handleTextChange = useCallback(e => handleQuestionChange(questionIndex, 'question', e.target.value), [handleQuestionChange, questionIndex]);
+  
   return (
-    <div className="p-4 sm:p-6 border-b">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-2">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <h3 className="font-semibold text-base sm:text-lg">Question {questionIndex + 1}</h3>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            question.type === 'chess'
-              ? 'bg-blue-100 text-blue-800'
-              : 'bg-green-100 text-green-800'
-          }`}>
-            {question.type === 'chess' ? 'Chess' : 'Multiple Choice'}
-          </span>
-        </div>
-        <button
-          onClick={() => handleRemoveQuestion(questionIndex)}
-          className="p-1 text-red-600 hover:bg-red-50 rounded focus:outline-none focus:ring-2 focus:ring-red-400"
-          aria-label="Remove question"
-        >
-          <FaTrash />
-        </button>
-      </div>
+    <div className="p-4 sm:p-6 pt-16"> {/* Extra top padding for the badges */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-text-dark mb-1">Question Text</label>
         <textarea
@@ -218,9 +201,10 @@ const QuestionCard = React.memo(function QuestionCard({
   );
 });
 
-// Questions List
+// Questions List - Now with Drag & Drop Support
 const QuestionsList = React.memo(function QuestionsList(props) {
-  const { quiz, ...handlers } = props;
+  const { quiz, handleQuestionsReorder, handleSaveQuestionOrder, ...handlers } = props;
+  
   if (quiz.questions.length === 0) {
     return (
       <div className="p-6 text-center">
@@ -242,17 +226,30 @@ const QuestionsList = React.memo(function QuestionsList(props) {
       </div>
     );
   }
+
   return (
-    <div>
-      {quiz.questions.map((question, questionIndex) => (
-        <QuestionCard
+    <SortableQuestionsList
+      questions={quiz.questions}
+      onQuestionsReorder={handleQuestionsReorder}
+      onSaveQuestionOrder={handleSaveQuestionOrder}
+      showSaveButton={!!quiz.id} // Only show save button for existing quizzes
+    >
+      {(question, questionIndex, isDragDisabled) => (
+        <DraggableQuestionCard
           key={question.id || question.tempId}
           question={question}
           questionIndex={questionIndex}
-          {...handlers}
-        />
-      ))}
-    </div>
+          handleRemoveQuestion={handlers.handleRemoveQuestion}
+          isDragDisabled={isDragDisabled}
+        >
+          <QuestionCard
+            question={question}
+            questionIndex={questionIndex}
+            {...handlers}
+          />
+        </DraggableQuestionCard>
+      )}
+    </SortableQuestionsList>
   );
 });
 
@@ -589,6 +586,35 @@ const QuizCreator = () => {
     }));
   };
   
+  // NEW: Drag and drop reordering handlers
+  const handleQuestionsReorder = useCallback((reorderedQuestions) => {
+    setQuiz(prev => ({
+      ...prev,
+      questions: reorderedQuestions
+    }));
+  }, []);
+
+  const handleSaveQuestionOrder = useCallback(async () => {
+    if (!quiz.id) {
+      toast.error('Please save the quiz first before reordering questions');
+      return;
+    }
+
+    try {
+      // Create array with question IDs and their new order
+      const questionsOrder = quiz.questions.map((question, index) => ({
+        id: question.id || question.tempId,
+        order_index: index + 1
+      }));
+
+      await QuizApi.reorderQuestions(quiz.id, questionsOrder);
+      toast.success('Question order saved successfully!');
+    } catch (error) {
+      console.error('Failed to save question order:', error);
+      throw error; // Re-throw to let SortableQuestionsList handle the error UI
+    }
+  }, [quiz.id, quiz.questions]);
+  
   const handleImageUpload = async (questionIndex, file) => {
     if (!file) return;
     
@@ -875,6 +901,8 @@ const QuizCreator = () => {
             addCorrectMove={addCorrectMove}
             removeCorrectMove={removeCorrectMove}
             handleAddQuestion={handleAddQuestion}
+            handleQuestionsReorder={handleQuestionsReorder}
+            handleSaveQuestionOrder={handleSaveQuestionOrder}
           />
           <footer className="p-4 sm:p-6">
             <AddQuestionButtons handleAddQuestion={handleAddQuestion} />

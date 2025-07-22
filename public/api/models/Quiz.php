@@ -165,8 +165,8 @@ class Quiz {
                 return null;
             }
 
-            // Get questions for this quiz
-            $query = "SELECT *, correct_moves, pgn_data, expected_player_color FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY id";
+            // Get questions for this quiz ordered by order_index, fallback to id if order_index is same
+            $query = "SELECT *, correct_moves, pgn_data, expected_player_color FROM quiz_questions WHERE quiz_id = :quiz_id ORDER BY order_index ASC, id ASC";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":quiz_id", $id);
             $stmt->execute();
@@ -267,12 +267,12 @@ class Quiz {
             if (!$quizInfo) {
                 throw new Exception("Quiz not found.");
             }
-              // Get all questions with their types and correct answers/moves
+            // Get all questions with their types and correct answers/moves ordered by order_index
             $query = "SELECT qq.*, qa.is_correct, qa.id as answer_id 
                      FROM quiz_questions qq
                      LEFT JOIN quiz_answers qa ON qq.id = qa.question_id
                      WHERE qq.quiz_id = :quiz_id
-                     ORDER BY qq.id, qa.id";
+                     ORDER BY qq.order_index ASC, qq.id ASC, qa.id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":quiz_id", $quizId);
             $stmt->execute();
@@ -807,14 +807,16 @@ class Quiz {
             throw new Exception("Error deleting quiz: " . $e->getMessage());
         }
     }
-      // Helper method to add questions to a quiz
+    // Helper method to add questions to a quiz
     private function addQuestions($quizId, $questions) {
-        foreach ($questions as $question) {
+        foreach ($questions as $index => $question) {
             $type = isset($question['type']) ? $question['type'] : 'multiple_choice';
+            // Use provided order_index or fall back to array index
+            $orderIndex = isset($question['order_index']) ? (int)$question['order_index'] : $index + 1;
               if ($type === 'chess') {
                 // Handle chess questions
-                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type, chess_position, chess_orientation, correct_moves, pgn_data, expected_player_color) 
-                         VALUES (:quiz_id, :question, :image_url, :type, :chess_position, :chess_orientation, :correct_moves, :pgn_data, :expected_player_color)";
+                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type, order_index, chess_position, chess_orientation, correct_moves, pgn_data, expected_player_color) 
+                         VALUES (:quiz_id, :question, :image_url, :type, :order_index, :chess_position, :chess_orientation, :correct_moves, :pgn_data, :expected_player_color)";
                 $stmt = $this->conn->prepare($query);
                 
                 $questionText = htmlspecialchars(strip_tags($question['question']));
@@ -829,6 +831,7 @@ class Quiz {
                 $stmt->bindParam(":question", $questionText);
                 $stmt->bindParam(":image_url", $imageUrl);
                 $stmt->bindParam(":type", $type);
+                $stmt->bindParam(":order_index", $orderIndex);
                 $stmt->bindParam(":chess_position", $chessPosition);
                 $stmt->bindParam(":chess_orientation", $chessOrientation);
                 $stmt->bindParam(":correct_moves", $correctMoves);
@@ -838,8 +841,8 @@ class Quiz {
                 $stmt->execute();
             } else {
                 // Handle regular multiple choice questions
-                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type) 
-                         VALUES (:quiz_id, :question, :image_url, :type)";
+                $query = "INSERT INTO quiz_questions (quiz_id, question, image_url, type, order_index) 
+                         VALUES (:quiz_id, :question, :image_url, :type, :order_index)";
                 $stmt = $this->conn->prepare($query);
                 
                 $questionText = htmlspecialchars(strip_tags($question['question']));
@@ -849,6 +852,7 @@ class Quiz {
                 $stmt->bindParam(":question", $questionText);
                 $stmt->bindParam(":image_url", $imageUrl);
                 $stmt->bindParam(":type", $type);
+                $stmt->bindParam(":order_index", $orderIndex);
                 
                 $stmt->execute();
                 $questionId = $this->conn->lastInsertId();

@@ -225,12 +225,23 @@
 | question   | text                              | NO   |     | NULL    |                |
 | image_url  | varchar(512)                      | YES  |     | NULL    |                |
 | type       | enum('multiple_choice','puzzle','chess')  | NO   |  | NULL    |                |
+| order_index| int(11)                           | YES  | IDX | 0       |                |
 | points     | int(11)                           | YES  |     | 1       |                |
 | chess_position | varchar(100)                      | YES  |     | NULL    | FEN notation   |
 | chess_orientation | enum('white','black')           | YES  |     | white   | Board orientation |
 | correct_moves  | text                              | YES  |     | NULL    | JSON array     |
 | pgn_data   | text                              | YES  |     | NULL    | PGN for multi-move sequences |
 | expected_player_color | enum('white','black')          | YES  |     | 'white' | Player color in PGN mode |
+
+**Indexes:**
+- `PRIMARY KEY (id)`
+- `KEY quiz_id (quiz_id)` - Foreign key to quizzes table
+- `KEY idx_quiz_order (quiz_id, order_index)` - For efficient ordering of questions within a quiz
+
+**Drag & Drop Support:**
+- **order_index**: Integer field that determines the display order of questions within a quiz. Questions are ordered by `order_index ASC, id ASC`.
+- Teachers can drag and drop questions to reorder them, with changes persisted via the `/api/quiz/reorder-questions.php` endpoint.
+- Default value is 0, but gets set to sequential values (1, 2, 3...) when questions are created or reordered.
 
 ### Chess Question Features
 - **chess_position**: Stores the chess position in FEN (Forsyth-Edwards Notation) format. Default is 'start' for starting position.

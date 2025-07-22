@@ -5,6 +5,7 @@ export const QuizApi = {
   // Teacher/creation endpoints
   create: (data) => post('/quiz/create.php', data),
   update: (id, data) => put(`/quiz/update.php?id=${id}`, data),
+  reorderQuestions: (quizId, questions) => put(`/quiz/reorder-questions.php?id=${quizId}`, { questions }),
   saveDraft: (data) => post('/quiz/save-draft.php', data),
   uploadQuestionImage: (formData) => postFormData('/quiz/upload-question-image.php', formData),
   getLatestResult: (quizId) => get(`/quiz/get-latest-result.php?quiz_id=${quizId}`),

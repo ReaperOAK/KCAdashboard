@@ -128,6 +128,8 @@ export const PGNManagementPage = React.memo(function PGNManagementPage() {
               <PGNLibrary
                 onGameSelect={handleGameSelect}
                 showViewer
+                userRole={user?.role || 'student'}
+                user={user}
                 className="bg-background-light dark:bg-background-dark border border-gray-light shadow-lg rounded-2xl p-4 sm:p-6 w-full h-auto transition-all duration-200"
               />
             </div>

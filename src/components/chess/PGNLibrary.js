@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ChessApi } from '../../api/chess';
 import usePGNView from '../../hooks/usePGNView';
+import { checkPermission, PERMISSIONS } from '../../utils/permissions';
 
 // --- Custom Styles ---
 const gradientBg = 'bg-background-light dark:bg-background-dark';
@@ -35,7 +36,7 @@ const CATEGORY_CONFIG = {
   ],
 };
 
-export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, showViewer = true, userRole = 'student', className = '' }) {
+export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, showViewer = true, userRole = 'student', className = '', user = null }) {
   // --- State ---
   const [games, setGames] = useState([]);
   const [allGames, setAllGames] = useState([]);
@@ -47,8 +48,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
   const [activeResourceCategory, setActiveResourceCategory] = useState('public');
   // Game category filter (opening, tactics, etc.)
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [showPublicOnly, setShowPublicOnly] = useState(false);
-  const [showUserOnly, setShowUserOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -57,9 +56,27 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   // Resource categories for current role
   const resourceCategories = useMemo(() => {
-    if (CATEGORY_CONFIG[userRole]) return CATEGORY_CONFIG[userRole];
-    return CATEGORY_CONFIG.student;
-  }, [userRole]);
+    let categories = [];
+    
+    if (CATEGORY_CONFIG[userRole]) {
+      categories = [...CATEGORY_CONFIG[userRole]];
+    } else {
+      categories = [...CATEGORY_CONFIG.student];
+    }
+    
+    // For admin users, check if they have permission to access coach resources
+    if (userRole === 'admin' && user) {
+      const hasCoachResourcePermission = user.permissions && 
+        checkPermission(user.permissions, PERMISSIONS.CHESS.MANAGE_COACH_RESOURCES);
+      
+      // If admin doesn't have the specific permission, remove coach resources category
+      if (!hasCoachResourcePermission) {
+        categories = categories.filter(cat => cat.id !== 'coach');
+      }
+    }
+    
+    return categories;
+  }, [userRole, user]);
 
   // Game categories (opening, tactics, etc.)
   const categories = useMemo(() => [
@@ -82,8 +99,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
       const params = {
         ...(searchTerm && { search: searchTerm }),
         ...(selectedCategory && { category: selectedCategory }),
-        ...(showPublicOnly && { public_only: true }),
-        ...(showUserOnly && { user_only: true }),
         ...(activeResourceCategory && { resource_category: activeResourceCategory }),
       };
       const response = await ChessApi.getPGNGames(params);
@@ -101,7 +116,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, selectedCategory, showPublicOnly, showUserOnly, activeResourceCategory]);
+  }, [searchTerm, selectedCategory, activeResourceCategory]);
 
   const applyPagination = useCallback(() => {
     const totalPages = Math.ceil(allGames.length / gamesPerPage);
@@ -127,18 +142,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   const handleResourceCategoryChange = useCallback((catId) => {
     setActiveResourceCategory(catId);
-    setCurrentPage(1);
-  }, []);
-
-  const handlePublicOnlyChange = useCallback((e) => {
-    setShowPublicOnly(e.target.checked);
-    if (e.target.checked) setShowUserOnly(false);
-    setCurrentPage(1);
-  }, []);
-
-  const handleUserOnlyChange = useCallback((e) => {
-    setShowUserOnly(e.target.checked);
-    if (e.target.checked) setShowPublicOnly(false);
     setCurrentPage(1);
   }, []);
 
@@ -215,10 +218,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
                     categories={categories}
                     selectedCategory={selectedCategory}
                     onCategoryChange={handleCategoryChange}
-                    showPublicOnly={showPublicOnly}
-                    onPublicOnlyChange={handlePublicOnlyChange}
-                    showUserOnly={showUserOnly}
-                    onUserOnlyChange={handleUserOnlyChange}
                     resourceCategories={resourceCategories}
                     activeResourceCategory={activeResourceCategory}
                     onResourceCategoryChange={handleResourceCategoryChange}
@@ -264,7 +263,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
                   <DocumentIcon className="mx-auto h-16 w-16 text-gray-light mb-6" aria-hidden="true" />
                   <h3 className="text-2xl font-bold text-primary mb-2">No games found</h3>
                   <p className="text-lg text-gray-dark">
-                    {searchTerm || selectedCategory || showPublicOnly || showUserOnly
+                    {searchTerm || selectedCategory || activeResourceCategory !== 'public'
                       ? 'Try adjusting your search criteria or filters.'
                       : 'Upload your first PGN file to get started.'}
                   </p>

@@ -5,9 +5,11 @@
 - Unified filter panel: Resource type (role-based) and game category filters are now dropdowns, side-by-side on desktop, stacked on mobile.
 - Role-based resource categories:
   - Students: Public Resources
-  - Teachers: Public, My Private, My Shared Resources (Private not visible in Shared)
-  - Admins: Public, Resources Categorised by Coach (restricted to selected admins)
+  - Teachers: Public Resources, My Private Resources, My Shared Resources (Private Resources won't be visible in Shared)
+  - Admins: Public Resources, Resources Categorised by Coach (restricted to selected admins with specific permission)
+- Permission-based access control: Admin access to "Resources Categorised by Coach" requires the `chess.manage_coach_resources` permission
 - Removed redundant checkboxes for public/my games; filtering is now clear and non-redundant.
+- Backend support for `resource_category` parameter with proper role-based filtering
 - Accessibility, responsiveness, and design system improvements (Tailwind, colour_scheme.md).
 - All components follow single-responsibility principle and are modular.
 

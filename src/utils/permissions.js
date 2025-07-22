@@ -15,6 +15,7 @@ export const PERMISSIONS = Object.freeze({
   }),
   CHESS: Object.freeze({
     UPLOAD_PRACTICE: 'upload_practice',
+    MANAGE_COACH_RESOURCES: 'chess.manage_coach_resources',
   }),
 });
 

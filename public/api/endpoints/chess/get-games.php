@@ -55,6 +55,7 @@ try {
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $public_only = isset($_GET['public_only']) ? (bool)$_GET['public_only'] : false;
     $user_only = isset($_GET['user_only']) ? (bool)$_GET['user_only'] : false;
+    $resource_category = isset($_GET['resource_category']) ? $_GET['resource_category'] : 'public';
     
     // Build base query
     $where_conditions = [];
@@ -77,8 +78,40 @@ try {
         $params[] = $search_param;
     }
     
-    // Public/private filter
-    if ($public_only) {
+    // Public/private filter based on resource category
+    if ($resource_category === 'public') {
+        // Public Resources - visible to all authenticated users
+        $where_conditions[] = "is_public = 1";
+    } elseif ($resource_category === 'private' && $current_user) {
+        // My Private Resources - only for teachers/admins, their own private resources
+        if (in_array($current_user['role'], ['teacher', 'admin'])) {
+            $where_conditions[] = "teacher_id = ? AND is_public = 0";
+            $params[] = $current_user['id'];
+        } else {
+            // Students can't access private resources
+            $where_conditions[] = "1 = 0"; // No results
+        }
+    } elseif ($resource_category === 'shared' && $current_user) {
+        // My Shared Resources - for teachers/admins, their public resources (shared but not private)
+        if (in_array($current_user['role'], ['teacher', 'admin'])) {
+            $where_conditions[] = "teacher_id = ? AND is_public = 1";
+            $params[] = $current_user['id'];
+        } else {
+            // Students can't access this category
+            $where_conditions[] = "1 = 0"; // No results
+        }
+    } elseif ($resource_category === 'coach' && $current_user) {
+        // Resources Categorised by Coach - only for authorized admins
+        if ($current_user['role'] === 'admin') {
+            // Check if admin has permission to access coach resources
+            // For now, we'll assume all admins can access, but this should be permission-based
+            $where_conditions[] = "1 = 1"; // Show all resources for now
+            // TODO: Add specific permission check for coach resources
+        } else {
+            // Non-admins can't access coach resources
+            $where_conditions[] = "1 = 0"; // No results
+        }
+    } elseif ($public_only) {
         $where_conditions[] = "is_public = 1";
     } elseif ($user_only && $current_user) {
         $where_conditions[] = "teacher_id = ?";
@@ -88,7 +121,7 @@ try {
         $where_conditions[] = "is_public = 1";
         error_log("get-games: No authenticated user, showing only public PGNs");
     } else {
-        // Authenticated users can see public PGNs and their own
+        // Default: Authenticated users can see public PGNs and their own
         $where_conditions[] = "(is_public = 1 OR teacher_id = ?)";
         $params[] = $current_user['id'];
         error_log("get-games: Authenticated user " . $current_user['id'] . ", showing public + own PGNs");

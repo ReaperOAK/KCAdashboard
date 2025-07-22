@@ -18,8 +18,7 @@ import {
   restrictToVerticalAxis,
   restrictToFirstScrollableAncestor,
 } from '@dnd-kit/modifiers';
-import DraggableQuestionCard from './DraggableQuestionCard';
-import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { FaSort, FaSortUp } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 /**

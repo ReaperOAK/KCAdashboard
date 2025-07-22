@@ -42,32 +42,32 @@ const StudentManagement = () => {
   }, []);
 
   // Fetch students for selected batch
-  useEffect(() => {
-    const fetchStudents = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        let res;
-        if (selectedBatch === 'all') {
-          // You may want to move this to a StudentsApi if available
-          res = await GradingApi.getAllStudents ? await GradingApi.getAllStudents() : { students: [] };
-        } else {
-          res = await GradingApi.getBatchStudents ? await GradingApi.getBatchStudents(selectedBatch) : { students: [] };
-        }
-        // Support both {students: [...]} and {data: [...]} and fallback to []
-        setStudents(
-          Array.isArray(res.students) ? res.students :
-          Array.isArray(res.data) ? res.data :
-          []
-        );
-      } catch (err) {
-        setError('Failed to fetch students');
-      } finally {
-        setLoading(false);
+  const fetchStudents = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let res;
+      if (selectedBatch === 'all') {
+        res = await GradingApi.getAllStudents();
+      } else {
+        res = await BatchesApi.getBatchStudents(selectedBatch);
       }
-    };
+      // Support both {students: [...]} and {data: [...]} and fallback to []
+      setStudents(
+        Array.isArray(res.students) ? res.students :
+        Array.isArray(res.data) ? res.data :
+        []
+      );
+    } catch (err) {
+      setError('Failed to fetch students');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedBatch]);
+
+  useEffect(() => {
     if (user && user.id) fetchStudents();
-  }, [selectedBatch, user]);
+  }, [fetchStudents, user]);
 
   // Filter and sort students
   const filteredStudents = useMemo(() => {
@@ -105,6 +105,7 @@ const StudentManagement = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
   const [uploading, setUploading] = useState(false);
   const [actionError, setActionError] = useState(null);
+  const [actionSuccess, setActionSuccess] = useState(null);
 
   const handleSort = key => {
     if (sortKey === key) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
@@ -120,12 +121,14 @@ const StudentManagement = () => {
     setShowFeedbackModal(true);
     setFeedback({ rating: 5, comment: '', areas_of_improvement: '', strengths: '' });
     setActionError(null);
+    setActionSuccess(null);
   }, []);
   const handleCloseFeedbackModal = useCallback(() => {
     setShowFeedbackModal(false);
     setFeedback({ rating: 5, comment: '', areas_of_improvement: '', strengths: '' });
     setSelectedStudent(null);
     setActionError(null);
+    setActionSuccess(null);
   }, []);
   const handleSubmitFeedback = useCallback(async e => {
     e.preventDefault();
@@ -194,12 +197,30 @@ const StudentManagement = () => {
     if (!file) return;
     setUploading(true);
     setActionError(null);
+    setActionSuccess(null);
     try {
-      await GradingApi.uploadReportCard(student.id, file);
-      // Optionally, refresh students list to show new report card
-      setStudents(students => students.map(s => s.id === student.id ? { ...s, report_card_url: '/uploads/report_cards/' + file.name } : s));
+      const response = await GradingApi.uploadReportCard(student.id, file);
+      if (response.success) {
+        // Reset the file input for this student
+        const fileInput = document.getElementById(`report-card-upload-${student.id}`);
+        if (fileInput) {
+          fileInput.value = '';
+        }
+        
+        // Show success message
+        setActionSuccess(`Report card uploaded successfully for ${student.name}`);
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => setActionSuccess(null), 5000);
+        
+        // Refresh the students list from the server to get the latest data
+        await fetchStudents();
+      } else {
+        throw new Error(response.message || 'Upload failed');
+      }
     } catch (err) {
-      setActionError('Failed to upload report card');
+      console.error('Report card upload error:', err);
+      setActionError(err.message || 'Failed to upload report card');
     } finally {
       setUploading(false);
     }
@@ -276,6 +297,7 @@ const StudentManagement = () => {
         {loading && <div className="py-8 text-center text-gray-dark">Loading...</div>}
         {error && <div className="text-red-700 bg-red-100 border border-red-400 rounded px-4 py-2 mb-2">{error}</div>}
         {actionError && <div className="text-red-700 bg-red-100 border border-red-400 rounded px-4 py-2 mb-2">{actionError}</div>}
+        {actionSuccess && <div className="text-green-700 bg-green-100 border border-green-400 rounded px-4 py-2 mb-2">{actionSuccess}</div>}
         {!loading && !error && (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm sm:text-base divide-y divide-gray-light">

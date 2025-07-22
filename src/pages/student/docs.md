@@ -54,13 +54,15 @@ pages/student/
 - **QuizResultsPage.js**  
   Displays results and analytics for completed quizzes, including correct answers and explanations.
 
-- **ReportCard.js**  
+ **ReportCard.js**  
   Shows the student's academic performance, grades, and progress over time.
+  
+  **July 2025 Update:**
+  - Report card fetching and display now fully reflect backend changes and new uploads.
+  - Improved error handling and empty state UI.
 
-- **ResourceCenter.js**  
   Central hub for accessing study materials, documents, and resources.
 
-- **ResourceDetails.js**  
   Detailed view of a specific resource, with download and preview options.
 
 - **StudentDashboard.js**  

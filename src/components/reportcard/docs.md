@@ -14,12 +14,13 @@
 - Handles only loading display (single responsibility)
 
 ## ReportCardTable
-- Pure, focused report card table display
-- Beautiful, accessible, and responsive UI for all screen sizes
-- Uses Tailwind color tokens, visual hierarchy, and subtle animation
-- Mobile and desktop/tablet layouts optimized for clarity and usability
-- Download icon and clear focus states for links
-- Handles only report card table display (single responsibility)
+ Pure, focused report card table display
+ Beautiful, accessible, and responsive UI for all screen sizes
+ Uses Tailwind color tokens, visual hierarchy, and subtle animation
+ Mobile and desktop/tablet layouts optimized for clarity and usability
+ Download icon and clear focus states for links
+ Handles only report card table display (single responsibility)
+ **July 2025:** Now fully supports new uploads and updates instantly after teacher upload.
 
 ---
 

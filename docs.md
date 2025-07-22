@@ -15,6 +15,14 @@
 
 ## Summary of Major Changes
 
+### July 2025: Report Card Upload Bugfixes & Improvements
+
+- Fixed report card upload for both new and existing students: now uses the server-generated filename and refreshes the student list after upload.
+- Improved error handling and user feedback for upload success/failure.
+- Added backend logging and directory permission checks for uploads.
+- Updated frontend to use the correct API and handle all edge cases.
+- See also: `src/pages/teacher/docs.md`, `public/api/endpoints/grading/docs.md`, and `src/components/reportcard/docs.md` for details.
+
 ### 1. UI/UX Modernization & Design System Enforcement
 
 All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.

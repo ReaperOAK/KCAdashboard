@@ -41,13 +41,16 @@ endpoints/grading/
 - **submit-feedback.php**  
   Allows teachers to submit feedback for a student, supporting formative assessment and improvement. Uses the centralized NotificationService to notify the student when new feedback is submitted. Do not insert directly into the notifications table; always use NotificationService for feedback notifications.
 
-- **upload-report-card.php**  
+**upload-report-card.php**  
   Uploads a report card document for a student, supporting digital record-keeping.
+  
+  **July 2025 Update:**
+  - Fixed bug where uploading a report card for a student would not update the UI or use the correct file URL.
+  - Now returns the server-generated filename and logs errors for failed uploads or directory issues.
+  - Improved error handling and directory permission checks.
 
----
 
 ## How These Endpoints Work
-
 - Each PHP file acts as a RESTful API endpoint, typically returning JSON data or handling file uploads.
 - The frontend calls these endpoints to manage grading, feedback, and report cards.
 - Access may be restricted based on user roles (teacher, admin).

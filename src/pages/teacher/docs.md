@@ -12,6 +12,13 @@ All teacher pages now use the full color system, accessibility, and modularity g
 
 ## Overview
 
+### July 2025: Report Card Upload Bugfixes & Improvements
+
+- Fixed bug where uploading a report card for a student would not update the UI or use the correct file URL.
+- Now uses the server-generated filename and refreshes the student list after upload.
+- Improved error and success feedback for teachers.
+- Backend now logs errors and checks upload directory permissions.
+
 The `teacher` folder under `pages` contains all top-level page components for teacher-facing features in the KCAdashboard application. These pages provide dashboards, batch and classroom management, quiz creation and management, grading, feedback, and analytics. They are designed to empower teachers with tools for managing classes, assignments, and student progress.
 
 ---

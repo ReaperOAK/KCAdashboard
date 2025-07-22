@@ -25,7 +25,14 @@ try {
 
     $upload_dir = '../../../uploads/report_cards/';
     if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
+        if (!mkdir($upload_dir, 0755, true)) {
+            throw new Exception('Failed to create upload directory');
+        }
+    }
+    
+    // Check if directory is writable
+    if (!is_writable($upload_dir)) {
+        throw new Exception('Upload directory is not writable');
     }
 
     $file_info = pathinfo($_FILES['report_card']['name']);
@@ -39,6 +46,7 @@ try {
     $upload_path = $upload_dir . $unique_filename;
 
     if (!move_uploaded_file($_FILES['report_card']['tmp_name'], $upload_path)) {
+        error_log("Failed to move uploaded file. Source: " . $_FILES['report_card']['tmp_name'] . ", Destination: " . $upload_path);
         throw new Exception('Failed to save uploaded file');
     }
 
@@ -51,7 +59,11 @@ try {
     $stmt->bindParam(':file_name', $unique_filename);
     $stmt->bindParam(':uploaded_by', $user['id']);
     $stmt->bindParam(':description', $description);
-    $stmt->execute();
+    
+    if (!$stmt->execute()) {
+        error_log("Database insert failed. Student ID: $student_id, File: $unique_filename, Uploaded by: " . $user['id']);
+        throw new Exception('Failed to save report card information to database');
+    }
 
     echo json_encode(['success' => true, 'message' => 'Report card uploaded', 'file' => $unique_filename]);
 } catch (Exception $e) {

@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import TagInput from '../../components/chess/TagInput';
 import MultipleChoiceEditor from '../../components/chess/MultipleChoiceEditor';
 import ChessQuestionEditor from '../../components/chess/ChessQuestionEditor';
+import usePGNQuizIntegration from '../../hooks/usePGNQuizIntegration';
 
 // Quiz Details Form
 const QuizDetailsForm = React.memo(function QuizDetailsForm({ quiz, handleFormChange }) {
@@ -279,6 +280,13 @@ const QuizCreator = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
+  
+  const {
+    createPGNQuestion,
+    getStoredPGNData,
+    clearStoredPGNData
+  } = usePGNQuizIntegration();
+  
   const [quiz, setQuiz] = useState({
     title: '',
     description: '',
@@ -339,6 +347,133 @@ const QuizCreator = () => {
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Handle PGN data from sessionStorage (when coming from PGN Library)
+  useEffect(() => {
+    const pgnData = getStoredPGNData();
+    const batchData = sessionStorage.getItem('pgnBatchForQuiz');
+    const batchTitle = sessionStorage.getItem('batchQuizTitle');
+    
+    if (batchData && !isEditing) {
+      try {
+        const parsedBatchData = JSON.parse(batchData);
+        
+        // Set quiz title from batch
+        setQuiz(prev => ({
+          ...prev,
+          title: prev.title || batchTitle || `Multi-Game Analysis Quiz`,
+          description: prev.description || `Quiz created from ${parsedBatchData.questions.length} PGN games`
+        }));
+        
+        // Add all batch questions
+        setQuiz(prev => ({
+          ...prev,
+          questions: [...parsedBatchData.questions, ...prev.questions]
+        }));
+        
+        // Clear sessionStorage after use
+        sessionStorage.removeItem('pgnBatchForQuiz');
+        sessionStorage.removeItem('batchQuizTitle');
+        
+        toast.success(`Added ${parsedBatchData.questions.length} PGN games as chess questions!`);
+      } catch (error) {
+        console.error('Error processing batch data:', error);
+        toast.error('Failed to load batch PGN data');
+        sessionStorage.removeItem('pgnBatchForQuiz');
+        sessionStorage.removeItem('batchQuizTitle');
+      }
+    } else if (pgnData && !isEditing) {
+      try {
+        // Set quiz title based on PGN if it's empty
+        setQuiz(prev => ({
+          ...prev,
+          title: prev.title || `Quiz: ${pgnData.title}`,
+          description: prev.description || `Quiz created from PGN: ${pgnData.title}`
+        }));
+        
+        // Add PGN as first chess question (async)
+        const processPGNQuestion = async () => {
+          try {
+            const pgnQuestion = await createPGNQuestion(pgnData, `Analyze this game: ${pgnData.title}`);
+            
+            setQuiz(prev => ({
+              ...prev,
+              questions: [pgnQuestion, ...prev.questions]
+            }));
+            
+            toast.success('PGN added as chess question!');
+          } catch (error) {
+            console.error('Error creating PGN question:', error);
+            toast.error('Failed to create PGN question');
+          }
+        };
+        
+        processPGNQuestion();
+        
+        // Clear sessionStorage after use
+        clearStoredPGNData();
+        
+      } catch (error) {
+        console.error('Error processing PGN data:', error);
+        toast.error('Failed to load PGN data');
+        clearStoredPGNData();
+      }
+    }
+  }, [isEditing, createPGNQuestion, getStoredPGNData, clearStoredPGNData]);
+  
+  // Handle adding PGN to existing quiz (when editing)
+  useEffect(() => {
+    const pgnData = getStoredPGNData();
+    const batchData = sessionStorage.getItem('pgnBatchForQuiz');
+    
+    if (batchData && isEditing && quiz.questions) {
+      try {
+        const parsedBatchData = JSON.parse(batchData);
+        
+        // Add all batch questions to existing quiz
+        setQuiz(prev => ({
+          ...prev,
+          questions: [...prev.questions, ...parsedBatchData.questions]
+        }));
+        
+        // Clear sessionStorage after use
+        sessionStorage.removeItem('pgnBatchForQuiz');
+        
+        toast.success(`Added ${parsedBatchData.questions.length} PGN games as new chess questions!`);
+      } catch (error) {
+        toast.error('Failed to load batch PGN data');
+        sessionStorage.removeItem('pgnBatchForQuiz');
+      }
+    } else if (pgnData && isEditing && quiz.questions) {
+      try {
+        // Add PGN as new chess question to existing quiz (async)
+        const processPGNQuestion = async () => {
+          try {
+            const pgnQuestion = await createPGNQuestion(pgnData, `Analyze this game: ${pgnData.title}`);
+            
+            setQuiz(prev => ({
+              ...prev,
+              questions: [...prev.questions, pgnQuestion]
+            }));
+            
+            toast.success('PGN added as new chess question!');
+          } catch (error) {
+            console.error('Error creating PGN question:', error);
+            toast.error('Failed to create PGN question');
+          }
+        };
+        
+        processPGNQuestion();
+        
+        // Clear sessionStorage after use
+        clearStoredPGNData();
+        
+      } catch (error) {
+        toast.error('Failed to load PGN data');
+        clearStoredPGNData();
+      }
+    }
+  }, [isEditing, quiz.questions, createPGNQuestion, getStoredPGNData, clearStoredPGNData]);
   
   useEffect(() => {
     const fetchQuizData = async () => {

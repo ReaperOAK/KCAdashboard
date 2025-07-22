@@ -1,5 +1,3 @@
-
-
 # Quiz Management UI/UX Refactor (July 2025)
 
 All quiz management components (admin and teacher) have been refactored for a beautiful, modern, and accessible user experience:
@@ -13,6 +11,12 @@ All quiz management components (admin and teacher) have been refactored for a be
 - Strict adherence to the design system (see `colour_scheme.md` and `tailwind.config.js`)
 - All states (loading, error, empty, data) handled beautifully and accessibly
 - Improved documentation in `src/pages/admin/docs.md`, `src/pages/teacher/docs.md`, and `src/components/quiz/docs.md`
+
+## PGN to Quiz Integration (July 2025)
+
+- Teachers/admins can convert PGN games to quiz questions directly from the Chess Library (single or batch).
+- Batch selection and quiz creation modals included.
+- Quiz Creator auto-loads PGN data for seamless quiz authoring.
 
 # User Management UI/UX Refactor (July 2025)
 

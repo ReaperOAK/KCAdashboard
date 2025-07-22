@@ -39,7 +39,7 @@ try {
     // Connect to database
     $database = new Database();
     $db = $database->getConnection();
-    
+
     // Get game details with permission check
     $query = "SELECT 
                 pf.id,
@@ -111,14 +111,25 @@ try {
         }
     }
     
-    // Read PGN content from file
+    // Get PGN content - check multiple sources
     $pgn_content = '';
-    if (!empty($game['file_path'])) {
+    
+    // Check if content is stored in metadata
+    $metadata_content = null;
+    if (!empty($game['metadata'])) {
+        $metadata_obj = json_decode($game['metadata'], true);
+        if ($metadata_obj && isset($metadata_obj['pgn_content'])) {
+            $metadata_content = $metadata_obj['pgn_content'];
+        }
+    }
+    
+    // Priority order: metadata content > file > empty
+    if ($metadata_content) {
+        $pgn_content = $metadata_content;
+    } elseif (!empty($game['file_path'])) {
         $file_full_path = __DIR__ . '/../../' . $game['file_path'];
         if (file_exists($file_full_path)) {
             $pgn_content = file_get_contents($file_full_path);
-        } else {
-            error_log("PGN file not found: " . $file_full_path);
         }
     }
     

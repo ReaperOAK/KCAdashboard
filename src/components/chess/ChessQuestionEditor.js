@@ -222,12 +222,6 @@ const PgnModeSection = React.memo(function PgnModeSection({
           placeholder="1. e4 e5 2. Nf3 Nc6 3. Bb5 a6..."
           aria-label="PGN data"
         />
-        <p className="text-xs text-gray-dark mt-1">
-          Paste a complete PGN game sequence here or use the upload button above.
-        </p>
-        <div className="text-xs text-accent break-all mt-2">PGN state: {JSON.stringify(question.pgn_data)}</div>
-      </div>
-      <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-text-dark mb-1">Expected Player Color</label>
           <select
@@ -253,6 +247,8 @@ const PgnModeSection = React.memo(function PgnModeSection({
             <option value="black">Black at bottom</option>
           </select>
         </div>
+      </div>
+      <div className="space-y-6">
         {question.pgn_data && (
           <div className="w-full max-w-[300px] mx-auto">
             <label className="block text-sm font-medium text-text-dark mb-2">Preview</label>

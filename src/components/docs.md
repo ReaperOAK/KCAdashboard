@@ -129,3 +129,10 @@ For more details on feature-specific components, see the `docs.md` files in each
 
 - All admin leave requests and support components (`LeaveRequestsAdmin.js`, `LeaveRequestsTable.js`, `LeaveRequestRow.js`, `LeaveRequestsSkeleton.js`, `ErrorAlert.js`, `EmptyState.js`) have been refactored for a beautiful, modern, and accessible UI/UX.
 - See `components/support/docs.md` for full documentation and usage details.
+
+---
+
+## PGN to Quiz Integration (July 2025)
+
+- Create quizzes from PGN games (single or batch) via modals in the Chess Library.
+- See `chess/pgnlibrary/CreateQuizModal.js`, `BatchCreateQuizModal.js`, and `usePGNQuizIntegration.js` for details.

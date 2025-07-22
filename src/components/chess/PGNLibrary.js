@@ -3,13 +3,19 @@ import SearchBar from './pgnlibrary/SearchBar';
 import FilterPanel from './pgnlibrary/FilterPanel';
 import GameCard from './pgnlibrary/GameCard';
 import Pagination from './pgnlibrary/Pagination';
+import BatchCreateQuizModal from './pgnlibrary/BatchCreateQuizModal';
 import {
   FunnelIcon,
   DocumentIcon,
+  AcademicCapIcon,
+  CheckIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { ChessApi } from '../../api/chess';
 import usePGNView from '../../hooks/usePGNView';
 import { checkPermission, PERMISSIONS } from '../../utils/permissions';
+import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-toastify';
 
 // --- Custom Styles ---
 const gradientBg = 'bg-background-light dark:bg-background-dark';
@@ -37,6 +43,9 @@ const CATEGORY_CONFIG = {
 };
 
 export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, showViewer = true, userRole = 'student', className = '', user = null }) {
+  const { user: authUser } = useAuth();
+  const currentUser = user || authUser;
+  
   // --- State ---
   const [games, setGames] = useState([]);
   const [allGames, setAllGames] = useState([]);
@@ -54,6 +63,13 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
   const [totalGames, setTotalGames] = useState(0);
   const gamesPerPage = 12;
 
+  // Batch selection state
+  const [batchSelectionMode, setBatchSelectionMode] = useState(false);
+  const [selectedGames, setSelectedGames] = useState([]);
+  const [showBatchQuizModal, setShowBatchQuizModal] = useState(false);
+
+  const canCreateQuiz = currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin');
+
   // Resource categories for current role
   const resourceCategories = useMemo(() => {
     let categories = [];
@@ -65,9 +81,9 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     }
     
     // For admin users, check if they have permission to access coach resources
-    if (userRole === 'admin' && user) {
-      const hasCoachResourcePermission = user.permissions && 
-        checkPermission(user.permissions, PERMISSIONS.CHESS.MANAGE_COACH_RESOURCES);
+    if (userRole === 'admin' && currentUser) {
+      const hasCoachResourcePermission = currentUser.permissions && 
+        checkPermission(currentUser.permissions, PERMISSIONS.CHESS.MANAGE_COACH_RESOURCES);
       
       // If admin doesn't have the specific permission, remove coach resources category
       if (!hasCoachResourcePermission) {
@@ -76,7 +92,7 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     }
     
     return categories;
-  }, [userRole, user]);
+  }, [userRole, currentUser]);
 
   // Game categories (opening, tactics, etc.)
   const categories = useMemo(() => [
@@ -187,6 +203,43 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     }
   }, [loadGameDetails]);
 
+  // Batch selection handlers
+  const handleToggleBatchMode = useCallback(() => {
+    setBatchSelectionMode(!batchSelectionMode);
+    setSelectedGames([]);
+  }, [batchSelectionMode]);
+
+  const handleSelectGame = useCallback((game) => {
+    setSelectedGames(prev => {
+      const isSelected = prev.some(g => g.id === game.id);
+      if (isSelected) {
+        return prev.filter(g => g.id !== game.id);
+      } else {
+        return [...prev, game];
+      }
+    });
+  }, []);
+
+  const handleSelectAllGames = useCallback(() => {
+    setSelectedGames(games);
+  }, [games]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedGames([]);
+  }, []);
+
+  const handleCreateBatchQuiz = useCallback(() => {
+    if (selectedGames.length === 0) {
+      toast.error('Please select at least one game');
+      return;
+    }
+    setShowBatchQuizModal(true);
+  }, [selectedGames]);
+
+  const handleCloseBatchModal = useCallback(() => {
+    setShowBatchQuizModal(false);
+  }, []);
+
   // --- Render ---
   return (
     <section className={`pgn-library w-full max-w-full min-h-screen px-1 sm:px-0 ${gradientBg} ${className}`} aria-label="PGN Library">
@@ -196,8 +249,60 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <h2 className="text-3xl font-extrabold text-primary tracking-tight drop-shadow-sm">PGN Library</h2>
-              <div className="text-base text-accent font-semibold bg-accent/10 px-4 py-2 rounded-lg shadow-sm">{totalGames} game{totalGames !== 1 ? 's' : ''} found</div>
+              <div className="flex items-center gap-3">
+                <div className="text-base text-accent font-semibold bg-accent/10 px-4 py-2 rounded-lg shadow-sm">
+                  {totalGames} game{totalGames !== 1 ? 's' : ''} found
+                </div>
+                {canCreateQuiz && (
+                  <button
+                    onClick={handleToggleBatchMode}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                      batchSelectionMode 
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
+                    {batchSelectionMode ? <XMarkIcon className="w-5 h-5" /> : <CheckIcon className="w-5 h-5" />}
+                    {batchSelectionMode ? 'Cancel Selection' : 'Batch Select'}
+                  </button>
+                )}
+              </div>
             </div>
+            
+            {/* Batch Selection Controls */}
+            {batchSelectionMode && canCreateQuiz && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-4">
+                    <span className="text-blue-800 font-medium">
+                      {selectedGames.length} game{selectedGames.length !== 1 ? 's' : ''} selected
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSelectAllGames}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Select All ({games.length})
+                      </button>
+                      <button
+                        onClick={handleClearSelection}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear Selection
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleCreateBatchQuiz}
+                    disabled={selectedGames.length === 0}
+                    className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <AcademicCapIcon className="w-5 h-5" />
+                    Create Quiz from {selectedGames.length} Games
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="space-y-4">
               <SearchBar value={searchTerm} onChange={handleSearch} />
               <div className="flex flex-wrap justify-between items-center gap-2">
@@ -241,18 +346,44 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
             <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {games.map((game) => (
-                  <GameCard
-                    key={game.id}
-                    game={game}
-                    onView={(e) => {
-                      if (e) e.stopPropagation();
-                      handleGameAction(game.id, 'view');
-                    }}
-                    onShare={(e) => {
-                      if (e) e.stopPropagation();
-                      handleGameAction(game.id, 'share');
-                    }}
-                  />
+                  <div key={game.id} className="relative">
+                    {batchSelectionMode && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectGame(game);
+                          }}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                            selectedGames.some(g => g.id === game.id)
+                              ? 'bg-accent text-white'
+                              : 'bg-white border-2 border-gray-300 hover:border-accent'
+                          }`}
+                        >
+                          {selectedGames.some(g => g.id === game.id) && (
+                            <CheckIcon className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    )}
+                    <GameCard
+                      game={game}
+                      onView={(e) => {
+                        if (e) e.stopPropagation();
+                        if (batchSelectionMode) {
+                          handleSelectGame(game);
+                        } else {
+                          handleGameAction(game.id, 'view');
+                        }
+                      }}
+                      onShare={(e) => {
+                        if (e) e.stopPropagation();
+                        handleGameAction(game.id, 'share');
+                      }}
+                      isSelectable={batchSelectionMode}
+                      isSelected={selectedGames.some(g => g.id === game.id)}
+                    />
+                  </div>
                 ))}
               </div>
               {totalPages > 1 && (
@@ -273,6 +404,15 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           )}
         </section>
         {/* No viewer panel here, as viewing is now in a new page */}
+        
+        {/* Batch Create Quiz Modal */}
+        {showBatchQuizModal && (
+          <BatchCreateQuizModal
+            isOpen={showBatchQuizModal}
+            onClose={handleCloseBatchModal}
+            selectedGames={selectedGames}
+          />
+        )}
       </div>
     </section>
   );

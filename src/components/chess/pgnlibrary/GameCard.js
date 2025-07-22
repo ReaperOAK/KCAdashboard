@@ -1,6 +1,8 @@
-import React from 'react';
-import { EyeIcon, ShareIcon, CalendarIcon, UserIcon, DocumentIcon, TagIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { EyeIcon, ShareIcon, CalendarIcon, UserIcon, DocumentIcon, TagIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
+import CreateQuizModal from './CreateQuizModal';
 
 // Utility functions
 const formatFileSize = (bytes) => {
@@ -19,16 +21,37 @@ const formatDate = (dateString) => {
   });
 };
 
-const GameCard = ({ game, onView, onShare, glass, cardShadow }) => {
+const GameCard = ({ game, onView, onShare, glass = "bg-white", cardShadow = "shadow-md hover:shadow-xl", isSelectable = false, isSelected = false }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
+  
+  const canCreateQuiz = user && (user.role === 'teacher' || user.role === 'admin');
+
+  const handleCreateQuiz = (e) => {
+    e.stopPropagation();
+    setShowCreateQuizModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateQuizModal(false);
+  };
   return (
     <section
-      className={`relative ${glass} ${cardShadow} border border-gray-light rounded-xl p-5 cursor-pointer group transition-all duration-200 min-h-[180px] flex flex-col justify-between`}
+      className={`relative ${glass} ${cardShadow} border ${isSelected ? 'border-accent border-2' : 'border-gray-light'} rounded-xl p-5 cursor-pointer group transition-all duration-200 min-h-[180px] flex flex-col justify-between ${isSelected ? 'bg-accent/5' : ''}`}
       tabIndex={0}
       role="button"
-      aria-label={`View game: ${game.title}`}
-      onClick={() => navigate(`/chess/pgn/${game.id}`)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/chess/pgn/${game.id}`); }}
+      aria-label={`${isSelectable ? 'Select' : 'View'} game: ${game.title}`}
+      onClick={() => isSelectable ? onView() : navigate(`/chess/pgn/${game.id}`)}
+      onKeyDown={(e) => { 
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (isSelectable) {
+            onView();
+          } else {
+            navigate(`/chess/pgn/${game.id}`);
+          }
+        }
+      }}
     >
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-bold text-lg text-primary line-clamp-2 group-hover:text-accent transition-colors duration-200">{game.title}</h3>
@@ -51,6 +74,17 @@ const GameCard = ({ game, onView, onShare, glass, cardShadow }) => {
           >
             <ShareIcon className="w-5 h-5" />
           </button>
+          {canCreateQuiz && (
+            <button
+              type="button"
+              onClick={handleCreateQuiz}
+              className="p-2 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              title="Create Quiz"
+              aria-label={`Create quiz from: ${game.title}`}
+            >
+              <PlusIcon className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
       {game.description && (
@@ -84,6 +118,13 @@ const GameCard = ({ game, onView, onShare, glass, cardShadow }) => {
           {formatFileSize(game.content_size)}
         </div>
       </div>
+      {showCreateQuizModal && (
+        <CreateQuizModal 
+          isOpen={showCreateQuizModal}
+          onClose={handleCloseModal}
+          pgnGame={game}
+        />
+      )}
     </section>
   );
 };

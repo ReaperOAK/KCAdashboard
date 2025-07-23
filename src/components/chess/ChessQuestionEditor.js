@@ -332,39 +332,41 @@ export const ChessQuestionEditor = React.memo(function ChessQuestionEditor({
           handleChessOrientationChange={handleChessOrientationChange}
         />
       )}
-      <div>
-        <label className="block text-sm font-medium text-text-dark mb-2">Question Preview</label>
-        <div className="border border-gray-light rounded-xl p-6 bg-background-light w-full max-w-[320px] mx-auto shadow-md">
-          {/* FENPreview handles invalid FEN gracefully */}
-          {(() => {
-            try {
-              if (!isValidFEN(question.chess_position || 'start')) {
+      {chessMode === 'fen' && (
+        <div>
+          <label className="block text-sm font-medium text-text-dark mb-2">Question Preview</label>
+          <div className="border border-gray-light rounded-xl p-6 bg-background-light w-full max-w-[320px] mx-auto shadow-md">
+            {/* FEN preview only */}
+            {(() => {
+              try {
+                if (!isValidFEN(question.chess_position || 'start')) {
+                  return (
+                    <div className="text-xs text-red-600 text-center py-4">
+                      Invalid FEN position. Please check for extra/missing kings, pawns on first/last rank, or other errors.
+                    </div>
+                  );
+                }
+                return (
+                  <ChessQuizBoard
+                    initialPosition={question.chess_position || 'start'}
+                    orientation={question.chess_orientation || 'white'}
+                    correctMoves={question.correct_moves || []}
+                    question={question.question}
+                    allowMoves={false}
+                    width={Math.min(window.innerWidth - 48, 300)}
+                  />
+                );
+              } catch (e) {
                 return (
                   <div className="text-xs text-red-600 text-center py-4">
-                    Invalid FEN position. Please check for extra/missing kings, pawns on first/last rank, or other errors.
+                    Error rendering board: {e.message}
                   </div>
                 );
               }
-              return (
-                <ChessQuizBoard
-                  initialPosition={question.chess_position || 'start'}
-                  orientation={question.chess_orientation || 'white'}
-                  correctMoves={question.correct_moves || []}
-                  question={question.question}
-                  allowMoves={false}
-                  width={Math.min(window.innerWidth - 48, 300)}
-                />
-              );
-            } catch (e) {
-              return (
-                <div className="text-xs text-red-600 text-center py-4">
-                  Error rendering board: {e.message}
-                </div>
-              );
-            }
-          })()}
+            })()}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });

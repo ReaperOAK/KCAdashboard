@@ -29,11 +29,12 @@ class Quiz {
                     // Admin: see all quizzes, no restriction
                     // No additional where clause needed
                 } else if ($role === 'teacher') {
-                    // Teacher: see their own or public quizzes
-                    $where[] = "(q.is_public = 1 OR q.created_by = :user_id)";
+                    // Teacher: see their own quizzes (any status) or published public quizzes
+                    $where[] = "(q.created_by = :user_id OR (q.is_public = 1 AND q.status = 'published'))";
                     $params[':user_id'] = $userId;
                 } else {
-                    // Student: public, shared with their batch/classroom, or directly
+                    // Student: only published quizzes (public, shared with their batch/classroom, or directly)
+                    $where[] = "q.status = 'published'";
                     $batchIds = $this->getUserBatchIds($userId);
                     $classroomIds = $this->getUserClassroomIds($userId);
                     $whereBatch = $whereClassroom = $whereStudent = '0';
@@ -50,8 +51,9 @@ class Quiz {
                     $params[':user_id'] = $userId;
                 }
             } else {
-                // Not logged in: only public quizzes
+                // Not logged in: only published public quizzes
                 $where[] = 'q.is_public = 1';
+                $where[] = "q.status = 'published'";
             }
             $query = "SELECT q.*, u.full_name as creator_name 
                      FROM " . $this->table_name . " q

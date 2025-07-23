@@ -37,10 +37,7 @@ Teachers can now reorder quiz questions by dragging and dropping them, similar t
 ## PGN to Quiz Integration (July 2025)
 
 - Teachers/admins can convert PGN games to quiz questions directly from the Chess Library (single or batch).
-- Batch selection and quiz creation modals included.
-- Quiz Creator auto-loads PGN data for seamless quiz authoring.
-
-- Teachers/admins can convert PGN games to quiz questions directly from the Chess Library (single or batch).
+- Quizzes created from PGNs now default to public visibility, so students can see them when published.
 - Batch selection and quiz creation modals included.
 - Quiz Creator auto-loads PGN data for seamless quiz authoring.
 

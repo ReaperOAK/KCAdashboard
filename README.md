@@ -59,6 +59,7 @@ See `CHANGELOG.md` for release notes.
 ## ♟️ PGN to Quiz Integration (July 2025)
 
 - Teachers/admins can now create quizzes directly from PGN games in the Chess Library.
-- Supports both single and batch PGN-to-quiz conversion, including batch selection and quiz creation modals.
+- Quizzes created from PGNs now default to public visibility, so students can see them when published.
+- Batch PGN-to-quiz creation also defaults to public visibility.
 - Quiz Creator auto-detects PGN data and loads chess questions with full game content.
 - See `src/hooks/usePGNQuizIntegration.js` and `src/components/chess/pgnlibrary/` for implementation details.

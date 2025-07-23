@@ -359,7 +359,8 @@ const QuizCreator = () => {
         setQuiz(prev => ({
           ...prev,
           title: prev.title || batchTitle || `Multi-Game Analysis Quiz`,
-          description: prev.description || `Quiz created from ${parsedBatchData.questions.length} PGN games`
+          description: prev.description || `Quiz created from ${parsedBatchData.questions.length} PGN games`,
+          is_public: true // Default PGN-created quizzes to public for student visibility
         }));
         
         // Add all batch questions
@@ -385,7 +386,8 @@ const QuizCreator = () => {
         setQuiz(prev => ({
           ...prev,
           title: prev.title || `Quiz: ${pgnData.title}`,
-          description: prev.description || `Quiz created from PGN: ${pgnData.title}`
+          description: prev.description || `Quiz created from PGN: ${pgnData.title}`,
+          is_public: true // Default PGN-created quizzes to public for student visibility
         }));
         
         // Add PGN as first chess question (async)

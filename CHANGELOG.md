@@ -244,3 +244,8 @@ See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/do
 - Updated all relevant docs and ensured all analytics components are registered and documented
 - Improved documentation in `docs.md`, `src/components/analytics/docs.md`, and `README.md` to reflect new UI/UX, performance, and accessibility standards
 
+## [Unreleased] - 2025-07-23
+### Fixed
+- Quizzes created from PGNs in the Chess Library now default to public visibility, ensuring they are visible to students when published.
+- Batch PGN-to-quiz creation also defaults to public visibility.
+

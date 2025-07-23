@@ -78,6 +78,18 @@ All components are located in `src/components/quiz/` and are imported into both 
 ### Usage Example
 See `src/pages/admin/QuizManagement.js` and `src/pages/teacher/QuizManagement.js` for usage patterns and prop documentation.
 
+## QuizAlreadyAttempted Component
+
+- Shows when a student tries to access a quiz they've already completed.
+- Communicates the strict no-retake policy.
+- Provides actions to view quiz history or return to quiz list.
+
+## No-Retake Policy
+
+- All quiz components now assume a single attempt per student.
+- No retry/retake buttons are present in any quiz-related UI.
+- See `README-quiz-no-retake-policy.md` for implementation details.
+
 ---
 
 ## Changelog

@@ -169,4 +169,13 @@ import UserManagement from './pages/admin/UserManagement';
 
 ---
 
+## Quiz No-Retake Policy
+
+- All quizzes are now single-attempt only for students.
+- No admin override for retakes or cooling time.
+- Policy is enforced at both backend and frontend.
+- See `README-quiz-no-retake-policy.md` for more info.
+
+---
+
 For more details on the overall frontend structure, see the main `docs.md` in the `src` folder.

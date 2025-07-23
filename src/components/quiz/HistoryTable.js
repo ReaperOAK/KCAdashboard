@@ -1,7 +1,6 @@
 
 import React from 'react';
 import SortableTh from './SortableTh';
-import { FaRedo } from 'react-icons/fa';
 
 function formatTime(seconds) {
   if (!seconds && seconds !== 0) return '-';
@@ -13,7 +12,7 @@ function formatTime(seconds) {
 /**
  * HistoryTable: Beautiful, accessible, responsive table for quiz history attempts.
  */
-const HistoryTable = React.memo(function HistoryTable({ history, loading, error, onRetry, sortBy, sortOrder, onSort }) {
+const HistoryTable = React.memo(function HistoryTable({ history, loading, error, sortBy, sortOrder, onSort }) {
   return (
     <section className="bg-white dark:bg-background-dark rounded-2xl shadow-md border border-gray-light w-full max-w-5xl mx-auto ">
       <header className="p-6 border-b border-gray-light flex items-center gap-2">
@@ -32,15 +31,8 @@ const HistoryTable = React.memo(function HistoryTable({ history, loading, error,
       ) : history.length === 0 ? (
         <div className="p-8 flex flex-col items-center justify-center">
           <svg className="h-8 w-8 text-gray-dark mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
-          <p className="text-gray-dark text-base mb-2">No quiz history found.</p>
-          <button
-            type="button"
-            onClick={onRetry}
-            className="mt-2 px-5 py-2 rounded-lg bg-primary text-white hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200 font-semibold shadow-sm"
-            aria-label="Take your first quiz"
-          >
-            Take Your First Quiz
-          </button>
+          <p className="text-gray-dark text-base">No quiz history found.</p>
+          <p className="text-gray-500 text-sm mt-1">Take your first quiz to see your results here.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -52,7 +44,7 @@ const HistoryTable = React.memo(function HistoryTable({ history, loading, error,
                 <SortableTh label="Difficulty" sortKey="difficulty" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
                 <SortableTh label="Score" sortKey="score" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
                 <SortableTh label="Time Taken" sortKey="time" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
-                <th className="py-3 px-4 text-left">Actions</th>
+                                    <th className="p-3 text-left">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -78,14 +70,9 @@ const HistoryTable = React.memo(function HistoryTable({ history, loading, error,
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">{formatTime(attempt.time_taken)}</td>
                     <td className="py-3 px-4">
-                      <button
-                        type="button"
-                        onClick={() => onRetry(attempt.quiz_id)}
-                        className="text-secondary hover:text-accent font-medium focus:outline-none focus-visible:underline transition-colors"
-                        aria-label={`Retry quiz: ${attempt.quiz_title}`}
-                      >
-                        <FaRedo className="inline mr-1" /> Retry
-                      </button>
+                      <span className="text-gray-500 text-sm italic">
+                        Quiz completed
+                      </span>
                     </td>
                   </tr>
                 );

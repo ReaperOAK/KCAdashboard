@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { FaRedo, FaList } from 'react-icons/fa';
+import { FaList } from 'react-icons/fa';
 import ResultStat from './ResultStat';
 
 /**
  * ResultCard: Beautiful, accessible, and responsive card for quiz results.
  */
-const ResultCard = React.memo(function ResultCard({ quizTitle, percentageScore, isPassing, resultData, timeTaken, onTryAgain, onViewHistory, onBackToQuizzes }) {
+const ResultCard = React.memo(function ResultCard({ quizTitle, percentageScore, isPassing, resultData, timeTaken, onViewHistory, onBackToQuizzes }) {
   return (
     <section className="bg-white dark:bg-background-dark rounded-2xl shadow-lg border border-gray-light overflow-hidden mb-8 max-w-2xl mx-auto ">
       <header className={`p-6 sm:p-8 text-center ${isPassing ? 'bg-green-50' : 'bg-red-50'}`}> 
@@ -35,15 +35,6 @@ const ResultCard = React.memo(function ResultCard({ quizTitle, percentageScore, 
           </div>
         )}
         <div className="flex flex-wrap gap-3 justify-center">
-          <button
-            type="button"
-            onClick={onTryAgain}
-            className="px-4 py-2 rounded-lg bg-secondary text-white hover:bg-accent focus:bg-accent flex items-center gap-2 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 transition-all text-base"
-            aria-label="Try quiz again"
-            tabIndex={0}
-          >
-            <FaRedo aria-hidden="true" /> Try Again
-          </button>
           <button
             type="button"
             onClick={onViewHistory}

@@ -4,14 +4,37 @@ All quiz management components (admin and teacher) have been refactored for a be
 
 - Unified, generic `QuizManagementPage` component for both admin and teacher quiz management
 - **NEW: Drag & Drop Question Reordering** - Teachers can now drag and drop questions to reorder them in quiz creation/editing, just like a PDF editor
+- **NEW: Strict No-Retake Policy** - Once a quiz is submitted, students cannot retake it. This ensures fair assessment and prevents gaming the system.
 - Fully responsive UI using Tailwind color tokens and design system
 - Accessibility: ARIA roles, keyboard navigation, focus management, and clear error/empty/loading states
 - Performance: React.memo, useCallback, useMemo, and code splitting for heavy components
 - Single-responsibility: each file/component now does one job only
-- Modular subcomponents: `QuizTableRow`, `QuizLoadingSkeleton`, `QuizErrorAlert`, `DeleteQuizModal`, `SortableQuestionsList`, `DraggableQuestionCard`
+- Modular subcomponents: `QuizTableRow`, `QuizLoadingSkeleton`, `QuizErrorAlert`, `DeleteQuizModal`, `SortableQuestionsList`, `DraggableQuestionCard`, `QuizAlreadyAttempted`
 - Strict adherence to the design system (see `colour_scheme.md` and `tailwind.config.js`)
 - All states (loading, error, empty, data) handled beautifully and accessibly
 - Improved documentation in `src/pages/admin/docs.md`, `src/pages/teacher/docs.md`, and `src/components/quiz/docs.md`
+
+## No-Retake Policy (July 2025)
+
+Implemented strict "once submitted, no retakes" policy for all quizzes:
+
+### Features:
+- **Backend Validation**: Quiz submission API checks if user has already attempted the quiz
+- **Frontend Prevention**: Quiz detail page shows "already attempted" message if user tries to access a quiz they've completed
+- **UI Updates**: Removed all "Try Again" and "Retry" buttons from result pages and history
+- **Clear Communication**: Updated quiz instructions to clearly state the no-retake policy
+- **Error Handling**: Proper error messages if someone tries to circumvent the restriction
+
+### Components:
+- `QuizAlreadyAttempted`: New component shown when user tries to access an already attempted quiz
+- Updated `Quiz.php` model with `hasUserAttempted()` method
+- Updated `ResultCard` component to remove retry functionality
+- Updated `HistoryTable` component to remove retry buttons
+- Updated quiz instructions to clearly communicate the policy
+
+### Database Changes:
+- Added index on `quiz_attempts` table for efficient attempt checking: `idx_user_quiz_attempt (user_id, quiz_id)`
+- Quiz attempts table now enforces the one-attempt-per-quiz rule
 
 ## Drag & Drop Question Reordering (July 2025)
 

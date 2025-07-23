@@ -59,7 +59,6 @@ const QuizResultsPage = () => {
   const percentageScore = useMemo(() => resultData ? Math.round((resultData.score / resultData.total_questions) * 100) : 0, [resultData]);
   const isPassing = useMemo(() => percentageScore >= 70, [percentageScore]);
 
-  const handleTryAgain = useCallback(() => navigate(`/student/quiz/${id}`), [navigate, id]);
   const handleViewHistory = useCallback(() => navigate('/student/quiz-history'), [navigate]);
   const handleBackToQuizzes = useCallback(() => navigate('/student/quiz'), [navigate]);
 
@@ -75,7 +74,6 @@ const QuizResultsPage = () => {
           isPassing={isPassing}
           resultData={resultData}
           timeTaken={timeTaken}
-          onTryAgain={handleTryAgain}
           onViewHistory={handleViewHistory}
           onBackToQuizzes={handleBackToQuizzes}
         />

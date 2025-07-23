@@ -192,6 +192,14 @@ class Quiz {
             }
 
             $quiz['questions'] = $questions;
+            
+            // Add attempt status for users (students)
+            if ($user && $user['role'] === 'student') {
+                $quiz['has_attempted'] = $this->hasUserAttempted($user['id'], $id);
+            } else {
+                $quiz['has_attempted'] = false;
+            }
+            
             return $quiz;
 
         } catch (PDOException $e) {
@@ -250,8 +258,28 @@ class Quiz {
         $stmt->execute();
         return $stmt->fetchColumn() !== false;
     }
-      public function submitQuiz($userId, $quizId, $answers, $chessMoves, $timeTaken) {
+
+    // Helper: check if user has already attempted a quiz
+    public function hasUserAttempted($userId, $quizId) {
         try {
+            $query = "SELECT COUNT(*) FROM quiz_attempts WHERE user_id = :user_id AND quiz_id = :quiz_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":user_id", $userId);
+            $stmt->bindParam(":quiz_id", $quizId);
+            $stmt->execute();
+            return $stmt->fetchColumn() > 0;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function submitQuiz($userId, $quizId, $answers, $chessMoves, $timeTaken) {
+        try {
+            // Check if user has already attempted this quiz
+            if ($this->hasUserAttempted($userId, $quizId)) {
+                throw new Exception("You have already attempted this quiz. Retakes are not allowed.");
+            }
+
             $this->conn->beginTransaction();
             
             // Get quiz and its questions

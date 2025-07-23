@@ -5,6 +5,7 @@ import { QuizApi } from '../../api/quiz';
 import LoadingSpinner from '../../components/quiz/LoadingSpinner';
 import ErrorState from '../../components/quiz/ErrorState';
 import QuizInstructions from '../../components/quiz/QuizInstructions';
+import QuizAlreadyAttempted from '../../components/quiz/QuizAlreadyAttempted';
 import QuestionNavigation from '../../components/quiz/QuestionNavigation';
 import QuestionCard from '../../components/quiz/QuestionCard';
 import NavigationButtons from '../../components/quiz/NavigationButtons';
@@ -60,7 +61,9 @@ const QuizDetailPage = () => {
         },
       });
     } catch (error) {
-      setError('Failed to submit quiz');
+      // Handle specific error messages from the backend
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to submit quiz';
+      setError(errorMessage);
       setIsSubmitting(false);
     }
   }, [id, isSubmitting, navigate, quiz, selectedAnswers, chessMoves, timeLeft]);
@@ -93,10 +96,12 @@ const QuizDetailPage = () => {
   }, []);
   const handleJumpToQuestion = useCallback((index) => setCurrentQuestionIndex(index), []);
   const handleBackToQuizzes = useCallback(() => navigate('/student/quiz'), [navigate]);
+  const handleViewHistory = useCallback(() => navigate('/student/quiz-history'), [navigate]);
 
   // Render
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState error={error} onBack={handleBackToQuizzes} />;
+  if (quiz && quiz.has_attempted) return <QuizAlreadyAttempted quiz={quiz} onViewHistory={handleViewHistory} onBackToQuizzes={handleBackToQuizzes} />;
   if (!quizStarted) return <QuizInstructions quiz={quiz} onStart={handleStartQuiz} />;
 
   const currentQuestion = quiz.questions ? quiz.questions[currentQuestionIndex] : null;

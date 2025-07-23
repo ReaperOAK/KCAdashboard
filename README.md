@@ -76,3 +76,10 @@ Teachers can now schedule recurring classes based on batch schedules:
 - Uses batch schedule (days, time, duration) for session creation.
 - Smart conflict detection, preview, and notifications for students.
 - See `src/components/classroom/docs.md` and API docs for details.
+
+# Quiz No-Retake Policy (July 2025)
+
+- Once a quiz is submitted, students cannot retake it. No cooling time, no retry, no second attempt.
+- All UI retry/retake options have been removed.
+- Backend and frontend both enforce this rule for fairness and security.
+- See `README-quiz-no-retake-policy.md` for full details.

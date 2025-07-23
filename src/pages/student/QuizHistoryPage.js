@@ -68,9 +68,6 @@ const QuizHistoryPage = () => {
       }
     });
   }, []);
-  const handleRetry = useCallback((quizId) => {
-    navigate(`/student/quiz/${quizId}`);
-  }, [navigate]);
   const handleTakeFirstQuiz = useCallback(() => {
     navigate('/student/quiz');
   }, [navigate]);
@@ -99,7 +96,6 @@ const QuizHistoryPage = () => {
             history={sortedHistory}
             loading={loading}
             error={error}
-            onRetry={handleRetry}
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSort={handleSort}

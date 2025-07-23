@@ -46,7 +46,7 @@ const QuizInstructions = React.memo(function QuizInstructions({ quiz, onStart })
             <li>The quiz consists of <span className="font-semibold text-secondary">{quiz.questions ? quiz.questions.length : 0} questions</span>.</li>
             <li>Each question has only one correct answer.</li>
             <li>You can navigate between questions.</li>
-            <li>Once submitted, you cannot retake the quiz immediately.</li>
+            <li className="text-red-600 font-semibold">⚠️ Once submitted, you cannot retake this quiz. This is your only attempt.</li>
           </ul>
         </section>
         <div className="flex justify-center">

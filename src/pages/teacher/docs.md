@@ -155,4 +155,13 @@ import TeacherQuizLeaderboardPage from './pages/teacher/TeacherQuizLeaderboardPa
 
 ---
 
+## Quiz No-Retake Policy
+
+- Students can only attempt each quiz once.
+- No option to allow retakes or set a cooling period.
+- Teachers should communicate this to students when assigning quizzes.
+- See `README-quiz-no-retake-policy.md` for technical details.
+
+---
+
 For more details on the overall frontend structure, see the main `docs.md` in the `src` folder.

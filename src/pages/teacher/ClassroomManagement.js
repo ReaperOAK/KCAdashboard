@@ -10,6 +10,7 @@ import ErrorAlert from '../../components/classroom/ErrorAlert';
 import ClassroomCard from '../../components/classroom/ClassroomCard';
 import ViewSwitcher from '../../components/classroom/ViewSwitcher';
 import ModalOverlay from '../../components/classroom/ModalOverlay';
+import RecurringClassModal from '../../components/classroom/RecurringClassModal';
 
 
 // --- Main Component ---
@@ -18,6 +19,7 @@ function ClassroomManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showRecurringModal, setShowRecurringModal] = useState(false);
   const [showMaterialsModal, setShowMaterialsModal] = useState(false);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -200,9 +202,17 @@ function ClassroomManagement() {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
+  const handleRecurringSuccess = useCallback((sessionsCreated) => {
+    setRefreshTrigger((prev) => prev + 1);
+    fetchClassrooms();
+    // Show success message
+    window.alert(`Successfully created ${sessionsCreated} recurring sessions!`);
+  }, [fetchClassrooms]);
+
   // --- Modal close handlers (memoized) ---
   const handleCloseError = useCallback(() => setError(null), []);
   const handleCloseScheduleModal = useCallback(() => setShowScheduleModal(false), []);
+  const handleCloseRecurringModal = useCallback(() => setShowRecurringModal(false), []);
   const handleCloseMaterialsModal = useCallback(() => setShowMaterialsModal(false), []);
   const handleCloseAssignmentModal = useCallback(() => setShowAssignmentModal(false), []);
 
@@ -216,6 +226,13 @@ function ClassroomManagement() {
             <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" /></svg>
             Classroom Management
           </h1>
+          
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-2">
+            <div className="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+              <strong>Tip:</strong> Use "Recurring Classes" to auto-schedule based on batch schedule
+            </div>
+          </div>
         </section>
 
         {loading ? (
@@ -236,6 +253,10 @@ function ClassroomManagement() {
                   onSchedule={() => {
                     setSelectedClass(classroom);
                     setShowScheduleModal(true);
+                  }}
+                  onRecurringSchedule={() => {
+                    setSelectedClass(classroom);
+                    setShowRecurringModal(true);
                   }}
                   onAssignment={() => {
                     setSelectedClass(classroom);
@@ -296,7 +317,7 @@ function ClassroomManagement() {
             <div className="bg-white rounded-xl p-6 max-w-lg w-full" role="dialog" aria-modal="true" aria-labelledby="schedule-modal-title">
               <h2 id="schedule-modal-title" className="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
                 <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8M12 8v8" /></svg>
-                Schedule Class
+                Schedule Single Class
               </h2>
               <form onSubmit={handleScheduleSubmit} className="space-y-4">
                 <div>
@@ -590,6 +611,15 @@ function ClassroomManagement() {
             session={selectedSession}
             onClose={() => setShowAttendanceModal(false)}
             onAttendanceSubmitted={handleAttendanceSubmitted}
+          />
+        )}
+
+        {/* Recurring Class Modal */}
+        {showRecurringModal && selectedClass && (
+          <RecurringClassModal
+            classroom={selectedClass}
+            onClose={handleCloseRecurringModal}
+            onSuccess={handleRecurringSuccess}
           />
         )}
       </div>

@@ -36,6 +36,7 @@ endpoints/classroom/
   submit-assignment.php       # Submit an assignment
   sync-batch-classroom.php    # Sync batch and classroom data
   track-attendance.php        # Track classroom attendance
+  create-recurring-sessions.php # Create recurring sessions for a classroom
 ```
 
 ---
@@ -119,6 +120,9 @@ endpoints/classroom/
 
 - **track-attendance.php**  
   Tracks attendance for classroom sessions.
+
+- **create-recurring-sessions.php**  
+  Bulk-creates recurring class sessions for a classroom based on the batch schedule. Accepts a schedule, date range, and template for session titles/descriptions. Skips conflicts and notifies all students. See frontend docs for usage and UI details.
 
 ---
 

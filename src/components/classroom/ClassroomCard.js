@@ -3,7 +3,7 @@ import React from 'react';
  * Card for displaying classroom details and actions.
  * Beautiful, responsive, and accessible.
  */
-const ClassroomCard = ({ classroom, onCardClick, onSchedule, onAssignment, onMaterials }) => (
+const ClassroomCard = ({ classroom, onCardClick, onSchedule, onRecurringSchedule, onAssignment, onMaterials }) => (
   <section
     className="bg-background-light dark:bg-background-dark rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-200 border border-gray-light  w-full max-w-xl mx-auto"
     tabIndex={0}
@@ -37,7 +37,15 @@ const ClassroomCard = ({ classroom, onCardClick, onSchedule, onAssignment, onMat
         className="bg-secondary text-white hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-3 py-1 text-sm font-semibold transition-all duration-200 shadow-sm"
         aria-label={`Schedule class for ${classroom.name}`}
       >
-        Schedule Class
+        Single Class
+      </button>
+      <button
+        type="button"
+        onClick={e => { e.stopPropagation(); onRecurringSchedule(); }}
+        className="bg-accent text-white hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded px-3 py-1 text-sm font-semibold transition-all duration-200 shadow-sm"
+        aria-label={`Schedule recurring classes for ${classroom.name}`}
+      >
+        Recurring Classes
       </button>
       <button
         type="button"
@@ -45,7 +53,7 @@ const ClassroomCard = ({ classroom, onCardClick, onSchedule, onAssignment, onMat
         className="bg-secondary text-white hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-3 py-1 text-sm font-semibold transition-all duration-200 shadow-sm"
         aria-label={`Create assignment for ${classroom.name}`}
       >
-        Create Assignment
+        Assignment
       </button>
       <button
         type="button"
@@ -53,7 +61,7 @@ const ClassroomCard = ({ classroom, onCardClick, onSchedule, onAssignment, onMat
         className="bg-secondary text-white hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-3 py-1 text-sm font-semibold transition-all duration-200 shadow-sm"
         aria-label={`Add materials for ${classroom.name}`}
       >
-        Add Materials
+        Materials
       </button>
     </div>
   </section>

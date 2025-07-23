@@ -249,3 +249,10 @@ See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/do
 - Quizzes created from PGNs in the Chess Library now default to public visibility, ensuring they are visible to students when published.
 - Batch PGN-to-quiz creation also defaults to public visibility.
 
+### Recurring Classes & Batch Schedule Automation (2025-07-23)
+- Teachers can now schedule recurring classes based on batch schedule (days, time, duration)
+- New RecurringClassModal UI for previewing and generating multiple sessions at once
+- Backend API endpoint for bulk session creation with conflict detection and notifications
+- Updated ClassroomCard and ClassroomManagement for new workflow
+- See `src/components/classroom/docs.md` and API docs for full details
+

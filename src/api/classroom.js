@@ -3,6 +3,7 @@ import { get, post, postFormData } from './utils';
 
 export const ClassroomApi = {
   addSession: (data) => post('/classroom/add-session.php', data),
+  createRecurringSessions: (data) => post('/classroom/create-recurring-sessions.php', data),
   addMaterial: (formData) => postFormData('/classroom/add-material.php', formData),
   rateClass: (classId, studentId, rating, comment) => post('/classroom/rate-class.php', { class_id: classId, student_id: studentId, rating, comment }),
   getClassroomDetails: (classroomId) => get(`/classroom/get-classroom-details.php?id=${classroomId}`),

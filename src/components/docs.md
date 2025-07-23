@@ -136,3 +136,9 @@ For more details on feature-specific components, see the `docs.md` files in each
 
 - Create quizzes from PGN games (single or batch) via modals in the Chess Library.
 - See `chess/pgnlibrary/CreateQuizModal.js`, `BatchCreateQuizModal.js`, and `usePGNQuizIntegration.js` for details.
+
+---
+
+## Recurring Class Sessions (July 2025)
+
+- **RecurringClassModal.js**: Modal for creating recurring class sessions based on batch schedule. See `classroom/docs.md` for full usage and API details.

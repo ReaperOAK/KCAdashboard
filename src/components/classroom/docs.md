@@ -6,23 +6,92 @@ The `classroom` subfolder under `components` contains React components related t
 
 ---
 
+# Recurring Classes Feature
+
+## Overview
+The Recurring Classes feature allows teachers to automatically schedule multiple class sessions based on their batch schedule. Instead of manually creating each session, teachers can now generate recurring sessions that follow the batch's predefined schedule.
+
+## How It Works
+
+### Batch Schedule Structure
+Each batch has a schedule field stored as JSON:
+```json
+{
+  "days": ["Mon", "Wed", "Fri"],
+  "time": "09:00",
+  "duration": 60
+}
+```
+
+### Recurring Class Creation Process
+1. **Teacher selects a classroom** from the Classroom Management page
+2. **Clicks "Recurring Classes"** button
+3. **RecurringClassModal opens** showing:
+   - Current batch schedule
+   - Form to configure recurring parameters
+   - Preview of sessions to be created
+4. **Teacher configures**:
+   - Session title template (can use `{week}` and `{date}` placeholders)
+   - Start date
+   - End date or number of weeks
+   - Session type (online/offline)
+   - Meeting link (for online sessions)
+   - Description template
+   - Optional custom duration override
+5. **System generates sessions** based on:
+   - Batch schedule days and time
+   - Date range specified
+   - Conflict checking with existing sessions
+6. **Notifications sent** to all students in the classroom
+
+## Features
+
+### Smart Conflict Detection
+- Checks for overlapping sessions with teacher's existing schedule
+- Skips conflicting time slots automatically
+- Provides feedback on skipped sessions
+
+### Template System
+- Title template supports `{week}` and `{date}` placeholders
+- Description template supports same placeholders
+- Example: "Chess Class - Week {week}" becomes "Chess Class - Week 1", "Chess Class - Week 2", etc.
+
+### UI Components
+
+#### RecurringClassModal
+- **Location**: `src/components/classroom/RecurringClassModal.js`
+- **Props**:
+  - `classroom` - Classroom object
+  - `onClose` - Close handler
+  - `onSuccess` - Success callback with sessions count
+- **Features**:
+  - Loads batch schedule automatically
+  - Shows schedule preview
+  - Generates session preview
+  - Form validation
+  - Loading states
+  - Error handling
+
+---
+
 ## File Structure
 
 
 ```
 components/classroom/
-  AssignmentsView.js     # Displays classroom assignments
-  AttendanceModal.js     # Modal for managing classroom attendance
-  ClassroomCalendar.js   # Calendar for classroom events and sessions
-  MaterialsView.js       # Shows classroom materials
-  LoadingSkeleton.js     # Animated loading skeleton for classroom pages
-  LoadingSpinner.js      # Beautiful, accessible loading spinner for classroom pages
-  ModalOverlay.js        # Modal overlay with focus trap and escape close
-  StatusBadge.js         # Status badge for classroom items (active, upcoming, etc.)
-  ViewSwitcher.js        # Switches between classroom views (calendar, materials, assignments)
-  ErrorAlert.js          # Error alert with icon and color tokens
-  ErrorState.js          # General error state display with icon and animation
-  MaterialCard.js        # Card for displaying classroom material info
+  AssignmentsView.js        # Displays classroom assignments
+  AttendanceModal.js        # Modal for managing classroom attendance
+  ClassroomCalendar.js      # Calendar for classroom events and sessions
+  MaterialsView.js          # Shows classroom materials
+  RecurringClassModal.js    # NEW: Modal for creating recurring classes based on batch schedule
+  LoadingSkeleton.js        # Animated loading skeleton for classroom pages
+  LoadingSpinner.js         # Beautiful, accessible loading spinner for classroom pages
+  ModalOverlay.js           # Modal overlay with focus trap and escape close
+  StatusBadge.js            # Status badge for classroom items (active, upcoming, etc.)
+  ViewSwitcher.js           # Switches between classroom views (calendar, materials, assignments)
+  ErrorAlert.js             # Error alert with icon and color tokens
+  ErrorState.js             # General error state display with icon and animation
+  MaterialCard.js           # Card for displaying classroom material info
 ```
 
 ---

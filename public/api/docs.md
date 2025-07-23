@@ -37,6 +37,7 @@ public/
 - **Tournaments:** Register, manage, and track chess tournaments, including payment integration.
 - **Support:** FAQ and ticketing system for user support.
 - **Analytics:** Export and view analytics for attendance, performance, quizzes, and more.
+- **Recurring Classes:** Teachers can bulk-schedule sessions based on batch schedule using the new `create-recurring-sessions.php` endpoint. See `endpoints/classroom/docs.md` and frontend docs for usage.
 
 ---
 

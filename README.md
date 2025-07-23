@@ -63,3 +63,11 @@ See `CHANGELOG.md` for release notes.
 - Batch PGN-to-quiz creation also defaults to public visibility.
 - Quiz Creator auto-detects PGN data and loads chess questions with full game content.
 - See `src/hooks/usePGNQuizIntegration.js` and `src/components/chess/pgnlibrary/` for implementation details.
+
+## 🆕 Recurring Classes Feature
+
+Teachers can now schedule recurring classes based on batch schedules:
+- Click "Recurring Classes" in Classroom Management to auto-generate sessions for weeks/months in advance.
+- Uses batch schedule (days, time, duration) for session creation.
+- Smart conflict detection, preview, and notifications for students.
+- See `src/components/classroom/docs.md` and API docs for details.

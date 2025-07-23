@@ -299,3 +299,9 @@ All modals are accessible, responsive, and follow the project's UI/UX and access
 - All props, accessibility, and memoization features are preserved.
 
 _Last updated: 2024-06-11_
+
+### Recurring Classes & Batch Schedule Automation (July 2025)
+- Teachers can now schedule recurring classes based on batch schedule (days, time, duration)
+- RecurringClassModal UI for previewing and generating multiple sessions at once
+- Backend API endpoint for bulk session creation with conflict detection and notifications
+- See `src/components/classroom/docs.md` for full details

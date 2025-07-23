@@ -25,9 +25,13 @@ public/
 
 ---
 
+
+## Registration & Role Security Policy (July 2025)
+All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management endpoints. This is enforced in both frontend and backend for security.
+
 ## Key Features
 
-- **User Management:** Registration, login, profile updates, permissions, and bulk operations for users and teachers.
+- **User Management:** Registration, login, profile updates, permissions, and bulk operations for users. Only admins can promote users to teacher/admin roles.
 - **Attendance:** Marking, exporting, syncing, and reporting attendance for students and classes.
 - **Batch & Classroom Management:** Create, update, and manage batches and classrooms, including assignments, materials, and sessions.
 - **Chess Platform:** Challenge system, game management, engine analysis, PGN upload/view, and player statistics.

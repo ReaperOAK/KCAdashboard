@@ -18,6 +18,11 @@ cd c:\Owais\KCAdashboard; npm install; npm start
 
 ---
 
+
+## Registration & Role Security Policy (July 2025)
+
+All new user registrations are created as **students**. Only administrators can promote users to teacher or admin roles via the user management interface. This prevents unauthorized access to teacher dashboards and ensures secure role management. See `CONTRIBUTING.md` and API docs for details.
+
 For all project details, see the docs above.
 
 ## Getting Started

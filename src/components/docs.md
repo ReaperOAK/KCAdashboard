@@ -9,6 +9,10 @@ All analytics-related UI components have been refactored for beauty, performance
   - Strict adherence to the KCA color system and Tailwind config (see `../../colour_scheme.md`)
   - Modular, single-responsibility, and fully accessible design
 
+
+## Registration & Role Security Policy (July 2025)
+All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management interface. This is enforced in both frontend and backend for security.
+
 ## Feature Overview
 
 KCAdashboard includes modular, single-responsibility React components for:

@@ -27,8 +27,10 @@
 
 All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.
 
-#### Key Features
 - User authentication (student, teacher, admin roles)
+
+#### Registration & Role Security Policy (July 2025)
+- All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management interface. This is enforced in both frontend and backend for security.
 - Tournament management (create, edit, view, delete)
 - Resource center for chess materials
 - Quiz system (create, manage, take quizzes, leaderboards)

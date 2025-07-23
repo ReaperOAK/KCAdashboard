@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { UserIcon, EnvelopeIcon, LockClosedIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { UserIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 
 function RegisterForm({ onSubmit, onChange, values, error }) {
@@ -73,23 +73,23 @@ function RegisterForm({ onSubmit, onChange, values, error }) {
             <LockClosedIcon className="w-5 h-5 text-gray-300 absolute right-3 top-2.5 pointer-events-none" />
           </div>
         </div>
-        <div>
-          <label htmlFor="role" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-            <AcademicCapIcon className="w-4 h-4 text-accent" /> Role
-          </label>
-          <select
+        {/* Role is automatically set to student - no selection needed */}
+        <div className="hidden">
+          <input
             id="role"
             name="role"
-            required
+            type="hidden"
             value={values.role}
-            onChange={onChange}
-            className="appearance-none rounded-md block w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-accent focus:border-accent"
-            aria-required="true"
-            aria-label="Role"
-          >
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-          </select>
+            readOnly
+          />
+        </div>
+        
+        {/* Info message about account type */}
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md text-sm">
+          <div className="flex items-center gap-2">
+            <UserIcon className="w-4 h-4 text-blue-500" />
+            <span>All new accounts are created as <strong>Student</strong> accounts. Contact your administrator if you need teacher access.</span>
+          </div>
         </div>
       </div>
       <div>

@@ -31,9 +31,14 @@ try {
 
     $user = new User($db);
 
-    if (empty($data->email) || empty($data->password) || empty($data->role)) {
-        throw new Exception('Missing required fields: email, password, or role');
+    if (empty($data->email) || empty($data->password)) {
+        throw new Exception('Missing required fields: email or password');
     }
+
+    // Force all new registrations to be students for security
+    // Only admins can promote users to teacher role later
+    // This prevents unauthorized access to teacher dashboards
+    $forced_role = 'student';
 
     // Validate email format
     if (!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
@@ -49,7 +54,7 @@ try {
 
     $user->email = $data->email;
     $user->password = password_hash($data->password, PASSWORD_DEFAULT);
-    $user->role = $data->role;
+    $user->role = $forced_role; // Always student for new registrations
     $user->full_name = $data->full_name ?? '';
     $user->google_id = $data->google_id ?? null;
     $user->profile_picture = $data->profile_picture ?? null;

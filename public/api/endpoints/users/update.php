@@ -3,11 +3,26 @@ header('Content-Type: application/json');
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
 require_once '../../models/User.php';
+require_once '../../middleware/auth.php';
 
 $database = new Database();
 $db = $database->getConnection();
 
 try {
+    // Authenticate and verify admin role
+    $currentUser = getAuthUser();
+    if (!$currentUser) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Authentication required']);
+        exit;
+    }
+    
+    if ($currentUser['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Admin access required to modify users']);
+        exit;
+    }
+
     $data = json_decode(file_get_contents("php://input"));
     
     if (!isset($data->user_id) || !isset($data->full_name) || !isset($data->email) || !isset($data->role)) {
@@ -18,6 +33,11 @@ try {
     $validRoles = ['student', 'teacher', 'admin'];
     if (!in_array($data->role, $validRoles)) {
         throw new Exception('Invalid role specified');
+    }
+
+    // Prevent users from changing their own role to avoid lockout scenarios
+    if ($currentUser['id'] == $data->user_id && $data->role !== 'admin') {
+        throw new Exception('You cannot change your own admin role');
     }
 
     // Start transaction
@@ -50,7 +70,7 @@ try {
         VALUES (?, 'user_update', ?, ?)
     ");
     
-    $description = "User details updated. Role changed to: {$data->role}";
+    $description = "User details updated by admin {$currentUser['id']} ({$currentUser['email']}). Role changed to: {$data->role}";
     $stmt->execute([
         $data->user_id,
         $description,

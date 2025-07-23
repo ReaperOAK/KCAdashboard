@@ -19,13 +19,17 @@ pages/auth/
 
 ---
 
+
+## Registration & Role Security Policy (July 2025)
+All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management interface. This is enforced in both frontend and backend for security.
+
 ## File Explanations
 
 - **Login.js**  
   Provides a form for users to enter their email and password to log in. Handles authentication logic, error display, and redirects on success.
 
 - **Register.js**  
-  Registration form for new users. Collects user details, validates input, and submits registration requests. Prompts users to verify their email after successful registration.
+  Registration form for new users. All new accounts are created as students. Teacher/admin roles can only be assigned by an admin. Prompts users to verify their email after successful registration.
 
 - **ResetPassword.js**  
   Allows users to request a password reset and set a new password using a token sent via email. Handles validation and error feedback.

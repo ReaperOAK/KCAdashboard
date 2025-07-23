@@ -46,6 +46,9 @@ const UserDetailsForm = memo(function UserDetailsForm({ user, setUser, onSubmit,
             <option value="teacher">Teacher</option>
             <option value="admin">Admin</option>
           </select>
+          <p className="text-xs text-gray-600 mt-1">
+            New registrations are always created as Students. Only admins can promote users to Teacher or Admin roles.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-medium text-text-dark mb-1">Status</label>

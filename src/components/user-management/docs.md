@@ -36,9 +36,10 @@ components/user-management/
 
 ---
 
-## Features
-
 - **User Search & Filtering:** Quickly find users by name/email and filter by role.
+
+## Registration & Role Security Policy (July 2025)
+All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via this user management interface. This is enforced in both frontend and backend for security.
 - **Bulk Selection:** Select multiple users for batch actions (future extensibility).
 - **Inline Editing:** Change user roles and statuses directly from the table.
 - **Action Menus:** Edit, manage permissions, or delete users with accessible action buttons and mobile-friendly menus.

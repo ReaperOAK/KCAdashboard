@@ -32,7 +32,7 @@ endpoints/auth/
   Implements rate limiting to prevent brute-force attacks and abuse of authentication endpoints.
 
 - **register.php**  
-  Handles new user registration, including validation and account creation.
+  Handles new user registration with enhanced security. All new registrations are automatically assigned the "student" role. Only administrators can promote users to "teacher" or "admin" roles through the user management system. This prevents unauthorized access to privileged dashboards.
 
 - **request-reset.php**  
   Initiates the password reset process by sending a reset link or code to the user's email.

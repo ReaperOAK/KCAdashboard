@@ -1,4 +1,11 @@
+
 # [Unreleased] - July 2025
+
+## Security: Registration & Role Management Update (2025-07-23)
+- All new user registrations are now always created as students. Teacher/admin roles can only be assigned by an admin via the user management interface.
+- Role selection removed from registration form; backend enforces student-only registration.
+- Only admins can promote users to teacher/admin roles (API endpoints now require admin authentication for role changes).
+- Updated all relevant docs and UI to clarify this policy.
 
 ## Major UI/UX & Codebase Refactors
 

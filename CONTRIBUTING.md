@@ -9,6 +9,7 @@ This project underwent a major UI/UX, accessibility, and modularity overhaul in 
 
 ## Contribution Guidelines
 
+
 All code must be modular, single-responsibility, and follow the KCA color system and Tailwind config.
 All components and pages must be fully accessible (ARIA, keyboard navigation, focus/hover/disabled states).
 Responsive design is required for all UI.
@@ -16,6 +17,9 @@ Use pure, focused, reusable functional React components and Hooks.
 Update all relevant docs after code changes.
 No build artifacts or orphan files.
 Register new files/components in the correct modules, routes, or parent components.
+
+**Registration & Role Security Policy:**
+- All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management interface. This is enforced in both frontend and backend.
 
 Before submitting a pull request, please review all linked documentation and recent changelog entries to ensure compliance with project standards.
 

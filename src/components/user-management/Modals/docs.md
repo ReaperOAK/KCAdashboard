@@ -23,10 +23,14 @@ components/user-management/Modals/
 
 ---
 
+
+## Registration & Role Security Policy (July 2025)
+All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via this modal and user management interface. This is enforced in both frontend and backend for security.
+
 ## Features
 
 - **Tabbed Navigation:** Switch between editing user details and viewing activity logs.
-- **Form Controls:** Edit full name, email, role, and status with validation and error handling.
+- **Form Controls:** Edit full name, email, role, and status with validation and error handling. Only admins can promote users to teacher/admin roles.
 - **Activity Logs:** View recent actions and history for the selected user (via integration with the admin's user activity page).
 - **Accessible Modal:** Can be closed via backdrop click or close button; keyboard accessible.
 - **Responsive Design:** Styled with Tailwind CSS for usability on all screen sizes.

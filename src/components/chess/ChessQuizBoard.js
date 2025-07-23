@@ -133,22 +133,22 @@ export const ChessQuizBoard = React.memo(({
       }
       return correctMove.from === sourceSquare && correctMove.to === targetSquare;
     });
-    if (showAnswer) {
-      if (isCorrectMove) {
-        setFeedback('Correct move!');
-        setFeedbackType('correct');
-        setMoveSquares({
-          [sourceSquare]: { backgroundColor: 'rgba(67, 160, 71, 0.5)' },
-          [targetSquare]: { backgroundColor: 'rgba(67, 160, 71, 0.5)' }
-        });
-      } else {
-        setFeedback('Not the best move. Try again!');
-        setFeedbackType('incorrect');
-        setMoveSquares({
-          [sourceSquare]: { backgroundColor: 'rgba(229, 57, 53, 0.5)' },
-          [targetSquare]: { backgroundColor: 'rgba(229, 57, 53, 0.5)' }
-        });
-      }
+    
+    // Always provide feedback for moves in quiz mode
+    if (isCorrectMove) {
+      setFeedback('Correct move!');
+      setFeedbackType('correct');
+      setMoveSquares({
+        [sourceSquare]: { backgroundColor: 'rgba(67, 160, 71, 0.5)' },
+        [targetSquare]: { backgroundColor: 'rgba(67, 160, 71, 0.5)' }
+      });
+    } else {
+      setFeedback('Incorrect move. Try again!');
+      setFeedbackType('incorrect');
+      setMoveSquares({
+        [sourceSquare]: { backgroundColor: 'rgba(229, 57, 53, 0.5)' },
+        [targetSquare]: { backgroundColor: 'rgba(229, 57, 53, 0.5)' }
+      });
     }
     if (onMove) {
       onMove({
@@ -160,7 +160,7 @@ export const ChessQuizBoard = React.memo(({
       });
     }
     return true;
-  }, [allowMoves, disabled, game, correctMoves, showAnswer, onMove]);
+  }, [allowMoves, disabled, game, correctMoves, onMove]);
 
   // Reset position handler
   const handleReset = useCallback(() => {

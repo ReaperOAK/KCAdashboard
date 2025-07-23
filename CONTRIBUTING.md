@@ -14,7 +14,7 @@ All code must be modular, single-responsibility, and follow the KCA color system
 All components and pages must be fully accessible (ARIA, keyboard navigation, focus/hover/disabled states).
 Responsive design is required for all UI.
 Use pure, focused, reusable functional React components and Hooks.
-Update all relevant docs after code changes.
+Update all relevant docs after code changes. If you change quiz or chess move validation/feedback logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.
 No build artifacts or orphan files.
 Register new files/components in the correct modules, routes, or parent components.
 

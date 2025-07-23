@@ -1,4 +1,6 @@
-# July 2025 UI/UX Overhaul
+
+# July 2025: Quiz Chess Move Feedback Improvement
+Chess quiz questions (both FEN and PGN modes) now provide instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again, improving the learning experience and scoring accuracy.
 
 All quiz-related components now follow the Kolkata Chess Academy color system, accessibility, and modularity guidelines. See the main `docs.md` and `colour_scheme.md` for details.
 

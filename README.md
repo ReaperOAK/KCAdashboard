@@ -8,6 +8,10 @@ Welcome! KCAdashboard is a modern, beautiful, and accessible dashboard for the K
 cd c:\Owais\KCAdashboard; npm install; npm start
 ```
 
+
+## 📝 July 2025 Update: Quiz Chess Move Feedback
+Chess quiz questions now provide instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again, improving the learning experience for both FEN and PGN quiz modes.
+
 ## 📖 Where to Find Things
 
 - [UI/UX, Design System, Accessibility](docs.md)

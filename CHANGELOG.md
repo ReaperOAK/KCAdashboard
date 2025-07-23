@@ -1,5 +1,10 @@
 
+
 # [Unreleased] - July 2025
+
+## Bugfix & Improvement: Quiz Chess Move Feedback (2025-07-23)
+- Fixed: Chess quiz questions (both FEN and PGN modes) now immediately show feedback for incorrect moves. Wrong moves are highlighted and users are prompted to try again, instead of getting no response.
+- All moves (correct and incorrect) are now reported to the quiz system for accurate scoring and analytics.
 
 ## Security: Registration & Role Management Update (2025-07-23)
 - All new user registrations are now always created as students. Teacher/admin roles can only be assigned by an admin via the user management interface.

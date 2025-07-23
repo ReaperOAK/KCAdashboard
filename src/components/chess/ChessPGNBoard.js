@@ -257,6 +257,19 @@ export function ChessPGNBoard({
             [sourceSquare]: { backgroundColor: 'rgba(255, 0, 0, 0.4)' },
             [targetSquare]: { backgroundColor: 'rgba(255, 0, 0, 0.4)' }
           });
+          
+          // Report the incorrect move to the parent component
+          if (onMove) {
+            onMove({
+              from: sourceSquare,
+              to: targetSquare,
+              san: move.san,
+              isCorrect: false,
+              fen: newGame.fen(),
+              moveNumber: currentMoveIndex + 1
+            });
+          }
+          
           setTimeout(() => {
             const previousGame = new Chess();
             for (let i = 0; i <= currentMoveIndex; i++) {

@@ -19,9 +19,9 @@ components/chess/
   ChallengeList.js         # Lists chess challenges
   ChessBoard.js            # Main chessboard component for gameplay
   ChessNavigation.js       # Navigation controls for chess games
-  ChessPGNBoard.js         # Displays chess games from PGN files
+  ChessPGNBoard.js         # Displays chess games from PGN files (quiz mode: instant feedback for correct/incorrect moves)
   ChessPositionEditor.js   # Allows editing of chess positions
-  ChessQuizBoard.js        # Board for chess quiz questions
+  ChessQuizBoard.js        # Board for chess quiz questions (instant feedback for correct/incorrect moves)
   EngineAnalysis.js        # Provides chess engine analysis features
   MoveHistory.js           # Shows move history for a game
   PGNLibrary.js            # Manages a library of PGN files
@@ -65,14 +65,14 @@ These components are used in `PlayerVsPlayer.js` for modularity, reusability, an
 - **ChessNavigation.js**  
   Provides navigation controls (e.g., next/prev move) for chess games.
 
-- **ChessPGNBoard.js**  
-  Displays chess games loaded from PGN files for review or study.
+**ChessPGNBoard.js**  
+  Displays chess games loaded from PGN files for review or study. In quiz mode, provides instant feedback for correct and incorrect moves, and reports all moves (correct/incorrect) to parent components for quiz scoring.
 
 - **ChessPositionEditor.js**  
   Allows users to edit and set up custom chess positions.
 
-- **ChessQuizBoard.js**  
-  Board component for chess quiz questions and puzzles.
+**ChessQuizBoard.js**  
+  Board component for chess quiz questions and puzzles. Now provides instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again. All moves (correct/incorrect) are reported to parent components for quiz scoring.
 
 - **EngineAnalysis.js**  
   Integrates with a chess engine to analyze games and suggest moves.

@@ -53,6 +53,11 @@ try {
         return trim($game) !== '' && strpos($game, '[Event') !== false;
     });
     
+    // Check for game count limit (max 50 games per PGN upload)
+    if (count($games) > 50) {
+        throw new Exception('Too many games in PGN file. Maximum allowed is 50 games per upload. Found ' . count($games) . ' games.');
+    }
+    
     // If no games found by Event headers, try alternative splitting
     if (empty($games)) {
         $games = preg_split('/\n\s*\n\s*\[/', $pgn_content);

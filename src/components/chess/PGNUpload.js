@@ -68,6 +68,7 @@ export const PGNUpload = React.memo(function PGNUpload({
   /**
    * Improved manual PGN parser with robust game splitting and header extraction
    * Handles complex annotations, variations, and evaluation symbols
+   * Includes game count limit validation
    */
   const parseManualPGN = useCallback((content) => {
     const games = [];
@@ -76,6 +77,11 @@ export const PGNUpload = React.memo(function PGNUpload({
     // First, try to split by Event headers that are followed by other headers
     // This is more reliable than just splitting by [Event
     const eventMatches = [...content.matchAll(/\[Event\s+"[^"]*"\]/g)];
+    
+    // Check game count limit before processing
+    if (eventMatches.length > 50) {
+      throw new Error(`Too many games detected (${eventMatches.length}). Maximum allowed is 50 games per PGN upload.`);
+    }
     
     if (eventMatches.length === 0) {
       // No Event headers found, treat as single malformed game
@@ -219,8 +225,6 @@ export const PGNUpload = React.memo(function PGNUpload({
         throw new Error('PGN content is empty');
       }
 
-      
-
       // Try to parse with @mliebelt/pgn-parser first
       let parsedGames = [];
       let parseErrors = [];
@@ -229,6 +233,11 @@ export const PGNUpload = React.memo(function PGNUpload({
       try {
         // Parse with @mliebelt/pgn-parser
         parsedGames = parse(content, { startRule: 'games' });
+        
+        // Check game count limit for parsed games
+        if (parsedGames && parsedGames.length > 50) {
+          throw new Error(`Too many games detected (${parsedGames.length}). Maximum allowed is 50 games per PGN upload.`);
+        }
         
       } catch (parseError) {
         console.warn('PGN parser error, using improved manual parsing:', parseError.message);
@@ -241,6 +250,11 @@ export const PGNUpload = React.memo(function PGNUpload({
       
       if (!parsedGames || parsedGames.length === 0) {
         throw new Error('No valid games found in PGN');
+      }
+
+      // Final check for game count limit (in case fallback parser was used)
+      if (parsedGames.length > 50) {
+        throw new Error(`Too many games detected (${parsedGames.length}). Maximum allowed is 50 games per PGN upload.`);
       }
 
       
@@ -594,6 +608,11 @@ function HeaderSection() {
       <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2">Upload PGN Files</h2>
       <p className="text-gray-dark text-base md:text-lg">
         Upload chess games in PGN format. Supports multiple games, variations, comments, and annotations.
+      </p>
+      <p className="text-sm text-orange-600 mt-2 font-medium">
+        <span className="inline-flex items-center">
+          ⚠️ Maximum limit: 50 games per PGN upload
+        </span>
       </p>
     </header>
   );

@@ -12,6 +12,9 @@ cd c:\Owais\KCAdashboard; npm install; npm start
 ## 📝 July 2025 Update: Quiz Chess Move Feedback
 Chess quiz questions now provide instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again, improving the learning experience for both FEN and PGN quiz modes.
 
+## ⚠️ July 2025 Update: PGN Upload 50-Game Limit
+To prevent performance issues and application hanging, PGN uploads are now limited to a maximum of 50 games per file. This ensures smooth user experience when uploading and viewing PGN files. Existing large PGN files (like the 3K games file) are automatically truncated to the first 50 games when viewed.
+
 
 ## 🆕 Teacher Leave Requests (July 2025)
 

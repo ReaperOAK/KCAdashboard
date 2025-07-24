@@ -100,6 +100,7 @@ export const PGNFileDrop = React.memo(function PGNFileDrop({
           Choose File
         </label>
         <p className="text-xs text-gray-dark mt-2">Max size: {Math.round(maxFileSize / 1024 / 1024)}MB | Formats: {allowedFormats.join(', ')}</p>
+        <p className="text-xs text-orange-600 mt-1 font-medium">⚠️ Maximum 50 games per PGN file</p>
       </FileDropArea>
     </section>
   );

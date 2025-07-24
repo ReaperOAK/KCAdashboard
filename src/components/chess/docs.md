@@ -25,8 +25,8 @@ components/chess/
   EngineAnalysis.js        # Provides chess engine analysis features
   MoveHistory.js           # Shows move history for a game
   PGNLibrary.js            # Manages a library of PGN files
-  PGNUpload.js             # Handles uploading of PGN files
-  PGNViewer.js             # Viewer for PGN chess games
+  PGNUpload.js             # Handles uploading of PGN files (max 50 games per upload)
+  PGNViewer.js             # Viewer for PGN chess games (auto-limits to 50 games for performance)
   PlayerList.js            # Lists players in the chess section
 ```
 
@@ -115,6 +115,25 @@ These components are used in `PlayerVsPlayer.js` for modularity, reusability, an
 - Keep components focused and reusable.
 - Document component props and usage for maintainability.
 - Use modular design for chess features to support future expansion.
+
+---
+
+## PGN 50-Game Limit (July 2025)
+
+### Performance Safety Measures
+To prevent application hanging and ensure smooth user experience, PGN files are limited to 50 games:
+
+- **Upload Limit**: New PGN uploads are restricted to maximum 50 games per file
+- **Frontend Validation**: PGN parser checks game count before processing
+- **Backend Validation**: Server-side validation prevents large PGN uploads
+- **Viewer Safety**: PGN viewer automatically limits display to first 50 games
+- **Existing Files**: Large PGN files already in the database are truncated to 50 games when viewed
+
+### Components Affected
+- `PGNUpload.js`: Validates game count in both manual and automatic parsers
+- `PGNViewer.js`: Limits display to 50 games with warning message
+- `PGNFileDrop.js`: Shows warning about 50-game limit
+- Backend endpoints: `upload-pgn.php`, `validate-pgn.php`, `get-game.php`
 
 ---
 

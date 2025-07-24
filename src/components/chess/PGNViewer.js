@@ -99,10 +99,14 @@ export const PGNViewer = React.memo(function PGNViewer({
         return;
       }
 
-      
-
       // Use @mliebelt/pgn-parser for complex PGN parsing
       const parsedGames = parse(pgnText, { startRule: 'games' });
+      
+      // Safety check: limit to 50 games to prevent performance issues
+      if (parsedGames && parsedGames.length > 50) {
+        setError(`Too many games detected (${parsedGames.length}). Only displaying first 50 games for performance reasons.`);
+        parsedGames.splice(50); // Keep only first 50 games
+      }
       
       
       const processedGames = parsedGames.map((game, index) => {

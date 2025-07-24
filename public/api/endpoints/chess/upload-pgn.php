@@ -62,6 +62,13 @@ try {
         throw new Exception('PGN content is too short');
     }
     
+    // Check for game count limit (max 50 games per PGN upload)
+    preg_match_all('/\[Event\s*"[^"]*"\]/', $pgn_content, $event_matches);
+    $game_count = count($event_matches[0]);
+    if ($game_count > 50) {
+        throw new Exception('Too many games in PGN file. Maximum allowed is 50 games per upload. Found ' . $game_count . ' games.');
+    }
+    
     // Basic PGN validation - check for valid PGN format
     if (!preg_match('/\[Event\s*"[^"]*"\]/', $pgn_content) && 
         !preg_match('/\[Event\s*\'[^\']*\'\]/', $pgn_content) &&

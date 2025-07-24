@@ -34,7 +34,7 @@ All new user registrations are created as students only. Teacher/admin roles can
 - **User Management:** Registration, login, profile updates, permissions, and bulk operations for users. Only admins can promote users to teacher/admin roles.
 - **Attendance:** Marking, exporting, syncing, and reporting attendance for students and classes.
 - **Batch & Classroom Management:** Create, update, and manage batches and classrooms, including assignments, materials, and sessions.
-- **Chess Platform:** Challenge system, game management, engine analysis, PGN upload/view, and player statistics.
+- **Chess Platform:** Challenge system, game management, engine analysis, PGN upload/view (limited to 50 games per file), and player statistics.
 - **Quiz System:** Create, manage, and take quizzes, with leaderboards and result exports.
 - **Notifications:** Send, receive, and manage notifications and preferences.
 - **Resources:** Upload, bookmark, and share resources with students, batches, or classrooms.

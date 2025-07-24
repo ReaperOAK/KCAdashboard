@@ -1,5 +1,14 @@
 # [Unreleased] - July 2025
 
+## PGN Upload 50-Game Limit (2025-07-24)
+- Added 50-game limit for PGN uploads to prevent performance issues and application hanging
+- Frontend validation: PGN parser checks game count before processing and shows clear error messages
+- Backend validation: Server-side validation in upload-pgn.php and validate-pgn.php enforces limit
+- PGN viewer safety: Automatically limits display to first 50 games with warning message for large files
+- Existing large PGN files are truncated to 50 games when viewed to prevent hanging
+- Updated UI to show warning about 50-game limit in upload components
+- Fixed issue where clicking on large PGN files (like 3K games) would hang the application
+
 ## Navbar User Menu Bugfix & Accessibility (2025-07-24)
 - Fixed: Profile and Logout buttons in the user dropdown menu are now fully accessible and functional. The dropdown no longer closes prematurely, and all actions are handled inside the dropdown for clarity and accessibility.
 - Removed duplicate logout button from the navbar for a cleaner UI.

@@ -133,6 +133,17 @@ try {
         }
     }
     
+    // Safety check: limit PGN to 50 games to prevent frontend hanging
+    if (!empty($pgn_content)) {
+        preg_match_all('/\[Event\s*"[^"]*"\]/', $pgn_content, $event_matches, PREG_OFFSET_CAPTURE);
+        if (count($event_matches[0]) > 50) {
+            // Find the position of the 51st game and cut there
+            $cut_position = $event_matches[0][50][1]; // Get offset of 51st Event header
+            $pgn_content = substr($pgn_content, 0, $cut_position);
+            $pgn_content .= "\n\n[Comment \"Note: This PGN contained " . count($event_matches[0]) . " games. Only showing first 50 games for performance reasons.\"]\n";
+        }
+    }
+    
     // Prepare response
     $response_data = [
         'id' => (int)$game['id'],

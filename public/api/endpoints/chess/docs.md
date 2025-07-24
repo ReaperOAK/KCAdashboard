@@ -105,7 +105,7 @@ endpoints/chess/
   Saves the result of a completed game.
 
 - **upload-pgn.php**  
-  Uploads a PGN file for analysis or record-keeping. Now supports advanced visibility controls (public, private, batch, students) via metadata.
+  Uploads a PGN file for analysis or record-keeping. Now supports advanced visibility controls (public, private, batch, students) via metadata. **Limited to 50 games per upload for performance.**
 
 - **edit-pgn.php**  
   Edit PGN metadata and visibility. Only the owner or admin can edit.
@@ -117,7 +117,10 @@ endpoints/chess/
   Change PGN visibility after upload. Only the owner or admin can change visibility.
 
 - **validate-pgn.php**  
-  Validates the format and content of a PGN file.
+  Validates the format and content of a PGN file. **Enforces 50-game limit per file.**
+
+- **get-game.php**  
+  Gets details for one or more specific chess games. **Automatically limits large PGN files to first 50 games when viewing.**
 
 ---
 

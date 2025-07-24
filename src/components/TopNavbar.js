@@ -138,7 +138,7 @@ function TopNavbar({ toggleSidebar }) {
         <HamburgerButton onClick={toggleSidebar} />
         <Link to="/" className="flex items-center gap-2 min-w-0 group" tabIndex={0} aria-label="Go to dashboard home">
           <img src="/kca.ico" alt="KCA Logo" className="h-9 w-9 rounded shadow-md group-hover:scale-105 transition-transform" />
-          <span className="hidden sm:inline text-xl font-bold text-white tracking-wide drop-shadow max-w-[160px] truncate">KCA Dashboard</span>
+          <span className="hidden sm:inline text-xl font-bold text-white tracking-wide drop-shadow max-w-[160px] truncate">Kolkata Chess Academy</span>
         </Link>
       </div>
       <NavbarLinks chessLinks={chessLinks} />

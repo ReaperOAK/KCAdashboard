@@ -1,5 +1,5 @@
 
-// KCAEngine - Clean, composable, testable lightweight chess engine for KCA Dashboard
+// KCAEngine - Clean, composable, testable lightweight chess engine for Kolkata Chess Academy
 import { Chess } from 'chess.js';
 
 

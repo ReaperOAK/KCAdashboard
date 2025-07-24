@@ -1,6 +1,6 @@
 # Stockfish Chess Engine Setup
 
-This document provides instructions for setting up the Stockfish chess engine for the KCA Dashboard.
+This document provides instructions for setting up the Stockfish chess engine for the Kolkata Chess Academy.
 
 ## Automatic Setup
 

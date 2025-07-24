@@ -71,7 +71,7 @@ try {
         
         // Generate PDF
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetCreator('KCA Dashboard');
+        $pdf->SetCreator('Kolkata Chess Academy');
         $pdf->SetAuthor('KCA Admin');
         $pdf->SetTitle('Attendance Report');
         $pdf->setPrintHeader(false);

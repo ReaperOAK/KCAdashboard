@@ -17,7 +17,7 @@
 - Stores student ratings and optional comments for classes (online/offline), submitted after class ends.
 
 
-# KCA Dashboard Database Schema
+# Kolkata Chess Academy Database Schema
 
 ## Leave Management
 ### leave_requests

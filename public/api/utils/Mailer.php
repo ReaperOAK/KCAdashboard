@@ -295,7 +295,7 @@ class Mailer {
             $resetLink = "https://dashboard.kolkatachessacademy.in/reset-password?token=" . $token;
 
             $this->mailer->addAddress($email);
-            $this->mailer->Subject = 'Reset Your Password - KCA Dashboard';
+            $this->mailer->Subject = 'Reset Your Password - Kolkata Chess Academy';
             $this->mailer->Body = "
                 <h2>Password Reset Request</h2>
                 <p>You have requested to reset your password. Click the link below to proceed:</p>

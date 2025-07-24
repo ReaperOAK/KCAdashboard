@@ -1,5 +1,11 @@
 # [Unreleased] - July 2025
 
+## Navbar User Menu Bugfix & Accessibility (2025-07-24)
+- Fixed: Profile and Logout buttons in the user dropdown menu are now fully accessible and functional. The dropdown no longer closes prematurely, and all actions are handled inside the dropdown for clarity and accessibility.
+- Removed duplicate logout button from the navbar for a cleaner UI.
+- Updated docs and CONTRIBUTING.md to reflect the new user menu logic and accessibility improvements.
+# [Unreleased] - July 2025
+
 ## Teacher Leave Requests UI/UX Overhaul (2025-07-24)
 - Refactored MyLeaveRequests.js for a beautiful, modern, and accessible UI
 - Added color-coded status badges, improved empty/cancelling states, and better date formatting

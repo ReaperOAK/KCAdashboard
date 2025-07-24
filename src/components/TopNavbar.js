@@ -3,19 +3,11 @@ import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import NotificationBell from './NotificationBell';
-import { Bars3Icon, ArrowRightOnRectangleIcon, UserCircleIcon, TrophyIcon, Squares2X2Icon, ChartBarIcon, BookOpenIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, UserCircleIcon, TrophyIcon, Squares2X2Icon, ChartBarIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 // --- UI/UX: Extracted dropdown for single responsibility ---
-const UserDropdown = React.memo(function UserDropdown({ user, onLogout, open, setOpen, anchorRef }) {
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!open) return;
-    function handle(e) {
-      if (anchorRef.current && !anchorRef.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [open, setOpen, anchorRef]);
+const UserDropdown = React.memo(function UserDropdown({ user, onLogout, open, setOpen }) {
+  // Outside click handled by parent
   return open ? (
     <div className="absolute right-0 top-12 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md text-primary rounded-lg shadow-xl py-2 w-48 z-50 border border-gray-light animate-fadeIn">
       <div className="px-4 py-2 text-xs text-gray-500">Signed in as</div>
@@ -72,21 +64,27 @@ const NavbarLinks = React.memo(function NavbarLinks({ chessLinks }) {
 // User section (avatar, notification, menu)
 const UserSection = React.memo(function UserSection({ user, onLogout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const anchorRef = useRef();
-  // Keyboard accessibility: close on Esc
+  const wrapperRef = useRef();
+  // Keyboard accessibility: close on Esc and outside click
   useEffect(() => {
     if (!dropdownOpen) return;
-    function handle(e) {
+    function handleKey(e) {
       if (e.key === 'Escape') setDropdownOpen(false);
     }
-    window.addEventListener('keydown', handle);
-    return () => window.removeEventListener('keydown', handle);
+    function handleClick(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setDropdownOpen(false);
+    }
+    window.addEventListener('keydown', handleKey);
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      document.removeEventListener('mousedown', handleClick);
+    };
   }, [dropdownOpen]);
   return (
-    <div className="relative flex items-center space-x-2">
+    <div ref={wrapperRef} className="relative flex items-center space-x-2">
       <NotificationBell />
       <button
-        ref={anchorRef}
         className="flex items-center space-x-2 px-2 py-1 rounded hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-accent transition-colors bg-background-dark/10"
         aria-label="User menu"
         aria-haspopup="true"
@@ -98,16 +96,7 @@ const UserSection = React.memo(function UserSection({ user, onLogout }) {
         <UserCircleIcon className="w-7 h-7 text-primary" />
         <span className="hidden sm:inline text-text-light font-medium max-w-[120px] truncate" title={user?.full_name}>{user?.full_name}</span>
       </button>
-      <button
-        onClick={onLogout}
-        className="ml-2 px-2 py-1 rounded bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent text-white transition-colors"
-        aria-label="Logout"
-        tabIndex={0}
-        type="button"
-      >
-        <ArrowRightOnRectangleIcon className="w-6 h-6" />
-      </button>
-      <UserDropdown user={user} onLogout={onLogout} open={dropdownOpen} setOpen={setDropdownOpen} anchorRef={anchorRef} />
+      <UserDropdown user={user} onLogout={onLogout} open={dropdownOpen} setOpen={setDropdownOpen} />
     </div>
   );
 });

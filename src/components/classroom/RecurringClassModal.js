@@ -107,7 +107,6 @@ const RecurringClassModal = ({ classroom, onClose, onSuccess }) => {
     const endDate = form.endDate ? new Date(form.endDate) : new Date(startDate.getTime() + (form.numWeeks * 7 * 24 * 60 * 60 * 1000));
     
     const dates = [];
-    const dayMap = { 'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6 };
     
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];

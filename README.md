@@ -46,6 +46,10 @@ For all project details, see the docs above.
    npm start
    ```
 
+## User Menu & Profile/Logout Dropdown (July 2025)
+
+The top navigation bar features a user menu with a dropdown containing "Profile" and "Logout" actions. The dropdown is fully accessible (keyboard, ARIA, focus management), and only appears when clicking the user avatar. All actions are handled inside the dropdown for clarity and accessibility.
+
 ## Design System
 
 This project uses a custom color system defined in `colour_scheme.md` and `tailwind.config.js`. All UI components are built with Tailwind utility classes and follow the design system for consistency, accessibility, and visual clarity.

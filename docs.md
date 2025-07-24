@@ -213,6 +213,10 @@ The KCAdashboard frontend is a modern React application that delivers a seamless
 
 ## File Structure
 
+## User Menu & Dropdown (July 2025)
+
+The top navigation bar features a user menu with a dropdown containing "Profile" and "Logout" actions. The dropdown is fully accessible (keyboard, ARIA, focus management), and only appears when clicking the user avatar. All actions are handled inside the dropdown for clarity and accessibility. The dropdown closes on outside click or Escape, but remains open for menu actions.
+
 ```
 src/
   components/      # Reusable UI components, grouped by feature (batches, chess, classroom, etc.)

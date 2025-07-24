@@ -2,10 +2,16 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { LockClosedIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, EnvelopeIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 
 function LoginForm({ onSubmit, onChange, values, error }) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
   return (
     <motion.form
       className="mt-8 space-y-6"
@@ -44,15 +50,27 @@ function LoginForm({ onSubmit, onChange, values, error }) {
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               required
               value={values.password}
               onChange={onChange}
-              className="appearance-none rounded-md block w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-accent focus:border-accent pr-10"
+              className="appearance-none rounded-md block w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-accent focus:border-accent pr-20"
               aria-required="true"
               aria-label="Password"
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-10 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="w-5 h-5" />
+              ) : (
+                <EyeIcon className="w-5 h-5" />
+              )}
+            </button>
             <LockClosedIcon className="w-5 h-5 text-gray-300 absolute right-3 top-2.5 pointer-events-none" />
           </div>
         </div>

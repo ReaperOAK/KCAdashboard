@@ -41,6 +41,8 @@ All new user registrations are created as students only. Teacher/admin roles can
 
 ## Features
 
+- **Show/Hide Password:** All authentication forms now include a show/hide password toggle for better usability and accessibility.
+- **Reusable Password Components:** `PasswordInput` and `FormikPasswordField` are used for consistent, accessible password fields across the app.
 - **Secure Authentication:** All forms validate input and handle errors securely.
 - **User Feedback:** Clear messages for success, errors, and next steps (e.g., check your email).
 - **Token-Based Flows:** Password reset and email verification use secure tokens sent via email.

@@ -1,6 +1,11 @@
 
 # [Unreleased] - July 2025
 
+## Authentication UX: Show/Hide Password Toggle (2025-07-24)
+- Added show/hide password toggle to Login, Register, and Reset Password forms for improved usability.
+- Introduced reusable `PasswordInput` and `FormikPasswordField` components for consistent password field UX across the app.
+- Updated docs and CONTRIBUTING.md to reflect the new components and UI pattern.
+
 ## Grading Workflow & Pending Grading Modal Fix (2025-07-24)
 - Fixed: Pending grading modal now correctly disappears after feedback is submitted for a session.
 - Feedback submission now includes session_id, linking feedback to the correct session.

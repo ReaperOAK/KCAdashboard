@@ -12,6 +12,9 @@ cd c:\Owais\KCAdashboard; npm install; npm start
 ## 📝 July 2025 Update: Quiz Chess Move Feedback
 Chess quiz questions now provide instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again, improving the learning experience for both FEN and PGN quiz modes.
 
+## 🆕 July 2025: Show/Hide Password Option
+All authentication forms (Login, Register, Reset Password) now include a "Show Password" toggle for better usability. A reusable `PasswordInput` component is available for use in any form. See `src/components/common/PasswordInput.js` and `FormikPasswordField.js` for details.
+
 ## 🟢 July 2025 Update: Teacher Attendance Batch Selection
 Teachers no longer need to manually select a batch before marking attendance. The system now automatically determines the batch from the student being marked, streamlining the attendance process and preventing errors.
 

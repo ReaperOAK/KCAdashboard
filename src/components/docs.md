@@ -15,6 +15,12 @@ All new user registrations are created as students only. Teacher/admin roles can
 
 ## Feature Overview
 
+## July 2025: Common Password Input Components
+
+- Added `PasswordInput` (for React state forms) and `FormikPasswordField` (for Formik forms) to `components/common/`.
+- Both provide accessible, reusable password fields with show/hide toggle and Heroicons.
+- Used in Login, Register, and Reset Password forms for consistent UX.
+
 KCAdashboard includes modular, single-responsibility React components for:
 - Chess dashboard and gameplay (see `chess/`)
 - Quiz management and participation (see `quiz/`)

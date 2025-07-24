@@ -45,7 +45,13 @@ const GradingPrompt = ({ sessions, onClose }) => {
               </li>
             ))}
           </ul>
-          <button className="text-sm text-gray-600 hover:underline focus:outline-none" onClick={onClose}>Dismiss</button>
+          <button
+            className="mt-2 px-4 py-2 rounded-lg bg-gradient-to-r from-accent to-primary text-white font-semibold shadow-md hover:from-primary hover:to-accent hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 border border-accent/30"
+            onClick={onClose}
+            aria-label="Dismiss grading prompt"
+          >
+            Dismiss
+          </button>
         </motion.div>
       </motion.div>
     </AnimatePresence>

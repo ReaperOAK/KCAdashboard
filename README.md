@@ -32,15 +32,14 @@ To prevent performance issues and application hanging, PGN uploads are now limit
 
 ## 🟢 July 2025 Update: Grading Workflow & Pending Grading Modal Fix
 
-- Fixed: Pending grading modal now disappears after feedback is submitted for a session.
-- Feedback submission now links feedback to the specific session, ensuring accurate tracking.
-- Backend and frontend updated to support session-specific grading and feedback.
 
+
+## 🟢 July 2025: Teacher Dashboard React Key Bugfix & List Rendering Robustness
+
+- Fixed: All React lists in the Teacher Dashboard now use robust, unique keys to prevent duplicate/empty key warnings and ensure stable UI updates.
+- Improved: All mapped lists (modals, stats, activities) now have fallback keys for edge cases, eliminating React key warnings and improving dashboard reliability.
 
 ## 🆕 Teacher Leave Requests (July 2025)
-
-- Teachers can now view, track, and cancel their leave requests in a beautiful, modern, and accessible table with color-coded status badges and responsive design.
-- Students do not see leave request options in the Support Center.
 
 ## 📖 Where to Find Things
 

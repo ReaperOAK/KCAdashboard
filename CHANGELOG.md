@@ -35,6 +35,10 @@
 - Fixed: Profile and Logout buttons in the user dropdown menu are now fully accessible and functional. The dropdown no longer closes prematurely, and all actions are handled inside the dropdown for clarity and accessibility.
 - Removed duplicate logout button from the navbar for a cleaner UI.
 - Updated docs and CONTRIBUTING.md to reflect the new user menu logic and accessibility improvements.
+## Teacher Dashboard React Key Bugfix & List Rendering Robustness (2025-07-24)
+- Fixed: All React lists in the Teacher Dashboard now use robust, unique keys to prevent duplicate/empty key warnings and ensure stable UI updates.
+- Improved: All mapped lists (modals, stats, activities) now have fallback keys for edge cases, eliminating React key warnings and improving dashboard reliability.
+
 # [Unreleased] - July 2025
 
 ## Teacher Leave Requests UI/UX Overhaul (2025-07-24)

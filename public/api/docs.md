@@ -1,11 +1,11 @@
 # KCAdashboard Documentation
-
 ## Overview
 
 KCAdashboard is a comprehensive platform for managing educational, chess, and administrative workflows. It is built with a modular PHP backend (API) and a modern JavaScript frontend (React). The backend is organized into logical folders for endpoints, models, services, and utilities, supporting a wide range of features for admins, teachers, students, and tournament organizers.
 
----
-
+## Teacher Dashboard React Key Bugfix & List Rendering Robustness (July 2025)
+- All React lists in the Teacher Dashboard now use robust, unique keys to prevent duplicate/empty key warnings and ensure stable UI updates.
+- All mapped lists (modals, stats, activities) now have fallback keys for edge cases, eliminating React key warnings and improving dashboard reliability.
 ## File Structure
 
 ```

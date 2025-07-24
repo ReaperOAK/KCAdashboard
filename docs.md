@@ -47,21 +47,11 @@
 
 ### July 2025: Grading Workflow & Pending Grading Modal Fix
 
-- Pending grading modal now disappears after feedback is submitted for a session.
-- Feedback is now linked to the specific session via session_id.
-- Backend and frontend logic updated for accurate session-specific grading tracking.
-- See also: `public/api/endpoints/grading/docs.md` for API details.
 
 ### July 2025: Class Scheduling & Timezone Improvements
 - Past date scheduling is now blocked in both UI and backend.
-- All class/session date logic uses IST (Asia/Kolkata) timezone.
-- Improved error handling for scheduling errors.
 
 ### 1. UI/UX Modernization & Design System Enforcement
-
-All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.
-
-- User authentication (student, teacher, admin roles)
 
 #### Registration & Role Security Policy (July 2025)
 - All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management interface. This is enforced in both frontend and backend for security.

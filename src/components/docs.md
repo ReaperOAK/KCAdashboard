@@ -6,6 +6,10 @@ All analytics-related UI components have been refactored for beauty, performance
 
 
 ## July 2025 Student UI/UX Overhaul
+
+## July 2025: Teacher Dashboard React Key Bugfix & List Rendering Robustness
+- All React lists in the Teacher Dashboard now use robust, unique keys to prevent duplicate/empty key warnings and ensure stable UI updates.
+- All mapped lists (modals, stats, activities) now have fallback keys for edge cases, eliminating React key warnings and improving dashboard reliability.
   - Strict adherence to the KCA color system and Tailwind config (see `../../colour_scheme.md`)
   - Modular, single-responsibility, and fully accessible design
 

@@ -1,6 +1,6 @@
-Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, user menu/profile/logout dropdown logic, attendance batch selection logic, or backend session/auth robustness (e.g., session config path, error handling, JSON output), document it in README.md, CHANGELOG.md, and the relevant feature docs.
-If you add or update authentication UI patterns (e.g., show/hide password toggle, password input components), or backend error/output handling, document in README.md, CHANGELOG.md, and relevant feature/component docs.
-If you update grading, feedback, or session tracking logic, document changes in README.md, CHANGELOG.md, and all relevant API and feature docs. Ensure session_id is included in feedback submissions and backend queries for accurate grading workflow.
+Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, user menu/profile/logout dropdown logic, attendance batch selection logic, backend session/auth robustness (e.g., session config path, error handling, JSON output), or React list key logic (see July 2025 Teacher Dashboard bugfix), document it in README.md, CHANGELOG.md, and the relevant feature docs.
+If you add or update authentication UI patterns (e.g., show/hide password toggle, password input components), backend error/output handling, or React key usage in mapped lists, document in README.md, CHANGELOG.md, and relevant feature/component docs.
+If you update grading, feedback, session tracking, or list rendering logic, document changes in README.md, CHANGELOG.md, and all relevant API and feature docs. Ensure session_id is included in feedback submissions and backend queries for accurate grading workflow.
 ## User Menu & Dropdown Accessibility (July 2025)
 
 - All user menu/profile/logout dropdown logic must be accessible (keyboard, ARIA, focus management).

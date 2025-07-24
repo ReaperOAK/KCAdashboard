@@ -35,8 +35,8 @@ const GradingPrompt = ({ sessions, onClose }) => {
           </div>
           <p className="mb-4">You have classes that have ended but grading/feedback is not submitted. Please grade these sessions:</p>
           <ul className="mb-4">
-            {sessions.map(s => (
-              <li key={s.id} className="mb-2 flex justify-between items-center">
+            {sessions.map((s, index) => (
+              <li key={s.id || `grading-session-${index}`} className="mb-2 flex justify-between items-center">
                 <span>{s.title} <span className="text-xs text-gray-500">({s.batch_name})</span></span>
                 <button
                   className="ml-2 px-2 py-1 bg-secondary text-white rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent"
@@ -79,8 +79,8 @@ const AttendancePrompt = ({ sessions, onClose }) => {
           </div>
           <p className="mb-4">You have classes that have ended but attendance is not marked. Please mark attendance for these sessions:</p>
           <ul className="mb-4">
-            {sessions.map(s => (
-              <li key={s.id} className="mb-2 flex justify-between items-center">
+            {sessions.map((s, index) => (
+              <li key={s.id || `attendance-session-${index}`} className="mb-2 flex justify-between items-center">
                 <span>{s.title} <span className="text-xs text-gray-500">({s.batch_name})</span></span>
                 <button
                   className="ml-2 px-2 py-1 bg-secondary text-white rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent"
@@ -140,10 +140,10 @@ const ErrorAlert = React.memo(({ message, onRetry }) => {
 const statIcons = [AcademicCapIcon, CalendarDaysIcon, CheckCircleIcon, UserCircleIcon];
 const StatsGrid = React.memo(({ stats }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-    <StatsCard label="Total Students" value={stats.totalStudents} icon={statIcons[0]} />
-    <StatsCard label="Active Classes" value={stats.activeClasses} icon={statIcons[1]} />
-    <StatsCard label="Upcoming Classes" value={stats.upcomingClasses} icon={statIcons[2]} />
-    <StatsCard label="Completed Classes" value={stats.completedClasses} icon={statIcons[3]} />
+    <StatsCard key="total-students" label="Total Students" value={stats.totalStudents} icon={statIcons[0]} />
+    <StatsCard key="active-classes" label="Active Classes" value={stats.activeClasses} icon={statIcons[1]} />
+    <StatsCard key="upcoming-classes" label="Upcoming Classes" value={stats.upcomingClasses} icon={statIcons[2]} />
+    <StatsCard key="completed-classes" label="Completed Classes" value={stats.completedClasses} icon={statIcons[3]} />
   </div>
 ));
 
@@ -176,7 +176,7 @@ const RecentActivities = React.memo(({ activities }) => {
       <h2 id="recent-activities-title" className="text-lg sm:text-xl font-semibold text-primary mb-3 sm:mb-4">Recent Activities</h2>
       <div className="space-y-2 sm:space-y-3">
         {activities.map((activity, idx) => (
-          <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-3 bg-gray-light/30 rounded-lg">
+          <div key={activity.id || `${activity.title}-${activity.batch_name}-${activity.date_time}-${idx}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-3 bg-gray-light/30 rounded-lg">
             <div>
               <h3 className="font-medium text-primary text-base sm:text-lg">{activity.title}</h3>
               <p className="text-xs sm:text-sm text-gray-dark">Batch: {activity.batch_name}</p>
@@ -193,12 +193,30 @@ const RecentActivities = React.memo(({ activities }) => {
                   ? 'bg-green-100 text-green-800'
                   : 'bg-yellow-100 text-yellow-800')
               }>
-                {activity.status === 'upcoming' && <CalendarDaysIcon className="h-4 w-4" aria-hidden="true" />}
-                {activity.status === 'completed' && <CheckCircleIcon className="h-4 w-4" aria-hidden="true" />}
-                {activity.status !== 'upcoming' && activity.status !== 'completed' && <ExclamationCircleIcon className="h-4 w-4" aria-hidden="true" />}
-                {activity.status === 'upcoming' ? 'Upcoming'
-                  : activity.status === 'completed' ? 'Completed'
-                  : 'In Progress'}
+                {(() => {
+                  if (activity.status === 'upcoming') {
+                    return (
+                      <>
+                        <CalendarDaysIcon className="h-4 w-4" aria-hidden="true" />
+                        Upcoming
+                      </>
+                    );
+                  } else if (activity.status === 'completed') {
+                    return (
+                      <>
+                        <CheckCircleIcon className="h-4 w-4" aria-hidden="true" />
+                        Completed
+                      </>
+                    );
+                  } else {
+                    return (
+                      <>
+                        <ExclamationCircleIcon className="h-4 w-4" aria-hidden="true" />
+                        In Progress
+                      </>
+                    );
+                  }
+                })()}
               </span>
             </div>
           </div>
@@ -283,10 +301,10 @@ export default function TeacherDashboard() {
     <main className="min-h-screen bg-gradient-to-br from-background-light via-white to-background-light animate-fade-in">
       <AnimatePresence>
         {showAttendancePrompt && pendingAttendance.length > 0 && (
-          <AttendancePrompt sessions={pendingAttendance} onClose={() => setShowAttendancePrompt(false)} />
+          <AttendancePrompt key="attendance-prompt" sessions={pendingAttendance} onClose={() => setShowAttendancePrompt(false)} />
         )}
         {showGradingPrompt && pendingGrading.length > 0 && (
-          <GradingPrompt sessions={pendingGrading} onClose={() => setShowGradingPrompt(false)} />
+          <GradingPrompt key="grading-prompt" sessions={pendingGrading} onClose={() => setShowGradingPrompt(false)} />
         )}
       </AnimatePresence>
       <motion.section

@@ -15,6 +15,8 @@ const UserDropdown = React.memo(function UserDropdown({ user, onLogout, open, se
       <div className="px-4 py-1 text-xs text-gray-400 capitalize">{user?.role}</div>
       <hr className="my-1 border-gray-light" />
       <Link to="/profile" className="block px-4 py-2 hover:bg-background-light dark:hover:bg-background-dark rounded transition-colors focus:outline-none focus:bg-accent/10" tabIndex={0}>Profile</Link>
+      <Link to="/settings" className="block px-4 py-2 hover:bg-background-light dark:hover:bg-background-dark rounded transition-colors focus:outline-none focus:bg-accent/10" tabIndex={0}>Settings</Link>
+      <hr className="my-1 border-gray-light" />
       <button onClick={onLogout} className="block w-full text-left px-4 py-2 hover:bg-error/10 text-error rounded transition-colors focus:outline-none focus:bg-error/20" tabIndex={0}>Logout</button>
     </div>
   ) : null;

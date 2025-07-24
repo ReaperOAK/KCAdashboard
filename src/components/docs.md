@@ -15,6 +15,11 @@ All new user registrations are created as students only. Teacher/admin roles can
 
 ## Feature Overview
 
+### July 2025: Settings Page & Session Management
+
+- **Settings Page**: Centralized place for users to manage account security and active sessions.
+- **Session Management UI**: Users can view and manage all their active login sessions from the Settings page.
+
 ## July 2025: Common Password Input Components
 
 - Added `PasswordInput` (for React state forms) and `FormikPasswordField` (for Formik forms) to `components/common/`.

@@ -21,6 +21,12 @@ pages/auth/
 
 
 ## Registration & Role Security Policy (July 2025)
+
+## Session Management (July 2025)
+
+- Users can manage their active sessions from the new Settings page in the dashboard UI.
+- Session management features include viewing all active sessions, logging out from other devices, and monitoring session activity.
+- See [`../../docs/session-management.md`](../../docs/session-management.md) for technical and user documentation.
 All new user registrations are created as students only. Teacher/admin roles can only be assigned by an admin via the user management interface. This is enforced in both frontend and backend for security.
 
 ## File Explanations

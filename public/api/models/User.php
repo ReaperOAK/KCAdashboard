@@ -83,7 +83,22 @@ class User {
 
     public function generateAuthToken() {
         $token = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+24 hours'));
+        
+        // Load session configuration
+        $sessionConfig = include '../config/session-config.php';
+        
+        // Get user role for session lifetime
+        $roleQuery = "SELECT role FROM " . $this->table_name . " WHERE id = :user_id";
+        $roleStmt = $this->conn->prepare($roleQuery);
+        $roleStmt->bindParam(':user_id', $this->id);
+        $roleStmt->execute();
+        $userRole = $roleStmt->fetch(PDO::FETCH_ASSOC)['role'] ?? 'student';
+        
+        // Calculate expiration based on role
+        $lifetimeHours = $sessionConfig['role_settings'][$userRole]['session_lifetime_hours'] ?? 
+                        $sessionConfig['session_lifetime_hours'];
+        
+        $expires = date('Y-m-d H:i:s', strtotime("+{$lifetimeHours} hours"));
 
         $query = "INSERT INTO auth_tokens (user_id, token, expires_at)
                  VALUES (:user_id, :token, :expires_at)";

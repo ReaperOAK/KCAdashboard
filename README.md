@@ -1,5 +1,12 @@
 # Kolkata Chess Academy Dashboard
 
+## 🆕 July 2025: Settings Page & Session Management
+
+- **Settings Page**: Added a dedicated Settings page accessible from the sidebar and user dropdown. Users can now manage their account security and active sessions from one place.
+- **Session Management**: Users can view all active login sessions, log out from other devices, and monitor session activity for enhanced security. Session limits and durations are role-based and configurable by admins.
+
+See [`docs/session-management.md`](docs/session-management.md) for full details.
+
 Welcome! KCAdashboard is a modern, beautiful, and accessible dashboard for the Kolkata Chess Academy.
 
 ## 🛠️ Quick Start

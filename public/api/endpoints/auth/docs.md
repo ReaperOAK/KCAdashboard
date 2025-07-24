@@ -26,7 +26,16 @@ endpoints/auth/
 ## File Explanations
 
 - **login.php**  
-  Handles user login by validating credentials and issuing authentication tokens or sessions.
+  Handles user login by validating credentials and issuing authentication tokens or sessions. Now includes role-based session management with configurable limits per user role.
+
+- **logout.php**  
+  Handles user logout by invalidating the current authentication token on the server side.
+
+- **get-active-sessions.php**  
+  Returns a list of all active sessions for the current user, showing login times and device information.
+
+- **manage-sessions.php**  
+  Allows users to manage their active sessions, including logging out all other devices or all sessions.
 
 - **rate_limit.php**  
   Implements rate limiting to prevent brute-force attacks and abuse of authentication endpoints.

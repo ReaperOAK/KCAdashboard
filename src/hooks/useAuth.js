@@ -65,11 +65,20 @@ function useProvideAuth() {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
+  const logout = useCallback(async () => {
+    try {
+      // Try to logout from server (invalidate token)
+      await AuthApi.logout();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn('Server logout failed, proceeding with local logout:', error);
+    } finally {
+      // Always clear local storage regardless of server response
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setToken(null);
+      setUser(null);
+    }
   }, []);
 
   const requestPasswordReset = useCallback(async (email) => {

@@ -10,6 +10,11 @@ export const AuthApi = {
   updateProfile: (userData) => put('/auth/update-profile.php', userData),
   verifyEmail: (token) => get(`/auth/verify-email.php?token=${token}`),
   
+  // Session management
+  logout: () => post('/auth/logout.php'),
+  getActiveSessions: () => get('/auth/get-active-sessions.php'),
+  manageSessions: (action) => post('/auth/manage-sessions.php', { action }),
+  
   // Enhanced profile features
   uploadDocument: (formData) => {
     const token = localStorage.getItem('token');

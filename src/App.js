@@ -14,6 +14,7 @@ const Register = lazy(() => import('./pages/auth/Register'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
 const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail'));
 const Profile = lazy(() => import('./pages/Profile'));
+const Settings = lazy(() => import('./pages/Settings'));
 const UploadsViewerPage = lazy(() => import('./pages/common/UploadsViewerPage'));
 const NotificationPreferences = lazy(() => import('./pages/notifications/NotificationPreferences'));
 
@@ -119,6 +120,14 @@ const AppContent = React.memo(function AppContent() {
                     element={
                       <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
                         <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                        <Settings />
                       </ProtectedRoute>
                     }
                   />

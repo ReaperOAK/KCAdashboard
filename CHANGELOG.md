@@ -1,3 +1,9 @@
+# Backend Session Management & Auth Robustness (2025-07-24)
+- Fixed: All PHP session config includes now use absolute paths for reliability in all environments.
+- Added: Output buffering and error suppression to all relevant PHP endpoints to prevent warnings from breaking JSON responses.
+- Improved: Frontend JSON parsing logic to extract valid JSON even if PHP warnings are present in the response.
+- Added: Fallback config and safe array access in PHP for session config loading.
+- Docs: Updated README, session-management, and contributing docs to reflect these backend robustness improvements.
 
 # [Unreleased] - July 2025
 

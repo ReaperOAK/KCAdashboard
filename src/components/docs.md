@@ -15,10 +15,12 @@ All new user registrations are created as students only. Teacher/admin roles can
 
 ## Feature Overview
 
-### July 2025: Settings Page & Session Management
+
+### July 2025: Settings Page, Session Management & Backend Robustness
 
 - **Settings Page**: Centralized place for users to manage account security and active sessions.
 - **Session Management UI**: Users can view and manage all their active login sessions from the Settings page.
+- **Backend Robustness**: Session management and authentication endpoints now use absolute config paths, output buffering, and error suppression to ensure reliable JSON output even if PHP warnings occur. Frontend can extract valid JSON from such responses.
 
 ## July 2025: Common Password Input Components
 

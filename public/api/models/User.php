@@ -84,15 +84,33 @@ class User {
     public function generateAuthToken() {
         $token = bin2hex(random_bytes(32));
         
-        // Load session configuration
-        $sessionConfig = include '../config/session-config.php';
+        // Load session configuration with error handling
+        $sessionConfigPath = dirname(__DIR__) . '/config/session-config.php';
+        $sessionConfig = [];
+        
+        if (file_exists($sessionConfigPath)) {
+            $sessionConfig = include $sessionConfigPath;
+        }
+        
+        // Fallback configuration if file doesn't exist or is invalid
+        if (!is_array($sessionConfig)) {
+            $sessionConfig = [
+                'session_lifetime_hours' => 24,
+                'role_settings' => [
+                    'student' => ['session_lifetime_hours' => 24],
+                    'teacher' => ['session_lifetime_hours' => 48],
+                    'admin' => ['session_lifetime_hours' => 72]
+                ]
+            ];
+        }
         
         // Get user role for session lifetime
         $roleQuery = "SELECT role FROM " . $this->table_name . " WHERE id = :user_id";
         $roleStmt = $this->conn->prepare($roleQuery);
         $roleStmt->bindParam(':user_id', $this->id);
         $roleStmt->execute();
-        $userRole = $roleStmt->fetch(PDO::FETCH_ASSOC)['role'] ?? 'student';
+        $userResult = $roleStmt->fetch(PDO::FETCH_ASSOC);
+        $userRole = $userResult ? $userResult['role'] : 'student';
         
         // Calculate expiration based on role
         $lifetimeHours = $sessionConfig['role_settings'][$userRole]['session_lifetime_hours'] ?? 

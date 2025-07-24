@@ -1,5 +1,5 @@
-Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, user menu/profile/logout dropdown logic, or attendance batch selection logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.
-If you add or update authentication UI patterns (e.g., show/hide password toggle, password input components), document in README.md, CHANGELOG.md, and relevant feature/component docs.
+Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, user menu/profile/logout dropdown logic, attendance batch selection logic, or backend session/auth robustness (e.g., session config path, error handling, JSON output), document it in README.md, CHANGELOG.md, and the relevant feature docs.
+If you add or update authentication UI patterns (e.g., show/hide password toggle, password input components), or backend error/output handling, document in README.md, CHANGELOG.md, and relevant feature/component docs.
 If you update grading, feedback, or session tracking logic, document changes in README.md, CHANGELOG.md, and all relevant API and feature docs. Ensure session_id is included in feedback submissions and backend queries for accurate grading workflow.
 ## User Menu & Dropdown Accessibility (July 2025)
 

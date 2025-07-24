@@ -1,7 +1,10 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// Configure error handling for production
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
 
+// Start output buffering to capture any unwanted output
+ob_start();
 
 require_once '../../config/cors.php';
 require_once '../../config/Database.php';
@@ -44,8 +47,26 @@ try {
             if(password_verify($data->password, $userData['password'])) {
                 $user->id = $userData['id'];
                 
-                // Load session configuration
-                $sessionConfig = include '../../config/session-config.php';
+                // Load session configuration with error handling
+                $sessionConfigPath = dirname(__DIR__, 2) . '/config/session-config.php';
+                $sessionConfig = [];
+                
+                if (file_exists($sessionConfigPath)) {
+                    $sessionConfig = include $sessionConfigPath;
+                }
+                
+                // Fallback configuration if file doesn't exist or is invalid
+                if (!is_array($sessionConfig)) {
+                    $sessionConfig = [
+                        'max_concurrent_sessions' => 0,
+                        'role_settings' => [
+                            'student' => ['max_concurrent_sessions' => 3],
+                            'teacher' => ['max_concurrent_sessions' => 5],
+                            'admin' => ['max_concurrent_sessions' => 0]
+                        ]
+                    ];
+                }
+                
                 $userRole = $userData['role'];
                 
                 // Get session limits for this user role
@@ -91,6 +112,12 @@ try {
                 $activeStmt->execute();
                 $activeSessions = $activeStmt->fetch(PDO::FETCH_ASSOC)['active_sessions'];
                 
+                // Clear any unwanted output before sending success response
+                $unwanted_output = ob_get_clean();
+                if (!empty($unwanted_output)) {
+                    error_log("Unwanted output during successful login: " . $unwanted_output);
+                }
+                
                 http_response_code(200);
                 echo json_encode([
                     "token" => $token,
@@ -123,10 +150,25 @@ try {
     }
 } catch (Exception $e) {
     error_log("Login error: " . $e->getMessage());
+    
+    // Clear any unwanted output before sending error response
+    $unwanted_output = ob_get_clean();
+    if (!empty($unwanted_output)) {
+        error_log("Unwanted output during login error: " . $unwanted_output);
+    }
+    
     http_response_code(500);
     echo json_encode([
         "message" => "Login failed",
         "error" => $e->getMessage()
     ]);
+}
+
+// Ensure clean output before final response
+if (ob_get_level()) {
+    $unwanted_output = ob_get_clean();
+    if (!empty($unwanted_output)) {
+        error_log("Unwanted output at login end: " . $unwanted_output);
+    }
 }
 ?>

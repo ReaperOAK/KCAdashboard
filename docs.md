@@ -15,10 +15,12 @@
 
 ## Summary of Major Changes
 
-### July 2025: Authentication Show/Hide Password Toggle
+
+### July 2025: Authentication & Session Management Backend Robustness
 
 - All authentication forms now include a show/hide password toggle for better usability and accessibility.
 - Introduced reusable `PasswordInput` and `FormikPasswordField` components (see `src/components/common/`).
+- Backend session management and authentication endpoints now use absolute config paths, output buffering, and error suppression to ensure reliable JSON output even if PHP warnings occur. Frontend can extract valid JSON from such responses.
 
 
 ### July 2025: Teacher Leave Requests UI/UX Overhaul

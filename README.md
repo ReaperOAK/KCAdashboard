@@ -1,9 +1,11 @@
 # Kolkata Chess Academy Dashboard
 
-## 🆕 July 2025: Settings Page & Session Management
+
+## � July 2025: Settings Page, Session Management & Backend Robustness
 
 - **Settings Page**: Added a dedicated Settings page accessible from the sidebar and user dropdown. Users can now manage their account security and active sessions from one place.
 - **Session Management**: Users can view all active login sessions, log out from other devices, and monitor session activity for enhanced security. Session limits and durations are role-based and configurable by admins.
+- **Backend Robustness**: Improved PHP backend to use absolute paths for session config, added error handling and output buffering to prevent PHP warnings from breaking JSON responses, and enhanced frontend parsing of API responses with PHP warnings. This ensures reliable session management and authentication even if server warnings occur.
 
 See [`docs/session-management.md`](docs/session-management.md) for full details.
 

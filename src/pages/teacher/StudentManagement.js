@@ -251,16 +251,19 @@ const StudentManagement = () => {
   const handleSubmitAttendance = async ({ session_id, status, notes }) => {
     setActionError(null);
     setAttendanceLoading(true);
-    if (selectedBatch === 'all' || !selectedBatch) {
-      setActionError('Please select a specific batch before marking attendance.');
+    
+    // Auto-determine batch ID from the selected student
+    if (!selectedStudent || !selectedStudent.batch_id) {
+      setActionError('Unable to determine student batch. Please try again.');
       setAttendanceLoading(false);
       return;
     }
+    
     try {
       await AttendanceApi.markAttendance([
         {
           student_id: selectedStudent.id,
-          batch_id: selectedBatch,
+          batch_id: selectedStudent.batch_id,
           session_id,
           status,
           notes

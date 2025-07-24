@@ -362,7 +362,7 @@ class Batch {
 
     public function getStudents($batchId, $teacherId) {
         try {
-            $query = "SELECT u.id, u.full_name, u.email, bs.joined_at, bs.status
+            $query = "SELECT u.id, u.full_name, u.email, bs.joined_at, bs.status, b.id as batch_id, b.name as batch_name
                      FROM users u
                      JOIN batch_students bs ON u.id = bs.student_id
                      JOIN " . $this->table_name . " b ON bs.batch_id = b.id

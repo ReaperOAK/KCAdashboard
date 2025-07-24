@@ -34,6 +34,7 @@ try {
                 u.id, 
                 u.full_name AS name, 
                 u.email,
+                b.id AS batch_id,
                 b.name AS batch_name,
                 (SELECT MAX(sf.created_at) FROM student_feedback sf WHERE sf.student_id = u.id AND sf.teacher_id = :teacher_id) AS last_feedback_date,
                 (SELECT sf.rating FROM student_feedback sf WHERE sf.student_id = u.id AND sf.teacher_id = :teacher_id ORDER BY sf.created_at DESC LIMIT 1) AS last_rating

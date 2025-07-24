@@ -3,6 +3,7 @@
 
 All attendance components follow the Kolkata Chess Academy design system (see `colour_scheme.md`), are fully accessible, responsive, and optimized for performance.
 Recent updates (July 2025):
+  - **Teacher Attendance Batch Selection**: Teachers no longer need to select a batch before marking attendance. The batch is now determined automatically from the student, making the process faster and error-free.
 - **StudentAttendanceList**: Now split into container (`StudentAttendanceList.js`) and presentational (`StudentAttendanceListView.js`) components for single-responsibility and maintainability. All UI uses color tokens and is fully responsive and accessible.
 - **StudentAttendanceTable**: Beautiful, responsive table for student attendance summary. Alternating row backgrounds, status icons, color tokens, and accessibility improvements.
 - **StudentAttendanceSkeleton**: Modern shimmer skeleton for attendance data loading.

@@ -1,4 +1,10 @@
+
 # [Unreleased] - July 2025
+
+## Teacher Attendance Batch Selection is Now Automatic (2025-07-24)
+- Teachers no longer need to manually select a batch before marking attendance for a student. The system now automatically determines the batch from the student being marked.
+- Backend APIs for fetching students now always include the batch_id field.
+- Improved UX and reduced errors for teacher attendance workflows.
 
 ## PGN Upload 50-Game Limit (2025-07-24)
 - Added 50-game limit for PGN uploads to prevent performance issues and application hanging

@@ -1,10 +1,11 @@
-Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, or user menu/profile/logout dropdown logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.
+Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, user menu/profile/logout dropdown logic, or attendance batch selection logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.
 ## User Menu & Dropdown Accessibility (July 2025)
 
 - All user menu/profile/logout dropdown logic must be accessible (keyboard, ARIA, focus management).
 - Only one set of profile/logout actions should be visible at a time (inside the dropdown).
 - Dropdown must close on outside click or Escape, but remain open for menu actions.
 - Update docs and changelog after any user menu or dropdown logic change.
+
 # July 2025 UI/UX Overhaul
 
 This project underwent a major UI/UX, accessibility, and modularity overhaul in July 2025. Please review the following before contributing:
@@ -21,7 +22,7 @@ All code must be modular, single-responsibility, and follow the KCA color system
 All components and pages must be fully accessible (ARIA, keyboard navigation, focus/hover/disabled states).
 Responsive design is required for all UI.
 Use pure, focused, reusable functional React components and Hooks.
-Update all relevant docs after code changes. If you change quiz or chess move validation/feedback logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.
+Update all relevant docs after code changes. If you change quiz, chess move validation/feedback logic, or attendance batch selection logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.
 No build artifacts or orphan files.
 Register new files/components in the correct modules, routes, or parent components.
 

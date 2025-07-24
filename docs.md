@@ -38,6 +38,13 @@
 - UI shows selected file count and names, and supports mixed uploads (files + video links).
 - See `material-upload-fix-summary.md` for full details.
 
+### July 2025: Grading Workflow & Pending Grading Modal Fix
+
+- Pending grading modal now disappears after feedback is submitted for a session.
+- Feedback is now linked to the specific session via session_id.
+- Backend and frontend logic updated for accurate session-specific grading tracking.
+- See also: `public/api/endpoints/grading/docs.md` for API details.
+
 ### 1. UI/UX Modernization & Design System Enforcement
 
 All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.

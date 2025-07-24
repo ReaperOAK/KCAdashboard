@@ -1,6 +1,11 @@
 
 # [Unreleased] - July 2025
 
+## Grading Workflow & Pending Grading Modal Fix (2025-07-24)
+- Fixed: Pending grading modal now correctly disappears after feedback is submitted for a session.
+- Feedback submission now includes session_id, linking feedback to the correct session.
+- Backend query for pending grading now checks for session-specific feedback from the teacher.
+- Improved UX: Teachers are only prompted to grade sessions that truly need feedback.
 ## Teacher Attendance Batch Selection is Now Automatic (2025-07-24)
 - Teachers no longer need to manually select a batch before marking attendance for a student. The system now automatically determines the batch from the student being marked.
 - Backend APIs for fetching students now always include the batch_id field.

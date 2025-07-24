@@ -1,6 +1,7 @@
 
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { AttendanceApi } from '../../api/attendance';
 import { GradingApi } from '../../api/grading';
@@ -18,6 +19,9 @@ const getRatingColor = rating => rating >= 4 ? 'bg-green-100 text-green-800' : r
 
 const StudentManagement = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('session');
+  
   const [batches, setBatches] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState('all');
   const [students, setStudents] = useState([]);
@@ -26,6 +30,9 @@ const StudentManagement = () => {
   const [sortDir, setSortDir] = useState('asc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Session-specific grading notification
+  const [sessionInfo, setSessionInfo] = useState(null);
 
   // Fetch batches for dropdown
   useEffect(() => {
@@ -40,6 +47,29 @@ const StudentManagement = () => {
     };
     fetchBatches();
   }, []);
+
+  // Fetch session information if session ID is provided
+  useEffect(() => {
+    if (sessionId) {
+      const fetchSessionInfo = async () => {
+        try {
+          // Get pending grading sessions to find session details
+          const res = await GradingApi.getPendingGradingSessions(user.id);
+          const session = res.sessions?.find(s => s.id.toString() === sessionId);
+          if (session) {
+            setSessionInfo(session);
+            // Auto-select the batch for this session if available
+            if (session.batch_id) {
+              setSelectedBatch(session.batch_id.toString());
+            }
+          }
+        } catch (err) {
+          console.error('Failed to fetch session info:', err);
+        }
+      };
+      fetchSessionInfo();
+    }
+  }, [sessionId, user.id]);
 
   // Fetch students for selected batch
   const fetchStudents = useCallback(async () => {
@@ -135,14 +165,25 @@ const StudentManagement = () => {
     if (!selectedStudent) return;
     setActionError(null);
     try {
-      await GradingApi.submitFeedback({ student_id: selectedStudent.id, ...feedback });
+      const feedbackData = { 
+        student_id: selectedStudent.id, 
+        ...feedback 
+      };
+      // Include session_id if we're grading for a specific session
+      if (sessionId) {
+        feedbackData.session_id = sessionId;
+      }
+      const result = await GradingApi.submitFeedback(feedbackData);
+      console.log('Feedback submission result:', result);
       setShowFeedbackModal(false);
       setFeedback({ rating: 5, comment: '', areas_of_improvement: '', strengths: '' });
       setSelectedStudent(null);
+      setActionSuccess('Feedback submitted successfully!');
     } catch (err) {
-      setActionError('Failed to submit feedback');
+      console.error('Feedback submission error:', err);
+      setActionError('Failed to submit feedback: ' + err.message);
     }
-  }, [selectedStudent, feedback]);
+  }, [selectedStudent, feedback, sessionId]);
 
   const handleViewHistory = useCallback(async student => {
     setSelectedStudent(student);
@@ -283,6 +324,24 @@ const StudentManagement = () => {
         <FaUserGraduate className="text-accent w-7 h-7 mr-1" aria-hidden="true" />
         <h1 className="text-2xl sm:text-3xl font-bold text-primary">Student Management</h1>
       </header>
+      
+      {/* Session-specific grading notification */}
+      {sessionInfo && (
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
+          <div className="flex items-center">
+            <FaClipboardList className="text-blue-600 w-5 h-5 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-blue-800">
+                Grading Required: {sessionInfo.title}
+              </h3>
+              <p className="text-blue-700">
+                Batch: {sessionInfo.batch_name} • Please provide feedback for students who attended this session.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <section className="bg-background-light border border-gray-light rounded-xl shadow-md p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
           <div className="flex gap-2 items-center">

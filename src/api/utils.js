@@ -68,10 +68,22 @@ export async function request(endpoint, method = 'GET', data = null, options = {
         return result;
       } catch (parseError) {
         if (parseError instanceof SyntaxError) {
+          console.error('Failed to parse JSON response:', text);
           if (text.includes('<!DOCTYPE html>') || text.includes('<br />')) {
             const errorMatch = text.match(/Fatal error:(.*?)in/);
             const errorMessage = errorMatch ? errorMatch[1].trim() : 'Server returned HTML instead of JSON';
             throw new Error(`Server error: ${errorMessage}`);
+          }
+          // Try to extract JSON from text that might have extra content
+          const jsonMatch = text.match(/(\{.*\})/s);
+          if (jsonMatch) {
+            try {
+              const result = JSON.parse(jsonMatch[1]);
+              console.log('Successfully extracted JSON from response:', result);
+              return result;
+            } catch {
+              // Failed to parse extracted JSON
+            }
           }
           throw new Error(`Failed to parse JSON response: ${text.substring(0, 100)}...`);
         }

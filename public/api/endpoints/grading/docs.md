@@ -26,20 +26,20 @@ endpoints/grading/
 - **get-all-students.php**  
   Retrieves a list of all students available for grading, supporting administrative and teacher workflows.
 
-- **get-batch-students.php**  
   Gets students in a specific batch for batch-level grading and assessment.
 
-- **get-student-feedback-history.php**  
   Retrieves the feedback history for a student, supporting longitudinal assessment and review.
 
-- **get-student-performance.php**  
   Gets detailed performance data for a student, including grades, participation, and progress.
 
-- **get-student-report-cards.php**  
   Retrieves report cards for students, supporting official record-keeping and parent communication.
 
-- **submit-feedback.php**  
   Allows teachers to submit feedback for a student, supporting formative assessment and improvement. Uses the centralized NotificationService to notify the student when new feedback is submitted. Do not insert directly into the notifications table; always use NotificationService for feedback notifications.
+
+**July 2025 Update:**
+- Feedback submission now requires and stores session_id when grading from the dashboard modal.
+- get-pending.php now only returns sessions that have not received feedback from the teacher for that session.
+- Fixes issue where sessions remained "pending" even after feedback was submitted.
 
 **upload-report-card.php**  
   Uploads a report card document for a student, supporting digital record-keeping.

@@ -49,6 +49,12 @@ The `components` folder contains reusable React UI components that form the buil
 
 ---
 
+## July 2025: Grading Modal & Feedback UX
+
+- Pending grading modal now updates in real-time after feedback is submitted.
+- Feedback forms now include session context when accessed from the dashboard modal.
+- All grading-related components updated for session-specific feedback logic.
+
 ## File Structure
 
 ```

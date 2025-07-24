@@ -17,15 +17,19 @@ $teacher_id = (int)$_GET['teacher_id'];
 
 try {
     $db = (new Database())->getConnection();
-    // Fix: Use correct column name in subquery (s.id NOT IN ...)
-    // If your feedback table links to sessions by batch_session_id, use that column
-    $query = "SELECT s.id, s.title, s.date_time, s.duration, b.name as batch_name
+    // Get sessions that have ended but don't have feedback linked to that specific session
+    // A session is considered "graded" if there's at least one feedback entry with that session_id
+    $query = "SELECT s.id, s.title, s.date_time, s.duration, b.name as batch_name, b.id as batch_id
               FROM batch_sessions s
               JOIN batches b ON s.batch_id = b.id
               WHERE b.teacher_id = :teacher_id
                 AND s.date_time <= NOW()
                 AND (s.date_time + INTERVAL s.duration MINUTE) <= NOW()
-                AND s.id NOT IN (SELECT DISTINCT session_id FROM student_feedback WHERE session_id IS NOT NULL)
+                AND s.id NOT IN (
+                    SELECT DISTINCT session_id 
+                    FROM student_feedback 
+                    WHERE session_id IS NOT NULL AND teacher_id = :teacher_id
+                )
               ORDER BY s.date_time DESC
               LIMIT 50";
     $stmt = $db->prepare($query);

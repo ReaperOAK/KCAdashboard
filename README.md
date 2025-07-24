@@ -18,6 +18,12 @@ Teachers no longer need to manually select a batch before marking attendance. Th
 ## ⚠️ July 2025 Update: PGN Upload 50-Game Limit
 To prevent performance issues and application hanging, PGN uploads are now limited to a maximum of 50 games per file. This ensures smooth user experience when uploading and viewing PGN files. Existing large PGN files (like the 3K games file) are automatically truncated to the first 50 games when viewed.
 
+## 🟢 July 2025 Update: Grading Workflow & Pending Grading Modal Fix
+
+- Fixed: Pending grading modal now disappears after feedback is submitted for a session.
+- Feedback submission now links feedback to the specific session, ensuring accurate tracking.
+- Backend and frontend updated to support session-specific grading and feedback.
+
 
 ## 🆕 Teacher Leave Requests (July 2025)
 

@@ -45,6 +45,8 @@ All new user registrations are created as students only. Teacher/admin roles can
 - **Enhanced Profile System:** New endpoints for FIDE ID, rating, and document upload/verification, with an admin document verification workflow. See `ENHANCED_PROFILE_DOCUMENTATION.md` for full details.
 - **Classroom Materials:** Teachers can upload multiple files at once as classroom materials. Each file is validated and creates a separate resource entry. See `endpoints/classroom/add-material.php`.
 
+- **Grading Workflow:** Pending grading sessions are now tracked per session. Feedback submission includes session_id, and the API only shows sessions that have not received feedback from the teacher.
+
 ---
 
 ## PHP Files and Their Roles

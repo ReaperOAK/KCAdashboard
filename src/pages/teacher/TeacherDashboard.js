@@ -40,7 +40,7 @@ const GradingPrompt = ({ sessions, onClose }) => {
                 <span>{s.title} <span className="text-xs text-gray-500">({s.batch_name})</span></span>
                 <button
                   className="ml-2 px-2 py-1 bg-secondary text-white rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent"
-                  onClick={() => navigate(`/teacher/grading?session=${s.id}`)}
+                  onClick={() => navigate(`/teacher/students?session=${s.id}`)}
                 >Grade</button>
               </li>
             ))}

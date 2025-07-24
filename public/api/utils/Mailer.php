@@ -1,16 +1,3 @@
-    /**
-     * Sanitize a string for safe email headers and content
-     */
-    private function sanitize($str) {
-        return trim(filter_var($str, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
-    }
-
-    /**
-     * Validate an email address
-     */
-    private function isValidEmail($email) {
-        return filter_var($email, FILTER_VALIDATE_EMAIL);
-    }
 <?php
 // First try to use composer autoloader if available
 $vendorAutoloadPaths = [
@@ -326,6 +313,20 @@ class Mailer {
             error_log("SMTP connection test failed: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Sanitize a string for safe email headers and content
+     */
+    private function sanitize($str) {
+        return trim(filter_var($str, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+    }
+
+    /**
+     * Validate an email address
+     */
+    private function isValidEmail($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 }
 ?>

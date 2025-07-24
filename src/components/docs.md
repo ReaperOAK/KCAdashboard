@@ -151,3 +151,6 @@ For more details on feature-specific components, see the `docs.md` files in each
 - FIDE ID, rating, and document upload UI for students and teachers
 - Admin document verification workflow
 - See ENHANCED_PROFILE_DOCUMENTATION.md for full details
+
+## Classroom Material Upload (July 2025)
+- Classroom material upload now supports multiple files at once, with real-time feedback and validation.

@@ -43,6 +43,7 @@ All new user registrations are created as students only. Teacher/admin roles can
 - **Analytics:** Export and view analytics for attendance, performance, quizzes, and more.
 - **Recurring Classes:** Teachers can bulk-schedule sessions based on batch schedule using the new `create-recurring-sessions.php` endpoint. See `endpoints/classroom/docs.md` and frontend docs for usage.
 - **Enhanced Profile System:** New endpoints for FIDE ID, rating, and document upload/verification, with an admin document verification workflow. See `ENHANCED_PROFILE_DOCUMENTATION.md` for full details.
+- **Classroom Materials:** Teachers can upload multiple files at once as classroom materials. Each file is validated and creates a separate resource entry. See `endpoints/classroom/add-material.php`.
 
 ---
 

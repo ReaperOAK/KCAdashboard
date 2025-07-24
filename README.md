@@ -101,6 +101,13 @@ Teachers can now schedule recurring classes based on batch schedules:
 - Role-based profile fields (students, teachers/coaches)
 - See [ENHANCED_PROFILE_DOCUMENTATION.md](ENHANCED_PROFILE_DOCUMENTATION.md) for full details
 
+## July 2025: Multiple File Upload for Classroom Materials
+
+- Teachers can now upload multiple files at once as classroom materials.
+- Each file is validated (type, size) and creates a separate resource entry.
+- UI shows selected file count and names, and supports mixed uploads (files + video links).
+- See `material-upload-fix-summary.md` for details.
+
 # Quiz No-Retake Policy (July 2025)
 
 - Once a quiz is submitted, students cannot retake it. No cooling time, no retry, no second attempt.

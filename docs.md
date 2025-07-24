@@ -31,6 +31,13 @@
 - Updated frontend to use the correct API and handle all edge cases.
 - See also: `src/pages/teacher/docs.md`, `public/api/endpoints/grading/docs.md`, and `src/components/reportcard/docs.md` for details.
 
+### July 2025: Classroom Materials Multiple File Upload
+
+- Teachers can now upload multiple files at once as classroom materials.
+- Each file is validated and creates a separate resource entry.
+- UI shows selected file count and names, and supports mixed uploads (files + video links).
+- See `material-upload-fix-summary.md` for full details.
+
 ### 1. UI/UX Modernization & Design System Enforcement
 
 All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.

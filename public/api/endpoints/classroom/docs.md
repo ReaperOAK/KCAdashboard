@@ -44,7 +44,8 @@ endpoints/classroom/
 ## File Explanations
 
 - **add-material.php**  
-  Adds new learning materials to a classroom for student access.
+  Adds new learning materials to a classroom for student access.  
+  **July 2025:** Now supports multiple file uploads in a single request. Each file is validated and creates a separate resource entry. Mixed uploads (files + video links) are supported.
 
 - **add-session.php**  
   Adds a new session (class/meeting) to a classroom schedule. Prevents a teacher from scheduling more than one class at the same time (overlapping sessions) across all their classrooms. If an overlap is detected, the API returns an error and the session is not created.

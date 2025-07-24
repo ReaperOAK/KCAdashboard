@@ -169,13 +169,18 @@ function ClassroomManagement() {
         type = 'video'; // fallback
       }
       formData.append('type', type);
-      // Append all links
-      materialForm.content.forEach((link) => {
-        if (link) formData.append('content[]', link);
-      });
+      // Append content/links
+      if (materialForm.content && materialForm.content.length > 0) {
+        // Send the first non-empty link as content
+        const firstLink = materialForm.content.find(link => link && link.trim() !== '');
+        if (firstLink) {
+          formData.append('content', firstLink.trim());
+        }
+      }
       // Append all files
       if (materialForm.files && materialForm.files.length > 0) {
-        materialForm.files.forEach((file) => {
+        // For multiple file upload, use 'files[]' field name
+        materialForm.files.forEach((file, index) => {
           formData.append('files[]', file);
         });
       }
@@ -184,7 +189,20 @@ function ClassroomManagement() {
         setShowMaterialsModal(false);
         setRefreshTrigger((prev) => prev + 1);
         setMaterialForm({ title: '', content: [''], files: [] });
-        window.alert('Material uploaded successfully!');
+        
+        // Show detailed success message
+        let successMessage = 'Materials uploaded successfully!';
+        if (response.files_uploaded > 1) {
+          successMessage = `Successfully uploaded ${response.files_uploaded} files!`;
+        } else if (response.files_uploaded === 1 && response.has_video_content) {
+          successMessage = 'Successfully uploaded file and video link!';
+        } else if (response.files_uploaded === 1) {
+          successMessage = 'Successfully uploaded file!';
+        } else if (response.has_video_content) {
+          successMessage = 'Successfully added video link!';
+        }
+        
+        window.alert(successMessage);
       } else {
         setError(response.message || 'Failed to upload material');
       }
@@ -451,7 +469,8 @@ function ClassroomManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Video URLs</label>
+                  <label className="block text-sm font-medium text-gray-700">Video URLs (Optional)</label>
+                  <p className="text-xs text-gray-500 mb-2">Add video links if you want to share video content</p>
                   {materialForm.content.map((link, idx) => (
                     <div key={idx} className="flex items-center gap-2 mb-2">
                       <input
@@ -460,8 +479,8 @@ function ClassroomManagement() {
                         data-idx={idx}
                         value={link}
                         onChange={handleMaterialChange}
+                        placeholder="https://youtube.com/watch?v=..."
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
-                        required
                       />
                       {materialForm.content.length > 1 && (
                         <button type="button" onClick={() => handleRemoveLinkField(idx)} className="text-red-600 hover:text-red-800 text-lg font-bold" aria-label="Remove link">&times;</button>
@@ -471,14 +490,22 @@ function ClassroomManagement() {
                   <button type="button" onClick={handleAddLinkField} className="text-secondary hover:text-accent text-sm mt-1">+ Add another link</button>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700" htmlFor="material-file">Upload Files</label>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="material-file">Upload Files (Optional)</label>
+                  <p className="text-xs text-gray-500 mb-2">Upload documents, PDFs, images, or other materials</p>
                   <input
                     id="material-file"
                     type="file"
                     multiple
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mp3,.wav,.ppt,.pptx,.xls,.xlsx,.pgn"
                     onChange={handleMaterialChange}
                     className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-white hover:file:bg-accent"
                   />
+                  {materialForm.files && materialForm.files.length > 0 && (
+                    <p className="text-sm text-green-600 mt-1">
+                      {materialForm.files.length} file{materialForm.files.length > 1 ? 's' : ''} selected: {Array.from(materialForm.files).map(f => f.name).join(', ')}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">Maximum file size: 10MB per file. You can select multiple files at once.</p>
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button

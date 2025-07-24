@@ -287,3 +287,12 @@ See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/do
 - Role-based profile fields for students and teachers/coaches
 - See ENHANCED_PROFILE_DOCUMENTATION.md for full details
 
+# [Unreleased] - July 2025
+
+## Classroom Materials: Multiple File Upload (2025-07-24)
+- Teachers can now upload multiple files at once as classroom materials.
+- Each file is validated and creates a separate resource entry.
+- UI shows selected file count and names, and supports mixed uploads (files + video links).
+- Improved error handling and user feedback for uploads.
+- Updated backend and frontend logic, docs, and configuration.
+

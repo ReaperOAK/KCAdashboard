@@ -5,7 +5,7 @@
 </Files>
 
 # Allow only specific file types
-<FilesMatch "\.(jpg|jpeg|png|gif|webp|pdf|doc|docx)$">
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|pdf|doc|docx|txt|mp4|mp3|wav|ppt|pptx|xls|xlsx|pgn)$">
     Order Allow,Deny
     Allow from all
 </FilesMatch>

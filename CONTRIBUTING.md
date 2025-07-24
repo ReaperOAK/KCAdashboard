@@ -204,3 +204,5 @@ _Last updated: July 2025_
 - Admin verification workflow for documents must be tested and documented.
 
 See the codebase and documentation for more details.
+
+- If you change classroom material upload logic, document it in README.md, CHANGELOG.md, and the relevant feature docs.

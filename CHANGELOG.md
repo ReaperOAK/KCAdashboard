@@ -1,5 +1,3 @@
-
-
 # [Unreleased] - July 2025
 
 ## Teacher Leave Requests UI/UX Overhaul (2025-07-24)
@@ -273,4 +271,13 @@ See [`src/components/resourcecenter/docs.md`](./src/components/resourcecenter/do
 - Backend API endpoint for bulk session creation with conflict detection and notifications
 - Updated ClassroomCard and ClassroomManagement for new workflow
 - See `src/components/classroom/docs.md` and API docs for full details
+
+## Enhanced Profile System (2025-07-24)
+- Added FIDE ID field with validation and profile linking
+- Added FIDE and national rating fields
+- Mandatory profile picture upload for all users
+- Mandatory date of birth certificate upload for students
+- Admin document verification workflow for uploads
+- Role-based profile fields for students and teachers/coaches
+- See ENHANCED_PROFILE_DOCUMENTATION.md for full details
 

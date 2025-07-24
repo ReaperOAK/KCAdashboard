@@ -87,6 +87,16 @@ Teachers can now schedule recurring classes based on batch schedules:
 - Smart conflict detection, preview, and notifications for students.
 - See `src/components/classroom/docs.md` and API docs for details.
 
+## 🆕 Enhanced Profile System (July 2025)
+
+- FIDE ID integration: Add and link to official FIDE profiles
+- Rating management: FIDE and national ratings, with validation
+- Mandatory profile picture uploads for all users
+- Mandatory date of birth certificate upload for students
+- Admin document verification workflow
+- Role-based profile fields (students, teachers/coaches)
+- See [ENHANCED_PROFILE_DOCUMENTATION.md](ENHANCED_PROFILE_DOCUMENTATION.md) for full details
+
 # Quiz No-Retake Policy (July 2025)
 
 - Once a quiz is submitted, students cannot retake it. No cooling time, no retry, no second attempt.

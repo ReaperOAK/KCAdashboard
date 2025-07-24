@@ -42,6 +42,7 @@ All new user registrations are created as students only. Teacher/admin roles can
 - **Support:** FAQ and ticketing system for user support.
 - **Analytics:** Export and view analytics for attendance, performance, quizzes, and more.
 - **Recurring Classes:** Teachers can bulk-schedule sessions based on batch schedule using the new `create-recurring-sessions.php` endpoint. See `endpoints/classroom/docs.md` and frontend docs for usage.
+- **Enhanced Profile System:** New endpoints for FIDE ID, rating, and document upload/verification, with an admin document verification workflow. See `ENHANCED_PROFILE_DOCUMENTATION.md` for full details.
 
 ---
 

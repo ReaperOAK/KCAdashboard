@@ -323,3 +323,8 @@ _Last updated: 2024-06-11_
 - RecurringClassModal UI for previewing and generating multiple sessions at once
 - Backend API endpoint for bulk session creation with conflict detection and notifications
 - See `src/components/classroom/docs.md` for full details
+
+## Enhanced Profile System (July 2025)
+- FIDE ID integration, rating management, and mandatory document uploads
+- Admin document verification workflow
+- See ENHANCED_PROFILE_DOCUMENTATION.md for full details

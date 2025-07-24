@@ -191,4 +191,9 @@ _Last updated: July 2025_
 - Backend endpoint `/leave/my-requests.php` supports secure cancellation by teachers (see `LeaveRequest.php`).
 - Please update tests and documentation if you add new leave features.
 
+## Enhanced Profile System (July 2025)
+- All changes to user profile, identity, or document upload logic must be documented in ENHANCED_PROFILE_DOCUMENTATION.md, README.md, and API docs.
+- Test all FIDE ID, rating, and document upload features for both students and teachers.
+- Admin verification workflow for documents must be tested and documented.
+
 See the codebase and documentation for more details.

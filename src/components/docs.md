@@ -146,3 +146,8 @@ For more details on feature-specific components, see the `docs.md` files in each
 ## Recurring Class Sessions (July 2025)
 
 - **RecurringClassModal.js**: Modal for creating recurring class sessions based on batch schedule. See `classroom/docs.md` for full usage and API details.
+
+## Enhanced Profile System (July 2025)
+- FIDE ID, rating, and document upload UI for students and teachers
+- Admin document verification workflow
+- See ENHANCED_PROFILE_DOCUMENTATION.md for full details

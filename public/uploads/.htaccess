@@ -1,0 +1,17 @@
+# Prevent direct PHP execution in uploads directory
+<Files *.php>
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Allow only specific file types
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|pdf|doc|docx)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevent access to sensitive files
+<FilesMatch "\.(sql|log|txt|md)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

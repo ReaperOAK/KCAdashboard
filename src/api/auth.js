@@ -9,4 +9,22 @@ export const AuthApi = {
   resetPassword: (token, newPassword) => post('/auth/reset-password.php', { token, password: newPassword }),
   updateProfile: (userData) => put('/auth/update-profile.php', userData),
   verifyEmail: (token) => get(`/auth/verify-email.php?token=${token}`),
+  
+  // Enhanced profile features
+  uploadDocument: (formData) => {
+    const token = localStorage.getItem('token');
+    return fetch('/api/auth/upload-document.php', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    }).then(response => response.json());
+  },
+  
+  fideLookup: (fideId) => get(`/auth/fide-lookup.php?fide_id=${fideId}`),
+  
+  getProfileDocuments: () => get('/auth/get-documents.php'),
+  
+  deleteDocument: (documentId) => post('/auth/delete-document.php', { document_id: documentId })
 };

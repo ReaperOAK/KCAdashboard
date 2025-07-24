@@ -12,6 +12,12 @@ cd c:\Owais\KCAdashboard; npm install; npm start
 ## 📝 July 2025 Update: Quiz Chess Move Feedback
 Chess quiz questions now provide instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again, improving the learning experience for both FEN and PGN quiz modes.
 
+
+## 🆕 Teacher Leave Requests (July 2025)
+
+- Teachers can now view, track, and cancel their leave requests in a beautiful, modern, and accessible table with color-coded status badges and responsive design.
+- Students do not see leave request options in the Support Center.
+
 ## 📖 Where to Find Things
 
 - [UI/UX, Design System, Accessibility](docs.md)

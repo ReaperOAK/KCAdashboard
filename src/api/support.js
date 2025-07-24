@@ -10,8 +10,11 @@ export const SupportApi = {
   cancelMyLeaveRequest: (id) => post('/support/leave/my-requests.php', { id }),
   // Tickets
   getTickets: () => get('/support/tickets/get-all.php'),
+  getMyTickets: () => get('/support/tickets/get-my-tickets.php'),
   createTicket: (data) => post('/support/tickets/create.php', data),
   updateTicketStatus: (ticket_id, status) => post('/support/tickets/update-status.php', { ticket_id, status }),
+  getTicketReplies: (ticket_id) => get(`/support/tickets/get-replies.php?ticket_id=${ticket_id}`),
+  addTicketReply: (ticket_id, message) => post('/support/tickets/add-reply.php', { ticket_id, message }),
   // FAQs
   getFaqs: () => get('/support/faqs/get-all.php'),
   createFaq: (faq) => post('/support/faqs/create.php', faq),

@@ -2,7 +2,7 @@
 
 This project underwent a major UI/UX, accessibility, and modularity overhaul in July 2025. Please review the following before contributing:
 
-- All UI must use the color tokens and design system in `colour_scheme.md` and Tailwind config.
+- All UI must use the color tokens and design system in `colour_scheme.md` and Tailwind config. All leave request tables (teacher/admin) must use color-coded status badges, responsive layouts, and clear empty/cancelling states.
 - Follow the accessibility, modularity, and performance guidelines in [docs.md](docs.md) (see the July 2025 summary section).
 - Use semantic HTML, ARIA labels, and ensure all interactive elements are keyboard accessible.
 - Deep-linking to Support Center tabs is supported via URL hashes (e.g., `/teacher/support#leave`).
@@ -75,8 +75,8 @@ All support and admin pages and components are now modular, beautiful, and acces
 - After any major refactor or feature addition, update:
   - `README.md` with new features and improvements
   - `CHANGELOG.md` with a summary of changes
-  - Any relevant `docs.md` files for affected features or components
-  - For classroom, quiz, analytics, and leaderboard UI/UX changes, document all new/updated components and patterns in the relevant feature folder and main docs.
+  - Any relevant `docs.md` files for affected features or components (including leave requests UI/UX)
+  - For classroom, quiz, analytics, leaderboard, and leave requests UI/UX changes, document all new/updated components and patterns in the relevant feature folder and main docs.
 # Classroom, Quiz, Analytics, Leaderboard, and Attendance UI/UX Refactor (July 2025)
 - All classroom, quiz, analytics, leaderboard, and attendance UIs must use modular, single-responsibility React components in their respective folders.
 - All new or updated classroom components (e.g., LoadingSkeleton, LoadingSpinner, ModalOverlay, StatusBadge, ViewSwitcher, ErrorAlert, ErrorState, MaterialCard, etc.) are now documented in the relevant feature folder and `docs.md`.

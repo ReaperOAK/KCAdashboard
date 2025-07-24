@@ -82,5 +82,104 @@ class Support {
             throw new Exception("Error deleting FAQ: " . $e->getMessage());
         }
     }
+
+    public function getTicketById($ticketId) {
+        try {
+            $query = "SELECT 
+                        t.*,
+                        u.full_name as user_name,
+                        au.full_name as assigned_to_name
+                     FROM support_tickets t
+                     JOIN users u ON t.user_id = u.id
+                     LEFT JOIN users au ON t.assigned_to = au.id
+                     WHERE t.id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':id' => $ticketId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching ticket: " . $e->getMessage());
+        }
+    }
+
+    public function getTicketReplies($ticketId) {
+        try {
+            $query = "SELECT 
+                        tr.*,
+                        u.full_name as user_name,
+                        u.role as user_role
+                     FROM ticket_responses tr
+                     JOIN users u ON tr.user_id = u.id
+                     WHERE tr.ticket_id = :ticket_id
+                     ORDER BY tr.created_at ASC";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':ticket_id' => $ticketId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching ticket replies: " . $e->getMessage());
+        }
+    }
+
+    public function addTicketReply($ticketId, $userId, $message) {
+        try {
+            $query = "INSERT INTO ticket_responses (ticket_id, user_id, message) 
+                     VALUES (:ticket_id, :user_id, :message)";
+
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':ticket_id' => $ticketId,
+                ':user_id' => $userId,
+                ':message' => $message
+            ]);
+
+            return $result ? $this->conn->lastInsertId() : false;
+        } catch (PDOException $e) {
+            throw new Exception("Error adding ticket reply: " . $e->getMessage());
+        }
+    }
+
+    public function createTicket($userId, $title, $description, $priority = 'medium', $category = 'general') {
+        try {
+            $query = "INSERT INTO support_tickets (user_id, title, description, priority, category) 
+                     VALUES (:user_id, :title, :description, :priority, :category)";
+
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                ':user_id' => $userId,
+                ':title' => $title,
+                ':description' => $description,
+                ':priority' => $priority,
+                ':category' => $category
+            ]);
+
+            return $result ? $this->conn->lastInsertId() : false;
+        } catch (PDOException $e) {
+            throw new Exception("Error creating ticket: " . $e->getMessage());
+        }
+    }
+
+    public function getMyTickets($userId) {
+        try {
+            $query = "SELECT 
+                        t.*,
+                        u.full_name as user_name,
+                        au.full_name as assigned_to_name
+                     FROM support_tickets t
+                     JOIN users u ON t.user_id = u.id
+                     LEFT JOIN users au ON t.assigned_to = au.id
+                     WHERE t.user_id = :user_id
+                     ORDER BY 
+                        FIELD(t.status, 'open', 'in_progress', 'resolved', 'closed'),
+                        FIELD(t.priority, 'urgent', 'high', 'medium', 'low'),
+                        t.created_at DESC";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':user_id' => $userId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching your tickets: " . $e->getMessage());
+        }
+    }
 }
 ?>

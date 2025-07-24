@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import SupportTicketForm from './SupportTicketForm';
 import FaqList from './FaqList';
-import LeaveRequestForm from './LeaveRequestForm';
-import MyLeaveRequests from './MyLeaveRequests';
+import MyTickets from './MyTickets';
+import TeacherSupportSystem from '../teacher/TeacherSupportSystem';
 
 
 
@@ -11,10 +11,8 @@ const hashToTab = (hash) => {
   switch ((hash || '').replace('#', '').toLowerCase()) {
     case 'ticket':
       return 'ticket';
-    case 'leave':
-      return 'leave';
-    case 'my-leaves':
-      return 'my-leaves';
+    case 'my-tickets':
+      return 'my-tickets';
     default:
       return 'faqs';
   }
@@ -24,6 +22,7 @@ const SupportCenter = () => {
   const [activeTab, setActiveTab] = useState(() => hashToTab(window.location.hash));
   const { user } = useAuth();
   const isAdmin = user && user.role === 'admin';
+  const isTeacher = user && user.role === 'teacher';
 
   // Listen for hash changes to update the tab
   useEffect(() => {
@@ -33,6 +32,11 @@ const SupportCenter = () => {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // If teacher, show the teacher support system
+  if (isTeacher) {
+    return <TeacherSupportSystem />;
+  }
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
@@ -49,7 +53,7 @@ const SupportCenter = () => {
         >
           FAQs
         </button>
-        {!isAdmin && (
+        {!isAdmin && !isTeacher && (
           <>
             <button
               onClick={() => {
@@ -60,29 +64,18 @@ const SupportCenter = () => {
               role="tab"
               aria-selected={activeTab === 'ticket'}
             >
-              Raise a Ticket
+              Create Ticket
             </button>
             <button
               onClick={() => {
-                setActiveTab('leave');
-                window.location.hash = 'leave';
+                setActiveTab('my-tickets');
+                window.location.hash = 'my-tickets';
               }}
-              className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'leave' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
+              className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'my-tickets' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
               role="tab"
-              aria-selected={activeTab === 'leave'}
+              aria-selected={activeTab === 'my-tickets'}
             >
-              Request Leave
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('my-leaves');
-                window.location.hash = 'my-leaves';
-              }}
-              className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${activeTab === 'my-leaves' ? 'bg-secondary text-white' : 'bg-white text-secondary'}`}
-              role="tab"
-              aria-selected={activeTab === 'my-leaves'}
-            >
-              My Leave Requests
+              My Tickets
             </button>
           </>
         )}
@@ -90,12 +83,10 @@ const SupportCenter = () => {
       {activeTab === 'faqs' ? (
         <FaqList />
       ) : activeTab === 'ticket' ? (
-        !isAdmin && <SupportTicketForm />
-      ) : activeTab === 'leave' ? (
-        !isAdmin && <LeaveRequestForm />
-      ) : (
-        !isAdmin && <MyLeaveRequests />
-      )}
+        !isAdmin && !isTeacher && <SupportTicketForm />
+      ) : activeTab === 'my-tickets' ? (
+        !isAdmin && !isTeacher && <MyTickets />
+      ) : null}
     </div>
   );
 };

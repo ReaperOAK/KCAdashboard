@@ -9,6 +9,7 @@ import React from 'react';
  *   - tickets: array of ticket objects (required)
  *   - onStatusChange: function (required)
  *   - onViewDetails: function (required)
+ *   - hideStatusColumn: boolean (optional) - hide status dropdown for students
  */
 const statusOptions = [
   { value: 'open', label: 'Open' },
@@ -23,7 +24,7 @@ const priorityStyles = {
   low: 'bg-success/10 text-success',
 };
 
-const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, onViewDetails }) {
+const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, onViewDetails, hideStatusColumn = false }) {
   // Desktop/tablet table view
   const TableView = (
     <div className="overflow-x-auto rounded-2xl border border-gray-light shadow-lg bg-background-light dark:bg-background-dark hidden sm:block">
@@ -33,7 +34,7 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
             <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">ID</th>
             <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Title</th>
             <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">User</th>
-            <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Status</th>
+            {!hideStatusColumn && <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Status</th>}
             <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Priority</th>
             <th className="px-2 py-3 text-left font-semibold tracking-wide whitespace-nowrap">Actions</th>
           </tr>
@@ -41,7 +42,7 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
         <tbody>
           {tickets.length === 0 ? (
             <tr>
-              <td colSpan={6} className="text-center py-8 text-gray-dark text-base sm:text-lg">No tickets found.</td>
+              <td colSpan={hideStatusColumn ? 5 : 6} className="text-center py-8 text-gray-dark text-base sm:text-lg">No tickets found.</td>
             </tr>
           ) : (
             tickets.map((ticket, idx) => (
@@ -53,18 +54,20 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
                 <td className="px-2 py-4 whitespace-nowrap text-text-dark">#{ticket.id}</td>
                 <td className="px-2 py-4 text-text-dark break-words max-w-[120px] sm:max-w-xs md:max-w-sm truncate">{ticket.title}</td>
                 <td className="px-2 py-4 text-text-dark break-words max-w-[100px] sm:max-w-xs md:max-w-sm truncate">{ticket.user_name}</td>
-                <td className="px-2 py-4">
-                  <select
-                    value={ticket.status}
-                    onChange={e => onStatusChange(ticket.id, e.target.value)}
-                    className="rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-accent text-text-dark px-2 py-1 text-sm transition-all duration-200"
-                    aria-label={`Change status for ticket ${ticket.id}`}
-                  >
-                    {statusOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </td>
+                {!hideStatusColumn && (
+                  <td className="px-2 py-4">
+                    <select
+                      value={ticket.status}
+                      onChange={e => onStatusChange(ticket.id, e.target.value)}
+                      className="rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-accent text-text-dark px-2 py-1 text-sm transition-all duration-200"
+                      aria-label={`Change status for ticket ${ticket.id}`}
+                    >
+                      {statusOptions.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </td>
+                )}
                 <td className="px-2 py-4">
                   <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${priorityStyles[ticket.priority]}`}>{ticket.priority}</span>
                 </td>
@@ -100,16 +103,28 @@ const TicketTable = React.memo(function TicketTable({ tickets, onStatusChange, o
             <div className="text-text-dark font-medium">{ticket.title}</div>
             <div className="text-gray-dark text-xs">User: {ticket.user_name}</div>
             <div className="flex items-center gap-2">
-              <select
-                value={ticket.status}
-                onChange={e => onStatusChange(ticket.id, e.target.value)}
-                className="rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-accent text-text-dark px-2 py-1 text-xs transition-all duration-200"
-                aria-label={`Change status for ticket ${ticket.id}`}
-              >
-                {statusOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              {!hideStatusColumn && (
+                <select
+                  value={ticket.status}
+                  onChange={e => onStatusChange(ticket.id, e.target.value)}
+                  className="rounded-lg border border-gray-light bg-white dark:bg-background-dark shadow-sm focus:border-secondary focus:ring-2 focus:ring-accent text-text-dark px-2 py-1 text-xs transition-all duration-200"
+                  aria-label={`Change status for ticket ${ticket.id}`}
+                >
+                  {statusOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              )}
+              {hideStatusColumn && (
+                <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                  ticket.status === 'open' ? 'bg-warning/10 text-warning' :
+                  ticket.status === 'in_progress' ? 'bg-accent/10 text-accent' :
+                  ticket.status === 'resolved' ? 'bg-success/10 text-success' :
+                  'bg-gray-light/30 text-gray-dark'
+                }`}>
+                  {statusOptions.find(opt => opt.value === ticket.status)?.label || ticket.status}
+                </span>
+              )}
               <button
                 className="bg-accent text-white px-3 py-1.5 rounded-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-xs font-medium"
                 onClick={() => onViewDetails(ticket)}

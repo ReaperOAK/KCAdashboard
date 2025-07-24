@@ -2,6 +2,12 @@
 
 # [Unreleased] - July 2025
 
+## Teacher Leave Requests UI/UX Overhaul (2025-07-24)
+- Refactored MyLeaveRequests.js for a beautiful, modern, and accessible UI
+- Added color-coded status badges, improved empty/cancelling states, and better date formatting
+- Teachers now have a dedicated leave management experience in the Support Center
+- Students no longer see leave request options
+
 ## Bugfix & Improvement: Quiz Chess Move Feedback (2025-07-23)
 - Fixed: Chess quiz questions (both FEN and PGN modes) now immediately show feedback for incorrect moves. Wrong moves are highlighted and users are prompted to try again, instead of getting no response.
 - All moves (correct and incorrect) are now reported to the quiz system for accurate scoring and analytics.

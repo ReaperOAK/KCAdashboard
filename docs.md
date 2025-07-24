@@ -15,6 +15,14 @@
 
 ## Summary of Major Changes
 
+
+### July 2025: Teacher Leave Requests UI/UX Overhaul
+
+- Refactored teacher leave requests table (`MyLeaveRequests.js`) for a beautiful, modern, and accessible UI.
+- Added color-coded status badges, improved empty/cancelling states, and responsive design.
+- Teachers now have a dedicated leave management experience in the Support Center.
+- Students no longer see leave request options.
+
 ### July 2025: Report Card Upload Bugfixes & Improvements
 
 - Fixed report card upload for both new and existing students: now uses the server-generated filename and refreshes the student list after upload.
@@ -41,6 +49,7 @@ All dashboard pages and components use the full Kolkata Chess Academy color syst
 - Consistent iconography and visual feedback
 
 #### UI/UX Principles
+  - All leave request tables (teacher/admin) use color-coded status badges, responsive layouts, and clear empty/cancelling states.
 - Consistent use of gradients, shadows, rounded corners, and spacing
 - All interactive elements (buttons, tabs, table rows) have clear hover, focus, and active states
 - Section headers include icons for clarity and visual hierarchy
@@ -55,6 +64,13 @@ All dashboard pages and components use the full Kolkata Chess Academy color syst
 - All chess-related pages and components refactored for a beautiful, modern, and accessible user experience
 
 For more details on individual features, see the relevant docs in `src/components/docs.md` and subfolders.
+
+---
+
+## Teacher Leave Requests (July 2025)
+
+- Teachers can view, track, and cancel their leave requests in a beautiful, modern, and accessible table with color-coded status badges and responsive design.
+- Students do not see leave request options in the Support Center.
 
 ### 2. Accessibility & Semantic HTML
 - Added ARIA labels, roles, and improved keyboard navigation for all major components.

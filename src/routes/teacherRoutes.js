@@ -1,4 +1,4 @@
-import SupportCenter from '../pages/support/SupportCenter';
+import TeacherSupportSystem from '../pages/teacher/TeacherSupportSystem';
 
 // ...existing imports...
 
@@ -20,7 +20,7 @@ import TeacherQuizLeaderboardPage from '../pages/teacher/TeacherQuizLeaderboardP
 export const teacherRoutes = [
   {
     path: '/teacher/support',
-    element: SupportCenter,
+    element: TeacherSupportSystem,
     title: 'Support Center',
   },
   {

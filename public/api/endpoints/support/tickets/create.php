@@ -2,7 +2,8 @@
 // endpoints/support/tickets/create.php
 require_once '../../../config/cors.php';
 require_once '../../../middleware/auth.php';
-require_once '../../../models/SupportTicket.php';
+require_once '../../../config/Database.php';
+require_once '../../../models/Support.php';
 
 $authUser = getAuthUser();
 if (!$authUser) {
@@ -18,19 +19,37 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$subject = $data['subject'] ?? '';
-$message = $data['message'] ?? '';
+$title = $data['title'] ?? '';
+$description = $data['description'] ?? '';
+$priority = $data['priority'] ?? 'medium';
+$category = $data['category'] ?? 'general';
 
-if (!$subject || !$message) {
+if (!$title || !$description) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing subject or message']);
+    echo json_encode(['error' => 'Missing title or description']);
     exit;
 }
 
-$ticketId = SupportTicket::create($authUser['id'], $subject, $message);
-if ($ticketId) {
-    echo json_encode(['success' => true, 'ticket_id' => $ticketId]);
-} else {
+try {
+    $database = new Database();
+    $db = $database->getConnection();
+    $support = new Support($db);
+
+    $ticketId = $support->createTicket($authUser['id'], $title, $description, $priority, $category);
+    
+    if ($ticketId) {
+        http_response_code(201);
+        echo json_encode(['success' => true, 'ticket_id' => $ticketId]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to create support ticket']);
+    }
+
+} catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to create support ticket']);
+    echo json_encode([
+        'error' => 'Error creating support ticket',
+        'message' => $e->getMessage()
+    ]);
 }
+?>

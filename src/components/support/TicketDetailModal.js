@@ -1,5 +1,6 @@
 
 import React, { useRef, useEffect } from 'react';
+import TicketReplies from './TicketReplies';
 
 /**
  * TicketDetailModal component: Shows a beautiful, accessible, responsive modal for ticket details.
@@ -9,6 +10,7 @@ import React, { useRef, useEffect } from 'react';
  *   - ticket: object (required)
  *   - onClose: function (required)
  *   - onStatusChange: function (required)
+ *   - isReadOnly: boolean (optional) - disable status changes for students
  */
 const statusOptions = [
   { value: 'open', label: 'Open' },
@@ -24,7 +26,7 @@ const priorityStyles = {
   low: 'bg-success/10 text-success',
 };
 
-const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClose, onStatusChange }) {
+const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClose, onStatusChange, isReadOnly = false }) {
   const modalRef = useRef(null);
   const closeBtnRef = useRef(null);
 
@@ -56,7 +58,7 @@ const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClos
       aria-labelledby="ticket-detail-title"
       ref={modalRef}
     >
-      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative transition-all duration-300 scale-100 opacity-100 animate-modal-in">
+      <div className="bg-background-light dark:bg-background-dark rounded-2xl border border-gray-light shadow-2xl p-6 sm:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative transition-all duration-300 scale-100 opacity-100 animate-modal-in">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-dark hover:text-accent bg-gray-light/30 hover:bg-accent/10 rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
@@ -70,54 +72,75 @@ const TicketDetailModal = React.memo(function TicketDetailModal({ ticket, onClos
           <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a4 4 0 0 1 8 0v2m-4 4a4 4 0 0 1-4-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2a4 4 0 0 1-4 4Z" /></svg>
           Ticket Details
         </h2>
-        <div className="space-y-4">
-          <div>
-            <span className="text-sm font-medium text-gray-dark">Ticket ID</span>
-            <p className="text-text-dark">#{ticket.id}</p>
-          </div>
-          <div>
-            <span className="text-sm font-medium text-gray-dark">Title</span>
-            <p className="font-medium text-primary break-words">{ticket.title}</p>
-          </div>
-          <div>
-            <span className="text-sm font-medium text-gray-dark">Description</span>
-            <p className="whitespace-pre-wrap text-text-dark break-words">{ticket.description}</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm font-medium text-gray-dark">Status</span>
-              <select
-                value={ticket.status}
-                onChange={e => onStatusChange(ticket.id, e.target.value)}
-                className="mt-1 block w-full rounded-full border border-gray-light bg-background-light dark:bg-background-dark shadow-sm focus:border-accent focus:ring-2 focus:ring-accent text-text-dark px-4 py-2 text-base transition-all duration-200"
-                aria-label={`Change status for ticket ${ticket.id}`}
-              >
-                {statusOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Ticket Info */}
+            <div className="space-y-4">
+              <div>
+                <span className="text-sm font-medium text-gray-dark">Ticket ID</span>
+                <p className="text-text-dark">#{ticket.id}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-dark">Title</span>
+                <p className="font-medium text-primary break-words">{ticket.title}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-dark">Description</span>
+                <p className="whitespace-pre-wrap text-text-dark break-words bg-gray-light/30 p-3 rounded-lg">{ticket.description}</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm font-medium text-gray-dark">Status</span>
+                  {isReadOnly ? (
+                    <p className={`mt-1 px-3 py-2 rounded-lg text-sm inline-block font-medium transition-all duration-200 ${
+                      ticket.status === 'open' ? 'bg-warning/10 text-warning' :
+                      ticket.status === 'in_progress' ? 'bg-accent/10 text-accent' :
+                      ticket.status === 'resolved' ? 'bg-success/10 text-success' :
+                      'bg-gray-light/30 text-gray-dark'
+                    }`}>
+                      {statusOptions.find(opt => opt.value === ticket.status)?.label || ticket.status}
+                    </p>
+                  ) : (
+                    <select
+                      value={ticket.status}
+                      onChange={e => onStatusChange(ticket.id, e.target.value)}
+                      className="mt-1 block w-full rounded-lg border border-gray-light bg-background-light dark:bg-background-dark shadow-sm focus:border-accent focus:ring-2 focus:ring-accent text-text-dark px-3 py-2 text-sm transition-all duration-200"
+                      aria-label={`Change status for ticket ${ticket.id}`}
+                    >
+                      {statusOptions.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-dark">Priority</span>
+                  <p className={`mt-1 px-3 py-2 rounded-lg text-sm inline-block font-medium transition-all duration-200 ${priorityStyles[ticket.priority] || ''}`}>
+                    {ticket.priority}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm font-medium text-gray-dark">Created By</span>
+                  <p className="text-text-dark break-words">{ticket.user_name}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-dark">Created At</span>
+                  <p className="text-text-dark">{new Date(ticket.created_at).toLocaleString()}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="text-sm font-medium text-gray-dark">Priority</span>
-              <p className={`mt-1 px-2 py-1 rounded-full text-xs inline-block font-medium transition-all duration-200 ${priorityStyles[ticket.priority] || ''}`}>
-                {ticket.priority}
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm font-medium text-gray-dark">Created By</span>
-              <p className="text-text-dark break-words">{ticket.user_name}</p>
-            </div>
-            <div>
-              <span className="text-sm font-medium text-gray-dark">Created At</span>
-              <p className="text-text-dark">{new Date(ticket.created_at).toLocaleString()}</p>
+            
+            {/* Right Column - Replies */}
+            <div className="lg:border-l lg:border-gray-light lg:pl-6">
+              <TicketReplies ticket={ticket} />
             </div>
           </div>
           <div className="pt-4 border-t border-gray-light">
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 bg-secondary text-white rounded-full hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-base font-semibold"
+              className="w-full px-4 py-2 bg-secondary text-white rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 text-base font-semibold"
               type="button"
             >
               Close

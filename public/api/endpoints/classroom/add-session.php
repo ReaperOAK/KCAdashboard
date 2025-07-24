@@ -57,6 +57,18 @@ try {
     $duration = isset($data['duration']) ? (int)$data['duration'] : 60;
     $end_time = date('Y-m-d H:i:s', strtotime($date_time) + $duration * 60);
 
+    // Check if date is in the past
+    $session_datetime = new DateTime($date_time, new DateTimeZone('Asia/Kolkata'));
+    $current_datetime = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
+    
+    if ($session_datetime <= $current_datetime) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Cannot schedule a class in the past. Please select a future date and time.'
+        ]);
+        exit;
+    }
+
     // Check for overlapping sessions for this teacher
     $overlap_stmt = $db->prepare("
         SELECT bs.id FROM batch_sessions bs

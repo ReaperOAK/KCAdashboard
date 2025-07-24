@@ -76,7 +76,7 @@ try {
                 SELECT date_time
                 FROM batch_sessions
                 WHERE batch_id = :classroom_id 
-                AND date_time > NOW()
+                AND date_time > CONVERT_TZ(NOW(), 'UTC', 'Asia/Kolkata')
                 ORDER BY date_time ASC
                 LIMIT 1
             ");

@@ -131,6 +131,10 @@ All support and admin pages and components are now modular, beautiful, and acces
 - Register all new files in their parent modules/routes
 - Do not modify build/output directories
 
+## Date & Time Guidelines
+- Always validate that class/session dates are not in the past (both frontend and backend).
+- Use IST (Asia/Kolkata) timezone for all date/time logic and display.
+
 ---
 _Last updated: July 2025_
 

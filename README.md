@@ -136,3 +136,9 @@ Teachers can now schedule recurring classes based on batch schedules:
 - All UI retry/retake options have been removed.
 - Backend and frontend both enforce this rule for fairness and security.
 - See `README-quiz-no-retake-policy.md` for full details.
+
+## July 2025 Update: Class Scheduling Improvements
+
+- Teachers can no longer schedule classes in the past (UI and backend validation).
+- All class/session date logic now uses IST (Asia/Kolkata) timezone for accuracy.
+- Improved error handling for scheduling attempts with invalid dates.

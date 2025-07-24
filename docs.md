@@ -50,6 +50,11 @@
 - Backend and frontend logic updated for accurate session-specific grading tracking.
 - See also: `public/api/endpoints/grading/docs.md` for API details.
 
+### July 2025: Class Scheduling & Timezone Improvements
+- Past date scheduling is now blocked in both UI and backend.
+- All class/session date logic uses IST (Asia/Kolkata) timezone.
+- Improved error handling for scheduling errors.
+
 ### 1. UI/UX Modernization & Design System Enforcement
 
 All dashboard pages and components use the full Kolkata Chess Academy color system and Tailwind tokens. The UI is modern, beautiful, and highly accessible.

@@ -338,7 +338,7 @@ class Classroom {
             // Get next session for this batch
             $nextSessionQuery = "SELECT title, date_time 
                                FROM batch_sessions 
-                               WHERE batch_id = :batch_id AND date_time > NOW() 
+                               WHERE batch_id = :batch_id AND date_time > CONVERT_TZ(NOW(), 'UTC', 'Asia/Kolkata') 
                                ORDER BY date_time ASC
                                LIMIT 1";
                                

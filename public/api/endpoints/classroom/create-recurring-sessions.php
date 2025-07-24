@@ -66,7 +66,22 @@ try {
     }
     
     // Calculate session parameters
-    $start_date = new DateTime($data['start_date']);
+    $start_date = new DateTime($data['start_date'], new DateTimeZone('Asia/Kolkata'));
+    
+    // Check if start date is in the past
+    $current_date = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
+    $current_date->setTime(0, 0, 0); // Set to beginning of day for date comparison
+    $start_date_only = clone $start_date;
+    $start_date_only->setTime(0, 0, 0); // Set to beginning of day for date comparison
+    
+    if ($start_date_only < $current_date) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Cannot schedule recurring classes starting in the past. Please select a current or future start date.'
+        ]);
+        exit;
+    }
+    
     $num_weeks = isset($data['num_weeks']) ? (int)$data['num_weeks'] : 4;
     $duration = isset($data['duration']) ? (int)$data['duration'] : ($schedule['duration'] ?? 60);
     $session_time = $schedule['time'] ?? '09:00';

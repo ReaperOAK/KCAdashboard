@@ -328,3 +328,10 @@ components/classroom/
 ---
 
 For more details on the overall frontend structure, see the main `docs.md` in the `src` folder.
+
+---
+
+## July 2025: Scheduling & Timezone Improvements
+- RecurringClassModal and single class scheduling modals now prevent scheduling in the past (UI + backend).
+- All date logic and display uses IST (Asia/Kolkata) timezone.
+- User-friendly error messages for invalid scheduling attempts.

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { ClassroomApi } from '../../api/classroom';
+import { getCurrentDateIST } from '../../utils/dateUtils';
 import { BatchesApi } from '../../api/batches';
 import ModalOverlay from './ModalOverlay';
 
@@ -175,6 +176,7 @@ const RecurringClassModal = ({ classroom, onClose, onSuccess }) => {
                 name="startDate"
                 value={form.startDate}
                 onChange={handleInputChange}
+                min={getCurrentDateIST()}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
                 required
               />
@@ -190,6 +192,7 @@ const RecurringClassModal = ({ classroom, onClose, onSuccess }) => {
                 name="endDate"
                 value={form.endDate}
                 onChange={handleInputChange}
+                min={getCurrentDateIST()}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
               />
             </div>

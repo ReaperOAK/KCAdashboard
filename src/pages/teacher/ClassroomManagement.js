@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ClassroomApi } from '../../api/classroom';
+import { getCurrentDateIST } from '../../utils/dateUtils';
 import ClassroomCalendar from '../../components/classroom/ClassroomCalendar';
 import AttendanceModal from '../../components/classroom/AttendanceModal';
 import MaterialsView from '../../components/classroom/MaterialsView';
@@ -119,8 +120,10 @@ function ClassroomManagement() {
     } catch (err) {
       if (err.message && err.message.includes('overlaps with this time')) {
         setError('You already have a class scheduled that overlaps with this time. Please choose a different time slot.');
+      } else if (err.message && err.message.includes('past')) {
+        setError('Cannot schedule a class in the past. Please select a future date and time.');
       } else {
-        setError('Failed to schedule class');
+        setError(err.message || 'Failed to schedule class');
       }
     }
   }, [selectedClass, scheduleForm, fetchClassrooms]);
@@ -359,6 +362,7 @@ function ClassroomManagement() {
                       name="date"
                       value={scheduleForm.date}
                       onChange={handleScheduleChange}
+                      min={getCurrentDateIST()}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary focus:ring-secondary"
                       required
                     />

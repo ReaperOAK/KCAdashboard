@@ -72,6 +72,13 @@ Teachers can now reorder quiz questions by dragging and dropping them, similar t
 - All sharing actions are role-checked and validated on backend.
 - See `PGN_SHARING_FEATURE.md` for details.
 
+## PGN Sharing Enhancement (July 2025)
+
+- Teachers/admins can now share PGNs with entire batches or students from other batches.
+- Share modal supports batch and cross-batch selection.
+- All sharing actions are role-checked and validated on backend.
+- See `PGN_SHARING_FEATURE.md` for details.
+
 # User Management UI/UX Refactor (July 2025)
 
 All user management components have been refactored for a beautiful, modern, and accessible user experience:

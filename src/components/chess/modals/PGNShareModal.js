@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { XMarkIcon, ShareIcon, UserIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ShareIcon, UserIcon, CheckIcon, AcademicCapIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { ChessApi } from '../../../api/chess';
-import { UsersApi } from '../../../api/users';
 import { useAuth } from '../../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
 const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
   const { user } = useAuth();
-  const [shareableUsers, setShareableUsers] = useState([]);
+  const [shareableEntities, setShareableEntities] = useState({ teachers: [], batches: [], students: [] });
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedBatches, setSelectedBatches] = useState([]);
   const [permission, setPermission] = useState('view');
   const [loading, setLoading] = useState(false);
-  const [fetchingUsers, setFetchingUsers] = useState(false);
+  const [fetchingEntities, setFetchingEntities] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('users'); // 'users' or 'batches'
 
   // Check if current user can share PGNs
   const canShare = user && (user.role === 'teacher' || user.role === 'admin');
 
   useEffect(() => {
     if (isOpen && canShare) {
-      fetchShareableUsers();
+      fetchShareableEntities();
     }
   }, [isOpen, canShare]);
 
-  const fetchShareableUsers = async () => {
+  const fetchShareableEntities = async () => {
     try {
-      setFetchingUsers(true);
-      const response = await UsersApi.getShareableUsers();
+      setFetchingEntities(true);
+      const response = await ChessApi.getShareableEntities();
       if (response.success) {
-        setShareableUsers(response.users || []);
+        setShareableEntities({
+          teachers: response.teachers || [],
+          batches: response.batches || [],
+          students: response.students || []
+        });
       } else {
-        throw new Error(response.message || 'Failed to fetch users');
+        throw new Error(response.message || 'Failed to fetch shareable entities');
       }
     } catch (error) {
-      console.error('Error fetching shareable users:', error);
-      toast.error('Failed to load users for sharing');
+      console.error('Error fetching shareable entities:', error);
+      toast.error('Failed to load entities for sharing');
     } finally {
-      setFetchingUsers(false);
+      setFetchingEntities(false);
     }
   };
 
@@ -48,7 +53,38 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
     );
   };
 
-  const handleSelectAll = () => {
+  const handleBatchToggle = (batchId) => {
+    setSelectedBatches(prev => 
+      prev.includes(batchId) 
+        ? prev.filter(id => id !== batchId)
+        : [...prev, batchId]
+    );
+  };
+
+  const getFilteredUsers = () => {
+    const allUsers = [...shareableEntities.teachers, ...shareableEntities.students];
+    if (!searchTerm.trim()) return allUsers;
+    
+    const term = searchTerm.toLowerCase();
+    return allUsers.filter(user => 
+      user.name.toLowerCase().includes(term) ||
+      user.email.toLowerCase().includes(term) ||
+      (user.batches && user.batches.toLowerCase().includes(term))
+    );
+  };
+
+  const getFilteredBatches = () => {
+    if (!searchTerm.trim()) return shareableEntities.batches;
+    
+    const term = searchTerm.toLowerCase();
+    return shareableEntities.batches.filter(batch => 
+      batch.name.toLowerCase().includes(term) ||
+      batch.teacher_name.toLowerCase().includes(term) ||
+      batch.level.toLowerCase().includes(term)
+    );
+  };
+
+  const handleSelectAllUsers = () => {
     const filteredUsers = getFilteredUsers();
     const allSelected = filteredUsers.every(user => selectedUsers.includes(user.id));
     
@@ -62,20 +98,34 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
     }
   };
 
+  const handleSelectAllBatches = () => {
+    const filteredBatches = getFilteredBatches();
+    const allSelected = filteredBatches.every(batch => selectedBatches.includes(batch.id));
+    
+    if (allSelected) {
+      // Deselect all filtered batches
+      setSelectedBatches(prev => prev.filter(id => !filteredBatches.some(batch => batch.id === id)));
+    } else {
+      // Select all filtered batches
+      const newSelections = filteredBatches.map(batch => batch.id);
+      setSelectedBatches(prev => [...new Set([...prev, ...newSelections])]);
+    }
+  };
+
   const handleShare = async () => {
-    if (selectedUsers.length === 0) {
-      toast.error('Please select at least one user to share with');
+    if (selectedUsers.length === 0 && selectedBatches.length === 0) {
+      toast.error('Please select at least one user or batch to share with');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await ChessApi.sharePGN(pgn.id, selectedUsers, permission);
+      const response = await ChessApi.sharePGN(pgn.id, selectedUsers, selectedBatches, permission);
       
       if (response.success) {
         toast.success(response.message || 'PGN study shared successfully!');
         if (onShareComplete) {
-          onShareComplete(pgn.id, selectedUsers, permission);
+          onShareComplete(pgn.id, selectedUsers, selectedBatches, permission);
         }
         onClose();
         resetForm();
@@ -92,19 +142,10 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
 
   const resetForm = () => {
     setSelectedUsers([]);
+    setSelectedBatches([]);
     setPermission('view');
     setSearchTerm('');
-  };
-
-  const getFilteredUsers = () => {
-    if (!searchTerm.trim()) return shareableUsers;
-    
-    const term = searchTerm.toLowerCase();
-    return shareableUsers.filter(user => 
-      user.name.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term) ||
-      user.role.toLowerCase().includes(term)
-    );
+    setActiveTab('users');
   };
 
   if (!isOpen) return null;
@@ -141,12 +182,13 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
     );
   }
 
+  const selectedCount = selectedUsers.length + selectedBatches.length;
   const filteredUsers = getFilteredUsers();
-  const selectedCount = selectedUsers.length;
+  const filteredBatches = getFilteredBatches();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
@@ -183,11 +225,39 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
             </select>
           </div>
 
+          {/* Tabs */}
+          <div className="mb-4">
+            <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'users'
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <UserIcon className="h-4 w-4 inline mr-2" />
+                Individual Users ({selectedUsers.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('batches')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'batches'
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <AcademicCapIcon className="h-4 w-4 inline mr-2" />
+                Batches ({selectedBatches.length})
+              </button>
+            </div>
+          </div>
+
           {/* Search */}
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search users by name, email, or role..."
+              placeholder={activeTab === 'users' ? "Search users by name, email, or batch..." : "Search batches by name, teacher, or level..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
@@ -197,69 +267,141 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
           {/* Selection Controls */}
           <div className="flex items-center justify-between mb-4">
             <button
-              onClick={handleSelectAll}
+              onClick={activeTab === 'users' ? handleSelectAllUsers : handleSelectAllBatches}
               className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              disabled={filteredUsers.length === 0}
+              disabled={activeTab === 'users' ? filteredUsers.length === 0 : filteredBatches.length === 0}
             >
-              {filteredUsers.every(user => selectedUsers.includes(user.id)) ? 'Deselect All' : 'Select All'}
+              {activeTab === 'users' 
+                ? (filteredUsers.every(user => selectedUsers.includes(user.id)) ? 'Deselect All' : 'Select All')
+                : (filteredBatches.every(batch => selectedBatches.includes(batch.id)) ? 'Deselect All' : 'Select All')
+              }
             </button>
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              {selectedCount} user{selectedCount !== 1 ? 's' : ''} selected
+              {selectedCount} item{selectedCount !== 1 ? 's' : ''} selected
             </span>
           </div>
 
-          {/* User List */}
+          {/* Content List */}
           <div className="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-md">
-            {fetchingUsers ? (
+            {fetchingEntities ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">Loading users...</p>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">Loading...</p>
               </div>
-            ) : filteredUsers.length === 0 ? (
-              <div className="p-8 text-center">
-                <UserIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 dark:text-gray-300">
-                  {searchTerm ? 'No users found matching your search' : 'No users available for sharing'}
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200 dark:divide-gray-600">
-                {filteredUsers.map((user) => (
-                  <label
-                    key={user.id}
-                    className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={() => handleUserToggle(user.id)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <div className="ml-3 flex-1">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {user.name}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {user.email}
-                          </p>
+            ) : activeTab === 'users' ? (
+              // Users Tab
+              filteredUsers.length === 0 ? (
+                <div className="p-8 text-center">
+                  <UserIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {searchTerm ? 'No users found matching your search' : 'No users available for sharing'}
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-200 dark:divide-gray-600">
+                  {filteredUsers.map((user) => (
+                    <label
+                      key={user.id}
+                      className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleUserToggle(user.id)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {user.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {user.email}
+                            </p>
+                            {user.batches && user.batches !== 'No active batches' && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Batches: {user.batches}
+                              </p>
+                            )}
+                          </div>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            user.type === 'teacher' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          }`}>
+                            {user.type}
+                          </span>
                         </div>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          user.role === 'teacher' 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        }`}>
-                          {user.role}
-                        </span>
                       </div>
-                    </div>
-                    {selectedUsers.includes(user.id) && (
-                      <CheckIcon className="h-4 w-4 text-blue-600 ml-2" />
-                    )}
-                  </label>
-                ))}
-              </div>
+                      {selectedUsers.includes(user.id) && (
+                        <CheckIcon className="h-4 w-4 text-blue-600 ml-2" />
+                      )}
+                    </label>
+                  ))}
+                </div>
+              )
+            ) : (
+              // Batches Tab
+              filteredBatches.length === 0 ? (
+                <div className="p-8 text-center">
+                  <AcademicCapIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {searchTerm ? 'No batches found matching your search' : 'No batches available for sharing'}
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-200 dark:divide-gray-600">
+                  {filteredBatches.map((batch) => (
+                    <label
+                      key={batch.id}
+                      className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedBatches.includes(batch.id)}
+                        onChange={() => handleBatchToggle(batch.id)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {batch.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Teacher: {batch.teacher_name} • Level: {batch.level}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <UsersIcon className="h-3 w-3 inline mr-1" />
+                              {batch.student_count} student{batch.student_count !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              batch.level === 'beginner' 
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : batch.level === 'intermediate'
+                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            }`}>
+                              {batch.level}
+                            </span>
+                            {batch.is_own_batch && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                Your batch
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {selectedBatches.includes(batch.id) && (
+                        <CheckIcon className="h-4 w-4 text-blue-600 ml-2" />
+                      )}
+                    </label>
+                  ))}
+                </div>
+              )
             )}
           </div>
         </div>
@@ -286,7 +428,7 @@ const PGNShareModal = ({ isOpen, onClose, pgn, onShareComplete }) => {
             ) : (
               <>
                 <ShareIcon className="h-4 w-4" />
-                Share with {selectedCount} user{selectedCount !== 1 ? 's' : ''}
+                Share with {selectedCount} item{selectedCount !== 1 ? 's' : ''}
               </>
             )}
           </button>

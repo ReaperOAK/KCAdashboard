@@ -79,8 +79,9 @@ export const ChessApi = {
   getCategories: () => get('/chess/get-categories.php'),
   getUserPreferences: () => get('/chess/get-preferences.php'),
   updateUserPreferences: (preferences) => post('/chess/update-preferences.php', preferences),
-  sharePGN: (gameId, userIds, permission = 'view') =>
-    post('/chess/share-pgn.php', { pgn_id: gameId, user_ids: userIds, permission }),
+  sharePGN: (gameId, userIds, batchIds, permission = 'view') =>
+    post('/chess/share-pgn.php', { pgn_id: gameId, user_ids: userIds, batch_ids: batchIds, permission }),
+  getShareableEntities: () => get('/chess/get-shareable-entities.php'),
   getSharedPGNs: () => get('/chess/get-shared-pgns.php'),
   getPGNStats: (gameId = null) => {
     const params = gameId ? { pgn_id: gameId } : {};

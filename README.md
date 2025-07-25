@@ -180,3 +180,9 @@ See `README-draw-offers.md` for full details.
 - Students cannot share PGNs, but can view those shared with them in the new "Shared with Me" category in the PGN Library.
 - Role-based access: Only teachers/admins see the share button; students do not.
 - See `PGN_SHARING_FEATURE.md` for full documentation and usage examples.
+
+## ♟️ PGN Sharing Enhancement (July 2025)
+
+- PGNs can now be shared with entire batches or students from other batches, in addition to individual users.
+- Teachers/admins can select batches or students from any batch in the share modal.
+- See `PGN_SHARING_FEATURE.md` for full details.

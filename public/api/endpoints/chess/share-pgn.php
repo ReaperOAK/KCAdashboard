@@ -11,17 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input || empty($input['pgn_id']) || empty($input['user_ids'])) {
-        throw new Exception('Missing required fields: pgn_id and user_ids');
+    if (!$input || empty($input['pgn_id'])) {
+        throw new Exception('Missing required field: pgn_id');
     }
     
     $pgn_id = (int)$input['pgn_id'];
-    $user_ids = $input['user_ids']; // Array of user IDs
+    $user_ids = $input['user_ids'] ?? []; // Array of individual user IDs
+    $batch_ids = $input['batch_ids'] ?? []; // Array of batch IDs
     $permission = $input['permission'] ?? 'view'; // 'view' or 'edit'
     
     // Validate permission
     if (!in_array($permission, ['view', 'edit'])) {
         throw new Exception('Invalid permission. Must be "view" or "edit"');
+    }
+
+    // Must have at least one target (users or batches)
+    if (empty($user_ids) && empty($batch_ids)) {
+        throw new Exception('Must specify either user_ids or batch_ids for sharing');
     }
 
     $current_user = getAuthUser();
@@ -76,44 +82,90 @@ try {
         exit();
     }
 
-    // Validate user IDs exist and are not students if sharing private content
-    if (!$pgn['is_public']) {
-        // For private PGNs, we might want to restrict who can receive them
-        $placeholders = str_repeat('?,', count($user_ids) - 1) . '?';
-        $stmt = $db->prepare("SELECT id, role FROM users WHERE id IN ($placeholders) AND is_active = 1");
-        $stmt->execute($user_ids);
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        if (count($users) !== count($user_ids)) {
-            throw new Exception('One or more user IDs are invalid or inactive');
-        }
-    }
-
     $db->beginTransaction();
     
     try {
+        $all_user_ids = $user_ids; // Start with directly specified users
+        
+        // Get users from batches if batch_ids are specified
+        if (!empty($batch_ids)) {
+            $placeholders = str_repeat('?,', count($batch_ids) - 1) . '?';
+            $batch_users_query = "SELECT DISTINCT bs.student_id 
+                                 FROM batch_students bs 
+                                 JOIN batches b ON bs.batch_id = b.id
+                                 WHERE bs.batch_id IN ($placeholders) 
+                                 AND bs.status = 'active'
+                                 AND b.status = 'active'";
+            
+            $batch_users_stmt = $db->prepare($batch_users_query);
+            $batch_users_stmt->execute($batch_ids);
+            
+            $batch_user_ids = $batch_users_stmt->fetchAll(PDO::FETCH_COLUMN);
+            $all_user_ids = array_merge($all_user_ids, $batch_user_ids);
+        }
+        
+        // Remove duplicates and filter out invalid user IDs
+        $all_user_ids = array_unique(array_filter($all_user_ids));
+        
+        if (empty($all_user_ids)) {
+            throw new Exception('No valid users found to share with');
+        }
+
+        // Validate that all user IDs exist and are active
+        $placeholders = str_repeat('?,', count($all_user_ids) - 1) . '?';
+        $validate_users_stmt = $db->prepare("SELECT id FROM users WHERE id IN ($placeholders) AND is_active = 1");
+        $validate_users_stmt->execute($all_user_ids);
+        $valid_user_ids = $validate_users_stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (count($valid_user_ids) !== count($all_user_ids)) {
+            $invalid_count = count($all_user_ids) - count($valid_user_ids);
+            error_log("Warning: $invalid_count invalid user IDs filtered out during PGN sharing");
+        }
+        
+        $all_user_ids = $valid_user_ids;
+        
+        if (empty($all_user_ids)) {
+            throw new Exception('No valid active users found to share with');
+        }
+
         // Remove existing shares for this PGN to these users (to avoid duplicates)
-        $placeholders = str_repeat('?,', count($user_ids) - 1) . '?';
-        $delete_stmt = $db->prepare("DELETE FROM pgn_shares WHERE pgn_id = ? AND user_id IN ($placeholders)");
-        $delete_params = array_merge([$pgn_id], $user_ids);
+        $delete_placeholders = str_repeat('?,', count($all_user_ids) - 1) . '?';
+        $delete_stmt = $db->prepare("DELETE FROM pgn_shares WHERE pgn_id = ? AND user_id IN ($delete_placeholders)");
+        $delete_params = array_merge([$pgn_id], $all_user_ids);
         $delete_stmt->execute($delete_params);
         
         // Insert new shares
         $share_stmt = $db->prepare('INSERT INTO pgn_shares (pgn_id, user_id, permission) VALUES (?, ?, ?)');
         $shared_count = 0;
         
-        foreach ($user_ids as $share_user_id) {
+        foreach ($all_user_ids as $share_user_id) {
             $share_stmt->execute([$pgn_id, $share_user_id, $permission]);
             $shared_count++;
         }
         
         $db->commit();
         
+        $message_parts = [];
+        if (!empty($user_ids)) {
+            $message_parts[] = count($user_ids) . ' individual user(s)';
+        }
+        if (!empty($batch_ids)) {
+            $batch_student_count = count($batch_user_ids ?? []);
+            $message_parts[] = count($batch_ids) . ' batch(es) (' . $batch_student_count . ' students)';
+        }
+        
+        $share_summary = implode(' and ', $message_parts);
+        
         echo json_encode([
             'success' => true,
-            'message' => "PGN study '{$pgn['title']}' shared with {$shared_count} user(s)",
+            'message' => "PGN study '{$pgn['title']}' shared with {$share_summary}",
             'shared_count' => $shared_count,
-            'permission' => $permission
+            'permission' => $permission,
+            'details' => [
+                'individual_users' => count($user_ids),
+                'batches' => count($batch_ids),
+                'total_recipients' => $shared_count
+            ]
         ]);
         
     } catch (Exception $e) {

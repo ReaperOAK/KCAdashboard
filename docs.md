@@ -356,3 +356,10 @@ _Last updated: 2024-06-11_
 - Sharing is available via a modal with user search, batch selection, and permission level (view/edit).
 - Backend enforces role and ownership checks for security.
 - See `PGN_SHARING_FEATURE.md` for full details and API endpoints.
+
+## PGN Sharing Enhancement (July 2025)
+
+- PGNs can be shared with entire batches or students from other batches.
+- Share modal allows selection of batches and cross-batch students for easy distribution.
+- Backend enforces batch membership and permissions.
+- See `PGN_SHARING_FEATURE.md` for details.

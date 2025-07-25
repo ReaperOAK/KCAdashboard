@@ -74,6 +74,12 @@ These components are used in `PlayerVsPlayer.js` for modularity, reusability, an
 **ChessQuizBoard.js**  
   Board component for chess quiz questions and puzzles. Now provides instant feedback for both correct and incorrect moves. Wrong moves are highlighted and users are prompted to try again. All moves (correct/incorrect) are reported to parent components for quiz scoring.
 
+- **DrawOfferDialog.js**  
+  Modal component for offering and responding to draw offers in player vs player games. Handles draw negotiations and automatically ends games when draws are mutually agreed upon.
+
+- **DrawOfferToast.js**  
+  Toast notification component that appears when draw offers are received, providing quick accept/decline actions without opening the full dialog.
+
 - **EngineAnalysis.js**  
   Integrates with a chess engine to analyze games and suggest moves.
 

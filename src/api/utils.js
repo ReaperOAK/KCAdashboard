@@ -122,6 +122,12 @@ export async function request(endpoint, method = 'GET', data = null, options = {
     }
     return response;
   } catch (error) {
+    // Suppress console errors for draw offer endpoints that might not be deployed yet
+    if (endpoint.includes('draw-offers') || endpoint.includes('offer-draw') || endpoint.includes('respond-draw')) {
+      // Re-throw the error but don't log it to console
+      throw error;
+    }
+    
     // Token expired/invalid
     if (error.message.includes('expired') || error.message.includes('invalid token')) {
       localStorage.removeItem('token');

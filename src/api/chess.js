@@ -18,6 +18,26 @@ export const ChessApi = {
   getPlayerStats: () => get('/chess/player-stats.php'),
   getChallenges: () => get('/chess/challenges.php'),
 
+  // Draw offer endpoints
+  offerDraw: (gameId) => post('/chess/offer-draw.php', { game_id: gameId }).catch(error => {
+    if (error.message?.includes('404') || error.message?.includes('not found')) {
+      return { success: false, message: 'Draw offers not available' };
+    }
+    throw error;
+  }),
+  respondToDraw: (gameId, response) => post('/chess/respond-draw.php', { game_id: gameId, response }).catch(error => {
+    if (error.message?.includes('404') || error.message?.includes('not found')) {
+      return { success: false, message: 'Draw offers not available' };
+    }
+    throw error;
+  }),
+  getDrawOffers: (gameId) => get(`/chess/get-draw-offers.php?game_id=${gameId}`).catch(error => {
+    if (error.message?.includes('404') || error.message?.includes('not found')) {
+      return { success: false, offers: [] };
+    }
+    throw error;
+  }),
+
   // Record a PGN view for analytics
   recordPGNView: (gameId) => post('/chess/record-view.php', {
     pgn_id: gameId,

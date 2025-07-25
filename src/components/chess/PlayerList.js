@@ -142,7 +142,6 @@ const ChallengeModal = React.memo(function ChallengeModal({ player, options, onC
             <ActionButton
               label="Send Challenge"
               type="submit"
-              onClick={onSubmit}
               className="px-4 py-2 bg-accent text-white rounded hover:bg-secondary"
               ariaLabel={`Send challenge to ${player.name}`}
             >

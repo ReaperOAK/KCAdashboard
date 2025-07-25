@@ -4,7 +4,10 @@ import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import MoveHistory from './MoveHistory';
 import EngineAnalysis from './EngineAnalysis';
+import DrawOfferDialog from './DrawOfferDialog';
+import DrawOfferToast from './DrawOfferToast';
 import ChessEngineFactory from '../../utils/ChessEngineFactory';
+import { BrowserNotification } from '../../utils/BrowserNotification';
 import { ChessApi } from '../../api/chess';
 
 // --- Loading Spinner ---
@@ -83,6 +86,13 @@ const ChessBoard = ({
   const navigate = useNavigate();
   // Resign handler
   const [resignLoading, setResignLoading] = useState(false);
+  const [showDrawDialog, setShowDrawDialog] = useState(false);
+  const [pendingDrawOffers, setPendingDrawOffers] = useState([]);
+  const [hasUnseenDrawOffer, setHasUnseenDrawOffer] = useState(false);
+  const [showDrawToast, setShowDrawToast] = useState(false);
+  const [currentDrawOffer, setCurrentDrawOffer] = useState(null);
+  const [drawOffersSupported, setDrawOffersSupported] = useState(true); // Assume supported initially
+  
   const handleResign = useCallback(async () => {
     if (!gameId) {
       alert('Game ID not found. Cannot resign.');
@@ -102,6 +112,99 @@ const ChessBoard = ({
       setResignLoading(false);
     }
   }, [gameId, navigate, onResign]);
+
+  // Check for pending draw offers
+  const checkDrawOffers = useCallback(async () => {
+    if (!gameId || playMode !== 'vs-human') return;
+    
+    try {
+      const response = await ChessApi.getDrawOffers(gameId);
+      if (response.success) {
+        const offers = response.offers || [];
+        const incomingOffers = offers.filter(offer => offer.can_respond);
+        
+        // Check if there are new offers we haven't seen
+        const hasNewOffers = incomingOffers.length > 0 && 
+          (pendingDrawOffers.length === 0 || 
+           incomingOffers.some(offer => 
+             !pendingDrawOffers.find(prev => prev.id === offer.id)
+           ));
+
+        setPendingDrawOffers(offers);
+        
+        if (hasNewOffers && !showDrawDialog && !showDrawToast) {
+          setHasUnseenDrawOffer(true);
+          // Show toast notification for the first incoming offer
+          const latestOffer = incomingOffers[0];
+          if (latestOffer) {
+            setCurrentDrawOffer(latestOffer);
+            setShowDrawToast(true);
+            
+            // Show browser notification if tab is not active
+            BrowserNotification.showDrawOfferNotification(latestOffer.offerer_name, gameId);
+          }
+        }
+      }
+    } catch (error) {
+      // Only log error if it's not a 404 (endpoint doesn't exist yet)
+      if (!error.message?.includes('404') && !error.message?.includes('not found')) {
+        console.error('Error checking draw offers:', error);
+      } else {
+        // Mark draw offers as not supported if we get 404s
+        setDrawOffersSupported(false);
+      }
+      // Silently fail for missing endpoints during development/deployment
+    }
+  }, [gameId, playMode, pendingDrawOffers, showDrawDialog, showDrawToast]);
+
+  // Handle toast actions
+  const handleToastAccept = useCallback(async () => {
+    if (!currentDrawOffer || !gameId) return;
+    
+    try {
+      const response = await ChessApi.respondToDraw(gameId, 'accept');
+      if (response.success && response.game_ended) {
+        setGameOver({ isOver: true, result: '1/2-1/2', reason: 'mutual agreement' });
+        BrowserNotification.showGameEndNotification('1/2-1/2', 'mutual agreement');
+        setTimeout(() => navigate('/chess/play'), 1200);
+      }
+      setShowDrawToast(false);
+      setCurrentDrawOffer(null);
+      checkDrawOffers(); // Refresh offers
+    } catch (error) {
+      if (!error.message?.includes('404')) {
+        console.error('Error accepting draw from toast:', error);
+      }
+      // Fallback: just close the toast if endpoint doesn't exist
+      setShowDrawToast(false);
+      setCurrentDrawOffer(null);
+    }
+  }, [currentDrawOffer, gameId, navigate, checkDrawOffers]);
+
+  const handleToastDecline = useCallback(async () => {
+    if (!currentDrawOffer || !gameId) return;
+    
+    try {
+      await ChessApi.respondToDraw(gameId, 'decline');
+      setShowDrawToast(false);
+      setCurrentDrawOffer(null);
+      checkDrawOffers(); // Refresh offers
+    } catch (error) {
+      if (!error.message?.includes('404')) {
+        console.error('Error declining draw from toast:', error);
+      }
+      // Fallback: just close the toast if endpoint doesn't exist
+      setShowDrawToast(false);
+      setCurrentDrawOffer(null);
+    }
+  }, [currentDrawOffer, gameId, checkDrawOffers]);
+
+  const handleToastView = useCallback(() => {
+    setShowDrawDialog(true);
+    setShowDrawToast(false);
+    setHasUnseenDrawOffer(false);
+  }, []);
+
   const [game, setGame] = useState(new Chess(position !== 'start' ? position : undefined));
   const [fen, setFen] = useState(game.fen());
   const [moveFrom, setMoveFrom] = useState('');
@@ -285,6 +388,11 @@ const ChessBoard = ({
         ChessApi.saveGameResult(gameId, saveResult).finally(() => {
           setTimeout(() => navigate('/chess/play'), 1200);
         });
+      }
+      
+      // Show browser notification for game end
+      if (playMode === 'vs-human') {
+        BrowserNotification.showGameEndNotification(result.result, result.reason);
       }
     } else {
       // Reset game over state if we're continuing a game (e.g. when stepping through history)
@@ -481,6 +589,16 @@ const ChessBoard = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Poll for draw offers every 5 seconds in vs-human mode
+  useEffect(() => {
+    if (playMode === 'vs-human' && gameId) {
+      checkDrawOffers(); // Initial check
+      
+      const pollInterval = setInterval(checkDrawOffers, 5000);
+      return () => clearInterval(pollInterval);
+    }
+  }, [playMode, gameId, checkDrawOffers]);
+
   // Flip board orientation
   function flipBoard() {
     setOrientation(orientation_ === 'white' ? 'black' : 'white');
@@ -577,6 +695,38 @@ const ChessBoard = ({
           >
             {resignLoading ? 'Resigning...' : 'Resign'}
           </button>
+          {/* Draw offer button - only show in vs-human mode with active game and if supported */}
+          {playMode === 'vs-human' && gameId && !gameOver.isOver && drawOffersSupported && (
+            <button
+              onClick={() => {
+                setShowDrawDialog(true);
+                setHasUnseenDrawOffer(false); // Mark as seen when opening dialog
+              }}
+              className={`px-4 py-2 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 w-full relative ${
+                hasUnseenDrawOffer 
+                  ? 'bg-orange-600 hover:bg-orange-700 focus-visible:ring-orange-600 animate-pulse' 
+                  : 'bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-600'
+              }`}
+              disabled={isThinking}
+              type="button"
+            >
+              {hasUnseenDrawOffer ? (
+                <>
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-white rounded-full animate-ping"></span>
+                    Draw Offer Received
+                  </span>
+                </>
+              ) : (
+                'Offer Draw'
+              )}
+              {pendingDrawOffers.filter(offer => offer.can_respond).length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {pendingDrawOffers.filter(offer => offer.can_respond).length}
+                </span>
+              )}
+            </button>
+          )}
           {gameOver.isOver && <GameOverBanner result={gameOver.result} reason={gameOver.reason} />}
           <div className="min-w-0 flex-1 w-full mt-4">
         {showHistory && <MoveHistory history={history} currentMove={currentMove} goToMove={goToMove} />}
@@ -584,6 +734,34 @@ const ChessBoard = ({
       </div>
         </div>
       </div>
+      
+      {/* Draw Offer Dialog */}
+      <DrawOfferDialog
+        gameId={gameId}
+        isVisible={showDrawDialog}
+        onClose={() => setShowDrawDialog(false)}
+        onGameEnd={(result, reason) => {
+          setGameOver({ isOver: true, result, reason });
+          setShowDrawDialog(false);
+          if (playMode === 'vs-human' && gameId) {
+            setTimeout(() => navigate('/chess/play'), 1200);
+          }
+        }}
+      />
+
+      {/* Draw Offer Toast Notification */}
+      {showDrawToast && currentDrawOffer && (
+        <DrawOfferToast
+          offer={currentDrawOffer}
+          onAccept={handleToastAccept}
+          onDecline={handleToastDecline}
+          onView={handleToastView}
+          onClose={() => {
+            setShowDrawToast(false);
+            setCurrentDrawOffer(null);
+          }}
+        />
+      )}
     </div>
   );
 };

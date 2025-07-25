@@ -147,3 +147,29 @@ Teachers can now schedule recurring classes based on batch schedules:
 - Teachers can no longer schedule classes in the past (UI and backend validation).
 - All class/session date logic now uses IST (Asia/Kolkata) timezone for accuracy.
 - Improved error handling for scheduling attempts with invalid dates.
+
+# Chess Draw Offers Feature
+
+This release adds the ability for players to offer, accept, and decline draw offers in player vs player chess games.
+
+## Key Features
+- Offer Draw: Players can offer a draw during an active game
+- Accept/Decline: Opponents can accept or decline draw offers
+- Automatic acceptance if both players offer draws
+- Draw offers expire after 5 minutes
+- Real-time notifications and toast alerts
+- Game statistics updated for draws
+
+## Database Changes
+- New table: `chess_draw_offers` (see `database_migrations/add_chess_draw_offers_table.sql`)
+
+## API Endpoints
+- `POST /api/chess/offer-draw.php` — Offer a draw
+- `POST /api/chess/respond-draw.php` — Accept/decline a draw offer
+- `GET /api/chess/get-draw-offers.php?game_id=...` — List pending draw offers
+
+## Frontend
+- New components: DrawOfferDialog, DrawOfferToast, BrowserNotification
+- ChessBoard integration: "Offer Draw" button, polling, and notifications
+
+See `README-draw-offers.md` for full details.

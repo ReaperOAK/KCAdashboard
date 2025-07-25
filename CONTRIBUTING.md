@@ -194,6 +194,14 @@ _Last updated: July 2025_
 - When adding or updating classroom session logic, always use the NotificationService for sending notifications to students. This ensures category validation, user preferences, and future extensibility.
 - Document any changes to notification logic in both the relevant endpoint docs and services/docs.md.
 
+# Draw Offers Feature
+
+- New feature: Draw offers in player vs player chess games
+- Requires running the migration in `database_migrations/add_chess_draw_offers_table.sql`
+- New API endpoints: offer-draw.php, respond-draw.php, get-draw-offers.php
+- Frontend: DrawOfferDialog, DrawOfferToast, and ChessBoard integration
+- See `README-draw-offers.md` for usage and integration details
+
 ## Leave Management System
 
 - Added `leave_requests` table to database schema for teacher leave requests (see `database_schema.md`).

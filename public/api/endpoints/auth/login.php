@@ -1,22 +1,25 @@
 <?php
-// Configure error handling for production
-error_reporting(E_ERROR | E_PARSE);
-ini_set('display_errors', '0');
+// Configure error handling - show errors for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', '0'); // Disable display_errors for production
+ini_set('log_errors', '1');
 
-// Start output buffering to capture any unwanted output
-ob_start();
-
-require_once '../../config/cors.php';
-require_once '../../config/Database.php';
-require_once '../../models/User.php';
-require_once 'rate_limit.php';
+require_once dirname(__DIR__, 2) . '/config/cors.php';
+require_once dirname(__DIR__, 2) . '/config/Database.php';
+require_once dirname(__DIR__, 2) . '/models/User.php';
+require_once __DIR__ . '/rate_limit.php';
 
 try {
     $database = new Database();
     $db = $database->getConnection();
     
     if (!$db) {
-        throw new Exception('Database connection failed');
+        http_response_code(500);
+        echo json_encode([
+            "message" => "Database connection failed", 
+            "error" => "Cannot connect to database server"
+        ]);
+        exit();
     }
     
 
@@ -112,12 +115,6 @@ try {
                 $activeStmt->execute();
                 $activeSessions = $activeStmt->fetch(PDO::FETCH_ASSOC)['active_sessions'];
                 
-                // Clear any unwanted output before sending success response
-                $unwanted_output = ob_get_clean();
-                if (!empty($unwanted_output)) {
-                    error_log("Unwanted output during successful login: " . $unwanted_output);
-                }
-                
                 http_response_code(200);
                 echo json_encode([
                     "token" => $token,
@@ -151,24 +148,9 @@ try {
 } catch (Exception $e) {
     error_log("Login error: " . $e->getMessage());
     
-    // Clear any unwanted output before sending error response
-    $unwanted_output = ob_get_clean();
-    if (!empty($unwanted_output)) {
-        error_log("Unwanted output during login error: " . $unwanted_output);
-    }
-    
     http_response_code(500);
     echo json_encode([
         "message" => "Login failed",
         "error" => $e->getMessage()
     ]);
 }
-
-// Ensure clean output before final response
-if (ob_get_level()) {
-    $unwanted_output = ob_get_clean();
-    if (!empty($unwanted_output)) {
-        error_log("Unwanted output at login end: " . $unwanted_output);
-    }
-}
-?>

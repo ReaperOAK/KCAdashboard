@@ -173,3 +173,10 @@ This release adds the ability for players to offer, accept, and decline draw off
 - ChessBoard integration: "Offer Draw" button, polling, and notifications
 
 See `README-draw-offers.md` for full details.
+
+# ♟️ PGN Sharing Feature (July 2025)
+
+- Teachers and administrators can share PGN studies (public or their own private) with any user.
+- Students cannot share PGNs, but can view those shared with them in the new "Shared with Me" category in the PGN Library.
+- Role-based access: Only teachers/admins see the share button; students do not.
+- See `PGN_SHARING_FEATURE.md` for full documentation and usage examples.

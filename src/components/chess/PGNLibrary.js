@@ -4,6 +4,7 @@ import FilterPanel from './pgnlibrary/FilterPanel';
 import GameCard from './pgnlibrary/GameCard';
 import Pagination from './pgnlibrary/Pagination';
 import BatchCreateQuizModal from './pgnlibrary/BatchCreateQuizModal';
+import PGNShareModal from './modals/PGNShareModal';
 import {
   FunnelIcon,
   DocumentIcon,
@@ -15,7 +16,7 @@ import { ChessApi } from '../../api/chess';
 import usePGNView from '../../hooks/usePGNView';
 import { checkPermission, PERMISSIONS } from '../../utils/permissions';
 import { useAuth } from '../../hooks/useAuth';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 // --- Custom Styles ---
 const gradientBg = 'bg-background-light dark:bg-background-dark';
@@ -30,15 +31,18 @@ const gradientBg = 'bg-background-light dark:bg-background-dark';
 const CATEGORY_CONFIG = {
   student: [
     { id: 'public', label: 'Public Resources' },
+    { id: 'shared-with-me', label: 'Shared with Me' },
   ],
   teacher: [
     { id: 'public', label: 'Public Resources' },
     { id: 'private', label: 'My Private Resources' },
     { id: 'shared', label: 'My Shared Resources' },
+    { id: 'shared-with-me', label: 'Shared with Me' },
   ],
   admin: [
     { id: 'public', label: 'Public Resources' },
     { id: 'coach', label: 'Resources Categorised by Coach' },
+    { id: 'shared-with-me', label: 'Shared with Me' },
   ],
 };
 
@@ -67,6 +71,10 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
   const [batchSelectionMode, setBatchSelectionMode] = useState(false);
   const [selectedGames, setSelectedGames] = useState([]);
   const [showBatchQuizModal, setShowBatchQuizModal] = useState(false);
+
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [gameToShare, setGameToShare] = useState(null);
 
   const canCreateQuiz = currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin');
 
@@ -112,18 +120,31 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     setLoading(true);
     setError('');
     try {
-      const params = {
-        ...(searchTerm && { search: searchTerm }),
-        ...(selectedCategory && { category: selectedCategory }),
-        ...(activeResourceCategory && { resource_category: activeResourceCategory }),
-      };
-      const response = await ChessApi.getPGNGames(params);
-      if (response.success) {
-        setAllGames(response.data);
-        setTotalGames(response.total || response.data.length);
-        setCurrentPage(1);
+      if (activeResourceCategory === 'shared-with-me') {
+        // Load shared PGNs for this category
+        const response = await ChessApi.getSharedPGNs();
+        if (response.success) {
+          setAllGames(response.shared_pgns || []);
+          setTotalGames(response.total || 0);
+          setCurrentPage(1);
+        } else {
+          throw new Error(response.message || 'Failed to load shared games');
+        }
       } else {
-        throw new Error(response.message || 'Failed to load games');
+        // Load regular PGNs for other categories
+        const params = {
+          ...(searchTerm && { search: searchTerm }),
+          ...(selectedCategory && { category: selectedCategory }),
+          ...(activeResourceCategory && { resource_category: activeResourceCategory }),
+        };
+        const response = await ChessApi.getPGNGames(params);
+        if (response.success) {
+          setAllGames(response.data);
+          setTotalGames(response.total || response.data.length);
+          setCurrentPage(1);
+        } else {
+          throw new Error(response.message || 'Failed to load games');
+        }
       }
     } catch (err) {
       setError(`Failed to load games: ${err.message}`);
@@ -180,28 +201,34 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
     }
   }, [onGameSelect]);
 
-  const [shareMessage, setShareMessage] = useState('');
   const handleGameAction = useCallback(async (gameId, action) => {
     switch (action) {
       case 'view':
         await loadGameDetails(gameId);
         break;
       case 'share': {
-        // Share: Copy game URL to clipboard and show confirmation
-        const url = `${window.location.origin}/chess/pgn/${gameId}`;
-        try {
-          await navigator.clipboard.writeText(url);
-          setShareMessage('Game link copied to clipboard!');
-        } catch (err) {
-          setShareMessage('Failed to copy link.');
+        // Find the game to share
+        const game = games.find(g => g.id === gameId);
+        if (!game) {
+          toast.error('Game not found');
+          return;
         }
-        setTimeout(() => setShareMessage(''), 2000);
+        
+        // Check if user can share
+        if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+          toast.error('Only teachers and administrators can share PGN studies');
+          return;
+        }
+        
+        // Open share modal
+        setGameToShare(game);
+        setShowShareModal(true);
         break;
       }
       default:
         break;
     }
-  }, [loadGameDetails]);
+  }, [loadGameDetails, games, currentUser]);
 
   // Batch selection handlers
   const handleToggleBatchMode = useCallback(() => {
@@ -238,6 +265,17 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
 
   const handleCloseBatchModal = useCallback(() => {
     setShowBatchQuizModal(false);
+  }, []);
+
+  // Share modal handlers
+  const handleCloseShareModal = useCallback(() => {
+    setShowShareModal(false);
+    setGameToShare(null);
+  }, []);
+
+  const handleShareComplete = useCallback((pgnId, userIds, permission) => {
+    // Optional: refresh games list or update UI state
+    console.log(`PGN ${pgnId} shared with ${userIds.length} users with ${permission} permission`);
   }, []);
 
   // --- Render ---
@@ -334,9 +372,6 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 font-semibold shadow" role="alert">{error}</div>
           )}
-          {shareMessage && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 font-semibold shadow" role="status" aria-live="polite">{shareMessage}</div>
-          )}
           {loading && (
             <div className="flex justify-center items-center py-16" aria-busy="true">
               <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-accent"></div>
@@ -411,6 +446,16 @@ export const PGNLibrary = React.memo(function PGNLibrary({ onGameSelect = null, 
             isOpen={showBatchQuizModal}
             onClose={handleCloseBatchModal}
             selectedGames={selectedGames}
+          />
+        )}
+
+        {/* PGN Share Modal */}
+        {showShareModal && gameToShare && (
+          <PGNShareModal
+            isOpen={showShareModal}
+            onClose={handleCloseShareModal}
+            pgn={gameToShare}
+            onShareComplete={handleShareComplete}
           />
         )}
       </div>

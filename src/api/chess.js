@@ -81,6 +81,7 @@ export const ChessApi = {
   updateUserPreferences: (preferences) => post('/chess/update-preferences.php', preferences),
   sharePGN: (gameId, userIds, permission = 'view') =>
     post('/chess/share-pgn.php', { pgn_id: gameId, user_ids: userIds, permission }),
+  getSharedPGNs: () => get('/chess/get-shared-pgns.php'),
   getPGNStats: (gameId = null) => {
     const params = gameId ? { pgn_id: gameId } : {};
     return get('/chess/get-stats.php', { params });

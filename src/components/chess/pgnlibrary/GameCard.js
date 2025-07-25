@@ -27,6 +27,14 @@ const GameCard = ({ game, onView, onShare, glass = "bg-white", cardShadow = "sha
   const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
   
   const canCreateQuiz = user && (user.role === 'teacher' || user.role === 'admin');
+  
+  // Determine if user can share this PGN
+  const canShare = user && (user.role === 'teacher' || user.role === 'admin') && (
+    // Can share if it's public, or if user owns it, or if user is admin
+    game.is_public || 
+    game.teacher_id === user.id || 
+    user.role === 'admin'
+  );
 
   const handleCreateQuiz = (e) => {
     e.stopPropagation();
@@ -35,6 +43,13 @@ const GameCard = ({ game, onView, onShare, glass = "bg-white", cardShadow = "sha
 
   const handleCloseModal = () => {
     setShowCreateQuizModal(false);
+  };
+
+  const handleShare = (e) => {
+    e.stopPropagation();
+    if (onShare) {
+      onShare();
+    }
   };
   return (
     <section
@@ -65,15 +80,17 @@ const GameCard = ({ game, onView, onShare, glass = "bg-white", cardShadow = "sha
           >
             <EyeIcon className="w-5 h-5" />
           </button>
-          <button
-            type="button"
-            onClick={onShare}
-            className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
-            title="Share"
-            aria-label={`Share game: ${game.title}`}
-          >
-            <ShareIcon className="w-5 h-5" />
-          </button>
+          {canShare && (
+            <button
+              type="button"
+              onClick={handleShare}
+              className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+              title="Share with users"
+              aria-label={`Share game: ${game.title}`}
+            >
+              <ShareIcon className="w-5 h-5" />
+            </button>
+          )}
           {canCreateQuiz && (
             <button
               type="button"

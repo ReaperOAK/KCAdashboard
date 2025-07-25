@@ -64,6 +64,14 @@ Teachers can now reorder quiz questions by dragging and dropping them, similar t
 - Batch selection and quiz creation modals included.
 - Quiz Creator auto-loads PGN data for seamless quiz authoring.
 
+## PGN Sharing (July 2025)
+
+- Teachers/admins can share PGN studies with any user via a dedicated modal.
+- Students see a "Shared with Me" category in the PGN Library for easy access to shared content.
+- Share button is only visible to teachers/admins.
+- All sharing actions are role-checked and validated on backend.
+- See `PGN_SHARING_FEATURE.md` for details.
+
 # User Management UI/UX Refactor (July 2025)
 
 All user management components have been refactored for a beautiful, modern, and accessible user experience:

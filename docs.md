@@ -348,3 +348,11 @@ _Last updated: 2024-06-11_
 - FIDE ID integration, rating management, and mandatory document uploads
 - Admin document verification workflow
 - See ENHANCED_PROFILE_DOCUMENTATION.md for full details
+
+## PGN Sharing Feature (July 2025)
+
+- Teachers and admins can share PGN studies with any user (students or teachers).
+- Students cannot share PGNs, but can view those shared with them in the "Shared with Me" category.
+- Sharing is available via a modal with user search, batch selection, and permission level (view/edit).
+- Backend enforces role and ownership checks for security.
+- See `PGN_SHARING_FEATURE.md` for full details and API endpoints.

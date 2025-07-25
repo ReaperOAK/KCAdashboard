@@ -70,15 +70,16 @@ This section covers the interactive chess features including games, studies, cha
 | expires_at    | timestamp                                | YES  |     | NULL     |                |
 
 ### chess_draw_offers
-| Column        | Type                                     | Null | Key | Default  | Extra          |
-|---------------|------------------------------------------|------|-----|----------|----------------|
-| id            | int(11)                                  | NO   | PRI | NULL     | auto_increment |
-| game_id       | int(11)                                  | NO   | MUL | NULL     |                |
-| offered_by_id | int(11)                                  | NO   | MUL | NULL     |                |
-| status        | enum('pending', 'accepted', 'declined', 'expired') | NO | | 'pending' |       |
-| created_at    | timestamp                                | YES  |     | CURRENT_TIMESTAMP |      |
-| expires_at    | timestamp                                | YES  |     | NULL     |                |
-| responded_at  | timestamp                                | YES  |     | NULL     |                |
+| Column               | Type                                     | Null | Key | Default  | Extra          |
+|----------------------|------------------------------------------|------|-----|----------|----------------|
+| id                   | int(11)                                  | NO   | PRI | NULL     | auto_increment |
+| game_id              | int(11)                                  | NO   | MUL | NULL     |                |
+| offered_by_id        | int(11)                                  | NO   | MUL | NULL     |                |
+| status               | enum('pending', 'accepted', 'declined', 'expired') | NO | | 'pending' |       |
+| move_number_when_offered | int(11)                              | NO   |     | NULL     |                |
+| created_at           | timestamp                                | YES  |     | CURRENT_TIMESTAMP |      |
+| expires_at           | timestamp                                | YES  |     | NULL     |                |
+| responded_at         | timestamp                                | YES  |     | NULL     |                |
 
 ### chess_practice_positions
 | Column       | Type                                     | Null | Key | Default | Extra          |

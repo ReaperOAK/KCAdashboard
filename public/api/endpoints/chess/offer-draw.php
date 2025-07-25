@@ -48,6 +48,55 @@ try {
 
     $game = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Get current move count for the game
+    $moveCountQuery = "SELECT COUNT(*) as move_count FROM chess_game_moves WHERE game_id = :game_id";
+    $moveCountStmt = $db->prepare($moveCountQuery);
+    $moveCountStmt->bindParam(':game_id', $gameId);
+    $moveCountStmt->execute();
+    $moveCountResult = $moveCountStmt->fetch(PDO::FETCH_ASSOC);
+    $currentMoveCount = $moveCountResult['move_count'];
+
+    // Check if user has already made 5 draw offers in this game
+    $offerCountQuery = "SELECT COUNT(*) as offer_count FROM chess_draw_offers 
+                       WHERE game_id = :game_id AND offered_by_id = :user_id";
+    $offerCountStmt = $db->prepare($offerCountQuery);
+    $offerCountStmt->bindParam(':game_id', $gameId);
+    $offerCountStmt->bindParam(':user_id', $user['id']);
+    $offerCountStmt->execute();
+    $offerCountResult = $offerCountStmt->fetch(PDO::FETCH_ASSOC);
+    $userOfferCount = $offerCountResult['offer_count'];
+
+    // Check if user has reached maximum draw offers (5)
+    if ($userOfferCount >= 5) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "You have reached the maximum of 5 draw offers per game"]);
+        exit;
+    }
+
+    // Get user's last draw offer move number to check 5-move rule
+    $lastOfferQuery = "SELECT move_number_when_offered FROM chess_draw_offers 
+                      WHERE game_id = :game_id AND offered_by_id = :user_id 
+                      ORDER BY created_at DESC LIMIT 1";
+    $lastOfferStmt = $db->prepare($lastOfferQuery);
+    $lastOfferStmt->bindParam(':game_id', $gameId);
+    $lastOfferStmt->bindParam(':user_id', $user['id']);
+    $lastOfferStmt->execute();
+
+    if ($lastOfferStmt->rowCount() > 0) {
+        $lastOffer = $lastOfferStmt->fetch(PDO::FETCH_ASSOC);
+        $movesSinceLastOffer = $currentMoveCount - $lastOffer['move_number_when_offered'];
+        
+        if ($movesSinceLastOffer < 5) {
+            $movesNeeded = 5 - $movesSinceLastOffer;
+            http_response_code(400);
+            echo json_encode([
+                "success" => false, 
+                "message" => "You must wait {$movesNeeded} more move(s) before offering another draw"
+            ]);
+            exit;
+        }
+    }
+
     // Check if there's already a pending draw offer for this game
     $existingOfferQuery = "SELECT id, offered_by_id FROM chess_draw_offers 
                           WHERE game_id = :game_id AND status = 'pending' 
@@ -116,12 +165,13 @@ try {
     }
 
     // Create new draw offer
-    $offerQuery = "INSERT INTO chess_draw_offers (game_id, offered_by_id, expires_at) 
-                   VALUES (:game_id, :user_id, DATE_ADD(NOW(), INTERVAL 5 MINUTE))";
+    $offerQuery = "INSERT INTO chess_draw_offers (game_id, offered_by_id, move_number_when_offered, expires_at) 
+                   VALUES (:game_id, :user_id, :move_number, DATE_ADD(NOW(), INTERVAL 5 MINUTE))";
     
     $offerStmt = $db->prepare($offerQuery);
     $offerStmt->bindParam(':game_id', $gameId);
     $offerStmt->bindParam(':user_id', $user['id']);
+    $offerStmt->bindParam(':move_number', $currentMoveCount);
     $offerStmt->execute();
 
     // Send notification to opponent

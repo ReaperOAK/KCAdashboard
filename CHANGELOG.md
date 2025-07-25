@@ -7,6 +7,14 @@
 
 # [Unreleased] - July 2025
 
+## Chess Draw Offers: Enhanced Rules & Restrictions (2025-01-25)
+- Enhanced: Draw offer system now enforces chess tournament rules
+- Added: 5-move restriction - players must wait 5 moves between draw offers
+- Added: Maximum 5 draw offers per player per game limit
+- Updated: Database schema with `move_number_when_offered` tracking
+- Improved: Backend validation with detailed error messages for rule violations
+- Updated: Documentation and database migration scripts
+
 ## Student Dashboard: Quick Links for Feedback & Report Cards (2025-07-25)
 - Added two new navigation cards to the Student Dashboard: "Feedback & Grading" and "Report Cards".
 - Students can now quickly access their feedback history and report cards directly from the dashboard.

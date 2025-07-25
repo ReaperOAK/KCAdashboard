@@ -5,6 +5,7 @@ This implementation adds the ability for players to offer and accept/decline dra
 ## Features
 
 - **Offer Draw**: Players can offer a draw to their opponent during an active game
+- **Move Restrictions**: Players can only offer a draw every 5 moves and maximum 5 times per game
 - **Accept/Decline**: Opponents can accept or decline draw offers
 - **Automatic Draw**: If both players have pending draw offers, the second offer automatically accepts the first
 - **Expiration**: Draw offers expire after 5 minutes if not responded to
@@ -26,6 +27,7 @@ CREATE TABLE chess_draw_offers (
   game_id int(11) NOT NULL,
   offered_by_id int(11) NOT NULL,
   status enum('pending', 'accepted', 'declined', 'expired') DEFAULT 'pending',
+  move_number_when_offered int(11) NOT NULL COMMENT 'Move number when the draw was offered',
   created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   expires_at timestamp NULL,
   responded_at timestamp NULL,
@@ -96,8 +98,10 @@ The system includes automatic cleanup of expired and old draw offers:
 
 ## Game Rules Compliance
 
-- Follows standard chess draw offer rules
+- Follows standard chess draw offer rules with additional restrictions
+- **5-move rule**: Players must wait 5 moves between draw offers
+- **Maximum 5 offers**: Each player can offer a draw maximum 5 times per game
 - Only one pending offer per game per player
-- Offers can be made at any time during active games
+- Offers can be made at any time during active games (subject to move restrictions)
 - Automatic acceptance when both players have offered draws
 - Proper result recording (1/2-1/2) for rating calculations

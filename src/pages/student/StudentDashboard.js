@@ -3,7 +3,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { AnalyticsApi } from '../../api/analytics';
 import { motion } from 'framer-motion';
-import { UserCircleIcon, AcademicCapIcon, TrophyIcon, CalendarDaysIcon, ChartBarIcon, FireIcon, ArrowPathIcon, ExclamationCircleIcon, CheckCircleIcon, PuzzlePieceIcon } from '@heroicons/react/24/solid';
+import { useNavigate } from 'react-router-dom';
+import { UserCircleIcon, AcademicCapIcon, TrophyIcon, CalendarDaysIcon, ChartBarIcon, FireIcon, ArrowPathIcon, ExclamationCircleIcon, CheckCircleIcon, PuzzlePieceIcon, DocumentTextIcon, StarIcon } from '@heroicons/react/24/solid';
 
 // Loading spinner (accessible, reusable)
 const LoadingSpinner = React.memo(() => (
@@ -88,6 +89,43 @@ const ActivityBadge = React.memo(({ type }) => {
   );
 });
 
+// Navigation card (clickable, animated)
+const NavigationCard = React.memo(({ title, description, icon: Icon, route, onClick }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 16 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4, type: 'spring' }}
+    className="bg-background-light dark:bg-background-dark border border-gray-light shadow-md rounded-2xl p-6 cursor-pointer hover:shadow-lg hover:border-accent/50 transition-all duration-200 group"
+    onClick={onClick}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick();
+      }
+    }}
+    aria-label={`Navigate to ${title}`}
+  >
+    <div className="flex items-center gap-4">
+      <div className="bg-accent/10 p-3 rounded-full group-hover:bg-accent/20 transition-colors duration-200">
+        <Icon className="h-8 w-8 text-accent" aria-hidden="true" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-lg font-semibold text-primary group-hover:text-accent transition-colors duration-200">
+          {title}
+        </h3>
+        <p className="text-sm text-gray-dark mt-1">{description}</p>
+      </div>
+      <div className="text-accent/60 group-hover:text-accent transition-colors duration-200">
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </div>
+  </motion.div>
+));
+
 // Recent activities list (memoized, animated)
 const RecentActivities = React.memo(({ activities }) => (
   <motion.div
@@ -121,6 +159,7 @@ const RecentActivities = React.memo(({ activities }) => (
 // Main dashboard component
 export const StudentDashboard = React.memo(() => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalClasses: 0,
     attendance: '0%',
@@ -255,6 +294,25 @@ export const StudentDashboard = React.memo(() => {
             <StatCard key={card.title} title={card.title} value={card.value} iconIdx={idx + 4}>{card.children}</StatCard>
           ))}
         </div>
+        
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">
+          <NavigationCard
+            title="Feedback & Grading"
+            description="View feedback on your assignments and quiz grades"
+            icon={StarIcon}
+            route="/student/feedback-history"
+            onClick={() => navigate('/student/feedback-history')}
+          />
+          <NavigationCard
+            title="Report Cards"
+            description="Access your academic performance reports"
+            icon={DocumentTextIcon}
+            route="/student/report-card"
+            onClick={() => navigate('/student/report-card')}
+          />
+        </div>
+        
         {/* Recent Activities */}
         {recentActivities.length > 0 && (
           <div className="mt-6 sm:mt-8">

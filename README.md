@@ -33,6 +33,10 @@ To prevent performance issues and application hanging, PGN uploads are now limit
 ## 🟢 July 2025 Update: Grading Workflow & Pending Grading Modal Fix
 
 
+## 🆕 July 2025: Student Dashboard Quick Links
+The Student Dashboard now features prominent navigation cards for "Feedback & Grading" and "Report Cards". These cards provide students with one-click access to their feedback history and academic performance reports, improving discoverability and navigation. The cards are fully accessible, responsive, and follow the KCA design system.
+
+
 
 ## 🟢 July 2025: Teacher Dashboard React Key Bugfix & List Rendering Robustness
 

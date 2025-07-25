@@ -7,6 +7,11 @@
 
 # [Unreleased] - July 2025
 
+## Student Dashboard: Quick Links for Feedback & Report Cards (2025-07-25)
+- Added two new navigation cards to the Student Dashboard: "Feedback & Grading" and "Report Cards".
+- Students can now quickly access their feedback history and report cards directly from the dashboard.
+- Cards are accessible, keyboard-navigable, and responsive, following the KCA design system and accessibility guidelines.
+
 ## Authentication UX: Show/Hide Password Toggle (2025-07-24)
 - Added show/hide password toggle to Login, Register, and Reset Password forms for improved usability.
 - Introduced reusable `PasswordInput` and `FormikPasswordField` components for consistent password field UX across the app.

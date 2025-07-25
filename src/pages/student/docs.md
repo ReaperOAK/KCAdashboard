@@ -68,6 +68,9 @@ pages/student/
 - **StudentDashboard.js**  
   The main dashboard for students, summarizing upcoming events, recent activity, and quick links.
 
+  **July 2025 Update:**
+  - Added accessible navigation cards for "Feedback & Grading" and "Report Cards". These cards provide one-click access to feedback history and academic performance, and are fully responsive and keyboard-navigable.
+
 - **TournamentsPage.js**  
   Interface for viewing and joining chess tournaments, with schedules and results.
 

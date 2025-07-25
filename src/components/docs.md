@@ -38,6 +38,7 @@ KCAdashboard includes modular, single-responsibility React components for:
 - Tournaments (see `tournaments/`)
 - User management (see `user-management/`)
 - Classroom management (see `classroom/`)
+- Student dashboard quick links (see `pages/student/StudentDashboard.js`): Accessible navigation cards for Feedback & Grading and Report Cards
 - Resource center (see `resourcecenter/`)
 - Notifications (see `../NotificationBell.js` and `../../pages/notifications/`)
 
